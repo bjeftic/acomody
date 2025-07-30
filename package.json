@@ -25,6 +25,8 @@
     "dependencies": {
         "@vicons/ionicons5": "^0.13.0",
         "@vueuse/core": "^13.6.0",
-        "class-variance-authority": "^0.7.1"
+        "class-variance-authority": "^0.7.1",
+        "vue-router": "^4.5.1",
+        "vuex": "^4.0.2"
     }
 }
