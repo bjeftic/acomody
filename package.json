@@ -8,7 +8,6 @@
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.10",
-        "@tailwindcss/vite": "^4.1.11",
         "@vicons/ionicons4": "^0.13.0",
         "@vitejs/plugin-vue": "^6.0.1",
         "autoprefixer": "^10.4.21",
@@ -18,7 +17,6 @@
         "naive-ui": "^2.42.0",
         "postcss": "^8.5.6",
         "tailwindcss": "^4.1.11",
-        "vfonts": "^0.0.3",
         "vite": "^7.0.4",
         "vue": "^3.5.18"
     },
