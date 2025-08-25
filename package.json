@@ -8,10 +8,12 @@
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.10",
+        "@tailwindcss/postcss": "^4.1.11",
         "@vicons/ionicons4": "^0.13.0",
+        "@vicons/material": "^0.13.0",
         "@vitejs/plugin-vue": "^6.0.1",
         "autoprefixer": "^10.4.21",
-        "axios": "^1.8.2",
+        "axios": "^1.11.0",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^2.0.0",
         "naive-ui": "^2.42.0",
@@ -21,6 +23,7 @@
         "vue": "^3.5.18"
     },
     "dependencies": {
+        "@tailwindcss/vite": "^4.1.11",
         "@vicons/ionicons5": "^0.13.0",
         "@vueuse/core": "^13.6.0",
         "class-variance-authority": "^0.7.1",

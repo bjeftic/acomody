@@ -7,7 +7,7 @@ const routes = [
     {
         path: '/',
         name: 'page-welcome',
-        component: () => import('@/views/Welcome.vue'),
+        component: () => import('@/src/welcome/Welcome.vue'),
         // children: [
         //     {
         //         path: 'home',
@@ -21,7 +21,7 @@ const routes = [
     {
         path: '/:pathMatch(.*)*',
         name: 'page-not-found',
-        component: () => import('@/views/Page404.vue'),
+        component: () => import('@/src/Page404.vue'),
     },
 ];
 

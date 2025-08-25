@@ -13,10 +13,34 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            $table->string('email_verification_token')->nullable()->after('email_verified_at');
+            $table->timestamp('email_verification_token_expires_at')->nullable()->after('email_verification_token');
+            // Account status and security
+            $table->enum('status', ['active', 'inactive', 'suspended', 'deactivated'])->default('active')->after('email_verification_token_expires_at');
+            $table->timestamp('last_login_at')->nullable()->after('status');
+            $table->ipAddress('last_login_ip')->nullable()->after('last_login_at');
+            $table->text('last_login_user_agent')->nullable()->after('last_login_ip');
+            $table->ipAddress('registration_ip')->nullable()->after('last_login_user_agent');
+
+            // Privacy and terms
+            $table->timestamp('terms_accepted_at')->nullable()->after('registration_ip');
+            $table->timestamp('privacy_policy_accepted_at')->nullable()->after('terms_accepted_at');
+            $table->boolean('newsletter_subscription')->default(false)->after('privacy_policy_accepted_at');
+
+            // Account management
+            $table->timestamp('password_changed_at')->nullable()->after('newsletter_subscription');
+            $table->timestamp('deactivated_at')->nullable()->after('password_changed_at');
+            $table->string('deactivation_reason')->nullable()->after('deactivated_at');
+
+            // Indexes for performance
+            $table->index(['status', 'created_at']);
+            $table->index('last_login_at');
+            $table->index('email_verification_token');
+
             $table->boolean('is_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();

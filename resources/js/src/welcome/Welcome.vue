@@ -5,9 +5,10 @@
 </template>
 
 <script>
-import Searchbar from "@/components/Searchbar.vue";
-import DestinationsGrid from "@/components/DestinationsGrid.vue";
-import RecomendedAccommodations from "@/components/RecomendedAccommodations.vue";
+import { mapActions } from "vuex";
+import Searchbar from "@/src/welcome/components/Searchbar.vue";
+import DestinationsGrid from "@/src/welcome/components/DestinationsGrid.vue";
+import RecomendedAccommodations from "@/src/welcome/components/RecomendedAccommodations.vue";
 export default {
     components: {
         Searchbar,

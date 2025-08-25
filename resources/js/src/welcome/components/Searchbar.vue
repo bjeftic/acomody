@@ -9,6 +9,8 @@
           <div class="search-field destination-field">
             <label class="field-label">Gde idete?</label>
             <n-select
+              round
+              strong
               v-model:value="searchForm.destination"
               placeholder="Destinacija ili smeštaj"
               :options="destinationOptions"
@@ -144,6 +146,7 @@
           <!-- Search button -->
           <div class="search-button-container">
             <n-button
+              round
               type="primary"
               size="large"
               @click="handleSearch"
@@ -155,7 +158,7 @@
                   <SearchIcon />
                 </n-icon>
               </template>
-              Pretražite
+              Search
             </n-button>
           </div>
         </div>
