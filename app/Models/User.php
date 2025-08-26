@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Notifications\ResetPasswordNotification;
 
 /**
  * @OA\Schema(
@@ -90,5 +91,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function userProfile(): HasOne
     {
         return $this->hasOne(UserProfile::class);
+    }
+    
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

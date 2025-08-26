@@ -19,6 +19,11 @@ const routes = [
         // ],
     },
     {
+        path: '/reset-password',
+        name: 'page-reset-password',
+        component: () => import('@/src/auth/ResetPassword.vue'),
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'page-not-found',
         component: () => import('@/src/Page404.vue'),

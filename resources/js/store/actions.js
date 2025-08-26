@@ -8,15 +8,17 @@ export const getCsrfCookie = async () => {
 
 export const initializeAuth = async ({ commit, dispatch, getters }) => {
     try {
-        if (typeof window !== 'undefined' && window.initialAuthState) {
-            if (window.initialAuthState.isAuthenticated && window.initialAuthState.user) {
-                commit('SET_USER', window.initialAuthState.user);
+        if (typeof window !== "undefined" && window.initialAuthState) {
+            if (
+                window.initialAuthState.isAuthenticated &&
+                window.initialAuthState.user
+            ) {
+                commit("SET_USER", window.initialAuthState.user);
                 return;
             }
         }
 
         await dispatch("fetchUser");
-        
     } catch (error) {
         //
     } finally {
@@ -67,30 +69,54 @@ export const signUp = async ({}, { email, password, confirmPassword }) => {
     }
 };
 
-export const logIn = async ({ commit, dispatch }, { email, password, rememberMe }) => {
-  try {
-    commit(types.CLEAR_AUTH)
+export const logIn = async (
+    { commit, dispatch },
+    { email, password, rememberMe }
+) => {
+    try {
+        commit(types.CLEAR_AUTH);
 
-    await axios.post("/log-in", {
-      email,
-      password,
-      remember_me: rememberMe
-    }).then((response) => {
-      if (response.data.success) {
-        commit('SET_AUTHENTICATED', true)
-        dispatch('fetchUser')
-        return Promise.resolve(response)
-      } else {
-        return Promise.reject(
-          new Error(response.error?.message || 'Login failed')
-        )
-      }
-    })
-  } catch (error) {
-    console.error('Login failed:', error)
-    return Promise.reject(error)
-  }
-}
+        await axios
+            .post("/log-in", {
+                email,
+                password,
+                remember_me: rememberMe,
+            })
+            .then((response) => {
+                if (response.data.success) {
+                    commit("SET_AUTHENTICATED", true);
+                    dispatch("fetchUser");
+                    return Promise.resolve(response);
+                } else {
+                    return Promise.reject(
+                        new Error(response.error?.message || "Login failed")
+                    );
+                }
+            });
+    } catch (error) {
+        console.error("Login failed:", error);
+        return Promise.reject(error);
+    }
+};
+
+export const forgotPassword = async ({}, email) => {
+    try {
+        apiClient.passwordReset
+            .noAuth()
+            .post(email)
+            .then((response) => {
+                if (response.success) {
+                    return Promise.resolve(response);
+                }
+                return Promise.reject(response);
+            })
+            .catch((error) => {
+                return Promise.reject(error);
+            });
+    } catch (error) {
+        return Promise.reject(error);
+    }
+};
 
 export const logOut = async ({ commit, rootState }) => {
     try {

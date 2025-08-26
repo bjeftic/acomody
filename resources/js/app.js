@@ -8,6 +8,8 @@ import App from './App.vue'
 
 const { message } = createDiscreteApi(["message"]);
 
+import FormWrapper from '@/src/layouts/FormWrapper.vue';
+
 import {
     NLayout,
     NLayoutHeader,
@@ -30,6 +32,7 @@ import {
 
 const app = createApp(App)
 
+app.component("FormWrapper", FormWrapper);
 app.component("NLayout", NLayout);
 app.component("NLayoutHeader", NLayoutHeader);
 app.component("NLayoutContent", NLayoutContent);

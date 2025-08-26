@@ -7,7 +7,7 @@
         size="huge"
         @close="close"
     >
-        <n-p>Please enter your email address to reset your password</n-p>
+        <n-p>Please enter your email address to reset your password, and we'll email you a link to reset your password.</n-p>
         <n-form
             ref="formRef"
             :model="formData"
@@ -124,7 +124,7 @@ export default {
             this.clearMessage();
             await this.$refs.formRef.validate();
             this.isLoading = true;
-            await this.forgotPassword(this.formData)
+            await this.forgotPassword({ email: this.formData.email })
                 .then(() => {
                     this.close();
                 })

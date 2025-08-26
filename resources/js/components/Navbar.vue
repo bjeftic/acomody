@@ -2,28 +2,18 @@
     <div>
         <n-layout>
             <n-layout-header
-                style="
-                    height: 64px;
-                    max-width: 1200px;
-                    padding: 0 24px;
-                    margin: auto;
-                "
+                class="h-16 m-auto"
             >
                 <div
-                    style="
-                        display: flex;
-                        align-items: center;
-                        height: 100%;
-                        justify-content: space-between;
-                    "
+                    class="flex items-center justify-between h-full"
                 >
                     <!-- Logo/Brand -->
-                    <div style="display: flex; align-items: center">
-                        <h3 style="margin: 0; color: #18a058">TuristApp</h3>
+                    <div class="flex items-center">
+                        <h3 class="m-0 text-[#18a058]">TuristApp</h3>
                     </div>
 
                     <!-- Navigation Items -->
-                    <div style="display: flex; align-items: center; gap: 24px">
+                    <div class="flex items-center gap-6">
                         <n-button strong secondary type="primary" size="large">
                             <template #icon>
                                 <n-icon>
@@ -42,7 +32,7 @@
                             <n-button strong text size="large">
                                 Destinations
                                 <template #icon>
-                                    <n-icon style="margin-left: 4px">
+                                    <n-icon class="ml-1">
                                         <ChevronDownIcon />
                                     </n-icon>
                                 </template>
@@ -88,7 +78,7 @@
                                 <n-button strong text size="large">
                                     Destinations
                                     <template #icon>
-                                        <n-icon style="margin-left: 4px">
+                                        <n-icon class="ml-1">
                                             <ChevronDownIcon />
                                         </n-icon>
                                     </template>
