@@ -93,9 +93,9 @@
                         size="large"
                         block
                         :loading="isLoading"
-                        @click="handleGoToWelcomePage"
+                        @click="openLogInModal"
                     >
-                        Go to home page
+                        Go to log in
                     </n-button>
             </div>
         </template>
@@ -158,7 +158,7 @@ export default {
         };
     },
     methods: {
-        ...mapActions(["resetPassword"]),
+        ...mapActions(["resetPassword", "openModal"]),
         async handleResetPassword() {
             await this.$refs.formRef.validate();
             this.isLoading = true;
@@ -174,8 +174,10 @@ export default {
                     this.restarted = true;
                 });
         },
-        handleGoToWelcomePage() {
-            this.$router.push({ name: "page-welcome" });
+        openLogInModal() {
+            this.openModal({
+                modalName: "logInModal",
+            });
         },
     },
 };
