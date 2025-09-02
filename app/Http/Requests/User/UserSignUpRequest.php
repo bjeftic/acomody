@@ -3,10 +3,17 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * @OA\Schema(
+ *     title="UserSignUpRequest",
+ *     description="User sign up request",
+ *     @OA\Property(property="email", type="string", format="email", example="john.smith@example.com"),
+ *     @OA\Property(property="password", type="string", format="password", example="password123"),
+ *     @OA\Property(property="confirm_password", type="string", format="password", example="password123")
+ * )
+ */
 class UserSignUpRequest extends FormRequest
 {
     public function authorize(): bool
@@ -54,18 +61,6 @@ class UserSignUpRequest extends FormRequest
             'confirm_password.required' => 'Please confirm your password.',
             'confirm_password.same' => 'Passwords do not match.',
         ];
-    }
-
-    protected function failedValidation(Validator $validator)
-    {
-        throw new HttpResponseException(
-            response()->json([
-                'success' => false,
-                'message' => 'The given data was invalid.',
-                'errors' => $validator->errors(),
-                'error_code' => 'VALIDATION_FAILED'
-            ], 422)
-        );
     }
 
     protected function prepareForValidation()

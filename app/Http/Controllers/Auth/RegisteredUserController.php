@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-UserPasswordResetRequestUserSignUpRequest;
+use App\Http\Requests\User\UserSignUpRequest;
+use App\Http\Support\ApiResponse;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Exception;
 use Illuminate\Auth\Events\Registered;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class RegisteredUserController extends Controller
 {
@@ -35,12 +37,7 @@ class RegisteredUserController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         description="User registration data",
-     *         @OA\JsonContent(
-     *             required={"email","password","terms_accepted_at","privacy_policy_accepted_at"},
-     *             @OA\Property(property="email", type="string", format="email", maxLength=255, example="john.smith@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", minLength=8, example="SecurePass123!"),
-     *             @OA\Property(property="confirm_password", type="string", format="password", minLength=8, example="SecurePass123!"),
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UserSignUpRequest")
      *     ),
      *     @OA\Response(
      *         response=201,
@@ -48,16 +45,6 @@ class RegisteredUserController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="User registered successfully. Please check your email to verify your account."),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 @OA\Property(property="user_id", type="integer", example=123),
-     *                 @OA\Property(property="email", type="string", example="john.smith@example.com"),
-     *                 @OA\Property(property="email_verified_at", type="string", nullable=true, example=null),
-     *                 @OA\Property(property="terms_accepted_at", type="string", format="date-time", example="2025-07-31T10:30:00.000000Z"),
-     *                 @OA\Property(property="privacy_policy_accepted_at", type="string", format="date-time", example="2025-07-31T10:30:00.000000Z"),
-     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2025-07-31T10:30:00.000000Z")
-     *             ),
      *             @OA\Property(
      *                 property="meta",
      *                 type="object",
@@ -81,6 +68,17 @@ class RegisteredUserController extends Controller
      *               )
      *           )
      *       ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation failed",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="error",
+     *                  ref="#/components/schemas/ValidationErrorResponse"
+     *              )
+     *          )
+     *      ),
      *     @OA\Response(
      *         response=429,
      *         description="Too many registration attempts",
@@ -102,11 +100,7 @@ class RegisteredUserController extends Controller
             $attempts = cache()->get($rateLimitKey, 0);
 
             if ($attempts >= config('auth.registration_rate_limit', 5)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Too many registration attempts. Please try again later.',
-                    'retry_after' => 300
-                ], 429);
+                return ApiResponse::rateLimitExceeded('Too many registration attempts. Please try again later.', 300);
             }
 
             // Increment rate limit counter
@@ -144,23 +138,17 @@ class RegisteredUserController extends Controller
             // Clear rate limit on successful registration
             cache()->forget($rateLimitKey);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User registered successfully. Please check your email to verify your account.',
-                'data' => [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
-                    'email_verified_at' => $user->email_verified_at,
-                    'terms_accepted_at' => $user->terms_accepted_at,
-                    'privacy_policy_accepted_at' => $user->privacy_policy_accepted_at,
-                    'created_at' => $user->created_at->toISOString(),
-                ],
-                'meta' => [
-                    'verification_required' => true,
-                    'login_enabled' => false,
-                    'verification_expires_at' => now()->addHours(24)->toISOString()
-                ]
-            ], 201);
+            $meta = [
+                'verification_required' => true,
+                'login_enabled' => false,
+                'verification_expires_at' => now()->addHours(24)->toISOString()
+            ];
+
+            return ApiResponse::success(
+                'User registered successfully. Please check your email to verify your account.',
+                null,
+                $meta
+            );
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -172,11 +160,7 @@ class RegisteredUserController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Registration failed. Please try again later.',
-                'error_code' => 'REGISTRATION_FAILED'
-            ], 500);
+            throw new HttpException(500, 'Registration failed. Please try again later.');
         }
     }
 }

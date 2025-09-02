@@ -87,16 +87,19 @@
                 </n-form>
             </div>
             <div v-else>
-                <n-p>Password reset successfully! Please log in with your new password.</n-p>
+                <n-p
+                    >Password reset successfully! Please log in with your new
+                    password.</n-p
+                >
                 <n-button
-                        type="primary"
-                        size="large"
-                        block
-                        :loading="isLoading"
-                        @click="openLogInModal"
-                    >
-                        Go to log in
-                    </n-button>
+                    type="primary"
+                    size="large"
+                    block
+                    :loading="isLoading"
+                    @click="openLogInModal"
+                >
+                    Go to log in
+                </n-button>
             </div>
         </template>
     </form-wrapper>
@@ -145,12 +148,18 @@ export default {
                 ],
             };
         },
+        resetToken() {
+            return this.$route.query.token ?? null;
+        },
+        resetEmail() {
+            return this.$route.query.email ?? null;
+        },
     },
     data() {
         return {
             formData: {
                 password: "",
-                password_confirmation: "",
+                confirmPassword: "",
             },
             isLoading: false,
             resetPasswordErrors: {},
@@ -162,9 +171,14 @@ export default {
         async handleResetPassword() {
             await this.$refs.formRef.validate();
             this.isLoading = true;
-            this.resetPassword(this.formData)
-                .then(() => {
-                    this.$message.success("Password reset successfully");
+            this.resetPassword({
+                email: this.resetEmail,
+                password: this.formData.password,
+                confirmPassword: this.formData.confirmPassword,
+                token: this.resetToken,
+            })
+                .then((response) => {
+                    console.log('TEST');
                 })
                 .catch((error) => {
                     this.resetPasswordErrors = error.response.data.errors;

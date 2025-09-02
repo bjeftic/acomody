@@ -6,6 +6,15 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
+/**
+ * Class UserPasswordResetRequest
+ *
+ * @OA\Schema(
+ *     title="UserPasswordResetRequest",
+ *     description="User password reset request",
+ *     @OA\Property(property="email", type="string", format="email", example="john.smith@example.com"),
+ * )
+ */
 class UserPasswordResetRequest extends FormRequest
 {
     public function authorize(): bool
@@ -32,18 +41,6 @@ class UserPasswordResetRequest extends FormRequest
             'email.email' => 'Please provide a valid email address.',
             'email.regex' => 'Please provide a valid email format.',
         ];
-    }
-
-    protected function failedValidation(Validator $validator)
-    {
-        throw new HttpResponseException(
-            response()->json([
-                'success' => false,
-                'message' => 'The given data was invalid.',
-                'errors' => $validator->errors(),
-                'error_code' => 'VALIDATION_FAILED'
-            ], 422)
-        );
     }
 
     protected function prepareForValidation()

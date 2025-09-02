@@ -13,7 +13,7 @@ Route::group(['middleware' => ['guest']], function () {
         ->name('signup');
     Route::post('/log-in', [AuthenticatedSessionController::class, 'storeApi'])
         ->name('login.api');
-    Route::post('/password-reset', [PasswordResetLinkController::class, 'store'])
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
     Route::post('/reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');

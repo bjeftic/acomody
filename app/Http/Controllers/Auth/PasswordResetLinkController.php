@@ -22,16 +22,7 @@ class PasswordResetLinkController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         description="Email address for password reset",
-     *         @OA\JsonContent(
-     *             required={"email"},
-     *             @OA\Property(
-     *                 property="email",
-     *                 type="string",
-     *                 format="email",
-     *                 example="user@example.com",
-     *                 description="Valid email address"
-     *             )
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UserPasswordResetRequest")
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -72,30 +63,17 @@ class PasswordResetLinkController extends Controller
      *             )
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error or password reset failed",
-     *         @OA\JsonContent(
-     *             @OA\Property(
-     *                 property="message",
-     *                 type="string",
-     *                 example="The given data was invalid."
-     *             ),
-     *             @OA\Property(
-     *                 property="errors",
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="email",
-     *                     type="array",
-     *                     @OA\Items(
-     *                         type="string",
-     *                         example="The email field is required."
-     *                     ),
-     *                     description="Email validation errors"
-     *                 )
-     *             )
-     *         )
-     *     ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation failed",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="error",
+     *                  ref="#/components/schemas/ValidationErrorResponse"
+     *              )
+     *          )
+     *      ),
      *     @OA\Response(
      *         response=429,
      *         description="Too many password reset attempts",
@@ -114,29 +92,6 @@ class PasswordResetLinkController extends Controller
      *                     @OA\Items(
      *                         type="string",
      *                         example="Please wait before retrying."
-     *                     )
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Internal server error",
-     *         @OA\JsonContent(
-     *             @OA\Property(
-     *                 property="message",
-     *                 type="string",
-     *                 example="The given data was invalid."
-     *             ),
-     *             @OA\Property(
-     *                 property="errors",
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="email",
-     *                     type="array",
-     *                     @OA\Items(
-     *                         type="string",
-     *                         example="Failed to send reset link. Please try again later."
      *                     )
      *                 )
      *             )

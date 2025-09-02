@@ -29,29 +29,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "maxLength": 255,
-                                        "example": "john.smith@example.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "minLength": 8,
-                                        "example": "SecurePass123!"
-                                    },
-                                    "remember_me": {
-                                        "type": "boolean",
-                                        "example": false
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/UserLogInRequest"
                             }
                         }
                     }
@@ -73,27 +51,26 @@
                                         },
                                         "data": {
                                             "properties": {
-                                                "token": {
-                                                    "type": "string",
-                                                    "example": "2|abcdef123456789..."
-                                                },
-                                                "expires_at": {
-                                                    "type": "string",
-                                                    "format": "date-time",
-                                                    "example": "2025-08-21T14:30:00.000000Z"
+                                                "": {
+                                                    "$ref": "#/components/schemas/UserResource"
                                                 }
                                             },
                                             "type": "object"
                                         },
                                         "meta": {
                                             "properties": {
-                                                "token_type": {
+                                                "login_at": {
                                                     "type": "string",
-                                                    "example": "Bearer"
+                                                    "format": "date-time",
+                                                    "example": "2025-08-31T21:47:00.911232Z"
                                                 },
-                                                "remember_me": {
-                                                    "type": "boolean",
-                                                    "example": false
+                                                "ip_address": {
+                                                    "type": "string",
+                                                    "example": "172.19.0.1"
+                                                },
+                                                "user_agent": {
+                                                    "type": "string",
+                                                    "example": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
                                                 }
                                             },
                                             "type": "object"
@@ -104,38 +81,14 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "Invalid input data",
+                    "422": {
+                        "description": "Validation failed",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The given data was invalid."
-                                        },
-                                        "errors": {
-                                            "properties": {
-                                                "email": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "Email address is required."
-                                                    }
-                                                },
-                                                "password": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "Password is required."
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
+                                        "error": {
+                                            "$ref": "#/components/schemas/ValidationErrorResponse"
                                         }
                                     },
                                     "type": "object"
@@ -149,17 +102,8 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Invalid email or password."
-                                        },
-                                        "error_code": {
-                                            "type": "string",
-                                            "example": "INVALID_CREDENTIALS"
+                                        "error": {
+                                            "$ref": "#/components/schemas/AuthenticationErrorResponse"
                                         }
                                     },
                                     "type": "object"
@@ -180,10 +124,6 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Too many login attempts. Please try again later."
-                                        },
-                                        "retry_after": {
-                                            "type": "integer",
-                                            "example": 900
                                         }
                                     },
                                     "type": "object"
@@ -265,46 +205,13 @@
                         }
                     },
                     "401": {
-                        "description": "User not authenticated",
+                        "description": "Authentication failed",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        },
-                                        "error_code": {
-                                            "type": "string",
-                                            "example": "UNAUTHENTICATED"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server error during logout",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Logout failed. Please try again later."
-                                        },
-                                        "error_code": {
-                                            "type": "string",
-                                            "example": "LOGOUT_FAILED"
+                                        "error": {
+                                            "$ref": "#/components/schemas/AuthenticationErrorResponse"
                                         }
                                     },
                                     "type": "object"
@@ -316,6 +223,96 @@
                 "security": [
                     {
                         "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/reset-password": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Reset user password",
+                "description": "Reset user password using a valid token received via email. Token can only be used once.",
+                "operationId": "resetPassword",
+                "requestBody": {
+                    "description": "Password reset data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NewPasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Password reset successfully."
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ValidationErrorResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid password provided."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "throttle": [
+                            "password-reset"
+                        ]
                     }
                 ]
             }
@@ -334,18 +331,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "description": "Valid email address",
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "user@example.com"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/UserPasswordResetRequest"
                             }
                         }
                     }
@@ -395,27 +381,13 @@
                         }
                     },
                     "422": {
-                        "description": "Validation error or password reset failed",
+                        "description": "Validation failed",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The given data was invalid."
-                                        },
-                                        "errors": {
-                                            "properties": {
-                                                "email": {
-                                                    "description": "Email validation errors",
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "The email field is required."
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
+                                        "error": {
+                                            "$ref": "#/components/schemas/ValidationErrorResponse"
                                         }
                                     },
                                     "type": "object"
@@ -450,34 +422,6 @@
                                 }
                             }
                         }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The given data was invalid."
-                                        },
-                                        "errors": {
-                                            "properties": {
-                                                "email": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "example": "Failed to send reset link. Please try again later."
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -496,33 +440,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "password",
-                                    "terms_accepted_at",
-                                    "privacy_policy_accepted_at"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "maxLength": 255,
-                                        "example": "john.smith@example.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "minLength": 8,
-                                        "example": "SecurePass123!"
-                                    },
-                                    "confirm_password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "minLength": 8,
-                                        "example": "SecurePass123!"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/UserSignUpRequest"
                             }
                         }
                     }
@@ -541,39 +459,6 @@
                                         "message": {
                                             "type": "string",
                                             "example": "User registered successfully. Please check your email to verify your account."
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "user_id": {
-                                                    "type": "integer",
-                                                    "example": 123
-                                                },
-                                                "email": {
-                                                    "type": "string",
-                                                    "example": "john.smith@example.com"
-                                                },
-                                                "email_verified_at": {
-                                                    "type": "string",
-                                                    "example": null,
-                                                    "nullable": true
-                                                },
-                                                "terms_accepted_at": {
-                                                    "type": "string",
-                                                    "format": "date-time",
-                                                    "example": "2025-07-31T10:30:00.000000Z"
-                                                },
-                                                "privacy_policy_accepted_at": {
-                                                    "type": "string",
-                                                    "format": "date-time",
-                                                    "example": "2025-07-31T10:30:00.000000Z"
-                                                },
-                                                "created_at": {
-                                                    "type": "string",
-                                                    "format": "date-time",
-                                                    "example": "2025-07-31T10:30:00.000000Z"
-                                                }
-                                            },
-                                            "type": "object"
                                         },
                                         "meta": {
                                             "properties": {
@@ -652,6 +537,21 @@
                             }
                         }
                     },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/components/schemas/ValidationErrorResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "429": {
                         "description": "Too many registration attempts",
                         "content": {
@@ -705,32 +605,7 @@
                                         "data": {
                                             "properties": {
                                                 "user": {
-                                                    "properties": {
-                                                        "user_id": {
-                                                            "type": "integer",
-                                                            "example": 123
-                                                        },
-                                                        "email": {
-                                                            "type": "string",
-                                                            "example": "john.smith@example.com"
-                                                        },
-                                                        "email_verified_at": {
-                                                            "type": "string",
-                                                            "format": "date-time",
-                                                            "example": "2025-07-31T10:30:00.000000Z"
-                                                        },
-                                                        "created_at": {
-                                                            "type": "string",
-                                                            "format": "date-time",
-                                                            "example": "2025-01-15T08:00:00.000000Z"
-                                                        },
-                                                        "updated_at": {
-                                                            "type": "string",
-                                                            "format": "date-time",
-                                                            "example": "2025-08-14T14:30:00.000000Z"
-                                                        }
-                                                    },
-                                                    "type": "object"
+                                                    "$ref": "#/components/schemas/UserResource"
                                                 }
                                             },
                                             "type": "object"
@@ -759,46 +634,13 @@
                         }
                     },
                     "401": {
-                        "description": "User not authenticated",
+                        "description": "Authentication failed",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        },
-                                        "error_code": {
-                                            "type": "string",
-                                            "example": "UNAUTHENTICATED"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server error retrieving user profile",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Failed to retrieve user profile. Please try again later."
-                                        },
-                                        "error_code": {
-                                            "type": "string",
-                                            "example": "PROFILE_RETRIEVAL_FAILED"
+                                        "error": {
+                                            "$ref": "#/components/schemas/AuthenticationErrorResponse"
                                         }
                                     },
                                     "type": "object"
@@ -817,6 +659,226 @@
     },
     "components": {
         "schemas": {
+            "AuthenticationErrorResponse": {
+                "properties": {
+                    "type": {
+                        "description": "Handle authentication exceptions",
+                        "type": "string",
+                        "example": "AuthenticationException"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 401
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Authentication required. Please provide valid credentials."
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-31T21:42:22.605343Z"
+                    }
+                },
+                "type": "object"
+            },
+            "AuthorizationErrorResponse": {
+                "properties": {
+                    "type": {
+                        "description": "Handle authorization exceptions",
+                        "type": "string",
+                        "example": "AuthorizationException"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 403
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "You do not have permission to perform this action."
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-31T21:42:22.605343Z"
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationErrorResponse": {
+                "properties": {
+                    "type": {
+                        "description": "Handle validation exceptions",
+                        "type": "string",
+                        "example": "ValidationException"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 422
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "The provided data is invalid."
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-31T21:42:22.605343Z"
+                    },
+                    "validation_errors": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "field": {
+                                    "description": "The name of the field that caused the validation error.",
+                                    "type": "string",
+                                    "example": "any_field_name"
+                                },
+                                "message": {
+                                    "description": "The validation error message associated with the field.",
+                                    "type": "string",
+                                    "example": "This field is required."
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "NewPasswordRequest": {
+                "required": [
+                    "token",
+                    "email",
+                    "password",
+                    "password_confirmation"
+                ],
+                "properties": {
+                    "token": {
+                        "description": "Password reset token",
+                        "type": "string",
+                        "example": "abc123def456"
+                    },
+                    "email": {
+                        "description": "User email",
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.smith@example.com"
+                    },
+                    "password": {
+                        "description": "New password",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8,
+                        "example": "newPassword123"
+                    },
+                    "password_confirmation": {
+                        "description": "Confirm new password",
+                        "type": "string",
+                        "format": "password",
+                        "example": "newPassword123"
+                    }
+                },
+                "type": "object"
+            },
+            "UserLogInRequest": {
+                "title": "UserLogInRequest",
+                "description": "User login request",
+                "properties": {
+                    "email": {
+                        "description": "Class UserLogInRequest",
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.smith@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    },
+                    "remember_me": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "UserPasswordResetRequest": {
+                "title": "UserPasswordResetRequest",
+                "description": "User password reset request",
+                "properties": {
+                    "email": {
+                        "description": "Class UserPasswordResetRequest",
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.smith@example.com"
+                    }
+                },
+                "type": "object"
+            },
+            "UserSignUpRequest": {
+                "title": "UserSignUpRequest",
+                "description": "User sign up request",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.smith@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    },
+                    "confirm_password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "user@example.com"
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "active"
+                    },
+                    "terms_accepted": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "privacy_policy_accepted": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-27T21:30:27.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-31T21:47:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
             "Country": {
                 "title": "Country",
                 "description": "Country model schema",

@@ -4,16 +4,26 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UserLogInRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
-
-
+use App\Http\Support\ApiResponse;
+use Illuminate\Auth\AuthenticationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Services\AuthService;
 
 class AuthenticatedSessionController extends Controller
 {
+    private AuthService $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
     /**
      * Authenticate user login
      *
@@ -26,62 +36,56 @@ class AuthenticatedSessionController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         description="User login credentials",
-     *         @OA\JsonContent(
-     *             required={"email","password"},
-     *             @OA\Property(property="email", type="string", format="email", maxLength=255, example="john.smith@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", minLength=8, example="SecurePass123!"),
-     *             @OA\Property(property="remember_me", type="boolean", example=false),
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/UserLogInRequest")
      *     ),
      *     @OA\Response(
-     *         response=200,
-     *         description="User successfully logged in",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="User logged in successfully."),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 @OA\Property(property="token", type="string", example="2|abcdef123456789..."),
-     *                 @OA\Property(property="expires_at", type="string", format="date-time", example="2025-08-21T14:30:00.000000Z")
-     *             ),
-     *             @OA\Property(
-     *                 property="meta",
-     *                 type="object",
-     *                 @OA\Property(property="token_type", type="string", example="Bearer"),
-     *                 @OA\Property(property="remember_me", type="boolean", example=false),
-     *             )
+     *     response=200,
+     *     description="User successfully logged in",
+     *     @OA\JsonContent(
+     *         @OA\Property(property="success", type="boolean", example=true),
+     *         @OA\Property(property="message", type="string", example="User logged in successfully."),
+     *         @OA\Property(
+     *             property="data",
+     *             type="object",
+     *             @OA\Property(ref="#/components/schemas/UserResource")
+     *         ),
+     *         @OA\Property(
+     *             property="meta",
+     *             type="object",
+     *             @OA\Property(property="login_at", type="string", format="date-time", example="2025-08-31T21:47:00.911232Z"),
+     *             @OA\Property(property="ip_address", type="string", example="172.19.0.1"),
+     *             @OA\Property(property="user_agent", type="string", example="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36")
      *         )
+     *     )
      *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid input data",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
-     *             @OA\Property(property="errors", type="object",
-     *                 @OA\Property(property="email", type="array", @OA\Items(type="string", example="Email address is required.")),
-     *                 @OA\Property(property="password", type="array", @OA\Items(type="string", example="Password is required.")),
-     *               )
-     *           )
-     *       ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Authentication failed",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Invalid email or password."),
-     *             @OA\Property(property="error_code", type="string", example="INVALID_CREDENTIALS")
-     *         )
-     *     ),
-
+     *      @OA\Response(
+     *          response=422,
+     *          description="Validation failed",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="error",
+     *                  ref="#/components/schemas/ValidationErrorResponse"
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Authentication failed",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="error",
+     *                  ref="#/components/schemas/AuthenticationErrorResponse"
+     *              )
+     *          )
+     *      ),
      *     @OA\Response(
      *         response=429,
      *         description="Too many login attempts",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Too many login attempts. Please try again later."),
-     *             @OA\Property(property="retry_after", type="integer", example=900)
+     *             @OA\Property(property="message", type="string", example="Too many login attempts. Please try again later.")
      *         )
      *     ),
      * )
@@ -92,15 +96,8 @@ class AuthenticatedSessionController extends Controller
             // Rate limiting check
             $rateLimitKey = 'login_attempts:' . $request->ip();
             $attempts = cache()->get($rateLimitKey, 0);
-            $maxAttempts = config('auth.login_rate_limit', 10);
 
-            if ($attempts >= $maxAttempts) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Too many login attempts. Please try again later.',
-                    'retry_after' => 900 // 15 minutes
-                ], 429);
-            }
+            $this->authService->throttleLoginAttempts($rateLimitKey);
 
             // Extract validated data
             $validatedData = $request->validated();
@@ -112,8 +109,6 @@ class AuthenticatedSessionController extends Controller
 
             // Attempt authentication
             if (!Auth::attempt($credentials)) {
-                // Increment rate limit counter for failed attempts
-                cache()->put($rateLimitKey, $attempts + 1, now()->addMinutes(15));
 
                 // Log failed login attempt
                 Log::warning('Failed login attempt', [
@@ -123,11 +118,9 @@ class AuthenticatedSessionController extends Controller
                     'attempts' => $attempts + 1
                 ]);
 
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid email or password.',
-                    'error_code' => 'INVALID_CREDENTIALS'
-                ], 401);
+                return ApiResponse::unauthorized(
+                    'Invalid email or password.'
+                );
             }
 
             $user = Auth::user();
@@ -182,16 +175,17 @@ class AuthenticatedSessionController extends Controller
             // Clear rate limit on successful login
             cache()->forget($rateLimitKey);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User logged in successfully.',
-                'data' => $authData,
-                'meta' => [
-                    'login_at' => now()->toISOString(),
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent(),
-                ]
-            ], 200);
+            $meta = [
+                'login_at' => now()->toISOString(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ];
+
+            return ApiResponse::success(
+                'User logged in successfully.',
+                new UserResource($user),
+                $meta
+            );
         } catch (Exception $e) {
             // Log the error with full context
             Log::error('User login failed with exception', [
@@ -204,16 +198,7 @@ class AuthenticatedSessionController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Login failed. Please try again later.',
-                'error_code' => 'LOGIN_FAILED',
-                'debug' => config('app.debug') ? [
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ] : null
-            ], 500);
+            throw new HttpException(500, 'Login failed. Please try again later.');
         }
     }
 
@@ -223,15 +208,8 @@ class AuthenticatedSessionController extends Controller
             // Rate limiting check
             $rateLimitKey = 'login_attempts:' . $request->ip();
             $attempts = cache()->get($rateLimitKey, 0);
-            $maxAttempts = config('auth.login_rate_limit', 10);
 
-            if ($attempts >= $maxAttempts) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Too many login attempts. Please try again later.',
-                    'retry_after' => 900 // 15 minutes
-                ], 429);
-            }
+            $this->authService->throttleLoginAttempts($rateLimitKey);
 
             // Extract validated data
             $validatedData = $request->validated();
@@ -254,11 +232,9 @@ class AuthenticatedSessionController extends Controller
                     'attempts' => $attempts + 1
                 ]);
 
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid email or password.',
-                    'error_code' => 'INVALID_CREDENTIALS'
-                ], 401);
+                return ApiResponse::unauthorized(
+                    'Invalid email or password.'
+                );
             }
 
             $user = Auth::user();
@@ -288,18 +264,18 @@ class AuthenticatedSessionController extends Controller
                 ? now()->addYear()
                 : now()->addMinutes($sessionLifetime);
 
-            $authData = [
-                'session_id' => $request->session()->getId(),
-                'expires_at' => $expiresAt->toISOString(),
-                'remember_me' => $rememberMe
-            ];
-
             // Update user login information
             $user->update([
                 'last_login_at' => now(),
                 'last_login_ip' => $request->ip(),
                 'last_login_user_agent' => $request->userAgent(),
             ]);
+
+            $meta = [
+                'session_id' => $request->session()->getId(),
+                'expires_at' => $expiresAt->toISOString(),
+                'remember_me' => $rememberMe
+            ];
 
             // Log successful login
             Log::info('User logged in successfully', [
@@ -315,16 +291,11 @@ class AuthenticatedSessionController extends Controller
             // Clear rate limit on successful login
             cache()->forget($rateLimitKey);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User logged in successfully.',
-                'data' => $authData,
-                'meta' => [
-                    'login_at' => now()->toISOString(),
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent(),
-                ]
-            ], 200);
+            return ApiResponse::success(
+                'User logged in successfully.',
+                new UserResource($user),
+                $meta
+            );
         } catch (Exception $e) {
             // Log the error with full context
             Log::error('User login failed with exception', [
@@ -337,16 +308,7 @@ class AuthenticatedSessionController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Login failed. Please try again later.',
-                'error_code' => 'LOGIN_FAILED',
-                'debug' => config('app.debug') ? [
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ] : null
-            ], 500);
+            throw new HttpException(500, 'Login failed. Please try again later.');
         }
     }
 
@@ -386,24 +348,17 @@ class AuthenticatedSessionController extends Controller
      *             )
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="User not authenticated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Unauthenticated."),
-     *             @OA\Property(property="error_code", type="string", example="UNAUTHENTICATED")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Server error during logout",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Logout failed. Please try again later."),
-     *             @OA\Property(property="error_code", type="string", example="LOGOUT_FAILED")
-     *         )
-     *     ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Authentication failed",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="error",
+     *                  ref="#/components/schemas/AuthenticationErrorResponse"
+     *              )
+     *          )
+     *      ),
      * )
      */
     public function destroyApi(Request $request): JsonResponse
@@ -412,11 +367,7 @@ class AuthenticatedSessionController extends Controller
             $user = Auth::user();
 
             if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthenticated.',
-                    'error_code' => 'UNAUTHENTICATED'
-                ], 401);
+                throw new AuthenticationException();
             }
 
             $logoutAllDevices = $request->boolean('logout_all_devices', false);
@@ -490,17 +441,18 @@ class AuthenticatedSessionController extends Controller
                 'tokens_revoked' => $tokensRevoked
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User logged out successfully.',
-                'data' => [
-                    'logged_out_at' => now()->toISOString(),
-                ],
-                'meta' => [
-                    'logout_all_devices' => $logoutAllDevices,
-                    'tokens_revoked' => $tokensRevoked
-                ]
-            ], 200);
+            $meta = [
+                'logout_all_devices' => $logoutAllDevices,
+                'tokens_revoked' => $tokensRevoked
+            ];
+
+            return response()->json(
+                ApiResponse::success(
+                    'User logged out successfully.',
+                    null,
+                    $meta
+                )
+            );
         } catch (Exception $e) {
             // Log the error
             Log::error('User logout failed', [
@@ -510,11 +462,7 @@ class AuthenticatedSessionController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Logout failed. Please try again later.',
-                'error_code' => 'LOGOUT_FAILED'
-            ], 500);
+            throw new HttpException(500, 'Log out failed. Please try again later.');
         }
     }
 
@@ -524,11 +472,7 @@ class AuthenticatedSessionController extends Controller
             $user = auth('web')->user();
 
             if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthenticated.',
-                    'error_code' => 'UNAUTHENTICATED'
-                ], 401);
+                throw new AuthenticationException();
             }
 
             $logoutAllDevices = $request->boolean('logout_all_devices', false);
@@ -574,17 +518,18 @@ class AuthenticatedSessionController extends Controller
                 'tokens_revoked' => $tokensRevoked ?? 0
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User logged out successfully.',
-                'data' => [
-                    'logged_out_at' => now()->toISOString(),
-                ],
-                'meta' => [
-                    'logout_all_devices' => $logoutAllDevices,
-                    'tokens_revoked' => $tokensRevoked ?? 0
-                ]
-            ], 200);
+            $meta = [
+                'logout_all_devices' => $logoutAllDevices,
+                'tokens_revoked' => $tokensRevoked
+            ];
+
+            return response()->json(
+                ApiResponse::success(
+                    'User logged out successfully.',
+                    null,
+                    $meta
+                )
+            );
         } catch (Exception $e) {
             // Log the error
             Log::error('User logout failed', [
@@ -594,11 +539,7 @@ class AuthenticatedSessionController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Logout failed. Please try again later.',
-                'error_code' => 'LOGOUT_FAILED'
-            ], 500);
+            throw new HttpException(500, 'Log out failed. Please try again later.');
         }
     }
 }

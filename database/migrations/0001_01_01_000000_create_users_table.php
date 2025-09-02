@@ -40,6 +40,8 @@ return new class extends Migration
             $table->index(['status', 'created_at']);
             $table->index('last_login_at');
             $table->index('email_verification_token');
+            $table->integer('failed_login_attempts')->default(0)->after('email_verification_token');
+            $table->timestamp('locked_until')->nullable()->after('failed_login_attempts');
 
             $table->boolean('is_admin')->default(false);
             $table->rememberToken();

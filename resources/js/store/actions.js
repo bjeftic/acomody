@@ -101,9 +101,33 @@ export const logIn = async (
 
 export const forgotPassword = async ({}, email) => {
     try {
-        apiClient.passwordReset
+        apiClient.forgotPassword
             .noAuth()
             .post(email)
+            .then((response) => {
+                if (response.success) {
+                    return Promise.resolve(response);
+                }
+                return Promise.reject(response);
+            })
+            .catch((error) => {
+                return Promise.reject(error);
+            });
+    } catch (error) {
+        return Promise.reject(error);
+    }
+};
+
+export const resetPassword = async ({}, { email, password, confirmPassword, token }) => {
+    try {
+        await apiClient.resetPassword
+            .noAuth()
+            .post({
+                email,
+                password,
+                password_confirmation: confirmPassword,
+                token,
+            })
             .then((response) => {
                 if (response.success) {
                     return Promise.resolve(response);
