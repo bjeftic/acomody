@@ -8,7 +8,7 @@ export default {
      * **********************************
      */
     [types.SET_CURRENT_USER](state, { data }) {
-        state.currentUser = data.user;
+        state.currentUser = data;
     },
     [types.SET_AUTHENTICATED](state, status) {
         state.isAuthenticated = status;

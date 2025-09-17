@@ -6,9 +6,9 @@
 
 <script>
 import { mapActions } from "vuex";
-import Searchbar from "@/src/welcome/components/Searchbar.vue";
-import DestinationsGrid from "@/src/welcome/components/DestinationsGrid.vue";
-import RecomendedAccommodations from "@/src/welcome/components/RecomendedAccommodations.vue";
+import Searchbar from "@/src/views/welcome/components/Searchbar.vue";
+import DestinationsGrid from "@/src/views/welcome/components/DestinationsGrid.vue";
+import RecomendedAccommodations from "@/src/views/welcome/components/RecomendedAccommodations.vue";
 export default {
     components: {
         Searchbar,

@@ -13,13 +13,9 @@ Route::post('/log-in', [AuthenticatedSessionController::class, 'storeWeb'])
     ->name('login.web')
     ->middleware('guest');
 
-Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+Route::get('/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
     ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
-
-Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->middleware('auth')->name('verification.notice');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/log-out', [AuthenticatedSessionController::class, 'destroyWeb'])

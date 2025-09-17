@@ -14,9 +14,9 @@
 <script>
 import { ref, h } from "vue";
 import { mapActions } from "vuex";
-import Navbar from "@/components/Navbar.vue";
-import ModalIndex from "@/modals/ModalIndex.vue";
-import Footer from "@/components/Footer.vue";
+import Navbar from "@/src/components/Navbar.vue";
+import ModalIndex from "@/src/modals/ModalIndex.vue";
+import Footer from "@/src/components/Footer.vue";
 
 // Theme
 const theme = ref(null);

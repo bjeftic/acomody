@@ -9,20 +9,7 @@
     >
         <n-p>Please fill in the details to sign up</n-p>
 
-        <n-alert
-            v-if="Object.keys(signUpErrors).length > 0"
-            type="error"
-            :show-icon="false"
-            style="margin-bottom: 16px"
-        >
-            <span v-for="(field, fieldKey) in signUpErrors" :key="fieldKey">
-                <span v-for="(error, errorIndex) in field" :key="errorIndex">
-                    - {{ error }}
-                </span><span v-if="fieldKey < Object.keys(signUpErrors).length - 1"
-                    >, <br
-                /></span>
-            </span>
-        </n-alert>
+        <validation-alert-box :errors="signUpErrors"></validation-alert-box>
 
         <n-form
             ref="formRef"
@@ -268,18 +255,12 @@ export default {
                     this.logIn({
                         email: this.formData.email,
                         password: this.formData.password,
-                    })
-                    .then(() => {
+                    }).then(() => {
                         this.ok();
-                    })
+                    });
                 })
-                .catch((error) => {
-                    const statusCode = error.status;
-
-                    if (statusCode === 422) {
-                        this.signUpErrors = error.error.errors
-                        return;
-                    }
+                .catch((e) => {
+                    this.signUpErrors = e.error.error.validation_errors;
                     return;
                 })
                 .finally(() => {

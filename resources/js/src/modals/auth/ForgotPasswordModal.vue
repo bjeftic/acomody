@@ -14,23 +14,7 @@
             :rules="forgotPasswordRules"
             size="large"
         >
-            <n-alert
-                v-if="Object.keys(forgotPasswordErrors).length > 0"
-                type="error"
-                :show-icon="false"
-                style="margin-bottom: 16px"
-            >
-                <span v-for="(field, fieldKey) in forgotPasswordErrors" :key="fieldKey">
-                    <span
-                        v-for="(error, errorIndex) in field"
-                        :key="errorIndex"
-                    >
-                        - {{ error }} </span
-                    ><span v-if="fieldKey < Object.keys(forgotPasswordErrors).length - 1"
-                        >, <br
-                    /></span>
-                </span>
-            </n-alert>
+            <validation-alert-box :errors="forgotPasswordErrors"></validation-alert-box>
 
             <n-form-item path="email" label="Email address">
                 <n-input
@@ -128,14 +112,8 @@ export default {
                 .then(() => {
                     this.close();
                 })
-                .catch((error) => {
-                    if(error.status === 422) {
-                        this.logInErrors = error.error.errors;
-                    }
-                    if(error.status === 401) {
-                        this.logInErrors = { authentication: [error.error.message] };
-                    }
-                    return;
+                .catch((e) => {
+                    this.forgotPasswordErrors = e.error.error.validation_errors;
                 })
                 .finally(() => {
                     this.isLoading = false;

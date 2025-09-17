@@ -1,7 +1,7 @@
 <template>
     <form-wrapper>
         <template #body>
-            <div v-if="!restarted">
+            <div v-if="!restarted || resetPasswordErrors.length > 0">
                 <n-p>Enter your new password</n-p>
                 <n-form
                     ref="formRef"
@@ -9,30 +9,7 @@
                     :rules="resetPasswordRules"
                     size="large"
                 >
-                    <n-alert
-                        v-if="Object.keys(resetPasswordErrors).length > 0"
-                        type="error"
-                        :show-icon="false"
-                        style="margin-bottom: 16px"
-                    >
-                        <span
-                            v-for="(field, fieldKey) in resetPasswordErrors"
-                            :key="fieldKey"
-                        >
-                            <span
-                                v-for="(error, errorIndex) in field"
-                                :key="errorIndex"
-                            >
-                                - {{ error }} </span
-                            ><span
-                                v-if="
-                                    fieldKey <
-                                    Object.keys(resetPasswordErrors).length - 1
-                                "
-                                >, <br
-                            /></span>
-                        </span>
-                    </n-alert>
+                    <validation-alert-box :errors="resetPasswordErrors"></validation-alert-box>
 
                     <n-form-item path="password" label="Password">
                         <n-input
@@ -162,7 +139,7 @@ export default {
                 confirmPassword: "",
             },
             isLoading: false,
-            resetPasswordErrors: {},
+            resetPasswordErrors: [],
             restarted: false,
         };
     },
@@ -178,14 +155,13 @@ export default {
                 token: this.resetToken,
             })
                 .then((response) => {
-                    console.log('TEST');
+                    this.restarted = true;
                 })
-                .catch((error) => {
-                    this.resetPasswordErrors = error.response.data.errors;
+                .catch((e) => {
+                    this.resetPasswordErrors = e.error.error.validation_errors;
                 })
                 .finally(() => {
                     this.isLoading = false;
-                    this.restarted = true;
                 });
         },
         openLogInModal() {

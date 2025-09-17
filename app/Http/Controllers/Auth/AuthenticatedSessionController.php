@@ -14,6 +14,8 @@ use App\Http\Support\ApiResponse;
 use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Services\AuthService;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -90,13 +92,11 @@ class AuthenticatedSessionController extends Controller
      *     ),
      * )
      */
-    public function storeApi(UserLogInRequest $request): JsonResponse
+    public function store(UserLogInRequest $request): JsonResponse
     {
         try {
             // Rate limiting check
             $rateLimitKey = 'login_attempts:' . $request->ip();
-            $attempts = cache()->get($rateLimitKey, 0);
-
             $this->authService->throttleLoginAttempts($rateLimitKey);
 
             // Extract validated data
@@ -106,85 +106,28 @@ class AuthenticatedSessionController extends Controller
                 'password' => $validatedData['password']
             ];
             $rememberMe = $validatedData['remember_me'] ?? false;
+            $authType = $validatedData['auth_type'] ?? 'hybrid';
 
             // Attempt authentication
             if (!Auth::attempt($credentials)) {
-
-                // Log failed login attempt
-                Log::warning('Failed login attempt', [
-                    'email' => $validatedData['email'],
-                    'ip' => $request->ip(),
-                    'user_agent' => $request->userAgent(),
-                    'attempts' => $attempts + 1
+                $this->authService->handleFailedLogin($request, $validatedData['email']);
+                throw ValidationException::withMessages([
+                    'email' => 'Invalid email or password.'
                 ]);
-
-                return ApiResponse::unauthorized(
-                    'Invalid email or password.'
-                );
             }
 
             $user = Auth::user();
+            $authData = $this->authService->createAuthData($request, $user, $rememberMe, $authType);
 
-            // API Authentication - use Sanctum tokens
-            $tokenName = $rememberMe ? 'remember-api-token' : 'session-api-token';
-            $tokenExpiration = $rememberMe ? now()->addDays(30) : now()->addHours(8);
+            $this->authService->updateUserLoginInfo($user, $request);
+            $this->authService->logSuccessfulLogin($user, $request, $authData);
+            $this->authService->clearRateLimit($request);
 
-            // Delete existing tokens of the same type for this user
-            $user->tokens()->where('name', $tokenName)->delete();
-
-            // Create new token
-            $token = $user->createToken($tokenName, ['*'], $tokenExpiration);
-
-            // Add metadata to token if supported
-            if (method_exists($token->accessToken, 'update')) {
-                $token->accessToken->update([
-                    'metadata' => json_encode([
-                        'remember_me' => $rememberMe,
-                        'login_method' => 'api_token',
-                        'created_via' => 'login',
-                        'user_agent' => $request->userAgent(),
-                        'ip_address' => $request->ip(),
-                        'created_at' => now()->toISOString()
-                    ])
-                ]);
-            }
-
-            $authData = [
-                'token' => $token->plainTextToken,
-                'expires_at' => $tokenExpiration->toISOString(),
-            ];
-
-            // Update user login information
-            $user->update([
-                'last_login_at' => now(),
-                'last_login_ip' => $request->ip(),
-                'last_login_user_agent' => $request->userAgent(),
-            ]);
-
-            // Log successful login
-            Log::info('User logged in successfully', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'remember_me' => $rememberMe,
-                'session_id' => $authData['session_id'] ?? null,
-                'token_expires_at' => $authData['expires_at'] ?? null
-            ]);
-
-            // Clear rate limit on successful login
-            cache()->forget($rateLimitKey);
-
-            $meta = [
-                'login_at' => now()->toISOString(),
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-            ];
 
             return ApiResponse::success(
                 'User logged in successfully.',
                 new UserResource($user),
-                $meta
+                $authData['meta']
             );
         } catch (Exception $e) {
             // Log the error with full context
@@ -202,13 +145,12 @@ class AuthenticatedSessionController extends Controller
         }
     }
 
+
     public function storeWeb(UserLogInRequest $request): JsonResponse
     {
         try {
             // Rate limiting check
             $rateLimitKey = 'login_attempts:' . $request->ip();
-            $attempts = cache()->get($rateLimitKey, 0);
-
             $this->authService->throttleLoginAttempts($rateLimitKey);
 
             // Extract validated data
@@ -218,87 +160,65 @@ class AuthenticatedSessionController extends Controller
                 'password' => $validatedData['password']
             ];
             $rememberMe = $validatedData['remember_me'] ?? false;
+            $includeToken = $validatedData['include_token'] ?? false;
 
             // Attempt authentication
-            if (!Auth::attempt($credentials)) {
-                // Increment rate limit counter for failed attempts
-                cache()->put($rateLimitKey, $attempts + 1, now()->addMinutes(15));
-
-                // Log failed login attempt
-                Log::warning('Failed login attempt', [
-                    'email' => $validatedData['email'],
-                    'ip' => $request->ip(),
-                    'user_agent' => $request->userAgent(),
-                    'attempts' => $attempts + 1
+            if (!Auth::attempt($credentials, $rememberMe)) {
+                $this->authService->handleFailedLogin($request, $validatedData['email']);
+                throw ValidationException::withMessages([
+                    'email' => 'Invalid email or password.'
                 ]);
-
-                return ApiResponse::unauthorized(
-                    'Invalid email or password.'
-                );
             }
 
             $user = Auth::user();
 
-            $request->session()->regenerate();
+            // Create web session
+            $sessionData = $this->authService->createWebSession($request, $user, $rememberMe);
 
-            // Handle remember me functionality
-            if ($rememberMe) {
-                $rememberToken = Str::random(60);
-                $user->setRememberToken($rememberToken);
-                $user->save();
-
-                // Set remember me cookie with proper security flags
-                Cookie::queue(Cookie::make(
-                    Auth::getRecallerName(),
-                    $user->id . '|' . $rememberToken,
-                    config('auth.expire', 525600), // 1 year in minutes
-                    config('session.path', '/'),
-                    config('session.domain'),
-                    config('session.secure', false),
-                    true // httpOnly
-                ));
-            }
-
-            $sessionLifetime = config('session.lifetime', 120); // minutes
-            $expiresAt = $rememberMe
-                ? now()->addYear()
-                : now()->addMinutes($sessionLifetime);
-
-            // Update user login information
-            $user->update([
-                'last_login_at' => now(),
-                'last_login_ip' => $request->ip(),
-                'last_login_user_agent' => $request->userAgent(),
-            ]);
-
+            // Build meta data
             $meta = [
-                'session_id' => $request->session()->getId(),
-                'expires_at' => $expiresAt->toISOString(),
+                'login_at' => now()->toISOString(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'auth_type' => $includeToken ? 'hybrid' : 'web',
+                'session_id' => $sessionData['session_id'],
+                'session_expires_at' => $sessionData['expires_at'],
                 'remember_me' => $rememberMe
             ];
 
+            // Opciono dodaj API token
+            if ($includeToken) {
+                $tokenData = $this->createApiToken($request, $user, $rememberMe);
+                $meta['api_token'] = $tokenData['token'];
+                $meta['token_type'] = $tokenData['token_type'];
+                $meta['token_expires_at'] = $tokenData['expires_at'];
+            }
+
+            $this->authService->updateUserLoginInfo($user, $request);
+            $this->authService->clearRateLimit($request);
+
             // Log successful login
-            Log::info('User logged in successfully', [
+            Log::info('Web user logged in successfully', [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'remember_me' => $rememberMe,
-                'session_id' => $authData['session_id'] ?? null,
-                'token_expires_at' => $authData['expires_at'] ?? null
+                'include_token' => $includeToken,
+                'session_id' => $sessionData['session_id']
             ]);
-
-            // Clear rate limit on successful login
-            cache()->forget($rateLimitKey);
 
             return ApiResponse::success(
                 'User logged in successfully.',
                 new UserResource($user),
                 $meta
             );
+
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (Exception $e) {
             // Log the error with full context
-            Log::error('User login failed with exception', [
+            Log::error('Web user login failed with exception', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -485,8 +405,6 @@ class AuthenticatedSessionController extends Controller
                         ->delete();
                 }
 
-                // Clear all tokens as well
-                $tokensRevoked = $user->tokens()->count();
                 $user->tokens()->delete();
 
                 // Clear remember token
@@ -514,13 +432,11 @@ class AuthenticatedSessionController extends Controller
                 'email' => $user->email,
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'logout_all_devices' => $logoutAllDevices,
-                'tokens_revoked' => $tokensRevoked ?? 0
+                'logout_all_devices' => $logoutAllDevices
             ]);
 
             $meta = [
-                'logout_all_devices' => $logoutAllDevices,
-                'tokens_revoked' => $tokensRevoked
+                'logout_all_devices' => $logoutAllDevices
             ];
 
             return response()->json(

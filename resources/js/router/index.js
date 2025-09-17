@@ -7,7 +7,7 @@ const routes = [
     {
         path: '/',
         name: 'page-welcome',
-        component: () => import('@/src/welcome/Welcome.vue'),
+        component: () => import('@/src/views/welcome/Welcome.vue'),
         // children: [
         //     {
         //         path: 'home',
@@ -21,12 +21,17 @@ const routes = [
     {
         path: '/reset-password',
         name: 'page-reset-password',
-        component: () => import('@/src/auth/ResetPassword.vue'),
+        component: () => import('@/src/views/auth/ResetPassword.vue'),
+    },
+    {
+        path: '/email-verify',
+        name: 'page-verify-email',
+        component: () => import('@/src/views/auth/VerifyEmail.vue'),
     },
     {
         path: '/:pathMatch(.*)*',
         name: 'page-not-found',
-        component: () => import('@/src/Page404.vue'),
+        component: () => import('@/src/views/Page404.vue'),
     },
 ];
 

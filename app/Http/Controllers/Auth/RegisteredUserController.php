@@ -92,7 +92,7 @@ class RegisteredUserController extends Controller
      */
     public function signUp(UserSignUpRequest $request): JsonResponse
     {
-        try {
+        // try {
             DB::beginTransaction();
 
             // Rate limiting check
@@ -149,18 +149,18 @@ class RegisteredUserController extends Controller
                 null,
                 $meta
             );
-        } catch (Exception $e) {
-            DB::rollBack();
+        // } catch (Exception $e) {
+        //     DB::rollBack();
 
-            // Log the error
-            Log::error('User registration failed', [
-                'error' => $e->getMessage(),
-                'email' => $request->email ?? 'unknown',
-                'ip' => $request->ip(),
-                'trace' => $e->getTraceAsString()
-            ]);
+        //     // Log the error
+        //     Log::error('User registration failed', [
+        //         'error' => $e->getMessage(),
+        //         'email' => $request->email ?? 'unknown',
+        //         'ip' => $request->ip(),
+        //         'trace' => $e->getTraceAsString()
+        //     ]);
 
-            throw new HttpException(500, 'Registration failed. Please try again later.');
-        }
+        //     throw new HttpException(500, 'Registration failed. Please try again later.');
+        // }
     }
 }

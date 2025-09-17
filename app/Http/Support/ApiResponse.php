@@ -34,11 +34,12 @@ class ApiResponse implements Responsable
     public static function success(
         string $message = 'Operation completed successfully',
         ?JsonResource $data = null,
-        ?array $meta = null
+        ?array $meta = null,
+        ?int $statusCode = 200
     ): JsonResponse {
         return (new self($message, $data, null, $meta, true))
             ->toResponse(request())
-            ->setStatusCode(200);
+            ->setStatusCode($statusCode);
     }
 
     /**
@@ -47,11 +48,12 @@ class ApiResponse implements Responsable
     public static function error(
         string $message = 'Operation failed',
         ?JsonResource $data = null,
-        ?array $meta = null
+        ?array $meta = null,
+        ?int $statusCode = 400
     ): JsonResponse {
-        return (new self($message, $data, null, $meta, true))
+        return (new self($message, $data, null, $meta, false))
             ->toResponse(request())
-            ->setStatusCode(400);
+            ->setStatusCode($statusCode);
     }
 
 

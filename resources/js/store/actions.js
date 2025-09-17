@@ -31,72 +31,48 @@ export const fetchUser = ({ commit }) => {
         apiClient.user
             .get()
             .then((response) => {
-                if (response.success) {
-                    commit(types.SET_CURRENT_USER, response.data);
-                    commit(types.SET_AUTHENTICATED, true);
-                    resolve(response);
-                } else {
-                    reject("Unauthorized");
-                }
+                commit(types.SET_CURRENT_USER, response.data);
+                commit(types.SET_AUTHENTICATED, true);
+                resolve(response);
             })
             .catch((error) => {
-                console.error("Error fetching user:", error);
                 reject(error);
             });
     });
 };
 
 export const signUp = async ({}, { email, password, confirmPassword }) => {
-    try {
-        await apiClient.signUp
-            .noAuth()
-            .post({
-                email,
-                password,
-                confirm_password: confirmPassword,
-            })
-            .then((response) => {
-                if (response.success) {
-                    return Promise.resolve(response);
-                }
-                return Promise.reject(response);
-            })
-            .catch((error) => {
-                return Promise.reject(error);
-            });
-    } catch (error) {
-        return Promise.reject(error);
-    }
+    return apiClient.signUp
+        .noAuth()
+        .post({
+            email,
+            password,
+            confirm_password: confirmPassword,
+        })
+        .then((response) => {
+            return Promise.resolve(response);
+        })
+        .catch((error) => {
+            return Promise.reject(error);
+        });
 };
 
-export const logIn = async (
+export const logIn = (
     { commit, dispatch },
     { email, password, rememberMe }
 ) => {
-    try {
-        commit(types.CLEAR_AUTH);
+    commit(types.CLEAR_AUTH);
 
-        await axios
-            .post("/log-in", {
-                email,
-                password,
-                remember_me: rememberMe,
-            })
-            .then((response) => {
-                if (response.data.success) {
-                    commit("SET_AUTHENTICATED", true);
-                    dispatch("fetchUser");
-                    return Promise.resolve(response);
-                } else {
-                    return Promise.reject(
-                        new Error(response.error?.message || "Login failed")
-                    );
-                }
-            });
-    } catch (error) {
-        console.error("Login failed:", error);
-        return Promise.reject(error);
-    }
+    return axios
+        .post("/log-in", { email, password, remember_me: rememberMe })
+        .then((response) => {
+            commit("SET_AUTHENTICATED", true);
+            dispatch("fetchUser");
+            return Promise.resolve(response);
+        })
+        .catch((error) => {
+            return Promise.reject(error);
+        });
 };
 
 export const forgotPassword = async ({}, email) => {
@@ -118,7 +94,10 @@ export const forgotPassword = async ({}, email) => {
     }
 };
 
-export const resetPassword = async ({}, { email, password, confirmPassword, token }) => {
+export const resetPassword = async (
+    {},
+    { email, password, confirmPassword, token }
+) => {
     try {
         await apiClient.resetPassword
             .noAuth()
@@ -140,6 +119,20 @@ export const resetPassword = async ({}, { email, password, confirmPassword, toke
     } catch (error) {
         return Promise.reject(error);
     }
+};
+
+export const resendVerificationEmail = async ({}) => {
+    return apiClient.resend
+        .post()
+        .then((response) => {
+            if (response.success) {
+                return Promise.resolve(response);
+            }
+            return Promise.reject(response);
+        })
+        .catch((error) => {
+            return Promise.reject(error);
+        });
 };
 
 export const logOut = async ({ commit, rootState }) => {

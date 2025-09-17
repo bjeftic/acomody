@@ -14,23 +14,7 @@
             :rules="logInRules"
             size="large"
         >
-            <n-alert
-                v-if="Object.keys(logInErrors).length > 0"
-                type="error"
-                :show-icon="false"
-                style="margin-bottom: 16px"
-            >
-                <span v-for="(field, fieldKey) in logInErrors" :key="fieldKey">
-                    <span
-                        v-for="(error, errorIndex) in field"
-                        :key="errorIndex"
-                    >
-                        - {{ error }} </span
-                    ><span v-if="fieldKey < Object.keys(logInErrors).length - 1"
-                        >, <br
-                    /></span>
-                </span>
-            </n-alert>
+            <validation-alert-box :errors="logInErrors"></validation-alert-box>
 
             <n-form-item path="email" label="Email address">
                 <n-input
@@ -226,29 +210,18 @@ export default {
         };
     },
     methods: {
-        ...mapActions([
-            "openModal",
-            "initModal",
-            "closeModal",
-            "logIn",
-        ]),
+        ...mapActions(["openModal", "initModal", "closeModal", "logIn"]),
         async handleLogIn() {
             this.clearMessage();
             await this.$refs.formRef.validate();
             this.isLoading = true;
             await this.logIn(this.formData)
                 .then(() => {
+                    this.$router.push({ name: "page-welcome" });
                     this.close();
                 })
-                .catch((error) => {
-                    if (error.status === 422) {
-                        this.logInErrors = error.error.errors;
-                    }
-                    if (error.status === 401) {
-                        this.logInErrors = {
-                            authentication: [error.error.message],
-                        };
-                    }
+                .catch((e) => {
+                    this.logInErrors = e.response.data.error.validation_errors;
                     return;
                 })
                 .finally(() => {

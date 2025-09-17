@@ -9,6 +9,7 @@ import App from './App.vue'
 const { message } = createDiscreteApi(["message"]);
 
 import FormWrapper from '@/src/layouts/FormWrapper.vue';
+import ValidationAlertBox from '@/src/components/ValidationAlertBox.vue';
 
 import {
     NLayout,
@@ -33,6 +34,7 @@ import {
 const app = createApp(App)
 
 app.component("FormWrapper", FormWrapper);
+app.component("ValidationAlertBox", ValidationAlertBox);
 app.component("NLayout", NLayout);
 app.component("NLayoutHeader", NLayoutHeader);
 app.component("NLayoutContent", NLayoutContent);

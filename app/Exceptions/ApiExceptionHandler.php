@@ -14,6 +14,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Routing\Exceptions\InvalidSignatureException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Throwable;
 
 class ApiExceptionHandler
@@ -31,6 +33,8 @@ class ApiExceptionHandler
         MethodNotAllowedHttpException::class => 'handleMethodNotAllowedException',
         HttpException::class => 'handleHttpException',
         QueryException::class => 'handleQueryException',
+        InvalidSignatureException::class => 'handleInvalidSignatureException',
+        ThrottleRequestsException::class => 'handleThrottleException',
     ];
 
     /**
@@ -273,5 +277,41 @@ class ApiExceptionHandler
         ], $context);
 
         Log::warning($message, $logContext);
+    }
+
+    /**
+     * Invalid signature exception handler
+     */
+    public function handleInvalidSignatureException(
+        InvalidSignatureException $e,
+        Request $request
+    ): JsonResponse {
+        $this->logException($e, 'Invalid or expired URL signature');
+        return response()->json([
+            'error' => [
+                'type' => $this->getExceptionType($e),
+                'status' => 403,
+                'message' => 'The URL signature is invalid or has expired.',
+                'timestamp' => now()->toISOString(),
+            ]
+        ], 403);
+    }
+
+    /**
+     * Throttle exception handler
+     */
+    public function handleThrottleException(
+        ThrottleRequestsException $e,
+        Request $request
+    ): JsonResponse {
+        $this->logException($e, 'Too many requests');
+        return response()->json([
+            'error' => [
+                'type' => $this->getExceptionType($e),
+                'status' => 429,
+                'message' => 'Too many requests. Please try again later.',
+                'timestamp' => now()->toISOString(),
+            ]
+        ], 429);
     }
 }

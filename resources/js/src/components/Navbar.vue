@@ -172,7 +172,6 @@ const LanguageIcon = {
 };
 
 import { mapGetters } from "vuex";
-import { logOut } from "../store/actions";
 export default {
     name: "Navbar",
     components: {
