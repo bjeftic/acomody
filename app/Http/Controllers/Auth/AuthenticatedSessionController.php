@@ -15,6 +15,7 @@ use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Services\AuthService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
