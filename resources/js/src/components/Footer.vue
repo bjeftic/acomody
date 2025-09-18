@@ -303,7 +303,6 @@ onMounted(() => {
 
 <style scoped>
 .footer-container {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   margin-top: auto;
 }
 
@@ -311,7 +310,6 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border: none;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .footer-link {

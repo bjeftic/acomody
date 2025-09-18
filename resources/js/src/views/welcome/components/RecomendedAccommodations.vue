@@ -147,17 +147,6 @@
                 </n-text>
               </n-space>
             </n-space>
-
-            <template #action>
-              <n-button
-                type="primary"
-                block
-                @click.stop="book(accommodation)"
-                :loading="booking[accommodation.id]"
-              >
-                Book Now
-              </n-button>
-            </template>
           </n-card>
         </n-grid-item>
       </n-grid>
@@ -224,8 +213,8 @@
 
       <template #action>
         <n-space justify="end">
-          <n-button @click="showModal = false">Close</n-button>
-          <n-button type="primary" @click="book(selectedAccommodation)">
+          <n-button round strong @click="showModal = false">Close</n-button>
+          <n-button round strong type="primary" @click="book(selectedAccommodation)">
             Book Now
           </n-button>
         </n-space>
@@ -472,8 +461,6 @@ onMounted(() => {
 
 <style scoped>
 .accommodations-container {
-  padding: 20px;
-  max-width: 1200px;
   margin: 0 auto;
 }
 

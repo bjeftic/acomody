@@ -1,21 +1,46 @@
 <template>
-   <div>
-        <navbar></navbar>
-        <router-view></router-view>
-        <Footer></Footer>
+    <div>
+        <n-config-provider :theme="theme">
+            <navbar class="max-w-[1280px] mx-auto"></navbar>
+            <div class="max-w-[1280px] mx-auto">
+                <router-view></router-view>
+                <modal-index />
+            </div>
+            <Footer class="max-w-[1280px] mx-auto"></Footer>
+        </n-config-provider>
     </div>
 </template>
 
 <script>
-import Navbar from '@/components/Navbar.vue'
-import Footer from '@/components/Footer.vue'
+import { ref, h } from "vue";
+import { mapActions } from "vuex";
+import Navbar from "@/src/components/Navbar.vue";
+import ModalIndex from "@/src/modals/ModalIndex.vue";
+import Footer from "@/src/components/Footer.vue";
+
+// Theme
+const theme = ref(null);
+
 export default {
-    name: 'App',
+    name: "App",
     components: {
         Navbar,
-        Footer
-    }
+        ModalIndex,
+        Footer,
+    },
+    methods: {
+        ...mapActions(["initializeAuth", "getCsrfCookie"]),
+    },
+    async created() {
+        await this.getCsrfCookie();
+        await this.initializeAuth();
+    },
 };
 </script>
 
-<style></style>
+<style>
+.destinations-section {
+    padding: 40px 0;
+    background: #f8f9fa;
+}
+</style>

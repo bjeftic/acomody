@@ -10,8 +10,15 @@ export default {
     [types.SET_CURRENT_USER](state, { data }) {
         state.currentUser = data;
     },
-    [types.REMOVE_CURRENT_USER](state) {
+    [types.SET_AUTHENTICATED](state, status) {
+        state.isAuthenticated = status;
+    },
+    [types.SET_INITIALIZED](state, status) {
+        state.isInitialized = status;
+    },
+    [types.CLEAR_AUTH](state) {
         state.currentUser = null;
+        state.isAuthenticated = false;
     },
 
     /**
@@ -28,47 +35,46 @@ export default {
      * Modals
      * **********************************
      */
-    // [types.INIT_MODAL](state, { modalName }) {
-    //     const modalNameCamelCase = toCamelCase(modalName);
+    [types.INIT_MODAL](state, { modalName }) {
+        const modalNameCamelCase = toCamelCase(modalName);
 
-    //     state.modals[modalNameCamelCase] = {
-    //         name: modalName,
-    //         shown: false,
-    //         resolve: null,
-    //         reject: null,
-    //         options: {},
-    //     };
-    // },
-    // [types.OPEN_MODAL](state, { modalName, resolve, reject, options }) {
-    //     const modalNameCamelCase = toCamelCase(modalName);
+        state.modals[modalNameCamelCase] = {
+            name: modalName,
+            shown: false,
+            resolve: null,
+            reject: null,
+            options: {},
+        };
+    },
+    [types.OPEN_MODAL](state, { modalName, resolve, reject, options }) {
+        const modalNameCamelCase = toCamelCase(modalName);
+        state.modals = {
+            ...state.modals,
+            [modalNameCamelCase]: {
+                ...state.modals[modalNameCamelCase],
+                name: modalName,
+                shown: true,
+                resolve: resolve,
+                reject: reject,
+                options:
+                    typeof options !== "undefined"
+                        ? options
+                        : state.modals[modalNameCamelCase].options,
+            },
+        };
+    },
+    [types.CLOSE_MODAL](state, { modalName }) {
+        const modalNameCamelCase = toCamelCase(modalName);
 
-    //     state.modals = {
-    //         ...state.modals,
-    //         [modalNameCamelCase]: {
-    //             ...state.modals[modalNameCamelCase],
-    //             name: modalName,
-    //             shown: true,
-    //             resolve: resolve,
-    //             reject: reject,
-    //             options:
-    //                 typeof options !== "undefined"
-    //                     ? options
-    //                     : state.modals[modalNameCamelCase].options,
-    //         },
-    //     };
-    // },
-    // [types.CLOSE_MODAL](state, { modalName }) {
-    //     const modalNameCamelCase = toCamelCase(modalName);
-
-    //     state.modals = {
-    //         ...state.modals,
-    //         [modalNameCamelCase]: {
-    //             ...state.modals[modalNameCamelCase],
-    //             shown: false,
-    //             resolve: null,
-    //             reject: null,
-    //             options: {},
-    //         },
-    //     };
-    // },
+        state.modals = {
+            ...state.modals,
+            [modalNameCamelCase]: {
+                ...state.modals[modalNameCamelCase],
+                shown: false,
+                resolve: null,
+                reject: null,
+                options: {},
+            },
+        };
+    },
 };
