@@ -22,7 +22,16 @@ class PasswordResetLinkController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         description="Email address for password reset",
-     *         @OA\JsonContent(ref="#/components/schemas/UserPasswordResetRequest")
+     *         @OA\JsonContent(
+     *             required={"email"},
+     *             @OA\Property(
+     *                 property="email",
+     *                 type="string",
+     *                 format="email",
+     *                 example="john.smith@example.com",
+     *                 description="User email address"
+     *             )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -38,7 +47,7 @@ class PasswordResetLinkController extends Controller
      *                 property="message",
      *                 type="string",
      *                 example="If that email address is in our system, we have emailed a password reset link.",
-     *                 description="Success message (generic for security)"
+     *                 description="Generic success message for security"
      *             ),
      *             @OA\Property(
      *                 property="data",
@@ -47,7 +56,7 @@ class PasswordResetLinkController extends Controller
      *                     property="status",
      *                     type="string",
      *                     example="passwords.sent",
-     *                     description="Password reset status (only included when email exists)"
+     *                     description="Password reset status (only when email exists)"
      *                 )
      *             ),
      *             @OA\Property(
@@ -58,41 +67,7 @@ class PasswordResetLinkController extends Controller
      *                     type="string",
      *                     format="email",
      *                     example="user@example.com",
-     *                     description="Email address (only included when email exists)"
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *      @OA\Response(
-     *          response=422,
-     *          description="Validation failed",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(
-     *                  property="error",
-     *                  ref="#/components/schemas/ValidationErrorResponse"
-     *              )
-     *          )
-     *      ),
-     *     @OA\Response(
-     *         response=429,
-     *         description="Too many password reset attempts",
-     *         @OA\JsonContent(
-     *             @OA\Property(
-     *                 property="message",
-     *                 type="string",
-     *                 example="Too many password reset attempts. Please wait before retrying."
-     *             ),
-     *             @OA\Property(
-     *                 property="errors",
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="email",
-     *                     type="array",
-     *                     @OA\Items(
-     *                         type="string",
-     *                         example="Please wait before retrying."
-     *                     )
+     *                     description="Email address (only when email exists)"
      *                 )
      *             )
      *         )
@@ -122,7 +97,7 @@ class PasswordResetLinkController extends Controller
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we
         // need to show to the user. Finally, we'll send out a proper response.
-        // try {
+        try {
             // Attempt to send the password reset link
             $status = Password::sendResetLink(
                 $request->only('email')
@@ -151,16 +126,16 @@ class PasswordResetLinkController extends Controller
             throw ValidationException::withMessages([
                 'email' => [trans($status)],
             ]);
-        // } catch (\Exception $e) {
-        //     // Log any exceptions
-        //     Log::error('Password reset exception: ' . $e->getMessage(), [
-        //         'email' => $email,
-        //         'trace' => $e->getTraceAsString()
-        //     ]);
+        } catch (\Exception $e) {
+            // Log any exceptions
+            Log::error('Password reset exception: ' . $e->getMessage(), [
+                'email' => $email,
+                'trace' => $e->getTraceAsString()
+            ]);
 
-        //     throw ValidationException::withMessages([
-        //         'email' => ['Failed to send reset link. Please try again later.'],
-        //     ]);
-        // }
+            throw ValidationException::withMessages([
+                'email' => ['Failed to send reset link. Please try again later.'],
+            ]);
+        }
     }
 }

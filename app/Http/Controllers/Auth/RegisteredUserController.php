@@ -37,62 +37,72 @@ class RegisteredUserController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         description="User registration data",
-     *         @OA\JsonContent(ref="#/components/schemas/UserSignUpRequest")
+     *         @OA\JsonContent(
+     *             required={"email","password","confirm_password"},
+     *             @OA\Property(
+     *                 property="email",
+     *                 type="string",
+     *                 format="email",
+     *                 example="john.smith@example.com",
+     *                 description="User email address"
+     *             ),
+     *             @OA\Property(
+     *                 property="password",
+     *                 type="string",
+     *                 format="password",
+     *                 minLength=8,
+     *                 example="password123",
+     *                 description="User password"
+     *             ),
+     *             @OA\Property(
+     *                 property="confirm_password",
+     *                 type="string",
+     *                 format="password",
+     *                 example="password123",
+     *                 description="Password confirmation"
+     *             )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=201,
      *         description="User successfully registered",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="User registered successfully. Please check your email to verify your account."),
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="User registered successfully. Please check your email to verify your account."
+     *             ),
      *             @OA\Property(
      *                 property="meta",
      *                 type="object",
-     *                 @OA\Property(property="verification_required", type="boolean", example=true),
-     *                 @OA\Property(property="login_enabled", type="boolean", example=false),
-     *                 @OA\Property(property="verification_expires_at", type="string", format="date-time", example="2025-08-01T10:30:00.000000Z")
+     *                 @OA\Property(
+     *                     property="verification_required",
+     *                     type="boolean",
+     *                     example=true,
+     *                     description="Indicates if email verification is required"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="login_enabled",
+     *                     type="boolean",
+     *                     example=false,
+     *                     description="Indicates if login is enabled before verification"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="verification_expires_at",
+     *                     type="string",
+     *                     format="date-time",
+     *                     example="2025-08-01T10:30:00.000000Z",
+     *                     description="Expiration time of the verification link"
+     *                 )
      *             )
      *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid input data",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
-     *             @OA\Property(property="errors", type="object",
-     *                 @OA\Property(property="email", type="array", @OA\Items(type="string", example="Email address is required.")),
-     *                 @OA\Property(property="password", type="array", @OA\Items(type="string", example="Password is required.")),
-     *                 @OA\Property(property="terms_accepted", type="array", @OA\Items(type="string", example="You must accept the terms and conditions.")),
-     *                 @OA\Property(property="privacy_policy_accepted", type="array", @OA\Items(type="string", example="You must accept the privacy policy.")),
-     *               )
-     *           )
-     *       ),
-     *      @OA\Response(
-     *          response=422,
-     *          description="Validation failed",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(
-     *                  property="error",
-     *                  ref="#/components/schemas/ValidationErrorResponse"
-     *              )
-     *          )
-     *      ),
-     *     @OA\Response(
-     *         response=429,
-     *         description="Too many registration attempts",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Too many registration attempts. Please try again later."),
-     *             @OA\Property(property="retry_after", type="integer", example=300)
-     *         )
-     *     ),
+     *     )
      * )
      */
     public function signUp(UserSignUpRequest $request): JsonResponse
     {
-        // try {
+        try {
             DB::beginTransaction();
 
             // Rate limiting check
@@ -149,18 +159,18 @@ class RegisteredUserController extends Controller
                 null,
                 $meta
             );
-        // } catch (Exception $e) {
-        //     DB::rollBack();
+        } catch (Exception $e) {
+            DB::rollBack();
 
-        //     // Log the error
-        //     Log::error('User registration failed', [
-        //         'error' => $e->getMessage(),
-        //         'email' => $request->email ?? 'unknown',
-        //         'ip' => $request->ip(),
-        //         'trace' => $e->getTraceAsString()
-        //     ]);
+            // Log the error
+            Log::error('User registration failed', [
+                'error' => $e->getMessage(),
+                'email' => $request->email ?? 'unknown',
+                'ip' => $request->ip(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-        //     throw new HttpException(500, 'Registration failed. Please try again later.');
-        // }
+            throw new HttpException(500, 'Registration failed. Please try again later.');
+        }
     }
 }

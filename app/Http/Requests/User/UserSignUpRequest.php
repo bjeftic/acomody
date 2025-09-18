@@ -5,15 +5,6 @@ namespace App\Http\Requests\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
-/**
- * @OA\Schema(
- *     title="UserSignUpRequest",
- *     description="User sign up request",
- *     @OA\Property(property="email", type="string", format="email", example="john.smith@example.com"),
- *     @OA\Property(property="password", type="string", format="password", example="password123"),
- *     @OA\Property(property="confirm_password", type="string", format="password", example="password123")
- * )
- */
 class UserSignUpRequest extends FormRequest
 {
     public function authorize(): bool

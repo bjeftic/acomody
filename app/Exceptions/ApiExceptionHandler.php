@@ -39,14 +39,6 @@ class ApiExceptionHandler
 
     /**
      * Handle authentication exceptions
-     * @OA\Schema(
-     *     schema="AuthenticationErrorResponse",
-     *     type="object",
-     *     @OA\Property(property="type", type="string", example="AuthenticationException"),
-     *     @OA\Property(property="status", type="integer", example=401),
-     *     @OA\Property(property="message", type="string", example="Authentication required. Please provide valid credentials."),
-     *     @OA\Property(property="timestamp", type="string", format="date-time", example="2025-08-31T21:42:22.605343Z"),
-     * ),
      */
     public function handleAuthenticationException(
         AuthenticationException|AccessDeniedHttpException $e,
@@ -66,14 +58,6 @@ class ApiExceptionHandler
 
     /**
      * Handle authorization exceptions
-     * @OA\Schema(
-     *     schema="AuthorizationErrorResponse",
-     *     type="object",
-     *     @OA\Property(property="type", type="string", example="AuthorizationException"),
-     *     @OA\Property(property="status", type="integer", example=403),
-     *     @OA\Property(property="message", type="string", example="You do not have permission to perform this action."),
-     *     @OA\Property(property="timestamp", type="string", format="date-time", example="2025-08-31T21:42:22.605343Z"),
-     * ),
      */
     public function handleAuthorizationException(
         AuthorizationException $e,
@@ -93,33 +77,6 @@ class ApiExceptionHandler
 
     /**
      * Handle validation exceptions
-     * @OA\Schema(
-     *     schema="ValidationErrorResponse",
-     *     type="object",
-     *     @OA\Property(property="type", type="string", example="ValidationException"),
-     *     @OA\Property(property="status", type="integer", example=422),
-     *     @OA\Property(property="message", type="string", example="The provided data is invalid."),
-     *     @OA\Property(property="timestamp", type="string", format="date-time", example="2025-08-31T21:42:22.605343Z"),
-     *     @OA\Property(
-     *         property="validation_errors",
-     *         type="array",
-     *         @OA\Items(
-     *             type="object",
-     *             @OA\Property(
-     *                         property="field",
-     *                         type="string",
-     *                         description="The name of the field that caused the validation error.",
-     *                         example="any_field_name"
-     *                       ),
-     *                       @OA\Property(
-     *                           property="message",
-     *                           type="string",
-     *                           description="The validation error message associated with the field.",
-     *                           example="This field is required."
-     *                       )
-     *         )
-     *     )
-     * ),
      */
     public function handleValidationException(
         ValidationException $e,

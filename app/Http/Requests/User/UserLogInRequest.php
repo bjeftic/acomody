@@ -3,20 +3,7 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
-/**
- * Class UserLogInRequest
- *
- * @OA\Schema(
- *     title="UserLogInRequest",
- *     description="User login request",
- *     @OA\Property(property="email", type="string", format="email", example="john.smith@example.com"),
- *     @OA\Property(property="password", type="string", format="password", example="password123"),
- *     @OA\Property(property="remember_me", type="boolean", example=true)
- * )
- */
 class UserLogInRequest extends FormRequest
 {
     public function authorize(): bool

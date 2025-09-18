@@ -34,7 +34,13 @@ class NewPasswordController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         description="Password reset data",
-     *         @OA\JsonContent(ref="#/components/schemas/NewPasswordRequest")
+     *         @OA\JsonContent(
+     *             required={"token","email","password","password_confirmation"},
+     *             @OA\Property(property="token", type="string", example="abc123def456", description="Password reset token"),
+     *             @OA\Property(property="email", type="string", format="email", example="john.smith@example.com", description="User email"),
+     *             @OA\Property(property="password", type="string", format="password", minLength=8, example="newPassword123", description="New password"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="newPassword123", description="Confirm new password")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -48,28 +54,7 @@ class NewPasswordController extends Controller
      *                 @OA\Property(property="email", type="string", example="user@example.com")
      *             )
      *         )
-     *     ),
-     *      @OA\Response(
-     *          response=422,
-     *          description="Validation failed",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(
-     *                  property="error",
-     *                  ref="#/components/schemas/ValidationErrorResponse"
-     *              )
-     *          )
-     *      ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Bad request",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Invalid password provided.")
-     *         )
-     *     ),
-     *          security={
-     *         {"throttle": {"password-reset"}}
-     *     }
+     *     )
      * )
      */
     public function store(NewPasswordRequest $request): JsonResponse

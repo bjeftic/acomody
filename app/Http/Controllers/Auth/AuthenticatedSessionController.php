@@ -38,58 +38,33 @@ class AuthenticatedSessionController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         description="User login credentials",
-     *         @OA\JsonContent(ref="#/components/schemas/UserLogInRequest")
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email", example="john.smith@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123"),
+     *             @OA\Property(property="remember_me", type="boolean", example=true)
+     *         )
      *     ),
      *     @OA\Response(
-     *     response=200,
-     *     description="User successfully logged in",
-     *     @OA\JsonContent(
-     *         @OA\Property(property="success", type="boolean", example=true),
-     *         @OA\Property(property="message", type="string", example="User logged in successfully."),
-     *         @OA\Property(
-     *             property="data",
-     *             type="object",
-     *             @OA\Property(ref="#/components/schemas/UserResource")
-     *         ),
-     *         @OA\Property(
-     *             property="meta",
-     *             type="object",
-     *             @OA\Property(property="login_at", type="string", format="date-time", example="2025-08-31T21:47:00.911232Z"),
-     *             @OA\Property(property="ip_address", type="string", example="172.19.0.1"),
-     *             @OA\Property(property="user_agent", type="string", example="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36")
+     *         response=200,
+     *         description="User successfully logged in",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="User logged in successfully."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(ref="#/components/schemas/User")
+     *             ),
+     *             @OA\Property(
+     *                 property="meta",
+     *                 type="object",
+     *                 @OA\Property(property="login_at", type="string", format="date-time", example="2025-08-31T21:47:00.911232Z"),
+     *                 @OA\Property(property="ip_address", type="string", example="172.19.0.1"),
+     *                 @OA\Property(property="user_agent", type="string", example="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36")
+     *             )
      *         )
      *     )
-     *     ),
-     *      @OA\Response(
-     *          response=422,
-     *          description="Validation failed",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(
-     *                  property="error",
-     *                  ref="#/components/schemas/ValidationErrorResponse"
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response=401,
-     *          description="Authentication failed",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(
-     *                  property="error",
-     *                  ref="#/components/schemas/AuthenticationErrorResponse"
-     *              )
-     *          )
-     *      ),
-     *     @OA\Response(
-     *         response=429,
-     *         description="Too many login attempts",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Too many login attempts. Please try again later.")
-     *         )
-     *     ),
      * )
      */
     public function store(UserLogInRequest $request): JsonResponse
@@ -213,7 +188,6 @@ class AuthenticatedSessionController extends Controller
                 new UserResource($user),
                 $meta
             );
-
         } catch (ValidationException $e) {
             throw $e;
         } catch (Exception $e) {
@@ -268,17 +242,6 @@ class AuthenticatedSessionController extends Controller
      *             )
      *         )
      *     ),
-     *      @OA\Response(
-     *          response=401,
-     *          description="Authentication failed",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(
-     *                  property="error",
-     *                  ref="#/components/schemas/AuthenticationErrorResponse"
-     *              )
-     *          )
-     *      ),
      * )
      */
     public function destroyApi(Request $request): JsonResponse

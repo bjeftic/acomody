@@ -35,7 +35,7 @@ class UserController extends Controller
      *                 @OA\Property(
      *                      property="user",
      *                      type="object",
-     *                      ref="#/components/schemas/UserResource"
+     *                      ref="#/components/schemas/User"
      *                 )
      *             ),
      *             @OA\Property(
@@ -46,18 +46,7 @@ class UserController extends Controller
      *                 @OA\Property(property="account_status", type="string", example="active")
      *             )
      *         )
-     *     ),
-     *      @OA\Response(
-     *          response=401,
-     *          description="Authentication failed",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(
-     *                  property="error",
-     *                  ref="#/components/schemas/AuthenticationErrorResponse"
-     *              )
-     *          )
-     *      ),
+     *     )
      * )
      */
     public function show(Request $request): JsonResponse
