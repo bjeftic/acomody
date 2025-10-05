@@ -19,6 +19,11 @@ const routes = [
         // ],
     },
     {
+        path: '/become-a-host',
+        name: 'page-become-a-host',
+        component: () => import('@/src/views/BecomeAHost.vue'),
+    },
+    {
         path: '/reset-password',
         name: 'page-reset-password',
         component: () => import('@/src/views/auth/ResetPassword.vue'),

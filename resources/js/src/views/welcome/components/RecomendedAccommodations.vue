@@ -225,11 +225,6 @@
 
 <script setup>
 import { ref, computed, onMounted, reactive } from 'vue'
-import {
-  NH1, NText, NCard, NSpace, NGrid, NGridItem, NButton, NIcon,
-  NTag, NEllipsis, NSelect, NInputNumber, NRate, NSpin, NEmpty,
-  NResult, NPagination, NModal, NDescriptions, NDescriptionsItem
-} from 'naive-ui'
 
 // Reactive data
 const loading = ref(false)

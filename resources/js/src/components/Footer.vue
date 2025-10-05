@@ -170,10 +170,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import {
-  NCard, NSpace, NGrid, NGridItem, NText, NButton, NIcon,
-  NDivider, NInput
-} from 'naive-ui'
 
 // Reactive data
 const newsletterEmail = ref('')
