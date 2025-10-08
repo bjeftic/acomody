@@ -1,11 +1,9 @@
 <template>
     <div>
         <div class="min-h-screen">
-            <navbar></navbar>
-            <div class="max-w-[1280px] mx-auto">
-                <router-view></router-view>
-                <modal-index />
-            </div>
+            <navbar class="mb-12"></navbar>
+            <router-view></router-view>
+            <modal-index />
             <Footer class="max-w-[1280px] mx-auto"></Footer>
         </div>
     </div>
@@ -33,5 +31,3 @@ export default {
     },
 };
 </script>
-
-<style></style>

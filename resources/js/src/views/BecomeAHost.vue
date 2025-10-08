@@ -1,5 +1,6 @@
 <template>
-    <div>
+    <base-wrapper>
+        <template v-slot:content>
         <div class="hero">
             <div class="hero-text">
                 <h1>List your property on Booking.com</h1>
@@ -58,7 +59,8 @@
                 >
             </n-card>
         </div>
-    </div>
+        </template>
+    </base-wrapper>
 </template>
 
 <script>

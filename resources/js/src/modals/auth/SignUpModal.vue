@@ -185,18 +185,12 @@
 import config from "@/config";
 import { toCamelCase } from "@/utils/helpers";
 import { mapState, mapActions } from "vuex";
-import { FwbModal, FwbButton, FwbInput } from 'flowbite-vue';
 
 const modalName = config.modals.signUpModal;
 const modalNameCamelCase = toCamelCase(modalName);
 
 export default {
     name: "SignUpModal",
-    components: {
-        FwbModal,
-        FwbButton,
-        FwbInput,
-    },
     computed: {
         ...mapState({
             show: (state) =>

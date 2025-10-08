@@ -12,6 +12,11 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
+      colors: {
+        white: "#ffffff",
+        "white-20": "rgba(255, 255, 255, 0.2)",
+        "white-60": "rgba(255, 255, 255, 0.6)",
+      }
     },
   },
   darkMode: 'class',
