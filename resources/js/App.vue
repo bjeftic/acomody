@@ -4,6 +4,7 @@
             <navbar class="mb-12"></navbar>
             <router-view></router-view>
             <modal-index />
+            <hr />
             <Footer class="max-w-[1280px] mx-auto"></Footer>
         </div>
     </div>

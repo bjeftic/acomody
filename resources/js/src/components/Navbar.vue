@@ -14,7 +14,8 @@
                     <div class="flex items-center gap-4">
                         <!-- Become a host button -->
                         <fwb-button
-                        color="default"
+                            v-if="!isLoggedIn && $route.name !== 'page-become-a-host'"
+                            color="default"
                             @click="
                                 $router.push({ name: 'page-become-a-host' })
                             "
@@ -24,17 +25,11 @@
 
                         <!-- Auth buttons or Account dropdown -->
                         <template v-if="!isLoggedIn">
-                            <fwb-button
-                                outline
-                                @click="openLogInModal"
-                            >
+                            <fwb-button outline @click="openLogInModal">
                                 Log in
                             </fwb-button>
 
-                            <fwb-button
-                            outline
-                                @click="openSignUpModal"
-                            >
+                            <fwb-button outline @click="openSignUpModal">
                                 Sign up
                             </fwb-button>
                         </template>
