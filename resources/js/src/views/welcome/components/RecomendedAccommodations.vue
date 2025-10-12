@@ -1,471 +1,390 @@
 <template>
-  <div class="accommodations-container">
-    <!-- Header with main message -->
-    <n-space vertical size="large">
-      <n-card>
-        <n-space vertical align="center">
-          <n-h1 style="margin: 0; text-align: center; color: #2080f0;">
-            Stay at Our Premium Unique Properties
-          </n-h1>
-          <n-text depth="3" style="font-size: 16px; text-align: center;">
-            Discover the most beautiful destinations and enjoy the comfort of our exclusive accommodations
-          </n-text>
-        </n-space>
-      </n-card>
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-6"
+        >
+        <listing-card v-for="accommodation in paginatedAccommodations" :key="accommodation.id"
+                @click="showDetails(accommodation)" :listing="accommodation"></listing-card>
+        </div>
 
-      <!-- Success/Error Messages -->
-      <n-card v-if="successMessage" type="success">
-        <n-text type="success">{{ successMessage }}</n-text>
-        <n-button text @click="successMessage = ''" style="float: right;">×</n-button>
-      </n-card>
-
-      <n-card v-if="errorMessage" type="error">
-        <n-text type="error">{{ errorMessage }}</n-text>
-        <n-button text @click="errorMessage = ''" style="float: right;">×</n-button>
-      </n-card>
-
-      <!-- Filters -->
-      <n-card title="Filters">
-        <n-space>
-          <n-select
-            v-model:value="filter.location"
-            :options="locationOptions"
-            placeholder="Select location"
-            clearable
-            style="width: 200px"
-            @update:value="filterAccommodations"
-          />
-          <n-input-number
-            v-model:value="filter.maxPrice"
-            placeholder="Max price"
-            :min="0"
-            style="width: 150px"
-            @update:value="filterAccommodations"
-          >
-            <template #suffix>€</template>
-          </n-input-number>
-          <n-rate
-            v-model:value="filter.minRating"
-            :count="5"
-            allow-half
-            @update:value="filterAccommodations"
-          />
-          <n-button @click="resetFilters" secondary>
-            Reset Filters
-          </n-button>
-        </n-space>
-      </n-card>
-
-      <!-- Loading -->
-      <n-spin v-if="loading" size="large">
-        <n-card>
-          <n-empty description="Loading accommodations..." />
-        </n-card>
-      </n-spin>
-
-      <!-- Error -->
-      <n-result
-        v-else-if="error"
-        status="error"
-        title="Error loading data"
-        :description="error"
-      >
-        <template #footer>
-          <n-button @click="loadAccommodations" type="primary">
-            Try Again
-          </n-button>
-        </template>
-      </n-result>
-
-      <!-- Accommodations Grid -->
-      <n-grid v-else :cols="gridCols" :x-gap="16" :y-gap="16" responsive="screen">
-        <n-grid-item v-for="accommodation in filtered" :key="accommodation.id">
-          <n-card
-            hoverable
-            class="accommodation-card"
-            @click="showDetails(accommodation)"
-          >
-            <template #cover>
-              <img
-                :src="accommodation.image"
-                :alt="accommodation.name"
-                style="height: 200px; object-fit: cover;"
-                @error="handleImageError"
-              />
-            </template>
-
+        <!-- Details Modal -->
+        <fwb-modal v-if="showModal" @close="showModal = false" size="2xl">
             <template #header>
-              <n-space justify="space-between" align="center">
-                <n-ellipsis style="max-width: 200px">
-                  {{ accommodation.name }}
-                </n-ellipsis>
-                <n-space align="center" size="small">
-                  <n-icon color="#faad14">
-                    <svg viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                  </n-icon>
-                  <n-text>{{ accommodation.rating }}</n-text>
-                </n-space>
-              </n-space>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-semibold text-gray-900">
+                        Accommodation Details
+                    </h3>
+                </div>
             </template>
 
-            <n-space vertical size="medium">
-              <n-space align="center" size="small">
-                <n-icon color="#52c41a">
-                  <svg viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                  </svg>
-                </n-icon>
-                <n-text depth="3">{{ accommodation.location }}</n-text>
-              </n-space>
+            <template #body>
+                <div v-if="selectedAccommodation" class="space-y-6">
+                    <img
+                        :src="selectedAccommodation.image"
+                        :alt="selectedAccommodation.name"
+                        class="w-full h-72 object-cover rounded-lg"
+                    />
 
-              <n-space size="small">
-                <n-tag
-                  v-for="amenity in accommodation.amenities"
-                  :key="amenity"
-                  size="small"
-                  type="info"
-                >
-                  {{ getAmenityIcon(amenity) }} {{ amenity }}
-                </n-tag>
-              </n-space>
+                    <div
+                        class="border border-gray-200 rounded-lg overflow-hidden"
+                    >
+                        <dl class="divide-y divide-gray-200">
+                            <div
+                                class="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4"
+                            >
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Name
+                                </dt>
+                                <dd
+                                    class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
+                                >
+                                    {{ selectedAccommodation.name }}
+                                </dd>
+                            </div>
+                            <div
+                                class="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4"
+                            >
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Location
+                                </dt>
+                                <dd
+                                    class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
+                                >
+                                    {{ selectedAccommodation.location }}
+                                </dd>
+                            </div>
+                            <div
+                                class="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4"
+                            >
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Price
+                                </dt>
+                                <dd
+                                    class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
+                                >
+                                    €{{ selectedAccommodation.price }} /
+                                    {{ selectedAccommodation.period }}
+                                </dd>
+                            </div>
+                            <div
+                                class="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4"
+                            >
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Rating
+                                </dt>
+                                <dd
+                                    class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
+                                >
+                                    <div class="flex items-center gap-2">
+                                        <fwb-rating
+                                            :rating="
+                                                selectedAccommodation.rating
+                                            "
+                                            :read-only="true"
+                                        />
+                                        <span
+                                            >{{
+                                                selectedAccommodation.rating
+                                            }}
+                                            ({{
+                                                selectedAccommodation.reviewCount
+                                            }})</span
+                                        >
+                                    </div>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
 
-              <n-ellipsis line-clamp="2">
-                <n-text depth="3">{{ accommodation.description }}</n-text>
-              </n-ellipsis>
+                    <div class="flex flex-wrap gap-2">
+                        <span
+                            v-for="amenity in selectedAccommodation.amenities"
+                            :key="amenity"
+                            class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-lg"
+                        >
+                            {{ getAmenityIcon(amenity) }} {{ amenity }}
+                        </span>
+                    </div>
 
-              <n-space justify="space-between" align="center">
-                <n-space align="baseline" size="small">
-                  <n-text strong type="primary" style="font-size: 20px">
-                    €{{ accommodation.price }}
-                  </n-text>
-                  <n-text depth="3">/ {{ accommodation.period }}</n-text>
-                </n-space>
-                <n-text depth="3" size="small">
-                  ({{ accommodation.reviewCount }} reviews)
-                </n-text>
-              </n-space>
-            </n-space>
-          </n-card>
-        </n-grid-item>
-      </n-grid>
+                    <p class="text-gray-700">
+                        {{ selectedAccommodation.description }}
+                    </p>
+                </div>
+            </template>
 
-      <!-- Pagination -->
-      <n-pagination
-        v-if="totalPages > 1"
-        v-model:page="currentPage"
-        :page-count="totalPages"
-        :page-size="itemsPerPage"
-        show-size-picker
-        :page-sizes="[6, 12, 24]"
-        @update:page="changePage"
-        @update:page-size="changePageSize"
-      />
-    </n-space>
-
-    <!-- Details Modal -->
-    <n-modal
-      v-model:show="showModal"
-      preset="card"
-      title="Accommodation Details"
-      style="width: 600px"
-    >
-      <div v-if="selectedAccommodation">
-        <n-space vertical size="large">
-          <img
-            :src="selectedAccommodation.image"
-            :alt="selectedAccommodation.name"
-            style="width: 100%; height: 300px; object-fit: cover; border-radius: 8px;"
-          />
-
-          <n-descriptions :column="2" bordered>
-            <n-descriptions-item label="Name">
-              {{ selectedAccommodation.name }}
-            </n-descriptions-item>
-            <n-descriptions-item label="Location">
-              {{ selectedAccommodation.location }}
-            </n-descriptions-item>
-            <n-descriptions-item label="Price">
-              €{{ selectedAccommodation.price }} / {{ selectedAccommodation.period }}
-            </n-descriptions-item>
-            <n-descriptions-item label="Rating">
-              <n-space align="center" size="small">
-                <n-rate :value="selectedAccommodation.rating" readonly allow-half size="small" />
-                <n-text>{{ selectedAccommodation.rating }} ({{ selectedAccommodation.reviewCount }})</n-text>
-              </n-space>
-            </n-descriptions-item>
-          </n-descriptions>
-
-          <n-space>
-            <n-tag
-              v-for="amenity in selectedAccommodation.amenities"
-              :key="amenity"
-              type="info"
-            >
-              {{ getAmenityIcon(amenity) }} {{ amenity }}
-            </n-tag>
-          </n-space>
-
-          <n-text>{{ selectedAccommodation.description }}</n-text>
-        </n-space>
-      </div>
-
-      <template #action>
-        <n-space justify="end">
-          <n-button round strong @click="showModal = false">Close</n-button>
-          <n-button round strong type="primary" @click="book(selectedAccommodation)">
-            Book Now
-          </n-button>
-        </n-space>
-      </template>
-    </n-modal>
-  </div>
+            <template #footer>
+                <div class="flex justify-end gap-3">
+                    <fwb-button @click="showModal = false" color="alternative">
+                        Close
+                    </fwb-button>
+                    <fwb-button
+                        @click="book(selectedAccommodation)"
+                        color="blue"
+                    >
+                        Book Now
+                    </fwb-button>
+                </div>
+            </template>
+        </fwb-modal>
+    </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted, reactive } from 'vue'
+<script>
+import ListingCard from "@/src/components/ListingCard.vue";
 
-// Reactive data
-const loading = ref(false)
-const error = ref(null)
-const accommodations = ref([])
-const showModal = ref(false)
-const selectedAccommodation = ref(null)
-const currentPage = ref(1)
-const itemsPerPage = ref(6)
-const booking = reactive({})
-const successMessage = ref('')
-const errorMessage = ref('')
+export default {
+    name: "DestinationsGrid",
+    components: {
+        ListingCard,
+    },
+    data() {
+        return {
+            loading: false,
+            error: null,
+            accommodations: [],
+            showModal: false,
+            selectedAccommodation: null,
+            currentPage: 1,
+            itemsPerPage: 6,
+            booking: {},
+            successMessage: "",
+            errorMessage: "",
+            filter: {
+                location: null,
+                maxPrice: null,
+                minRating: 0,
+            },
+        };
+    },
+    computed: {
+        filtered() {
+            let result = this.accommodations;
 
-// Filters
-const filter = reactive({
-  location: null,
-  maxPrice: null,
-  minRating: 0
-})
+            if (this.filter.location) {
+                result = result.filter((a) =>
+                    a.location
+                        .toLowerCase()
+                        .includes(this.filter.location.toLowerCase())
+                );
+            }
 
-// Computed
-const gridCols = computed(() => {
-  return 'xs:1 s:1 m:2 l:3 xl:3 2xl:4'
-})
+            if (this.filter.maxPrice) {
+                result = result.filter((a) => a.price <= this.filter.maxPrice);
+            }
 
-const locationOptions = computed(() => [
-  { label: 'Belgrade', value: 'belgrade' },
-  { label: 'Novi Sad', value: 'novi-sad' },
-  { label: 'Niš', value: 'nis' },
-  { label: 'Zlatibor', value: 'zlatibor' },
-  { label: 'Kopaonik', value: 'kopaonik' }
-])
+            if (this.filter.minRating > 0) {
+                result = result.filter(
+                    (a) => a.rating >= this.filter.minRating
+                );
+            }
 
-const filtered = computed(() => {
-  let result = accommodations.value
+            return result;
+        },
+        totalPages() {
+            return Math.ceil(this.filtered.length / this.itemsPerPage);
+        },
+        paginatedAccommodations() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.filtered.slice(start, end);
+        },
+        visiblePages() {
+            const pages = [];
+            const total = this.totalPages;
+            const current = this.currentPage;
 
-  if (filter.location) {
-    result = result.filter(a =>
-      a.location.toLowerCase().includes(filter.location.toLowerCase())
-    )
-  }
+            if (total <= 7) {
+                for (let i = 1; i <= total; i++) {
+                    pages.push(i);
+                }
+            } else {
+                if (current <= 3) {
+                    for (let i = 1; i <= 5; i++) pages.push(i);
+                } else if (current >= total - 2) {
+                    for (let i = total - 4; i <= total; i++) pages.push(i);
+                } else {
+                    for (let i = current - 2; i <= current + 2; i++)
+                        pages.push(i);
+                }
+            }
 
-  if (filter.maxPrice) {
-    result = result.filter(a => a.price <= filter.maxPrice)
-  }
+            return pages;
+        },
+    },
+    mounted() {
+        this.loadAccommodations();
+    },
+    methods: {
+        async loadAccommodations() {
+            this.loading = true;
+            this.error = null;
 
-  if (filter.minRating > 0) {
-    result = result.filter(a => a.rating >= filter.minRating)
-  }
+            try {
+                // Replace with actual Laravel API call
+                // const response = await axios.get('/api/accommodations')
+                // this.accommodations = response.data
 
-  return result
-})
+                // Mock data
+                await new Promise((resolve) => setTimeout(resolve, 1000));
 
-const totalPages = computed(() =>
-  Math.ceil(filtered.value.length / itemsPerPage.value)
-)
+                this.accommodations = [
+                    {
+                        id: 1,
+                        name: "Luxury City Center Apartment",
+                        location: "Belgrade, Old Town",
+                        price: 85,
+                        period: "night",
+                        rating: 4.9,
+                        reviewCount: 127,
+                        image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=300&fit=crop",
+                        amenities: ["WiFi", "Parking", "Coffee Shop"],
+                        description:
+                            "Elegant apartment in the heart of Belgrade with a view of Kalemegdan",
+                    },
+                    {
+                        id: 2,
+                        name: "Villa with Pool",
+                        location: "Novi Sad, Petrovaradin",
+                        price: 120,
+                        period: "night",
+                        rating: 4.8,
+                        reviewCount: 89,
+                        image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop",
+                        amenities: ["WiFi", "Parking", "Pool"],
+                        description:
+                            "Private villa with pool and beautiful view of the Danube",
+                    },
+                    {
+                        id: 3,
+                        name: "Mountain House",
+                        location: "Zlatibor",
+                        price: 65,
+                        period: "night",
+                        rating: 4.7,
+                        reviewCount: 156,
+                        image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
+                        amenities: ["WiFi", "Fireplace", "Terrace"],
+                        description:
+                            "Rustic house in Zlatibor with authentic ambiance",
+                    },
+                    {
+                        id: 4,
+                        name: "Modern Studio Downtown",
+                        location: "Belgrade, Center",
+                        price: 55,
+                        period: "night",
+                        rating: 4.6,
+                        reviewCount: 203,
+                        image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop",
+                        amenities: ["WiFi", "Kitchen", "Gym"],
+                        description:
+                            "Contemporary studio apartment perfect for business travelers",
+                    },
+                    {
+                        id: 5,
+                        name: "Riverside Cottage",
+                        location: "Novi Sad, Danube",
+                        price: 75,
+                        period: "night",
+                        rating: 4.8,
+                        reviewCount: 94,
+                        image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=300&fit=crop",
+                        amenities: ["WiFi", "Garden", "Boat Access"],
+                        description:
+                            "Charming cottage by the Danube river with private garden",
+                    },
+                    {
+                        id: 6,
+                        name: "Ski Lodge",
+                        location: "Kopaonik",
+                        price: 95,
+                        period: "night",
+                        rating: 4.5,
+                        reviewCount: 167,
+                        image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop",
+                        amenities: ["WiFi", "Ski Storage", "Sauna"],
+                        description:
+                            "Cozy ski lodge with direct access to slopes",
+                    },
+                ];
+            } catch (err) {
+                this.error = "Error loading accommodations. Please try again.";
+                console.error("Error loading accommodations:", err);
+            } finally {
+                this.loading = false;
+            }
+        },
+        filterAccommodations() {
+            this.currentPage = 1;
+        },
+        resetFilters() {
+            this.filter.location = null;
+            this.filter.maxPrice = null;
+            this.filter.minRating = 0;
+            this.currentPage = 1;
+        },
+        showDetails(accommodation) {
+            this.selectedAccommodation = accommodation;
+            this.showModal = true;
+        },
+        async book(accommodation) {
+            this.$set(this.booking, accommodation.id, true);
 
-// Methods
-const loadAccommodations = async () => {
-  loading.value = true
-  error.value = null
+            try {
+                // Laravel API call for booking
+                // await axios.post(`/api/accommodations/${accommodation.id}/book`)
 
-  try {
-    // Replace with actual Laravel API call
-    // const response = await axios.get('/api/accommodations')
+                await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Mock data
-    await new Promise(resolve => setTimeout(resolve, 1000))
+                this.successMessage = `Booking successful! You have booked ${accommodation.name}`;
+                setTimeout(() => {
+                    this.successMessage = "";
+                }, 5000);
 
-    accommodations.value = [
-      {
-        id: 1,
-        name: "Luxury City Center Apartment",
-        location: "Belgrade, Old Town",
-        price: 85,
-        period: "night",
-        rating: 4.9,
-        reviewCount: 127,
-        image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=300&fit=crop",
-        amenities: ["WiFi", "Parking", "Coffee Shop"],
-        description: "Elegant apartment in the heart of Belgrade with a view of Kalemegdan"
-      },
-      {
-        id: 2,
-        name: "Villa with Pool",
-        location: "Novi Sad, Petrovaradin",
-        price: 120,
-        period: "night",
-        rating: 4.8,
-        reviewCount: 89,
-        image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop",
-        amenities: ["WiFi", "Parking", "Pool"],
-        description: "Private villa with pool and beautiful view of the Danube"
-      },
-      {
-        id: 3,
-        name: "Mountain House",
-        location: "Zlatibor",
-        price: 65,
-        period: "night",
-        rating: 4.7,
-        reviewCount: 156,
-        image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
-        amenities: ["WiFi", "Fireplace", "Terrace"],
-        description: "Rustic house in Zlatibor with authentic ambiance"
-      },
-      {
-        id: 4,
-        name: "Modern Studio Downtown",
-        location: "Belgrade, Center",
-        price: 55,
-        period: "night",
-        rating: 4.6,
-        reviewCount: 203,
-        image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop",
-        amenities: ["WiFi", "Kitchen", "Gym"],
-        description: "Contemporary studio apartment perfect for business travelers"
-      },
-      {
-        id: 5,
-        name: "Riverside Cottage",
-        location: "Novi Sad, Danube",
-        price: 75,
-        period: "night",
-        rating: 4.8,
-        reviewCount: 94,
-        image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=300&fit=crop",
-        amenities: ["WiFi", "Garden", "Boat Access"],
-        description: "Charming cottage by the Danube river with private garden"
-      },
-      {
-        id: 6,
-        name: "Ski Lodge",
-        location: "Kopaonik",
-        price: 95,
-        period: "night",
-        rating: 4.5,
-        reviewCount: 167,
-        image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop",
-        amenities: ["WiFi", "Ski Storage", "Sauna"],
-        description: "Cozy ski lodge with direct access to slopes"
-      }
-    ]
-  } catch (err) {
-    error.value = 'Error loading accommodations. Please try again.'
-    console.error('Error loading accommodations:', err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const filterAccommodations = () => {
-  currentPage.value = 1
-}
-
-const resetFilters = () => {
-  filter.location = null
-  filter.maxPrice = null
-  filter.minRating = 0
-  currentPage.value = 1
-}
-
-const showDetails = (accommodation) => {
-  selectedAccommodation.value = accommodation
-  showModal.value = true
-}
-
-const book = async (accommodation) => {
-  booking[accommodation.id] = true
-
-  try {
-    // Laravel API call for booking
-    // await axios.post(`/api/accommodations/${accommodation.id}/book`)
-
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    successMessage.value = `Booking successful! You have booked ${accommodation.name}`
-    setTimeout(() => {
-      successMessage.value = ''
-    }, 5000)
-
-    showModal.value = false
-  } catch (err) {
-    errorMessage.value = 'Booking failed. Please try again.'
-    setTimeout(() => {
-      errorMessage.value = ''
-    }, 5000)
-  } finally {
-    booking[accommodation.id] = false
-  }
-}
-
-const changePage = (page) => {
-  currentPage.value = page
-}
-
-const changePageSize = (size) => {
-  itemsPerPage.value = size
-  currentPage.value = 1
-}
-
-const getAmenityIcon = (amenity) => {
-  const icons = {
-    'WiFi': '📶',
-    'Parking': '🚗',
-    'Pool': '🏊',
-    'Fireplace': '🔥',
-    'Coffee Shop': '☕',
-    'Terrace': '🏡',
-    'Kitchen': '🍳',
-    'Gym': '💪',
-    'Garden': '🌿',
-    'Boat Access': '⛵',
-    'Ski Storage': '🎿',
-    'Sauna': '🧖'
-  }
-  return icons[amenity] || '✨'
-}
-
-const handleImageError = (event) => {
-  event.target.src = 'https://via.placeholder.com/400x300?text=No+Image'
-}
-
-// Lifecycle
-onMounted(() => {
-  loadAccommodations()
-})
+                this.showModal = false;
+            } catch (err) {
+                this.errorMessage = "Booking failed. Please try again.";
+                setTimeout(() => {
+                    this.errorMessage = "";
+                }, 5000);
+            } finally {
+                this.$delete(this.booking, accommodation.id);
+            }
+        },
+        changePage(page) {
+            this.currentPage = page;
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        },
+        getAmenityIcon(amenity) {
+            const icons = {
+                WiFi: "📶",
+                Parking: "🚗",
+                Pool: "🏊",
+                Fireplace: "🔥",
+                "Coffee Shop": "☕",
+                Terrace: "🏡",
+                Kitchen: "🍳",
+                Gym: "💪",
+                Garden: "🌿",
+                "Boat Access": "⛵",
+                "Ski Storage": "🎿",
+                Sauna: "🧖",
+            };
+            return icons[amenity] || "✨";
+        },
+        handleImageError(event) {
+            event.target.src =
+                "https://via.placeholder.com/400x300?text=No+Image";
+        },
+    },
+};
 </script>
 
 <style scoped>
-.accommodations-container {
-  margin: 0 auto;
-}
-
-.accommodation-card {
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.accommodation-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 </style>

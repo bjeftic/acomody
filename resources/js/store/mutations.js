@@ -19,6 +19,13 @@ export default {
     [types.CLEAR_AUTH](state) {
         state.currentUser = null;
         state.isAuthenticated = false;
+        state.token = null;
+        state.tokenExpiration = null;
+
+        localStorage.removeItem('token');
+        localStorage.removeItem('token_expiration');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('token_expiration');
     },
 
     /**

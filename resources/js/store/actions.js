@@ -66,9 +66,13 @@ export const logIn = (
     return axios
         .post("/log-in", { email, password, remember_me: rememberMe })
         .then((response) => {
-            commit("SET_AUTHENTICATED", true);
-            dispatch("fetchUser");
-            return Promise.resolve(response);
+            commit(types.SET_AUTHENTICATED, true);
+            commit(types.SET_INITIALIZED, true);
+
+            // Fetch user data
+            return dispatch("fetchUser").then(() => {
+                return Promise.resolve(response);
+            });
         })
         .catch((error) => {
             return Promise.reject(error);

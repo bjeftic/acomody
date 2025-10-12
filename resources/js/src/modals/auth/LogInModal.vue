@@ -28,7 +28,9 @@
                         v-model="formData.email"
                         type="email"
                         placeholder="john@example.com"
-                        :validation-status="logInErrors.email ? 'error' : undefined"
+                        :validation-status="
+                            logInErrors.email ? 'error' : undefined
+                        "
                     />
                     <p
                         v-if="logInErrors.email"
@@ -50,7 +52,9 @@
                         v-model="formData.password"
                         type="password"
                         placeholder="Enter your password"
-                        :validation-status="logInErrors.password ? 'error' : undefined"
+                        :validation-status="
+                            logInErrors.password ? 'error' : undefined
+                        "
                     />
                     <p
                         v-if="logInErrors.password"
@@ -108,10 +112,7 @@
                     :disabled="isGoogleLoading"
                 >
                     <template #prefix>
-                        <svg
-                            class="w-5 h-5 mr-2"
-                            viewBox="0 0 24 24"
-                        >
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
                             <path
                                 fill="#4285F4"
                                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -233,14 +234,24 @@ export default {
             this.isLoading = true;
             await this.logIn(this.formData)
                 .then(() => {
-                    this.$router.push({ name: "page-welcome" });
-                    this.close();
+                    console.log("Login successful");
+
+                    // Just close modal and resolve promise
+                    // Middleware will handle the redirect
+                    this.ok();
                 })
                 .catch((e) => {
-                    if (e.response && e.response.data && e.response.data.error) {
-                        this.logInErrors = e.response.data.error.validation_errors || {};
+                    if (
+                        e.response &&
+                        e.response.data &&
+                        e.response.data.error
+                    ) {
+                        this.logInErrors =
+                            e.response.data.error.validation_errors || {};
                     } else {
-                        this.logInErrors = { general: ['An error occurred. Please try again.'] };
+                        this.logInErrors = {
+                            general: ["An error occurred. Please try again."],
+                        };
                     }
                 })
                 .finally(() => {
@@ -252,18 +263,22 @@ export default {
 
             // Email validation
             if (!this.formData.email) {
-                errors.email = ['Email address is required'];
+                errors.email = ["Email address is required"];
             } else if (!this.isValidEmail(this.formData.email)) {
-                errors.email = ['Please enter a valid email address'];
+                errors.email = ["Please enter a valid email address"];
             }
 
             // Password validation
             if (!this.formData.password) {
-                errors.password = ['Password is required'];
+                errors.password = ["Password is required"];
             } else if (this.formData.password.length < 6) {
-                errors.password = ['Password must be at least 6 characters'];
-            } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.formData.password)) {
-                errors.password = ['Password must contain at least one uppercase letter, one lowercase letter, and one number'];
+                errors.password = ["Password must be at least 6 characters"];
+            } else if (
+                !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.formData.password)
+            ) {
+                errors.password = [
+                    "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+                ];
             }
 
             return errors;
@@ -302,11 +317,16 @@ export default {
             }, 1000);
         },
         ok() {
-            this.resolve !== null && this.resolve({ formData: this.formData });
-            this.close();
+            if (this.resolve !== null) {
+                this.resolve({ success: true });
+            }
+            this.closeModal({ modalName: this.modalName });
         },
         close() {
-            // Reset form data
+            if (this.reject !== null) {
+                this.reject(new Error('Login cancelled'));
+            }
+
             Object.assign(this.$data, this.$options.data.call(this));
             this.closeModal({ modalName: this.modalName });
         },

@@ -12,6 +12,14 @@
 
                     <!-- Navigation Items -->
                     <div class="flex items-center gap-4">
+                        <fwb-button
+                            color="default"
+                            @click="
+                                $router.push({ name: 'page-hosting-home' })
+                            "
+                        >
+                            Hosting
+                        </fwb-button>
                         <!-- Become a host button -->
                         <fwb-button
                             v-if="!isLoggedIn && $route.name !== 'page-become-a-host'"

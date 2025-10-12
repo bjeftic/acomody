@@ -1,22 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router';
-// import settingsRoutes from '@/pages/settings/router/index.js';
-// import guidebooksRoutes from '@/pages/guidebooks/router/index.js';
-// import store from '@/store';
+import store from '@/store';
 
 const routes = [
     {
         path: '/',
         name: 'page-welcome',
         component: () => import('@/src/views/welcome/Welcome.vue'),
-        // children: [
-        //     {
-        //         path: 'home',
-        //         name: 'page-dashboard-home',
-        //         component: () => import("@/pages/home/Home.vue"),
-        //     },
-        //     ...settingsRoutes,
-        //     ...guidebooksRoutes,
-        // ],
+    },
+    {
+        path: '/hosting',
+        name: 'page-hosting-home',
+        component: () => import('@/src/views/hosting/Home.vue'),
+        meta: {
+            requiresAuth: true
+        },
     },
     {
         path: '/become-a-host',
@@ -52,8 +49,55 @@ const router = createRouter({
     },
 });
 
+// Track current actual route and modal state
+let lastSuccessfulRoute = '/';
+let authModalShowing = false;
+
+// ============================================
+// TRACK SUCCESSFUL NAVIGATIONS
+// ============================================
+router.afterEach((to) => {
+    lastSuccessfulRoute = to.path;
+});
+
+// ============================================
+// GLOBAL BEFORE EACH - CHECK AUTH
+// ============================================
 router.beforeEach((to, from, next) => {
+
+    // CHECK AUTH
+    if (to.meta.requiresAuth && !store.getters.isSessionValid) {
+
+        // Prevent duplicate modals
+        if (authModalShowing) {
+            return next(false);
+        }
+
+        // Determine where to redirect back to
+        const stayOnPath = from.name ? from.path : lastSuccessfulRoute;
+        authModalShowing = true;
+
+        // CRITICAL: Redirect to current route instead of next(false)
+        next({ path: stayOnPath, replace: true });
+
+        // Open modal after redirect
+        setTimeout(() => {
+            store.dispatch('openModal', {
+                modalName: 'logInModal',
+                options: {
+                    redirectTo: to.fullPath
+                }
+            }).then(() => {
+                authModalShowing = false;
+                router.push(to.fullPath);
+            }).catch(() => {
+                authModalShowing = false;
+            });
+        }, 0);
+
+        return;
+    }
     next();
-  });
+});
 
 export default router;
