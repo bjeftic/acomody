@@ -231,7 +231,8 @@ export default {
         };
     },
     methods: {
-        ...mapActions(["initModal", "closeModal", "openModal", "signUp", "logIn"]),
+        ...mapActions(["initModal", "closeModal", "openModal"]),
+        ...mapActions("auth", ["signUp", "logIn"]),
         async handleSignUp() {
             if (this.isProcessing) return;
 
@@ -344,6 +345,3 @@ export default {
 };
 </script>
 
-<style scoped>
-/* Tailwind će se pobrinuti za sve stilove */
-</style>

@@ -220,7 +220,8 @@ export default {
         };
     },
     methods: {
-        ...mapActions(["openModal", "initModal", "closeModal", "logIn"]),
+        ...mapActions(["openModal", "initModal", "closeModal"]),
+        ...mapActions("auth", ["logIn"]),
         async handleLogIn() {
             this.clearMessage();
 
@@ -324,7 +325,7 @@ export default {
         },
         close() {
             if (this.reject !== null) {
-                this.reject(new Error('Login cancelled'));
+                this.reject(new Error("Login cancelled"));
             }
 
             Object.assign(this.$data, this.$options.data.call(this));

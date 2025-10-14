@@ -104,10 +104,11 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(["isLoggedIn"]),
+        ...mapGetters("auth", ["isLoggedIn"]),
     },
     methods: {
-        ...mapActions(["openModal", "logOut"]),
+        ...mapActions(["openModal"]),
+        ...mapActions("auth", ["logOut"]),
         openLogInModal() {
             this.openModal({
                 modalName: "logInModal",

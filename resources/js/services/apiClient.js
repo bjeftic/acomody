@@ -12,7 +12,7 @@ const apiClient = new EnhancedFluentApiClient(window.location.origin, {
 
   onUnauthorized: (error) => {
     // Clear authentication state in Vuex
-    store.commit('CLEAR_AUTH')
+    store.commit('auth/CLEAR_AUTH')
 
     // Optional: Emit event for components to listen to
     if (typeof window !== 'undefined' && window.Vue) {

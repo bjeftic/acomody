@@ -1,20 +1,24 @@
 import { createStore } from 'vuex';
 import * as actions from "@/store/actions.js";
 import state from "@/store/state.js";
-import * as getters from "@/store/getters.js";
 import mutations from "@/store/mutations.js";
-// import guidebooks from "@/pages/guidebooks/store";
-// import settings from "@/pages/settings/store";
+import auth from "@/store/modules/auth";
+import user from "@/store/modules/user";
+// import hosting from "@/store/modules/hosting";
+// import search from "@/store/modules/search";
+import ui from "@/store/modules/ui";
 
 const store = createStore({
     strict: true,
     actions,
-    getters,
     state,
     mutations,
     modules: {
-        // guidebooks,
-        // settings,
+        auth,
+        user,
+        // hosting,
+        // search,
+        ui,
     }
 });
 
