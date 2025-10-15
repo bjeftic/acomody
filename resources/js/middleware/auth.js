@@ -4,9 +4,8 @@
  * Keeps user on current page until login is complete
  */
 export default function auth({ to, from, next, store, router }) {
-
     // Check if user is already authenticated
-    if (store.getters.isSessionValid) {
+    if (store.getters['auth/isSessionValid']) {
         return next();
     }
 

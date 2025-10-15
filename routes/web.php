@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\NewPasswordController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,7 +13,7 @@ Route::post('/log-in', [AuthenticatedSessionController::class, 'storeWeb'])
     ->middleware('guest');
 
 Route::get('/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
-    ->middleware(['signed', 'throttle:6,1'])
+    ->middleware(['throttle:6,1'])
     ->name('verification.verify');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {

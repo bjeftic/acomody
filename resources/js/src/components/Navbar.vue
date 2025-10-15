@@ -13,16 +13,21 @@
                     <!-- Navigation Items -->
                     <div class="flex items-center gap-4">
                         <fwb-button
-                            color="default"
-                            @click="
-                                $router.push({ name: 'page-hosting-home' })
+                            v-if="
+                                isLoggedIn &&
+                                $route.name !== 'page-hosting-home'
                             "
+                            color="alternative"
+                            @click="$router.push({ name: 'page-hosting-home' })"
                         >
                             Hosting
                         </fwb-button>
                         <!-- Become a host button -->
                         <fwb-button
-                            v-if="!isLoggedIn && $route.name !== 'page-become-a-host'"
+                            v-if="
+                                !isLoggedIn &&
+                                $route.name !== 'page-become-a-host'
+                            "
                             color="default"
                             @click="
                                 $router.push({ name: 'page-become-a-host' })
@@ -42,15 +47,47 @@
                             </fwb-button>
                         </template>
                         <template v-else>
-                            <fwb-dropdown text="Account" size="lg">
-                                <fwb-list-group-item
-                                    v-for="option in accountOptions"
-                                    :key="option.key"
-                                    @click="handleSelect(option.key)"
-                                    class="cursor-pointer hover:bg-gray-100"
+                            <fwb-dropdown
+                                text="Account"
+                                size="lg"
+                                align-to-end
+                                close-inside
+                            >
+                                <nav
+                                    class="py-2 text-sm text-gray-700 dark:text-gray-200 flex flex-col"
                                 >
-                                    {{ option.label }}
-                                </fwb-list-group-item>
+                                    <span
+                                        class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                    >
+                                        My account
+                                    </span>
+                                    <span
+                                        class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                    >
+                                        Dashboard
+                                    </span>
+                                    <span
+                                        class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                    >
+                                        Bookings
+                                    </span>
+                                    <span
+                                        class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                    >
+                                        Wishlists
+                                    </span>
+                                    <span
+                                        class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                    >
+                                        Reviews
+                                    </span>
+                                    <span
+                                        class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="logOut"
+                                    >
+                                        Log out
+                                    </span>
+                                </nav>
                             </fwb-dropdown>
                         </template>
                     </div>
@@ -62,47 +99,9 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { FwbButton, FwbDropdown, FwbListGroupItem } from "flowbite-vue";
 
 export default {
     name: "Navbar",
-    components: {
-        FwbButton,
-        FwbDropdown,
-        FwbListGroupItem,
-    },
-    data() {
-        return {
-            selectedDestination: "",
-
-            accountOptions: [
-                {
-                    label: "My account",
-                    key: "my-account",
-                },
-                {
-                    label: "Dashboard",
-                    key: "dashboard",
-                },
-                {
-                    label: "Bookings",
-                    key: "bookings",
-                },
-                {
-                    label: "Wishlist",
-                    key: "wishlist",
-                },
-                {
-                    label: "Reviews",
-                    key: "reviews",
-                },
-                {
-                    label: "Log out",
-                    key: "log-out",
-                },
-            ],
-        };
-    },
     computed: {
         ...mapGetters("auth", ["isLoggedIn"]),
     },
@@ -118,14 +117,6 @@ export default {
             this.openModal({
                 modalName: "signUpModal",
             });
-        },
-        handleSelect(key) {
-            if (key === "log-out") {
-                this.logOut();
-            } else {
-                // Handle other account options
-                console.log("Selected:", key);
-            }
         },
     },
 };

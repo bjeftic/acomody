@@ -25,7 +25,7 @@
                     <div
                         v-if="showDestinationDropdown && filteredDestinations.length > 0"
                         ref="destinationDropdown"
-                        class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-60 overflow-y-auto"
+                        class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 max-h-60 overflow-y-auto"
                     >
                         <div
                             v-for="(option, index) in filteredDestinations"
@@ -61,7 +61,7 @@
                     <div
                         v-if="showCalendar"
                         ref="calendarDropdown"
-                        class="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-6 z-50"
+                        class="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-6"
                         style="width: 660px"
                         @click.stop
                     >
@@ -199,7 +199,7 @@
                     <div
                         v-if="showGuestsDropdown"
                         ref="guestsDropdown"
-                        class="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-50"
+                        class="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4"
                         style="width: 320px"
                         @click.stop
                     >

@@ -2,19 +2,25 @@ import apiClient from "@/services/apiClient";
 import * as types from "./mutation-types";
 import axios from "axios";
 
-export const initializeAuth = async ({ commit, dispatch, getters }) => {
+export const initializeAuth = async ({ commit, dispatch }) => {
     try {
         if (typeof window !== "undefined" && window.initialAuthState) {
             if (
                 window.initialAuthState.isAuthenticated &&
                 window.initialAuthState.user
             ) {
-                commit("SET_USER", window.initialAuthState.user);
+                commit(
+                    "user/SET_CURRENT_USER",
+                    window.initialAuthState.user,
+                    null,
+                    { root: true }
+                );
+                commit("SET_AUTHENTICATED", true);
                 return;
             }
         }
 
-        await dispatch("fetchUser");
+        await dispatch("user/fetchUser", null, { root: true });
     } catch (error) {
         //
     } finally {
@@ -38,26 +44,29 @@ export const signUp = async ({}, { email, password, confirmPassword }) => {
         });
 };
 
-export const logIn = (
+export const logIn = async (
     { commit, dispatch },
-    { email, password, rememberMe }
+    { email, password, rememberMe = false }
 ) => {
-    commit(types.CLEAR_AUTH);
+    // Commit to root store
+    commit("CLEAR_AUTH");
 
-    return axios
-        .post("/log-in", { email, password, remember_me: rememberMe })
-        .then((response) => {
-            commit(types.SET_AUTHENTICATED, true);
-            commit(types.SET_INITIALIZED, true);
-
-            // Fetch user data
-            return dispatch("fetchUser").then(() => {
-                return Promise.resolve(response);
-            });
-        })
-        .catch((error) => {
-            return Promise.reject(error);
+    try {
+        const response = await axios.post("/log-in", {
+            email,
+            password,
+            remember_me: rememberMe,
         });
+
+        commit("SET_AUTHENTICATED", true);
+        commit("SET_INITIALIZED", true);
+
+        await dispatch("user/fetchUser", null, { root: true });
+
+        return response;
+    } catch (error) {
+        throw error;
+    }
 };
 
 export const forgotPassword = async ({}, email) => {
@@ -120,21 +129,20 @@ export const resendVerificationEmail = async ({}) => {
         });
 };
 
-export const logOut = async ({ commit, rootState }) => {
+export const logOut = async ({ commit }) => {
     try {
         const response = await axios.post("/log-out");
 
-        if (response.data.success) {
-            // Clear all auth data
-            commit("CLEAR_AUTH");
-
-            window.location.href = "/";
-            return response;
-        } else {
-            throw new Error(response.error?.message || "Logout failed");
-        }
-    } catch (error) {
+        // Clear auth data regardless of response
         commit("CLEAR_AUTH");
+        window.location.href = "/";
+        return response;
+    } catch (error) {
+        console.error("Logout failed:", error);
+        // Clear auth even on error
+        commit("CLEAR_AUTH");
+        // Redirect anyway
+        window.location.href = "/";
         return Promise.reject(error);
     }
 };

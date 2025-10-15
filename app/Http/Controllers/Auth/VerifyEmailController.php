@@ -25,20 +25,24 @@ class VerifyEmailController extends Controller
                 throw new AuthenticationException('User not authenticated.');
             }
 
+            // Url signature expired
+            if ($request->hasValidSignature() === false) {
+                return redirect('/email-verify?status=error&message=' . urlencode('Verification link has expired.'));
+            }
+
             // Check if signature is valid
             if (!$request->hasValidSignature()) {
-                return ApiResponse::error('Invalid verification link.', null, null, 401);
+                return redirect('/email-verify?status=error&message=' . urlencode('Invalid verification link.'));
             }
 
             // Check if hash matches user's email
             if (!hash_equals($hash, sha1($user->getEmailForVerification()))) {
-                return ApiResponse::error('Invalid verification link.', null, null, 401);
+                return redirect('/email-verify?status=error&message=' . urlencode('Invalid verification link.'));
             }
 
             // Check if email is already verified
             if ($user->hasVerifiedEmail()) {
-                return redirect('/email-verify');
-                return ApiResponse::success('Email already verified.');
+                return redirect('/email-verify?status=info&message=' . urlencode('Email already verified.'));
             }
 
             // Mark email as verified
@@ -46,19 +50,12 @@ class VerifyEmailController extends Controller
                 event(new Verified($user));
             }
 
-            return redirect('/email-verify');
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return ApiResponse::error('User not found.', null, null, 404);
-        } catch (\Exception $e) {
-            Log::error('Email verification error: ' . $e->getMessage(), [
-                'id' => $id,
-                'hash' => $hash,
-                'signature' => $request->query('signature'),
-                'expires' => $request->query('expires'),
-                'url' => $request->fullUrl(),
-            ]);
+            return redirect('/email-verify?status=success&message=' . urlencode('Email successfully verified!'));
 
-            return ApiResponse::error('Email verification failed. Please try again later.', null, null, 500);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect('/email-verify?status=error&message=' . urlencode('User not found.'));
+        } catch (\Exception $e) {
+            return redirect('/email-verify?status=error&message=' . urlencode('Email verification failed. Please try again later.'));
         }
     }
 

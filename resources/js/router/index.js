@@ -66,7 +66,7 @@ router.afterEach((to) => {
 router.beforeEach((to, from, next) => {
 
     // CHECK AUTH
-    if (to.meta.requiresAuth && !store.getters.isSessionValid) {
+    if (to.meta.requiresAuth && !store.getters['auth/isSessionValid']) {
 
         // Prevent duplicate modals
         if (authModalShowing) {

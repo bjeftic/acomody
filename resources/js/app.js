@@ -15,6 +15,9 @@ import {
     FwbCard,
     FwbInput,
     FwbCheckbox,
+    FwbDropdown,
+    FwbListGroup,
+    FwbListGroupItem,
     FwbRating,
     FwbSpinner,
     FwbFooter,
@@ -42,6 +45,9 @@ app.component("FwbButton", FwbButton);
 app.component("FwbCard", FwbCard);
 app.component("FwbInput", FwbInput);
 app.component("FwbCheckbox", FwbCheckbox);
+app.component("FwbDropdown", FwbDropdown);
+app.component("FwbListGroup", FwbListGroup);
+app.component("FwbListGroupItem", FwbListGroupItem);
 app.component("FwbRating", FwbRating);
 app.component("FwbSpinner", FwbSpinner);
 app.component("FwbFooter", FwbFooter);
@@ -53,7 +59,8 @@ app.component("FormWrapper", FormWrapper);
 app.component("SearchWrapper", SearchWrapper);
 app.component("ValidationAlertBox", ValidationAlertBox);
 
-app.use(router);
-app.use(store);
-
-app.mount("#app");
+store.dispatch('auth/initializeAuth').finally(() => {
+    app.use(store);
+    app.use(router);
+    app.mount('#app');
+});

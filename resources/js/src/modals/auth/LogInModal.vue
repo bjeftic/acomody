@@ -235,7 +235,6 @@ export default {
             this.isLoading = true;
             await this.logIn(this.formData)
                 .then(() => {
-                    console.log("Login successful");
 
                     // Just close modal and resolve promise
                     // Middleware will handle the redirect

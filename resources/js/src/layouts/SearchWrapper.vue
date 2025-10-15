@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="sticky top-0 z-10">
+        <div class="sticky top-0">
             <searchbar></searchbar>
         </div>
         <div class="max-w-[1280px] mx-auto">

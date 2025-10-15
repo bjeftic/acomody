@@ -1,11 +1,11 @@
-export const isLoggedIn = (state) => {
+export const isLoggedIn = (state, getters, rootState) => {
   return state.isAuthenticated &&
-         state.currentUser !== null &&
-         state.currentUser !== undefined;
+         rootState.user.currentUser !== null &&
+         rootState.user.currentUser !== undefined;
 };
 export const isAuthInitialized = (state) => state.isInitialized;
-export const isSessionValid = (state) => {
+export const isSessionValid = (state, getters, rootState) => {
   return state.isInitialized &&
          state.isAuthenticated &&
-         state.currentUser !== null;
+         rootState.user.currentUser !== null;
 };

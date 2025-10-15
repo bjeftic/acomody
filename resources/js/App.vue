@@ -24,11 +24,10 @@ export default {
         Footer,
     },
     methods: {
-        ...mapActions(["initializeAuth", "getCsrfCookie"]),
+        ...mapActions(["getCsrfCookie"]),
     },
     async created() {
         await this.getCsrfCookie();
-        await this.initializeAuth();
     },
 };
 </script>
