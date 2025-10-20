@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import hostingRoutes from '@/src/views/hosting/router';
 import store from '@/store';
 
 const routes = [
@@ -14,6 +15,8 @@ const routes = [
         meta: {
             requiresAuth: true
         },
+        redirect: '/hosting/dashboard',
+        children: hostingRoutes,
     },
     {
         path: '/become-a-host',
@@ -44,7 +47,7 @@ const router = createRouter({
         if (savedPosition) {
             return savedPosition;
         } else {
-            return { x: 0, y: 0 };
+            return { top: 0, left: 0 };
         }
     },
 });

@@ -1,7 +1,7 @@
 <template>
     <div>
         <fwb-navbar class="bg-white border-b border-gray-200">
-            <div class="max-w-7xl mx-auto">
+            <div class="px-4 sm:px-0 max-w-7xl mx-auto">
                 <div class="flex justify-between items-center h-16">
                     <!-- Logo/Brand -->
                     <div class="flex items-center">
@@ -54,7 +54,7 @@
                                 close-inside
                             >
                                 <nav
-                                    class="py-2 text-sm text-gray-700 dark:text-gray-200 flex flex-col"
+                                    class="py-2 text-sm rounded-lg text-gray-700 border border-gray-200 dark:text-gray-200 dark:border-gray-700 flex flex-col"
                                 >
                                     <span
                                         class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"

@@ -4,6 +4,7 @@ import { createApp } from "vue";
 import router from "./router";
 import store from "./store";
 
+//Flowbite Vue Components
 import {
     FwbAlert,
     FwbAccordion,
@@ -28,12 +29,31 @@ import {
 
 import App from "./App.vue";
 
+//Wrappers
 import BaseWrapper from "@/src/layouts/BaseWrapper.vue";
 import FormWrapper from "@/src/layouts/FormWrapper.vue";
 import SearchWrapper from "./src/layouts/SearchWrapper.vue";
+
+//Custom Components
 import ValidationAlertBox from "@/src/components/ValidationAlertBox.vue";
 
+//Common Components
+import ActionCard from "@/src/components/common/ActionCard.vue";
+import SelectActionCard from "@/src/components/common/SelectActionCard.vue";
+
+
 const app = createApp(App);
+
+const iconModules = import.meta.glob('@/src/components/icons/*.vue', { eager: true });
+
+Object.entries(iconModules).forEach(([path, module]) => {
+    const iconName = path
+        .split('/')
+        .pop()
+        .replace(/\.\w+$/, '') + 'Icon';
+
+    app.component(iconName, module.default);
+});
 
 app.component("FwbAlert", FwbAlert);
 app.component("FwbAccordion", FwbAccordion);
@@ -54,10 +74,19 @@ app.component("FwbFooter", FwbFooter);
 app.component("FwbFooterCopyright", FwbFooterCopyright);
 app.component("FwbFooterLink", FwbFooterLink);
 app.component("FwbFooterLinkGroup", FwbFooterLinkGroup);
+
+//Wrappers
 app.component("BaseWrapper", BaseWrapper);
 app.component("FormWrapper", FormWrapper);
 app.component("SearchWrapper", SearchWrapper);
+
+//Custom Components
 app.component("ValidationAlertBox", ValidationAlertBox);
+
+//Common Components
+app.component("ActionCard", ActionCard);
+app.component("SelectActionCard", SelectActionCard);
+
 
 store.dispatch('auth/initializeAuth').finally(() => {
     app.use(store);

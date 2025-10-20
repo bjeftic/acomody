@@ -1,15 +1,13 @@
 <template>
-    <div>
-        <h1>Hosting Home</h1>
-    </div>
+    <base-wrapper>
+        <template #content>
+            <router-view></router-view>
+        </template>
+    </base-wrapper>
 </template>
 
 <script>
 export default {
-
-}
+    name: "HostingHome",
+};
 </script>
-
-<style>
-
-</style>
