@@ -10,6 +10,15 @@ enum AccommodationOccupation: string
     case PRIVATE_ROOM = 'private-room';
     case SHARED_ROOM = 'shared-room';
 
+    public function id(): int
+    {
+        return match($this) {
+            self::ENTIRE_PLACE => 1,
+            self::PRIVATE_ROOM => 2,
+            self::SHARED_ROOM => 3,
+        };
+    }
+
     public function label(): string
     {
         return match($this) {
@@ -31,22 +40,65 @@ enum AccommodationOccupation: string
     public static function forAccommodationType(AccommodationType $accommodationType): array
     {
         return match($accommodationType->slug) {
-            'apartment', 'house', 'villa' => [
+            'apartment', 'house', 'villa', 'townhouse', 'condo' => [
                 self::ENTIRE_PLACE,
                 self::PRIVATE_ROOM,
                 self::SHARED_ROOM
             ],
-            'hotel', 'resort' => [
+
+            'penthouse', 'castle', 'yacht' => [
+                self::ENTIRE_PLACE
+            ],
+
+            'studio', 'cottage', 'cabin', 'chalet', 'bungalow', 'loft', 'tiny-house' => [
+                self::ENTIRE_PLACE,
                 self::PRIVATE_ROOM
             ],
+
+            'hotel', 'resort', 'motel', 'pension-inn' => [
+                self::PRIVATE_ROOM
+            ],
+
             'hostel' => [
                 self::SHARED_ROOM,
                 self::PRIVATE_ROOM
             ],
-            'guest-house', 'bnb' => [
+
+            'guesthouse', 'bed-breakfast', 'homestay', 'guest-suite' => [
+                self::ENTIRE_PLACE,
+                self::PRIVATE_ROOM,
+                self::SHARED_ROOM
+            ],
+
+            'farm-stay', 'barn' => [
                 self::ENTIRE_PLACE,
                 self::PRIVATE_ROOM
             ],
+
+            'boat', 'houseboat' => [
+                self::ENTIRE_PLACE,
+                self::PRIVATE_ROOM
+            ],
+
+            'camper' => [
+                self::ENTIRE_PLACE
+            ],
+
+            'camping-tent', 'tent', 'glamping', 'yurt' => [
+                self::ENTIRE_PLACE,
+                self::SHARED_ROOM
+            ],
+
+            'treehouse', 'dome', 'container', 'cave', 'lighthouse',
+            'windmill', 'earth-house', 'shepherd-hut', 'igloo' => [
+                self::ENTIRE_PLACE
+            ],
+
+            'cycladic', 'trullo', 'riad', 'ryokan', 'casa' => [
+                self::ENTIRE_PLACE,
+                self::PRIVATE_ROOM
+            ],
+
             default => [
                 self::ENTIRE_PLACE
             ],

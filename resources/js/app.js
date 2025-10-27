@@ -29,6 +29,7 @@ import {
     FwbFooterIcon,
     FwbFooterLink,
     FwbFooterLinkGroup,
+    FwbTooltip,
 } from "flowbite-vue";
 
 import App from "./App.vue";
@@ -82,6 +83,7 @@ app.component("FwbFooterCopyright", FwbFooterCopyright);
 app.component("FwbFooterIcon", FwbFooterIcon);
 app.component("FwbFooterLink", FwbFooterLink);
 app.component("FwbFooterLinkGroup", FwbFooterLinkGroup);
+app.component("FwbTooltip", FwbTooltip);
 
 //Wrappers
 app.component("BaseWrapper", BaseWrapper);

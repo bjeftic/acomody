@@ -21,7 +21,7 @@
                                 class="max-w-2xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 overflow-auto max-h-[500px] py-4 pr-4"
                             >
                                 <select-action-card
-                                    v-for="type in propertyTypes"
+                                    v-for="type in accommodationTypes"
                                     :key="type.id"
                                     :id="type.id"
                                     :title="type.name"
@@ -30,12 +30,18 @@
                                         formData.propertyType === type.id
                                     "
                                     @select="selectPropertyType"
-                                />
+                                >
+                                <template #icon>
+                                    <component
+                                        :is="type.icon + 'Icon'"
+                                    ></component>
+                                </template>
+                                </select-action-card>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Step 2: Location Type -->
+                    <!-- Step 2: Occupation Type -->
                     <div v-else-if="currentStep === 2">
                         <h1
                             class="text-3xl font-semibold text-gray-900 dark:text-white mb-8"
@@ -48,14 +54,14 @@
 
                         <div class="space-y-4 py-4">
                             <action-card
-                                v-for="location in locationTypes"
-                                :key="location.id"
-                                :title="location.name"
-                                :description="location.description"
+                                v-for="occupation in accommodationOccupations"
+                                :key="occupation.id"
+                                :title="occupation.name"
+                                :description="occupation.description"
                                 :selected="
-                                    formData.locationType === location.id
+                                    formData.accommodationOccupation === occupation.id
                                 "
-                                @click="selectLocationType(location.id)"
+                                @click="selectAccommodationOccupation(occupation.id)"
                             />
                         </div>
                     </div>
@@ -191,7 +197,7 @@ export default {
             totalSteps: 3,
             formData: {
                 propertyType: null,
-                locationType: null,
+                accommodationOccupation: null,
                 address: {
                     country: "",
                     street: "",
@@ -200,44 +206,19 @@ export default {
                     zipCode: "",
                 },
             },
-            propertyTypes: [
-                { id: "house", name: "House", icon: "🏠" },
-                { id: "apartment", name: "Apartment", icon: "🏢" },
-                { id: "barn", name: "Barn", icon: "🚜" },
-                { id: "bed-breakfast", name: "Bed & breakfast", icon: "🛏️" },
-                { id: "boat", name: "Boat", icon: "⛵" },
-                { id: "cabin", name: "Cabin", icon: "🏕️" },
-                { id: "camper", name: "Camper/RV", icon: "🚐" },
-                { id: "casa", name: "Casa particular", icon: "🏘️" },
-                { id: "castle", name: "Castle", icon: "🏰" },
-                { id: "cave", name: "Cave", icon: "⛰️" },
-                { id: "container", name: "Container", icon: "📦" },
-                { id: "cycladic", name: "Cycladic home", icon: "🏛️" },
-            ],
-            locationTypes: [
-                {
-                    id: "entire-place",
-                    name: "An entire place",
-                    description: "Guests have the whole place to themselves.",
-                },
-                {
-                    id: "private-room",
-                    name: "A private room",
-                    description:
-                        "Guests have their own room in a home, plus access to shared spaces.",
-                },
-                {
-                    id: "shared-room",
-                    name: "A shared room",
-                    description:
-                        "Guests sleep in a room or common area that may be shared with you or others.",
-                },
-            ],
             createListingErrors: {},
         };
     },
     computed: {
         ...mapState("ui", ["countries"]),
+        ...mapState("hosting/createListing", [
+            "accommodationTypes",
+        ]),
+        accommodationOccupations() {
+            return this.accommodationTypes.find(
+                (type) => type.id === this.formData.propertyType
+            )?.available_occupations || [];
+        },
         countryOptions() {
             if (!this.countries) return [];
             return this.countries.map(country => ({
@@ -250,7 +231,7 @@ export default {
                 case 1:
                     return this.formData.propertyType !== null;
                 case 2:
-                    return this.formData.locationType !== null;
+                    return this.formData.accommodationOccupation !== null;
                 case 3:
                     return (
                         this.formData.address.country &&
@@ -269,8 +250,8 @@ export default {
         selectPropertyType(typeId) {
             this.formData.propertyType = typeId;
         },
-        selectLocationType(locationId) {
-            this.formData.locationType = locationId;
+        selectAccommodationOccupation(occupationId) {
+            this.formData.accommodationOccupation = occupationId;
         },
         nextStep() {
             if (this.canProceed) {

@@ -48,7 +48,7 @@ class AccommodationTypeController extends Controller
      */
     public function index()
     {
-        $accommodationTypes = AccommodationType::all();
+        $accommodationTypes = AccommodationType::all()->sortBy('order');
 
         $meta = [
             'total' => $accommodationTypes->count(),
