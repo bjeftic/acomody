@@ -15,6 +15,71 @@
         }
     ],
     "paths": {
+        "/accommodation-types": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get accommodation types list",
+                "description": "Returns a list of all accommodation types",
+                "operationId": "getAccommodationTypes",
+                "responses": {
+                    "200": {
+                        "description": "Accommodation types retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Accommodation types retrieved successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "accommodation_types": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/AccommodationType"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "email_verified": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "profile_complete": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "account_status": {
+                                                    "type": "string",
+                                                    "example": "active"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/log-in": {
             "post": {
                 "tags": [
@@ -433,7 +498,7 @@
                 }
             }
         },
-        "/user": {
+        "/users": {
             "get": {
                 "tags": [
                     "User"
@@ -498,24 +563,35 @@
     },
     "components": {
         "schemas": {
-            "UserSignUpRequest": {
-                "title": "UserSignUpRequest",
-                "description": "User sign up request",
+            "AccommodationType": {
                 "properties": {
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "example": "john.smith@example.com"
+                    "id": {
+                        "type": "integer",
+                        "example": 1
                     },
-                    "password": {
+                    "name": {
                         "type": "string",
-                        "format": "password",
-                        "example": "password123"
+                        "example": "Apartment"
                     },
-                    "confirm_password": {
+                    "description": {
                         "type": "string",
-                        "format": "password",
-                        "example": "password123"
+                        "example": "A private, self-contained unit within a building, featuring its own kitchen, bathroom, and living area—ideal for independent stays."
+                    },
+                    "available_occupations": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "An entire place"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "example": "Guests have the whole place to themselves."
+                                }
+                            },
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"
@@ -572,6 +648,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Accommodation",
+            "description": "Accommodation"
+        },
         {
             "name": "Authentication",
             "description": "Authentication"

@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Models\Property;
+use App\Models\Accommodation;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             //     'email' => 'test@example.com',
             // ]);
             User::factory(50)->create();
-            Property::factory(50)->create();
+            Accommodation::factory(50)->create();
         }
     }
 }

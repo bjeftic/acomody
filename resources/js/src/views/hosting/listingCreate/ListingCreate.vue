@@ -79,73 +79,48 @@
                         <hr />
 
                         <div class="space-y-6 py-4">
-                            <!-- Country/Region -->
-                            <div>
-                                <label
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mb-2"
-                                >
-                                    Country/Region
-                                </label>
-                                <fwb-input
-                                    v-model="formData.address.country"
-                                    placeholder="Country"
-                                />
-                                <p
-                                    v-if="createListingErrors.address"
-                                    class="mt-1 text-sm text-red-600"
-                                >
-                                    {{ createListingErrors.address.country[0] }}
-                                </p>
-                            </div>
+                            <!-- Country -->
+                            <fwb-select
+                                v-model="formData.address.country"
+                                :options="countryOptions"
+                                label="Country"
+                                placeholder="Select a country"
+                            />
+                            <p
+                                v-if="createListingErrors.address"
+                                class="mt-1 text-sm text-red-600"
+                            >
+                                {{ createListingErrors.address.country[0] }}
+                            </p>
 
                             <!-- Street Address -->
-                            <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 dark:text-white mb-2"
-                                >
-                                    Street address
-                                </label>
-                                <fwb-input
-                                    v-model="formData.address.street"
-                                    placeholder="Street address"
-                                />
-                            </div>
+                            <fwb-input
+                                v-model="formData.address.street"
+                                placeholder="Street address"
+                                label="Street address"
+                            />
 
                             <!-- City -->
-                            <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-900 dark:text-white mb-2"
-                                >
-                                    City
-                                </label>
-                                <fwb-input
-                                    v-model="formData.address.city"
-                                    placeholder="City"
-                                />
-                            </div>
+                            <fwb-input
+                                v-model="formData.address.city"
+                                placeholder="City"
+                                label="City"
+                            />
 
                             <!-- State/Province & Zip Code -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-900 dark:text-white mb-2"
-                                    >
-                                        State
-                                    </label>
                                     <fwb-input
                                         v-model="formData.address.state"
                                         placeholder="State"
+                                        label="State"
                                     />
                                 </div>
                                 <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-900 dark:text-white mb-2"
-                                    >
-                                        Zip code
-                                    </label>
                                     <fwb-input
                                         v-model="formData.address.zipCode"
                                         placeholder="Zip code"
+                                        label="Zip code"
                                     />
                                 </div>
                             </div>
@@ -162,41 +137,39 @@
             <div class="max-w-7xl mx-auto py-4">
                 <div class="flex items-center justify-between">
                     <!-- Back Button -->
-                    <button
+                    <fwb-button
                         v-if="currentStep > 1"
+                        color="alternative"
+                        outline="false"
                         @click="previousStep"
-                        class="flex items-center space-x-2 px-6 py-3 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                     >
-                        <svg
-                            class="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15 19l-7-7 7-7"
-                            />
-                        </svg>
-                        <span>Back</span>
-                    </button>
+                        <div class="flex">
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 19l-7-7 7-7"
+                                />
+                            </svg>
+                            <span>Back</span>
+                        </div>
+                    </fwb-button>
                     <div v-else></div>
-
                     <!-- Next/Continue Button -->
-                    <button
+                    <fwb-button
                         @click="nextStep"
                         :disabled="!canProceed"
-                        :class="[
-                            'px-8 py-3 text-sm font-semibold rounded-lg transition-all duration-200',
-                            canProceed
-                                ? 'bg-gradient-to-r from-pink-500 to-red-500 text-white hover:from-pink-600 hover:to-red-600'
-                                : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed',
-                        ]"
+                        class="px-6"
+                        color="default"
                     >
                         {{ currentStep === totalSteps ? "Finish" : "Next" }}
-                    </button>
+                    </fwb-button>
                 </div>
             </div>
         </div>
@@ -205,6 +178,7 @@
 
 <script>
 import BaseWrapper from "@/src/layouts/BaseWrapper.vue";
+import { mapState, mapActions } from "vuex";
 
 export default {
     name: "CreateListing",
@@ -263,6 +237,14 @@ export default {
         };
     },
     computed: {
+        ...mapState("ui", ["countries"]),
+        countryOptions() {
+            if (!this.countries) return [];
+            return this.countries.map(country => ({
+                value: country.iso_code_2,
+                name: country.name
+            }));
+        },
         canProceed() {
             switch (this.currentStep) {
                 case 1:
@@ -281,6 +263,9 @@ export default {
         },
     },
     methods: {
+        ...mapActions("hosting/createListing", [
+            "fetchAccommodationTypes",
+        ]),
         selectPropertyType(typeId) {
             this.formData.propertyType = typeId;
         },
@@ -320,6 +305,9 @@ export default {
             // Implement submit logic here
             this.$router.push({ name: "page-hosting-listings" });
         },
+    },
+    created() {
+        this.fetchAccommodationTypes();
     },
 };
 </script>

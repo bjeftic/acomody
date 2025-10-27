@@ -19,10 +19,14 @@ import {
     FwbDropdown,
     FwbListGroup,
     FwbListGroupItem,
+    FwbNavbar,
     FwbRating,
+    FwbSelect,
     FwbSpinner,
     FwbFooter,
+    FwbFooterBrand,
     FwbFooterCopyright,
+    FwbFooterIcon,
     FwbFooterLink,
     FwbFooterLinkGroup,
 } from "flowbite-vue";
@@ -68,10 +72,14 @@ app.component("FwbCheckbox", FwbCheckbox);
 app.component("FwbDropdown", FwbDropdown);
 app.component("FwbListGroup", FwbListGroup);
 app.component("FwbListGroupItem", FwbListGroupItem);
+app.component("FwbNavbar", FwbNavbar);
 app.component("FwbRating", FwbRating);
+app.component("FwbSelect", FwbSelect);
 app.component("FwbSpinner", FwbSpinner);
 app.component("FwbFooter", FwbFooter);
+app.component("FwbFooterBrand", FwbFooterBrand);
 app.component("FwbFooterCopyright", FwbFooterCopyright);
+app.component("FwbFooterIcon", FwbFooterIcon);
 app.component("FwbFooterLink", FwbFooterLink);
 app.component("FwbFooterLinkGroup", FwbFooterLinkGroup);
 

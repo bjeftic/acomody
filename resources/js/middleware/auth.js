@@ -5,7 +5,7 @@
  */
 export default function auth({ to, from, next, store, router }) {
     // Check if user is already authenticated
-    if (store.getters['auth/isSessionValid']) {
+    if (store.getters['auth/isLoggedIn']) {
         return next();
     }
 

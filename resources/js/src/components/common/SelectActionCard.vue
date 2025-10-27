@@ -10,7 +10,7 @@
     >
         <div class="mb-8">
             <div
-                    class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors"
+                    class="flex-shrink-0 w-12 h-12 flex items-center justify-center mb-2 bg-gray-100 dark:bg-gray-700 rounded-lg group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors"
                     :class="[selected ? 'bg-gray-200' : 'bg-gray-100']"
                 >
                 {{ icon }}

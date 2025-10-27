@@ -1,5 +1,7 @@
+import config from "@/config";
+
 export default {
     languages: [],
-    countries: [],
-    currencies: [],
+    countries: config.ui.countries || [],
+    currencies: config.ui.currencies || [],
 };

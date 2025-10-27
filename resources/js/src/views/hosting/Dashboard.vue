@@ -182,11 +182,8 @@
 
 <script>
 import { mapState } from "vuex";
-import ActionCard from '../../components/common/ActionCard.vue';
-import House from "../../components/icons/House.vue";
 
 export default {
-  components: { ActionCard },
     name: "ListingCreate",
     computed: {
         ...mapState({

@@ -13,7 +13,7 @@ const routes = [
         name: 'page-hosting-home',
         component: () => import('@/src/views/hosting/Home.vue'),
         meta: {
-            requiresAuth: true
+            requiresAuth: true,
         },
         redirect: '/hosting/dashboard',
         children: hostingRoutes,
@@ -69,7 +69,7 @@ router.afterEach((to) => {
 router.beforeEach((to, from, next) => {
 
     // CHECK AUTH
-    if (to.meta.requiresAuth && !store.getters['auth/isSessionValid']) {
+    if (to.meta.requiresAuth && !store.getters['auth/isLoggedIn']) {
 
         // Prevent duplicate modals
         if (authModalShowing) {

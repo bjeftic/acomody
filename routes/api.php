@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AccommodationTypeController;
 
 Route::group(['middleware' => ['guest']], function () {
     Route::post('/sign-up', [RegisteredUserController::class, 'signUp'])
@@ -28,6 +29,9 @@ Route::group(['middleware' => ['web', 'auth:web,sanctum']], function () {
         ->middleware(['throttle:6,1'])
         ->name('verification.send');
 
-    Route::get('/user', [UserController::class, 'show'])
-        ->name('user');
+    Route::get('/users', [UserController::class, 'show'])
+        ->name('users');
+
+    Route::get('/accommodation-types', [AccommodationTypeController::class, 'index'])
+        ->name('accommodation.types');
 });
