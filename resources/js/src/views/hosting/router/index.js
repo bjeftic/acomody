@@ -15,7 +15,7 @@ const routes = [
         meta: {
             requiresAuth: true,
         },
-        component: () => import('@/src/views/hosting/listingCreate/ListingCreate.vue'),
+        component: () => import('@/src/views/hosting/createAccommodation/CreateAccommodation.vue'),
     },
 ];
 

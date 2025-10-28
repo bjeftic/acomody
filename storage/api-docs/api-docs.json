@@ -15,6 +15,97 @@
         }
     ],
     "paths": {
+        "/accommodation-draft": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get accommodation draft",
+                "description": "Retrieves the saved draft for an accommodation listing",
+                "operationId": "getAccommodationDraft",
+                "responses": {
+                    "200": {
+                        "description": "Accommodation draft retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccommodationDraft"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Save accommodation draft",
+                "description": "Saves a draft for an accommodation listing",
+                "operationId": "saveAccommodationDraft",
+                "requestBody": {
+                    "description": "Accommodation draft data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_step",
+                                    "data"
+                                ],
+                                "properties": {
+                                    "current_step": {
+                                        "description": "The current step in the accommodation listing process",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "data": {
+                                        "description": "The draft data for the accommodation listing",
+                                        "type": "object",
+                                        "example": {
+                                            "title": "Cozy Apartment",
+                                            "description": "A nice place to stay"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Accommodation draft saved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccommodationDraft"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/accommodation-types": {
             "get": {
                 "tags": [
@@ -563,6 +654,36 @@
     },
     "components": {
         "schemas": {
+            "AccommodationDraft": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    },
+                    "current_step": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "draft"
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": {
+                            "title": "Cozy Apartment",
+                            "description": "A nice place to stay"
+                        }
+                    },
+                    "last_saved_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-28T12:34:56Z"
+                    }
+                },
+                "type": "object"
+            },
             "AccommodationType": {
                 "properties": {
                     "id": {
@@ -570,6 +691,10 @@
                         "example": 1
                     },
                     "name": {
+                        "type": "string",
+                        "example": "Apartment"
+                    },
+                    "icon": {
                         "type": "string",
                         "example": "Apartment"
                     },
@@ -581,6 +706,10 @@
                         "type": "array",
                         "items": {
                             "properties": {
+                                "id": {
+                                    "type": "integer",
+                                    "example": 1
+                                },
                                 "name": {
                                     "type": "string",
                                     "example": "An entire place"

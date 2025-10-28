@@ -23,11 +23,5 @@ export default {
         ModalIndex,
         Footer,
     },
-    methods: {
-        ...mapActions(["getCsrfCookie"]),
-    },
-    async created() {
-        await this.getCsrfCookie();
-    },
 };
 </script>

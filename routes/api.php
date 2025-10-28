@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AccommodationTypeController;
+use App\Http\Controllers\AccommodationDraftController;
 
 Route::group(['middleware' => ['guest']], function () {
     Route::post('/sign-up', [RegisteredUserController::class, 'signUp'])
@@ -34,4 +35,11 @@ Route::group(['middleware' => ['web', 'auth:web,sanctum']], function () {
 
     Route::get('/accommodation-types', [AccommodationTypeController::class, 'index'])
         ->name('accommodation.types');
+
+    Route::group(['prefix' => 'accommodation-drafts'], function () {
+        Route::get('', [AccommodationDraftController::class, 'getDraft'])
+            ->name('accommodation.drafts.get');
+        Route::post('/save', [AccommodationDraftController::class, 'saveDraft'])
+            ->name('accommodation.drafts.save');
+    });
 });

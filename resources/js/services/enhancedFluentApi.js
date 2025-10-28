@@ -111,6 +111,7 @@ class FluentApiBuilder {
 class FluentApiClient {
     constructor(baseURL = window.location.origin, options = {}) {
         this.baseURL = baseURL;
+        this.csrfInitialized = false; // Track CSRF cookie initialization
         this.options = {
             publicEndpoints: new Set([
                 "login",
@@ -122,6 +123,7 @@ class FluentApiClient {
             onUnauthorized: null,
             onForbidden: null,
             csrfCookie: "/sanctum/csrf-cookie",
+            initCsrf: false, // Initialize CSRF cookie on construction
             ...options,
         };
 
@@ -138,13 +140,15 @@ class FluentApiClient {
 
         // Request interceptor for CSRF protection and auth
         this.api.interceptors.request.use(async (config) => {
-            // For state-changing methods, ensure CSRF cookie is set
+            // For state-changing methods, ensure CSRF cookie is set (only once)
             if (
+                !this.csrfInitialized &&
                 ["post", "put", "patch", "delete"].includes(
                     config.method?.toLowerCase()
                 )
             ) {
                 await this.ensureCsrfCookie();
+                this.csrfInitialized = true;
             }
 
             // Remove custom properties before sending
@@ -156,7 +160,7 @@ class FluentApiClient {
         // Response interceptor for error handling
         this.api.interceptors.response.use(
             (response) => response,
-            (error) => {
+            async (error) => {
                 const status = error.response?.status;
 
                 if (status === 401) {
@@ -179,12 +183,20 @@ class FluentApiClient {
                     }
                 } else if (status === 419) {
                     // CSRF token mismatch - refresh and retry
+                    this.csrfInitialized = false; // Reset flag to allow refresh
                     return this.handleCsrfError(error);
                 }
 
                 return Promise.reject(error);
             }
         );
+
+        // Initialize CSRF cookie if requested
+        if (this.options.initCsrf) {
+            this.ensureCsrfCookie().then(() => {
+                this.csrfInitialized = true;
+            });
+        }
 
         // Create Proxy for dynamic properties
         return new Proxy(this, {
@@ -225,6 +237,7 @@ class FluentApiClient {
         try {
             // Refresh CSRF token
             await this.ensureCsrfCookie();
+            this.csrfInitialized = true;
 
             // Retry the original request
             const config = originalError.config;
@@ -301,6 +314,7 @@ class FluentApiClient {
     async login(credentials) {
         // First, get CSRF cookie
         await this.ensureCsrfCookie();
+        this.csrfInitialized = true;
 
         // Then attempt login
         return await this.request(
@@ -314,12 +328,14 @@ class FluentApiClient {
 
     async logout() {
         const result = await this.request("POST", "logout");
-        // After logout, you might want to redirect or clear app state
+        // Reset CSRF flag after logout
+        this.csrfInitialized = false;
         return result;
     }
 
     async register(userData) {
         await this.ensureCsrfCookie();
+        this.csrfInitialized = true;
         return await this.request(
             "POST",
             "register",
@@ -368,6 +384,12 @@ class FluentApiClient {
             return false;
         }
     }
+
+    // Manually reset CSRF initialization (useful after logout or errors)
+    resetCsrf() {
+        this.csrfInitialized = false;
+        return this;
+    }
 }
 
 // Enhanced FluentApiBuilder with bracket notation and camelCase conversion
@@ -401,7 +423,7 @@ class EnhancedFluentApiBuilder extends FluentApiBuilder {
                 const kebabProp = target._camelToKebab(String(prop));
                 return target._addPath(kebabProp);
             },
-            
+
             // Add support for bracket notation
             set(target, prop, value, receiver) {
                 // This allows for custom property setting if needed

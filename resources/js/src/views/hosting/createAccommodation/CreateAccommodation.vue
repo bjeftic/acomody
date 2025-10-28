@@ -2,7 +2,11 @@
     <div class="max-w-4xl mx-auto pb-12">
         <!-- Main Content -->
         <div class="mx-auto">
-            <!-- Step Content -->
+            <template v-if="loading">
+                <form-skeleton />
+            </template>
+            <template v-else>
+                <!-- Step Content -->
             <transition name="fade" mode="out-in">
                 <div :key="currentStep">
                     <!-- Step 1: Property Type -->
@@ -26,6 +30,7 @@
                                     :id="type.id"
                                     :title="type.name"
                                     :icon="type.icon"
+                                    :tooltip="type.description"
                                     :selected="
                                         formData.propertyType === type.id
                                     "
@@ -92,12 +97,6 @@
                                 label="Country"
                                 placeholder="Select a country"
                             />
-                            <p
-                                v-if="createListingErrors.address"
-                                class="mt-1 text-sm text-red-600"
-                            >
-                                {{ createListingErrors.address.country[0] }}
-                            </p>
 
                             <!-- Street Address -->
                             <fwb-input
@@ -136,10 +135,11 @@
                     <!-- Add more steps as needed -->
                 </div>
             </transition>
+            </template>
         </div>
 
         <!-- Footer Navigation -->
-        <div class="border-t border-gray-200 dark:border-gray-800">
+        <div v-if="!loading" class="border-t border-gray-200 dark:border-gray-800">
             <div class="max-w-7xl mx-auto py-4">
                 <div class="flex items-center justify-between">
                     <!-- Back Button -->
@@ -187,14 +187,14 @@ import BaseWrapper from "@/src/layouts/BaseWrapper.vue";
 import { mapState, mapActions } from "vuex";
 
 export default {
-    name: "CreateListing",
+    name: "CreateAccommodation",
     components: {
         BaseWrapper,
     },
     data() {
         return {
-            currentStep: 1,
-            totalSteps: 3,
+            loading: true,
+            totalSteps: 8,
             formData: {
                 propertyType: null,
                 accommodationOccupation: null,
@@ -206,13 +206,17 @@ export default {
                     zipCode: "",
                 },
             },
-            createListingErrors: {},
+            createAccommodationErrors: {},
         };
     },
     computed: {
         ...mapState("ui", ["countries"]),
-        ...mapState("hosting/createListing", [
+        ...mapState("hosting", [
+            "accommodationDraft",
+        ]),
+        ...mapState("hosting/createAccommodation", [
             "accommodationTypes",
+            "currentStep",
         ]),
         accommodationOccupations() {
             return this.accommodationTypes.find(
@@ -243,20 +247,59 @@ export default {
             }
         },
     },
+    watch: {
+        accommodationDraft: {
+            immediate: true,
+            deep: true,
+            handler(newDraft) {
+                if (newDraft) {
+                    this.loadDraftData(newDraft);
+                }
+            },
+        },
+    },
     methods: {
-        ...mapActions("hosting/createListing", [
+        ...mapActions("hosting/createAccommodation", [
             "fetchAccommodationTypes",
+            "updateAccommodationDraft",
+            "incrementCurrentStep",
+            "decrementCurrentStep",
         ]),
+        ...mapActions("hosting", ["fetchAccommodationDraft"]),
         selectPropertyType(typeId) {
             this.formData.propertyType = typeId;
+            this.formData.accommodationOccupation = null;
         },
         selectAccommodationOccupation(occupationId) {
             this.formData.accommodationOccupation = occupationId;
         },
-        nextStep() {
+        async nextStep() {
             if (this.canProceed) {
                 if (this.currentStep < this.totalSteps) {
-                    this.currentStep++;
+                    const draftData = {
+                        property_type: this.formData.propertyType,
+                        accommodation_occupation: this.formData.accommodationOccupation,
+                        address: {
+                            country: this.formData.address.country,
+                            street: this.formData.address.street,
+                            city: this.formData.address.city,
+                            state: this.formData.address.state,
+                            zip_code: this.formData.address.zipCode,
+                        }
+                    };
+
+                    try {
+                        await this.updateAccommodationDraft({
+                            draftData,
+                            currentStep: this.currentStep + 1
+                        });
+                        this.incrementCurrentStep();
+                    } catch (error) {
+                        console.error('Error updating draft:', error);
+                        if (error.response?.data?.errors) {
+                            this.createAccommodationErrors = error.response.data.errors;
+                        }
+                    }
                 } else {
                     this.submitListing();
                 }
@@ -264,7 +307,7 @@ export default {
         },
         previousStep() {
             if (this.currentStep > 1) {
-                this.currentStep--;
+                this.decrementCurrentStep();
             }
         },
         handleExit() {
@@ -276,19 +319,57 @@ export default {
                 this.$router.push({ name: "page-hosting-home" });
             }
         },
-        handleSaveAndExit() {
-            // Implement save draft functionality
-            console.log("Saving draft...", this.formData);
-            this.$router.push({ name: "page-hosting-home" });
+        async handleSaveAndExit() {
+            try {
+                const draftData = {
+                    property_type: this.formData.propertyType,
+                    accommodation_occupation: this.formData.accommodationOccupation,
+                    address: {
+                        country: this.formData.address.country,
+                        street: this.formData.address.street,
+                        city: this.formData.address.city,
+                        state: this.formData.address.state,
+                        zip_code: this.formData.address.zipCode,
+                    }
+                };
+
+                await this.updateAccommodationDraft({
+                    draftData,
+                    currentStep: this.currentStep
+                });
+                this.$router.push({ name: "page-hosting-home" });
+            } catch (error) {
+                console.error('Error saving draft:', error);
+            }
         },
         submitListing() {
             console.log("Submitting listing:", this.formData);
             // Implement submit logic here
             this.$router.push({ name: "page-hosting-listings" });
         },
+        loadDraftData(draft) {
+            this.formData = {
+                propertyType: draft.property_type || null,
+                accommodationOccupation: draft.accommodation_occupation || null,
+                address: {
+                    country: draft.address?.country || "",
+                    street: draft.address?.street || "",
+                    city: draft.address?.city || "",
+                    state: draft.address?.state || "",
+                    zipCode: draft.address?.zip_code || "",
+                },
+            };
+        },
     },
-    created() {
-        this.fetchAccommodationTypes();
+    async created() {
+        await this.fetchAccommodationTypes();
+        if (!this.accommodationDraft) {
+            await this.fetchAccommodationDraft()
+            .finally(() => {
+                this.loading = false;
+            });
+        }
+        this.loading = false;
     },
 };
 </script>

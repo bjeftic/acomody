@@ -22,18 +22,19 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Create New Listing Card -->
-                 <action-card
-                    title="Create a new listing"
-                    description="Set up a fresh property listing"
+                <action-card
+                    :title="!accommodationDraft ? 'Create a new listing' : 'Continue your draft listing'"
+                    :description="!accommodationDraft ? 'Set up a fresh property listing' : 'Resume editing your saved property listing'"
                     @click="$router.push({ name: 'page-listing-create' })"
                 >
                     <template #icon>
-                        <HouseIcon />
+                        <HouseIcon v-if="!accommodationDraft" />
+                        <PenIcon v-else />
                     </template>
                 </action-card>
 
                 <!-- Create From Existing Card -->
-                 <action-card
+                <action-card
                     title="Create from an existing listing"
                     description="Duplicate and modify an existing property"
                 >
@@ -181,17 +182,24 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
-    name: "ListingCreate",
+    name: "Dashboard",
     computed: {
         ...mapState({
             currentUser: (state) => state.user.currentUser,
         }),
+        ...mapState("hosting", ["accommodationDraft"]),
         userName() {
             return this.currentUser?.first_name || "Guest";
         },
+    },
+    methods: {
+        ...mapActions("hosting", ["fetchAccommodationDraft"]),
+    },
+    mounted() {
+        this.fetchAccommodationDraft();
     },
 };
 </script>

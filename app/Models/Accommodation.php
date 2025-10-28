@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\AccommodationOccupation;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Accommodation extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'accommodation_type_id',
