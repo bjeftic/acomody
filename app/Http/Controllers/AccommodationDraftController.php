@@ -94,18 +94,16 @@ class AccommodationDraftController extends Controller
      *         response=401,
      *         description="Unauthorized"
      *     )
-     * )
+     *     @OA\Response(
+     *         response=404,
+     *         description="Accommodation draft not found"
+     *     )
      */
-    public function getDraft(Request $request): AccommodationDraftResource
+    public function getDraft(): AccommodationDraftResource
     {
         $accommodationDraft = $this->accommodationService->getAccommodationDraft(
             userOrFail()->id
         );
-
-        if (!$accommodationDraft) {
-            throw new ModelNotFoundException('Accommodation draft not found');
-        }
-
         return new AccommodationDraftResource($accommodationDraft);
     }
 }

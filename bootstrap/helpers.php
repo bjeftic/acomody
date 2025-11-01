@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\File;
-use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,7 +44,7 @@ function userOrFail(): User
 {
     $user = user();
     if (is_null($user)) {
-        throw new AuthorizationException();
+        throw new AuthenticationException();
     }
     return $user;
 }

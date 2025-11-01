@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use App\Exceptions\ApiExceptionHandler;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,35 +18,39 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api();
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->render(function (Throwable $e, Request $request) {
-            // Get the exception class name
-            $className = get_class($e);
-
-            // Get our custom handlers
-            $handlers = App\Exceptions\ApiExceptionHandler::$handlers;
-
-            // Check if we have a specific handler for this exception
-            if (array_key_exists($className, $handlers)) {
-                $method = $handlers[$className];
-                $apiHandler = new App\Exceptions\ApiExceptionHandler();
-                return $apiHandler->$method($e, $request);
+        $exceptions->renderable(function (Throwable $e, Request $request) {
+            // Only for API, laravel will handle web requests normally
+            if (!$request->is('api/*') && !$request->expectsJson()) {
+                return null;
             }
 
-            // Fallback to default error response
+            $apiHandler = new ApiExceptionHandler();
+
+            // Try to find a specific handler for the exception
+            foreach (ApiExceptionHandler::$handlers as $exceptionClass => $method) {
+                if ($e instanceof $exceptionClass) {
+                    return $apiHandler->$method($e, $request);
+                }
+            }
+
+            // Fallback - generic handler if exists
+            if (method_exists($apiHandler, 'handleGenericException')) {
+                return $apiHandler->handleGenericException($e, $request);
+            }
+
             return response()->json([
                 'error' => [
-                    'type' => basename(get_class($e)),
-                    'status' => $e->getCode() ?: 500,
-                    'message' => $e->getMessage() ?: 'An unexpected error occurred',
+                    'type' => basename(str_replace('\\', '/', get_class($e))),
+                    'status' => 500,
+                    'message' => $e->getMessage() ?: 'An unexpected error occurred.',
                     'timestamp' => now()->toISOString(),
-                    // Include debug info only in non-production environments
                     'debug' => app()->environment('local', 'testing') ? [
                         'file' => $e->getFile(),
                         'line' => $e->getLine(),
-                        'trace' => $e->getTraceAsString()
+                        'trace' => explode("\n", $e->getTraceAsString())
                     ] : null
                 ]
-            ], $e->getCode() ?: 500);
+            ], 500);
         });
     })
     ->create();

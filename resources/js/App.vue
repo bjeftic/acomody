@@ -11,7 +11,6 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
 import Navbar from "@/src/components/Navbar.vue";
 import ModalIndex from "@/src/modals/ModalIndex.vue";
 import Footer from "@/src/components/Footer.vue";

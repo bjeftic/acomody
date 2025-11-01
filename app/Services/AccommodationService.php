@@ -21,8 +21,9 @@ class AccommodationService
         return $accommodationDraft;
     }
 
-    public static function getAccommodationDraft(int $userId): ?AccommodationDraft
+    public static function getAccommodationDraft(int $userId): AccommodationDraft
     {
-        return AccommodationDraft::where('user_id', $userId)->first() ?? null;
+        return AccommodationDraft::where('user_id', $userId)
+            ->firstOrFail();
     }
 }
