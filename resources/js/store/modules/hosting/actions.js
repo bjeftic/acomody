@@ -1,22 +1,20 @@
 import apiClient from "@/services/apiClient";
 
-export const loadInitialAccommodationData = async ({ dispatch }) => {
+export const loadInitialDashboardData = async ({ dispatch }) => {
     const actions = [
-        dispatch("fetchAccommodationDraft"),
+        dispatch("checkAccommodationDraft"),
     ];
 
-    await Promise.all(actions).then(() => {
+    await Promise.all(actions).finally(() => {
         dispatch("setHostingLoading", false);
     });
 };
 
-export const fetchAccommodationDraft = async ({ commit }) => {
-    const response = await apiClient.accommodationDrafts.get();
-
-    commit("SET_ACCOMMODATION_DRAFT", response.data);
-    commit("createAccommodation/SET_CREATE_ACCOMMODATION_STEP", response.data.current_step);
-
-    return response;
+export const checkAccommodationDraft = async ({ commit }) => {
+    await apiClient.accommodationDrafts.get()
+        .then(({ data }) => {
+            commit("SET_ACCOMMODATION_DRAFT_EXISTS", !!data.id);
+        });
 };
 
 export const setHostingLoading = ({ commit }, isLoading) => {

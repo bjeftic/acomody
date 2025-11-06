@@ -10,6 +10,8 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AccommodationTypeController;
 use App\Http\Controllers\AccommodationDraftController;
+use App\Http\Controllers\AccommodationDraftPhotoController;
+use App\Http\Controllers\AmenityController;
 
 Route::group(['middleware' => ['guest']], function () {
     Route::post('/sign-up', [RegisteredUserController::class, 'signUp'])
@@ -41,5 +43,31 @@ Route::group(['middleware' => ['web', 'auth:web,sanctum']], function () {
             ->name('accommodation.drafts.get');
         Route::post('/save', [AccommodationDraftController::class, 'saveDraft'])
             ->name('accommodation.drafts.save');
+
+        Route::prefix('{accommodationDraft}')->group(function () {
+
+            Route::get('photos', [AccommodationDraftPhotoController::class, 'index'])
+                ->name('accommodation-drafts.photos.index');
+
+            Route::post('photos', [AccommodationDraftPhotoController::class, 'store'])
+                ->name('accommodation-drafts.photos.store');
+
+            Route::put('photos/reorder', [AccommodationDraftPhotoController::class, 'reorder'])
+                ->name('accommodation-drafts.photos.reorder');
+
+            Route::delete('photos', [AccommodationDraftPhotoController::class, 'destroyAll'])
+                ->name('accommodation-drafts.photos.destroy-all');
+
+            Route::prefix('photos/{photo}')->group(function () {
+                Route::put('/', [AccommodationDraftPhotoController::class, 'update'])
+                    ->name('accommodation-drafts.photos.update');
+
+                Route::delete('/', [AccommodationDraftPhotoController::class, 'destroy'])
+                    ->name('accommodation-drafts.photos.destroy');
+            });
+        });
     });
+
+    Route::get('/amenities', [AmenityController::class, 'index'])
+        ->name('amenities');
 });

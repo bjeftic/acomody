@@ -1,4 +1,4 @@
 export default {
     hostingLoading: true,
-    accommodationDraft: null,
+    accommodationDraftExists: false,
 };

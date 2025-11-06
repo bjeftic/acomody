@@ -28,12 +28,12 @@
                     <!-- Create New Listing Card -->
                     <action-card
                         :title="
-                            !accommodationDraft
+                            !accommodationDraftExists
                                 ? 'Create a new listing'
                                 : 'Continue your draft listing'
                         "
                         :description="
-                            !accommodationDraft
+                            !accommodationDraftExists
                                 ? 'Set up a fresh property listing'
                                 : 'Resume editing your saved property listing'
                         "
@@ -203,16 +203,16 @@ export default {
         ...mapState({
             currentUser: (state) => state.user.currentUser,
         }),
-        ...mapState("hosting", ["hostingLoading", "accommodationDraft"]),
+        ...mapState("hosting", ["hostingLoading", "accommodationDraftExists"]),
         userName() {
             return this.currentUser?.first_name || "Guest";
         },
     },
     methods: {
-        ...mapActions("hosting", ["loadInitialAccommodationData"]),
+        ...mapActions("hosting", ["loadInitialDashboardData"]),
     },
     mounted() {
-        this.loadInitialAccommodationData();
+        this.loadInitialDashboardData();
     },
 };
 </script>

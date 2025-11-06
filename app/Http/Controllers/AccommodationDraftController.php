@@ -94,10 +94,7 @@ class AccommodationDraftController extends Controller
      *         response=401,
      *         description="Unauthorized"
      *     )
-     *     @OA\Response(
-     *         response=404,
-     *         description="Accommodation draft not found"
-     *     )
+     * )
      */
     public function getDraft(): AccommodationDraftResource
     {

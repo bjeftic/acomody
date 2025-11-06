@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\AccommodationType;
 use App\Http\Resources\AccommodationTypeResource;
 use App\Http\Support\ApiResponse;
-use App\Enums\AccommodationOccupation;
 
 class AccommodationTypeController extends Controller
 {

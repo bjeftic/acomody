@@ -106,6 +106,29 @@ class FluentApiBuilder {
             }
         );
     }
+
+    async upload(files, fieldName = 'file', onProgress = null) {
+        const formData = new FormData();
+
+        if (Array.isArray(files)) {
+            files.forEach((file) => {
+                formData.append(`${fieldName}[]`, file);
+            });
+        } else {
+            formData.append(fieldName, files);
+        }
+
+        return await this
+            .config({
+                onUploadProgress: onProgress ? (progressEvent) => {
+                    const percentCompleted = Math.round(
+                        (progressEvent.loaded * 100) / progressEvent.total
+                    );
+                    onProgress(percentCompleted);
+                } : undefined,
+            })
+            .post(formData);
+    }
 }
 
 class FluentApiClient {
@@ -133,13 +156,18 @@ class FluentApiClient {
             withCredentials: true, // Essential for cookie-based auth
             headers: {
                 Accept: "application/json",
-                "Content-Type": "application/json",
                 "X-Requested-With": "XMLHttpRequest", // Required for Laravel to recognize as AJAX
             },
         });
 
         // Request interceptor for CSRF protection and auth
         this.api.interceptors.request.use(async (config) => {
+            // Set Content-Type header based on data type
+            if (config.data instanceof FormData) {
+                delete config.headers['Content-Type'];
+            } else if (!config.headers['Content-Type']) {
+                config.headers['Content-Type'] = 'application/json';
+            }
             // For state-changing methods, ensure CSRF cookie is set (only once)
             if (
                 !this.csrfInitialized &&

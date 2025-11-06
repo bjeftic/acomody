@@ -21,6 +21,7 @@ use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Laravel\Sanctum\Exceptions\MissingAbilityException;
 use Throwable;
+use Illuminate\Support\Facades\Auth;
 
 class ApiExceptionHandler
 {
@@ -402,7 +403,7 @@ class ApiExceptionHandler
             'url' => request()->fullUrl(),
             'method' => request()->method(),
             'ip' => request()->ip(),
-            'user_id' => userOrFail()->id ?? null,
+            'user_id' => Auth::id(),
         ], $context);
 
         if ($statusCode >= 500) {
