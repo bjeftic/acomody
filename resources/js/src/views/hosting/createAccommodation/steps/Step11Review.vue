@@ -7,9 +7,9 @@
             Here's what we'll show to guests. Make sure everything looks good!
         </p>
 
-        <hr class="mb-8" />
+        <hr />
 
-        <div class="max-w-4xl mx-auto space-y-6">
+        <div class="max-w-4xl mx-auto py-4 space-y-6">
             <!-- Listing Preview Card -->
             <div
                 class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
