@@ -10,7 +10,7 @@
 
         <hr />
 
-        <div class="space-y-6 py-4 h-[60vh]">
+        <div class="space-y-6 py-4 overflow-auto h-[60vh]">
             <!-- Country -->
             <fwb-select
                 :model-value="formData.address.country"

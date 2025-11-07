@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignId('user_id')->unique()->constrained();
             $table->integer('current_step')->default(1);
-            $table->enum('status', ['draft', 'published'])->default('draft');
+            $table->enum('status', ['draft', 'waiting_for_approval', 'published'])->default('draft');
             $table->json('data'); // Store draft data as JSON
             $table->timestamp('last_saved_at')->nullable();
             $table->timestamps();

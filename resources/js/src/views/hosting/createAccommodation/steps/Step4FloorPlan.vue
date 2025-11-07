@@ -9,7 +9,7 @@
 
         <hr />
 
-        <div class="space-y-8 max-w-xl h-[60vh] mx-auto">
+        <div class="space-y-8 max-w-xl overflow-auto py-4 h-[60vh] mx-auto">
             <!-- Guests -->
             <counter-item
                 label="Guests"

@@ -187,6 +187,7 @@ export default {
             "updateAccommodationDraft",
             "incrementCurrentStep",
             "decrementCurrentStep",
+            "submitListing",
         ]),
 
         getStepName(step) {

@@ -26,8 +26,10 @@
         "flowbite": "^3.1.2",
         "flowbite-vue": "^0.2.1",
         "laravel-vite-plugin": "^2.0.0",
+        "leaflet": "^1.9.4",
         "vite": "^7.0.4",
         "vue": "^3.5.18",
+        "vue-leaflet": "^0.1.0",
         "vue-router": "^4.5.1",
         "vuedraggable": "^4.1.0",
         "vuex": "^4.0.2"

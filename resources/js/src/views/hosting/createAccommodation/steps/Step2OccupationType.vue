@@ -10,7 +10,7 @@
 
         <hr />
 
-        <div class="space-y-4 py-4 h-[60vh]">
+        <div class="space-y-4 overflow-auto py-4 h-[60vh]">
             <action-card
                 v-for="occupation in accommodationOccupations"
                 :key="occupation.id"
