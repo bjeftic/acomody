@@ -21,7 +21,7 @@ L.Icon.Default.mergeOptions({
 });
 
 export default {
-    name: 'AddressMap',
+    name: 'LeafletMap',
     props: {
         latitude: {
             type: [Number, String],
@@ -54,35 +54,18 @@ export default {
             map: null,
             marker: null,
             loading: false,
-            geocodingInProgress: false,
+            isUpdatingFromProps: false,
         };
-    },
-    computed: {
-        fullAddress() {
-            const parts = [
-                this.address.street,
-                this.address.city,
-                this.address.state,
-                this.address.zipCode,
-                this.address.country,
-            ].filter(Boolean);
-            return parts.join(', ');
-        },
     },
     watch: {
         latitude(newVal) {
-            if (newVal && this.longitude && !this.geocodingInProgress) {
-                this.updateMarkerPosition(parseFloat(newVal), parseFloat(this.longitude));
+            if (newVal && this.longitude && !this.isUpdatingFromProps) {
+                this.updateMarkerPosition(parseFloat(newVal), parseFloat(this.longitude), false);
             }
         },
         longitude(newVal) {
-            if (newVal && this.latitude && !this.geocodingInProgress) {
-                this.updateMarkerPosition(parseFloat(this.latitude), parseFloat(newVal));
-            }
-        },
-        fullAddress(newAddress, oldAddress) {
-            if (newAddress && newAddress !== oldAddress && !this.geocodingInProgress) {
-                this.geocodeAddress(newAddress);
+            if (newVal && this.latitude && !this.isUpdatingFromProps) {
+                this.updateMarkerPosition(parseFloat(this.latitude), parseFloat(newVal), false);
             }
         },
     },
@@ -94,12 +77,9 @@ export default {
             if (this.latitude && this.longitude) {
                 this.updateMarkerPosition(
                     parseFloat(this.latitude),
-                    parseFloat(this.longitude)
+                    parseFloat(this.longitude),
+                    false
                 );
-            }
-            // Otherwise, try to geocode the address
-            else if (this.fullAddress) {
-                this.geocodeAddress(this.fullAddress);
             }
         });
     },
@@ -111,7 +91,7 @@ export default {
     },
     methods: {
         initializeMap() {
-            // Default center (can be changed based on user's country)
+            // Default center
             const defaultLat = this.latitude || 44.8176;
             const defaultLng = this.longitude || 20.4633;
 
@@ -128,7 +108,7 @@ export default {
                 maxZoom: 19,
             }).addTo(this.map);
 
-            // Add marker
+            // Add marker if coordinates exist
             if (this.latitude && this.longitude) {
                 this.addMarker(parseFloat(this.latitude), parseFloat(this.longitude));
             }
@@ -144,8 +124,7 @@ export default {
 
         onMapClick(e) {
             const { lat, lng } = e.latlng;
-            this.updateMarkerPosition(lat, lng);
-            this.emitLocationChange(lat, lng);
+            this.updateMarkerPosition(lat, lng, true);
         },
 
         addMarker(lat, lng) {
@@ -160,7 +139,7 @@ export default {
             if (!this.readonly) {
                 this.marker.on('dragend', (e) => {
                     const position = e.target.getLatLng();
-                    this.emitLocationChange(position.lat, position.lng);
+                    this.updateMarkerPosition(position.lat, position.lng, true);
                 });
             }
 
@@ -174,32 +153,40 @@ export default {
             `);
         },
 
-        updateMarkerPosition(lat, lng) {
+        updateMarkerPosition(lat, lng, emitEvent = true) {
             if (!this.map) return;
 
             this.map.setView([lat, lng], this.zoom);
             this.addMarker(lat, lng);
+
+            if (emitEvent) {
+                this.emitLocationChange(lat, lng);
+            }
         },
 
         emitLocationChange(lat, lng) {
+            this.isUpdatingFromProps = true;
+
             this.$emit('update:latitude', lat);
             this.$emit('update:longitude', lng);
             this.$emit('location-changed', { latitude: lat, longitude: lng });
+
+            this.$nextTick(() => {
+                this.isUpdatingFromProps = false;
+            });
         },
 
         async geocodeAddress(address) {
-            if (!address || this.geocodingInProgress) return;
+            if (!address) return;
 
             this.loading = true;
-            this.geocodingInProgress = true;
 
             try {
-                // Using Nominatim (OpenStreetMap's geocoding service)
                 const response = await fetch(
                     `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
                     {
                         headers: {
-                            'User-Agent': 'YourAppName/1.0', // Replace with your app name
+                            'User-Agent': 'RentalPropertyApp/1.0',
                         },
                     }
                 );
@@ -211,8 +198,7 @@ export default {
                     const latitude = parseFloat(lat);
                     const longitude = parseFloat(lon);
 
-                    this.updateMarkerPosition(latitude, longitude);
-                    this.emitLocationChange(latitude, longitude);
+                    this.updateMarkerPosition(latitude, longitude, true);
                 } else {
                     console.warn('No results found for address:', address);
                 }
@@ -220,10 +206,6 @@ export default {
                 console.error('Geocoding error:', error);
             } finally {
                 this.loading = false;
-                // Delay reset to prevent immediate re-triggering
-                setTimeout(() => {
-                    this.geocodingInProgress = false;
-                }, 1000);
             }
         },
 
@@ -234,8 +216,7 @@ export default {
 
         // Public method to set location programmatically
         setLocation(lat, lng) {
-            this.updateMarkerPosition(lat, lng);
-            this.emitLocationChange(lat, lng);
+            this.updateMarkerPosition(lat, lng, false);
         },
     },
 };

@@ -77,6 +77,10 @@ export default {
                     state: "",
                     zipCode: "",
                 },
+                coordinates: {
+                    latitude: null,
+                    longitude: null,
+                },
                 floorPlan: {
                     guests: 1,
                     bedrooms: 1,
@@ -126,10 +130,16 @@ export default {
         };
     },
     computed: {
-        ...mapState("hosting/createAccommodation", ["accommodationDraft", "currentStep", "createAccommodationLoading"]),
+        ...mapState("hosting/createAccommodation", [
+            "accommodationDraft",
+            "currentStep",
+            "createAccommodationLoading",
+        ]),
 
         currentStepComponent() {
-            return `Step${this.currentStep}${this.getStepName(this.currentStep)}`;
+            return `Step${this.currentStep}${this.getStepName(
+                this.currentStep
+            )}`;
         },
 
         canProceed() {
@@ -142,7 +152,9 @@ export default {
                     return (
                         this.formData.address.country &&
                         this.formData.address.street &&
-                        this.formData.address.city
+                        this.formData.address.city &&
+                        this.formData.coordinates.latitude &&
+                        this.formData.coordinates.longitude
                     );
                 case 4:
                     return (
@@ -187,7 +199,6 @@ export default {
             "updateAccommodationDraft",
             "incrementCurrentStep",
             "decrementCurrentStep",
-            "submitListing",
         ]),
 
         getStepName(step) {
@@ -213,12 +224,13 @@ export default {
 
         async nextStep() {
             if (this.canProceed) {
-                if (this.currentStep < this.totalSteps) {
-                    const draftData = this.prepareDraftData();
+                const draftData = this.prepareDraftData();
 
+                if (this.currentStep < this.totalSteps) {
                     try {
                         await this.updateAccommodationDraft({
                             draftData,
+                            status: "draft",
                             currentStep: this.currentStep + 1,
                         });
                         this.incrementCurrentStep();
@@ -230,7 +242,26 @@ export default {
                         }
                     }
                 } else {
-                    await this.submitListing();
+                    await this.updateAccommodationDraft({
+                        draftData,
+                        status: "waiting_for_approval",
+                        currentStep: 20,
+                    })
+                        .then(() => {
+                            this.$router.push({
+                                name: "HostingAccommodationSubmissionSuccess",
+                            });
+                        })
+                        .catch((error) => {
+                            console.error(
+                                "Error submitting accommodation:",
+                                error
+                            );
+                            if (error.response?.data?.errors) {
+                                this.createAccommodationErrors =
+                                    error.response.data.errors;
+                            }
+                        });
                 }
             }
         },
@@ -244,14 +275,17 @@ export default {
         prepareDraftData() {
             return {
                 property_type: this.formData.propertyType,
-                accommodation_occupation:
-                    this.formData.accommodationOccupation,
+                accommodation_occupation: this.formData.accommodationOccupation,
                 address: {
                     country: this.formData.address.country,
                     street: this.formData.address.street,
                     city: this.formData.address.city,
                     state: this.formData.address.state,
                     zip_code: this.formData.address.zipCode,
+                },
+                coordinates: {
+                    latitude: this.formData.coordinates.latitude,
+                    longitude: this.formData.coordinates.longitude,
                 },
                 floor_plan: {
                     guests: this.formData.floorPlan.guests,
@@ -267,12 +301,6 @@ export default {
             };
         },
 
-        async submitListing() {
-            console.log("Submitting listing:", this.formData);
-            // Implement submit logic here
-            this.$router.push({ name: "page-hosting-listings" });
-        },
-
         loadDraftData(draft) {
             this.formData = {
                 propertyType: draft.property_type || null,
@@ -283,6 +311,10 @@ export default {
                     city: draft.address?.city || "",
                     state: draft.address?.state || "",
                     zipCode: draft.address?.zip_code || "",
+                },
+                coordinates: {
+                    latitude: draft.coordinates?.latitude || null,
+                    longitude: draft.coordinates?.longitude || null,
                 },
                 floorPlan: {
                     guests: draft.floor_plan?.guests || 1,
@@ -367,18 +399,14 @@ export default {
                     this.formData.houseRules.quietHoursFrom &&
                     this.formData.houseRules.quietHoursUntil;
                 return (
-                    hasValidCheckIn &&
-                    hasValidCheckOut &&
-                    hasValidQuietHours
+                    hasValidCheckIn && hasValidCheckOut && hasValidQuietHours
                 );
             }
 
             const hasCancellationPolicy =
                 this.formData.houseRules.cancellationPolicy !== null;
 
-            return (
-                hasValidCheckIn && hasValidCheckOut && hasCancellationPolicy
-            );
+            return hasValidCheckIn && hasValidCheckOut && hasCancellationPolicy;
         },
     },
     async created() {

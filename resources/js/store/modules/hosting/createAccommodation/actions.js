@@ -56,10 +56,11 @@ export const decrementCurrentStep = ({ commit }) => {
 
 export const updateAccommodationDraft = async (
     { commit },
-    { draftData, currentStep }
+    { status, draftData, currentStep }
 ) => {
     try {
         const response = await apiClient.accommodationDrafts.save.post({
+            status: status,
             data: draftData,
             current_step: currentStep,
         });
@@ -188,21 +189,5 @@ export const deleteAllPhotos = async ({}, draftId) => {
         return response.data;
     } catch (error) {
         throw error;
-    }
-};
-
-export const submitListing = async ({ commit }, isLoading) => {
-    commit("SET_CREATE_ACCOMMODATION_LOADING", isLoading);
-
-    try {
-        const response = await apiClient.accommodationDrafts.submit.post();
-
-        commit("SET_ACCOMMODATION_DRAFT", response.data);
-
-        return response;
-    } catch (error) {
-        throw error;
-    } finally {
-        commit("SET_CREATE_ACCOMMODATION_LOADING", false);
     }
 };

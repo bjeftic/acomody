@@ -69,7 +69,7 @@ class AccommodationDraftController extends Controller
             userOrFail()->id,
             $data['data'],
             $data['current_step'],
-            'draft'
+            $data['status']
         );
 
         return new AccommodationDraftResource($accommodationDraft);

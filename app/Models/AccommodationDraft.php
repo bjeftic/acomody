@@ -11,6 +11,7 @@ class AccommodationDraft extends Model
 
     protected $fillable = [
         'user_id',
+        'status',
         'data',
         'current_step',
         'last_saved_at',

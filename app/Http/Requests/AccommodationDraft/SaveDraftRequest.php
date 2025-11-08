@@ -23,6 +23,7 @@ class SaveDraftRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'status' => 'required|string|in:draft,waiting_for_approval',
             'current_step' => 'required|integer|min:1',
             'data' => 'required|array',
         ];
