@@ -14,11 +14,13 @@ export const loadInitialCreateAccommodationData = async ({ dispatch }) => {
 
 export const fetchAccommodationDraft = async ({ commit }) => {
     try {
-        const { data } = await apiClient.accommodationDrafts.get();
+        const { data } = await apiClient.accommodationDrafts
+            .query({ status: "draft" })
+            .get();
 
-        commit("SET_ACCOMMODATION_DRAFT_ID", data.id);
+        commit("SET_ACCOMMODATION_DRAFT_ID", data);
         commit("SET_ACCOMMODATION_DRAFT", data);
-        commit("SET_CREATE_ACCOMMODATION_STEP", data.current_step);
+        commit("SET_CREATE_ACCOMMODATION_STEP", data);
 
         return data;
     } catch (error) {
@@ -54,18 +56,39 @@ export const decrementCurrentStep = ({ commit }) => {
     commit("DECREMENT_CURRENT_STEP");
 };
 
-export const updateAccommodationDraft = async (
+export const createAccommodationDraft = async (
     { commit },
-    { status, draftData, currentStep }
+    { draftData }
 ) => {
     try {
-        const response = await apiClient.accommodationDrafts.save.post({
+        const response = await apiClient.accommodationDrafts.post({
+            data: draftData,
+        });
+
+        commit("SET_ACCOMMODATION_DRAFT_ID", response.data);
+        commit("SET_ACCOMMODATION_DRAFT", response.data);
+        commit("SET_CREATE_ACCOMMODATION_STEP", response.data);
+
+        return response;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const updateAccommodationDraft = async (
+    { commit },
+    { draftId, status, draftData, currentStep }
+) => {
+    try {
+        const response = await apiClient.accommodationDrafts[draftId].put({
             status: status,
             data: draftData,
             current_step: currentStep,
         });
 
+        commit("SET_ACCOMMODATION_DRAFT_ID", response.data);
         commit("SET_ACCOMMODATION_DRAFT", response.data);
+        commit("SET_CREATE_ACCOMMODATION_STEP", response.data);
 
         return response;
     } catch (error) {
@@ -190,4 +213,10 @@ export const deleteAllPhotos = async ({}, draftId) => {
     } catch (error) {
         throw error;
     }
+};
+
+export const restartAccommodationDraftData = ({ commit }) => {
+    commit("SET_ACCOMMODATION_DRAFT_ID", null);
+    commit("SET_ACCOMMODATION_DRAFT", null);
+    commit("SET_CREATE_ACCOMMODATION_STEP", 1);
 };

@@ -13,13 +13,20 @@ return new class extends Migration
     {
         Schema::create('accommodation_drafts', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->unique()->constrained();
+            $table->foreignId('user_id');
             $table->integer('current_step')->default(1);
             $table->enum('status', ['draft', 'waiting_for_approval', 'published'])->default('draft');
             $table->json('data'); // Store draft data as JSON
             $table->timestamp('last_saved_at')->nullable();
             $table->timestamps();
         });
+
+        // Add a unique index to ensure one draft per user with 'draft' status
+        \DB::statement('
+            CREATE UNIQUE INDEX unique_user_draft_status
+            ON accommodation_drafts (user_id)
+            WHERE status = \'draft\';
+        ');
     }
 
     /**

@@ -29,7 +29,7 @@ class AccommodationDraftPhotoController extends Controller
      * @OA\Get(
      *     path="/accommodation-drafts/{id}/photos",
      *     operationId="getAccommodationDraftPhotos",
-     *     tags={"Accommodation Draft Photo"},
+     *     tags={"Accommodation"},
      *     summary="Get all photos for accommodation draft",
      *    security={{"bearerAuth":{}}},
      *    @OA\Response(
@@ -74,7 +74,7 @@ class AccommodationDraftPhotoController extends Controller
      * @OA\Post(
      *     path="/accommodation-drafts/{id}/photos",
      *     operationId="uploadAccommodationDraftPhotos",
-     *     tags={"Accommodation Draft Photo"},
+     *     tags={"Accommodation"},
      *     summary="Upload photos for accommodation draft",
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
@@ -168,13 +168,13 @@ class AccommodationDraftPhotoController extends Controller
      * Reorder photos
      *
      * @OA\Put(
-     *     path="/accommodation-drafts/{id}/photos/reorder",
+     *     path="/accommodation-drafts/{accommodationDraft}/photos/reorder",
      *     operationId="reorderAccommodationDraftPhotos",
-     *     tags={"Accommodation Draft Photo"},
+     *     tags={"Accommodation"},
      *     summary="Reorder photos",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
-     *         name="id",
+     *         name="accommodationDraft",
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
@@ -233,62 +233,12 @@ class AccommodationDraftPhotoController extends Controller
     }
 
     /**
-     * Set primary photo
-     *
-     * @OA\Put(
-     *     path="/accommodation-drafts/{draftId}/photos/{photoId}/primary",
-     *     operationId="setPrimaryAccommodationDraftPhoto",
-     *     tags={"Accommodation Draft Photo"},
-     *     summary="Set photo as primary",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="Primary photo set successfully")
-     * )
-     */
-    public function setPrimary(
-        AccommodationDraft $accommodationDraft,
-        AccommodationDraftPhoto $photo
-    ): JsonResponse {
-        try {
-            // Verify photo belongs to draft
-            if ($photo->accommodation_draft_id !== $accommodationDraft->id) {
-                return ApiResponse::error('Photo not found.', null, null, 404);
-            }
-
-            $success = $this->photoService->setPrimaryPhoto(
-                $accommodationDraft,
-                $photo->id
-            );
-
-            if (!$success) {
-                return ApiResponse::error('Failed to set primary photo.', null, null, 500);
-            }
-
-            $photos = $accommodationDraft->photos()
-                ->ordered()
-                ->get();
-
-            return ApiResponse::success(
-                'Primary photo set successfully.',
-                AccommodationDraftPhotoResource::collection($photos)
-            );
-        } catch (Exception $e) {
-            Log::error('Failed to set primary photo', [
-                'draft_id' => $accommodationDraft->id,
-                'photo_id' => $photo->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            return ApiResponse::error('Failed to set primary photo.', null, null, 500);
-        }
-    }
-
-    /**
      * Update photo details
      *
      * @OA\Put(
      *     path="/accommodation-drafts/{draftId}/photos/{photoId}",
      *     operationId="updateAccommodationDraftPhoto",
-     *     tags={"Accommodation Draft Photo"},
+     *     tags={"Accommodation"},
      *     summary="Update photo details",
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(response=200, description="Photo updated successfully")
@@ -342,7 +292,7 @@ class AccommodationDraftPhotoController extends Controller
      * @OA\Delete(
      *     path="/accommodation-drafts/{draftId}/photos/{photoId}",
      *     operationId="deleteAccommodationDraftPhoto",
-     *     tags={"Accommodation Draft Photo"},
+     *     tags={"Accommodation"},
      *     summary="Delete a photo",
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(response=200, description="Photo deleted successfully")
@@ -387,7 +337,7 @@ class AccommodationDraftPhotoController extends Controller
      * @OA\Delete(
      *     path="/accommodation-drafts/{id}/photos",
      *     operationId="deleteAllAccommodationDraftPhotos",
-     *     tags={"Accommodation Draft Photo"},
+     *     tags={"Accommodation"},
      *     summary="Delete all photos",
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(response=200, description="All photos deleted successfully")
@@ -423,7 +373,7 @@ class AccommodationDraftPhotoController extends Controller
      * @OA\Get(
      *     path="/accommodation-drafts/{id}/photos/stats",
      *     operationId="getAccommodationDraftPhotoStats",
-     *     tags={"Accommodation Draft Photo"},
+     *     tags={"Accommodation"},
      *     summary="Get photo statistics",
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(response=200, description="Statistics retrieved successfully")

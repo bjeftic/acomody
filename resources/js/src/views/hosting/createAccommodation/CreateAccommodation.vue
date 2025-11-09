@@ -7,7 +7,7 @@
             </template>
             <template v-else>
                 <!-- Step Content -->
-                <transition name="fade" mode="out-in">
+                <transition v-if="!submitted" name="fade" mode="out-in">
                     <component
                         :is="currentStepComponent"
                         :key="currentStep"
@@ -18,12 +18,15 @@
                         @previous="previousStep"
                     />
                 </transition>
+
+                <!-- Submission Success -->
+                <submission-success v-else />
             </template>
         </div>
 
         <!-- Footer Navigation -->
         <wizard-navigation
-            v-if="!loading"
+            v-if="!loading && !submitted"
             :current-step="currentStep"
             :total-steps="totalSteps"
             :can-proceed="canProceed"
@@ -47,6 +50,7 @@ import Step8Description from "@/src/views/hosting/createAccommodation/steps/Step
 import Step9Pricing from "@/src/views/hosting/createAccommodation/steps/Step9Pricing.vue";
 import Step10HouseRules from "@/src/views/hosting/createAccommodation/steps/Step10HouseRules.vue";
 import Step11Review from "@/src/views/hosting/createAccommodation/steps/Step11Review.vue";
+import SubmissionSuccess from "@/src/views/hosting/createAccommodation/SubmissionSuccess.vue";
 
 export default {
     name: "CreateAccommodation",
@@ -63,6 +67,7 @@ export default {
         Step9Pricing,
         Step10HouseRules,
         Step11Review,
+        SubmissionSuccess,
     },
     data() {
         return {
@@ -126,12 +131,14 @@ export default {
                     cancellationPolicy: "moderate",
                 },
             },
+            submitted: false,
             createAccommodationErrors: {},
         };
     },
     computed: {
         ...mapState("hosting/createAccommodation", [
             "accommodationDraft",
+            "accommodationDraftId",
             "currentStep",
             "createAccommodationLoading",
         ]),
@@ -196,9 +203,11 @@ export default {
     methods: {
         ...mapActions("hosting/createAccommodation", [
             "loadInitialCreateAccommodationData",
+            "createAccommodationDraft",
             "updateAccommodationDraft",
             "incrementCurrentStep",
             "decrementCurrentStep",
+            "restartAccommodationDraftData"
         ]),
 
         getStepName(step) {
@@ -227,30 +236,36 @@ export default {
                 const draftData = this.prepareDraftData();
 
                 if (this.currentStep < this.totalSteps) {
-                    try {
-                        await this.updateAccommodationDraft({
+                    if (this.currentStep === 1) {
+                        this.createAccommodationDraft({
                             draftData,
-                            status: "draft",
-                            currentStep: this.currentStep + 1,
                         });
-                        this.incrementCurrentStep();
-                    } catch (error) {
-                        console.error("Error updating draft:", error);
-                        if (error.response?.data?.errors) {
-                            this.createAccommodationErrors =
-                                error.response.data.errors;
+                    } else {
+                        try {
+                            await this.updateAccommodationDraft({
+                                draftId: this.accommodationDraftId,
+                                draftData,
+                                status: "draft",
+                                currentStep: this.currentStep + 1,
+                            });
+                        } catch (error) {
+                            console.error("Error updating draft:", error);
+                            if (error.response?.data?.errors) {
+                                this.createAccommodationErrors =
+                                    error.response.data.errors;
+                            }
                         }
                     }
                 } else {
                     await this.updateAccommodationDraft({
+                        draftId: this.accommodationDraftId,
                         draftData,
                         status: "waiting_for_approval",
-                        currentStep: 20,
+                        currentStep: this.currentStep + 1,
                     })
                         .then(() => {
-                            this.$router.push({
-                                name: "HostingAccommodationSubmissionSuccess",
-                            });
+                            this.submitted = true;
+                            this.restartAccommodationDraftData();
                         })
                         .catch((error) => {
                             console.error(

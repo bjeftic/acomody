@@ -2,7 +2,7 @@ import apiClient from "@/services/apiClient";
 
 export const loadInitialDashboardData = async ({ dispatch }) => {
     const actions = [
-        dispatch("checkAccommodationDraft"),
+        dispatch("getAccommodationDraftStats"),
     ];
 
     await Promise.all(actions).finally(() => {
@@ -10,12 +10,10 @@ export const loadInitialDashboardData = async ({ dispatch }) => {
     });
 };
 
-export const checkAccommodationDraft = async ({ commit }) => {
-    await apiClient.accommodationDrafts.get()
-        .then(({ data }) => {
-            commit("SET_ACCOMMODATION_DRAFT_EXISTS", !!data.id);
-        });
-};
+export const getAccommodationDraftStats = async ({ commit }) => {
+    const stats = await apiClient.accommodationDrafts.stats.get()
+    commit("SET_ACCOMMODATION_DRAFT_STATS", stats.data);
+}
 
 export const setHostingLoading = ({ commit }, isLoading) => {
     commit("SET_HOSTING_LOADING", isLoading);

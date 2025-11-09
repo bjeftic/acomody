@@ -1,11 +1,11 @@
 import * as types from "./mutation-types";
 
 export default {
-    [types.SET_ACCOMMODATION_DRAFT_ID](state, draftId) {
-        state.accommodationDraftId = draftId;
+    [types.SET_ACCOMMODATION_DRAFT_ID](state, accommodationDraft) {
+        state.accommodationDraftId = accommodationDraft.data.id;
     },
     [types.SET_ACCOMMODATION_DRAFT](state, accommodationDraft) {
-        state.accommodationDraft = accommodationDraft.data;
+        state.accommodationDraft = accommodationDraft.data.data;
     },
     [types.SET_ACCOMMODATION_DRAFT_PHOTOS](state, photos) {
         state.accommodationDraft.photos = photos.data;
@@ -21,8 +21,8 @@ export default {
     [types.SET_AMENITIES](state, amenities) {
         state.amenities = amenities.data;
     },
-    [types.SET_CREATE_ACCOMMODATION_STEP](state, step) {
-        state.currentStep = step;
+    [types.SET_CREATE_ACCOMMODATION_STEP](state, accommodationDraft) {
+        state.currentStep = accommodationDraft.data.current_step;
     },
     [types.INCREMENT_CURRENT_STEP](state) {
         state.currentStep += 1;

@@ -40,7 +40,7 @@
                         @click="$router.push({ name: 'page-listing-create' })"
                     >
                         <template #icon>
-                            <HouseIcon v-if="!accommodationDraft" />
+                            <HouseIcon v-if="!accommodationDraftExists" />
                             <PenIcon v-else />
                         </template>
                     </action-card>
@@ -90,6 +90,8 @@
                                 My listings
                             </span>
                         </div>
+                        <fwb-badge v-if="accommodationDraftWaitingApproval" type="yellow">{{ accommodationDraftStats.waiting_for_approval }}</fwb-badge>
+                        <fwb-badge v-if="accommodationDraftPublished">{{ accommodationDraftStats.published }}</fwb-badge>
                         <svg
                             class="w-5 h-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors"
                             fill="none"
@@ -203,9 +205,18 @@ export default {
         ...mapState({
             currentUser: (state) => state.user.currentUser,
         }),
-        ...mapState("hosting", ["hostingLoading", "accommodationDraftExists"]),
+        ...mapState("hosting", ["hostingLoading", "accommodationDraftStats"]),
         userName() {
             return this.currentUser?.first_name || "Guest";
+        },
+        accommodationDraftExists() {
+            return this.accommodationDraftStats?.draft > 0 ?? false;
+        },
+        accommodationDraftWaitingApproval() {
+            return this.accommodationDraftStats?.waiting_for_approval > 0 ?? false;
+        },
+        accommodationDraftPublished() {
+            return this.accommodationDraftStats?.published > 0 ?? false;
         },
     },
     methods: {

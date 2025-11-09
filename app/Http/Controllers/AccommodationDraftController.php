@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AccommodationDraft\SaveDraftRequest;
+use App\Http\Requests\AccommodationDraft\GetRequest;
+use App\Http\Requests\AccommodationDraft\UpdateRequest;
+use App\Http\Requests\AccommodationDraft\CreateRequest;
 use App\Http\Resources\AccommodationDraftResource;
+use App\Http\Support\ApiResponse;
+use App\Models\AccommodationDraft;
 use App\Services\AccommodationService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Http\JsonResponse;
 
 class AccommodationDraftController extends Controller
 {
@@ -19,15 +21,76 @@ class AccommodationDraftController extends Controller
     }
 
     /**
-     * Save accommodation draft
-     *
+     * Create accommodation draft
      * @OA\Post(
      *     path="/accommodation-draft",
-     *     operationId="saveAccommodationDraft",
+     *     operationId="createAccommodationDraft",
      *     tags={"Accommodation"},
-     *     summary="Save accommodation draft",
-     *     description="Saves a draft for an accommodation listing",
+     *     summary="Create accommodation draft",
+     *     description="Creates a new draft for an accommodation listing",
      *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Accommodation draft data",
+     *         @OA\JsonContent(
+     *             required={"data"},
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 example={"title": "Cozy Apartment", "description": "A nice place to stay"},
+     *                 description="The draft data for the accommodation listing"
+     *             ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Accommodation draft created successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/AccommodationDraft")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized"
+     *     )
+     * )
+     */
+    public function createDraft(CreateRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $accommodationDraft = $this->accommodationService->createAccommodationDraft(
+            userOrFail()->id,
+            $data['data']
+        );
+
+        return ApiResponse::success(
+            'Accommodation draft created successfully',
+            new AccommodationDraftResource($accommodationDraft),
+            null,
+            201
+        );
+    }
+
+
+    /**
+     * Update accommodation draft
+     *
+     * @OA\Put(
+     *     path="/accommodation-draft/{accommodationDraft}",
+     *     operationId="updateAccommodationDraft",
+     *     tags={"Accommodation"},
+     *     summary="Update accommodation draft",
+     *     description="Updates a draft for an accommodation listing",
+     *     security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="accommodationDraft",
+     *         in="path",
+     *         required=true,
+     *         description="Accommodation draft ID",
+     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *     ),
      *     @OA\RequestBody(
      *         required=true,
      *         description="Accommodation draft data",
@@ -62,17 +125,20 @@ class AccommodationDraftController extends Controller
      *     )
      * )
      */
-    public function saveDraft(SaveDraftRequest $request)
+    public function updateDraft(UpdateRequest $request, AccommodationDraft $accommodationDraft): JsonResponse
     {
         $data = $request->validated();
-        $accommodationDraft = $this->accommodationService->saveAccommodationDraft(
-            userOrFail()->id,
+        $accommodationDraft = $this->accommodationService->updateAccommodationDraft(
+            $accommodationDraft,
             $data['data'],
             $data['current_step'],
             $data['status']
         );
 
-        return new AccommodationDraftResource($accommodationDraft);
+        return ApiResponse::success(
+            'Accommodation draft saved successfully',
+            new AccommodationDraftResource($accommodationDraft)
+        );
     }
 
     /**
@@ -85,6 +151,17 @@ class AccommodationDraftController extends Controller
      *     summary="Get accommodation draft",
      *     description="Retrieves the saved draft for an accommodation listing",
      *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by draft status",
+     *         required=false,
+     *         @OA\Schema(
+     *             type="string",
+     *             enum={"draft", "waiting_for_approval", "published"},
+     *             default="draft"
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Accommodation draft retrieved successfully",
@@ -93,14 +170,79 @@ class AccommodationDraftController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Draft not found"
      *     )
      * )
      */
-    public function getDraft(): AccommodationDraftResource
+    public function getDraft(GetRequest $request): JsonResponse
     {
+        $status = $request->getStatus() ?? 'draft';
+
         $accommodationDraft = $this->accommodationService->getAccommodationDraft(
-            userOrFail()->id
+            userOrFail()->id,
+            $status
         );
-        return new AccommodationDraftResource($accommodationDraft);
+
+        return ApiResponse::success(
+            'Accommodation draft retrieved successfully',
+            new AccommodationDraftResource($accommodationDraft)
+        );
+    }
+
+    /**
+     * Get accommodation draft statistics
+     *
+     * @OA\Get(
+     *     path="/accommodation-drafts/stats",
+     *     operationId="getAccommodationDraftStats",
+     *     tags={"Accommodation"},
+     *     summary="Get accommodation draft statistics",
+     *     description="Retrieves statistics about accommodation drafts",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Accommodation draft statistics retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 description="Draft statistics by status",
+     *                 example={"draft": 3, "waiting_for_approval": 1, "published": 5}
+     *             ),
+     *             @OA\Property(
+     *                 property="meta",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="total_drafts",
+     *                     type="integer",
+     *                     example=9,
+     *                     description="Total number of accommodation drafts"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized"
+     *     )
+     * )
+     */
+    public function getDraftStats()
+    {
+        $accommodationDraftStats = $this->accommodationService->getAccommodationDraftStats(
+            userOrFail()->id,
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Accommodation draft statistics retrieved successfully',
+            'data' => $accommodationDraftStats,
+            'meta' => [
+                'total_drafts' => array_sum($accommodationDraftStats),
+            ]
+        ]);
     }
 }

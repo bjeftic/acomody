@@ -12,6 +12,7 @@ import {
     FwbAccordionHeader,
     FwbAccordionContent,
     FwbModal,
+    FwbBadge,
     FwbButton,
     FwbCard,
     FwbInput,
@@ -68,6 +69,7 @@ app.component("FwbAccordionPanel", FwbAccordionPanel);
 app.component("FwbAccordionHeader", FwbAccordionHeader);
 app.component("FwbAccordionContent", FwbAccordionContent);
 app.component("FwbModal", FwbModal);
+app.component("FwbBadge", FwbBadge);
 app.component("FwbButton", FwbButton);
 app.component("FwbCard", FwbCard);
 app.component("FwbInput", FwbInput);

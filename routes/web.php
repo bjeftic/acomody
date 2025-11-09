@@ -11,7 +11,7 @@ Route::get('/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
     ->name('verification.verify');
 
 // ============================================
-// SPA CATCH-ALL ROUTE (mora biti poslednje!)
+// SPA CATCH-ALL ROUTE (must be last)
 // ============================================
 Route::get('/{any}', function () {
     return view('welcome');

@@ -50,31 +50,37 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->name('api.amenities');
 
     Route::prefix('accommodation-drafts')->name('api.accommodation.drafts.')->group(function () {
-        Route::get('/', [AccommodationDraftController::class, 'getDraft'])
-            ->name('get');
+        Route::get('', [AccommodationDraftController::class, 'getDraft'])
+            ->name('accommodation-draft.get');
 
-        Route::post('/save', [AccommodationDraftController::class, 'saveDraft'])
-            ->name('save');
+        Route::post('', [AccommodationDraftController::class, 'createDraft'])
+            ->name('accommodation-draft.create');
+
+        Route::put('{accommodationDraft}', [AccommodationDraftController::class, 'updateDraft'])
+            ->name('accommodation-draft.update');
+
+        Route::get('stats', [AccommodationDraftController::class, 'getDraftStats'])
+            ->name('accommodation-draft.stats');
 
         Route::prefix('{accommodationDraft}')->group(function () {
             Route::get('photos', [AccommodationDraftPhotoController::class, 'index'])
-                ->name('photos.index');
+                ->name('accommodation-draft.photos.index');
 
             Route::post('photos', [AccommodationDraftPhotoController::class, 'store'])
-                ->name('photos.store');
+                ->name('accommodation-draft.photos.store');
 
             Route::put('photos/reorder', [AccommodationDraftPhotoController::class, 'reorder'])
-                ->name('photos.reorder');
+                ->name('accommodation-draft.photos.reorder');
 
             Route::delete('photos', [AccommodationDraftPhotoController::class, 'destroyAll'])
-                ->name('photos.destroy-all');
+                ->name('accommodation-draft.photos.destroy-all');
 
-            Route::prefix('photos/{photo}')->name('photos.')->group(function () {
+            Route::prefix('photos/{photo}')->name('accommodation-draft.photos.')->group(function () {
                 Route::put('/', [AccommodationDraftPhotoController::class, 'update'])
-                    ->name('update');
+                    ->name('accommodation-draft.photos.update');
 
                 Route::delete('/', [AccommodationDraftPhotoController::class, 'destroy'])
-                    ->name('destroy');
+                    ->name('accommodation-draft.photos.destroy');
             });
         });
     });
