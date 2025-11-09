@@ -260,10 +260,8 @@ export default {
                     this.ok();
                 })
                 .catch((e) => {
-                    if (e.error && e.error.error && e.error.error.validation_errors) {
-                        this.signUpErrors = e.error.error.validation_errors;
-                    } else if (e.response && e.response.data && e.response.data.error) {
-                        this.signUpErrors = e.response.data.error.validation_errors || {};
+                    if (e.error.message) {
+                        this.signUpErrors = [e.error.message];
                     } else {
                         this.signUpErrors = { general: ['An error occurred. Please try again.'] };
                     }

@@ -105,13 +105,11 @@ class ApiExceptionHandler
         $this->logException($e, 'Validation failed', 422, ['errors' => $errors]);
 
         return response()->json([
-            'error' => [
                 'type' => $this->getExceptionType($e),
                 'status' => 422,
                 'message' => 'The provided data is invalid.',
                 'timestamp' => now()->toISOString(),
                 'validation_errors' => $errors,
-            ]
         ], 422);
     }
 
@@ -260,13 +258,11 @@ class ApiExceptionHandler
         $retryAfter = $e->getHeaders()['Retry-After'] ?? null;
 
         return response()->json([
-            'error' => [
                 'type' => $this->getExceptionType($e),
                 'status' => 429,
                 'message' => 'Too many requests. Please try again later.',
                 'timestamp' => now()->toISOString(),
                 'retry_after' => $retryAfter ? (int)$retryAfter : null,
-            ]
         ], 429)->withHeaders($e->getHeaders());
     }
 

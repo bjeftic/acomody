@@ -13,61 +13,69 @@ use App\Http\Controllers\AccommodationDraftController;
 use App\Http\Controllers\AccommodationDraftPhotoController;
 use App\Http\Controllers\AmenityController;
 
-Route::group(['middleware' => ['guest']], function () {
-    Route::post('/sign-up', [RegisteredUserController::class, 'signUp'])
-        ->name('signup');
-    Route::post('/log-in', [AuthenticatedSessionController::class, 'store'])
-        ->name('login.api');
-    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
-});
+// ============================================
+// PUBLIC ROUTES
+// ============================================
+Route::post('/sign-up', [RegisteredUserController::class, 'signUp'])
+    ->name('api.signup');
 
-Route::group(['middleware' => ['web', 'auth:web,sanctum']], function () {
-    Route::post('/log-out', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout.api');
+Route::post('/log-in', [AuthenticatedSessionController::class, 'store'])
+    ->name('api.login');
+
+Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
+    ->name('api.password.email');
+
+Route::post('/reset-password', [NewPasswordController::class, 'store'])
+    ->name('api.password.store');
+
+// ============================================
+// PROTECTED ROUTES (auth:sanctum)
+// ============================================
+Route::middleware(['auth:sanctum'])->group(function () {
+
+    Route::post('/log-out', [AuthenticatedSessionController::class, 'destroyApi'])
+        ->name('api.logout');
 
     Route::post('/resend', [VerifyEmailController::class, 'send'])
         ->middleware(['throttle:6,1'])
-        ->name('verification.send');
+        ->name('api.verification.send');
 
     Route::get('/users', [UserController::class, 'show'])
-        ->name('users');
+        ->name('api.users');
 
     Route::get('/accommodation-types', [AccommodationTypeController::class, 'index'])
-        ->name('accommodation.types');
+        ->name('api.accommodation.types');
 
-    Route::group(['prefix' => 'accommodation-drafts'], function () {
-        Route::get('', [AccommodationDraftController::class, 'getDraft'])
-            ->name('accommodation.drafts.get');
+    Route::get('/amenities', [AmenityController::class, 'index'])
+        ->name('api.amenities');
+
+    Route::prefix('accommodation-drafts')->name('api.accommodation.drafts.')->group(function () {
+        Route::get('/', [AccommodationDraftController::class, 'getDraft'])
+            ->name('get');
+
         Route::post('/save', [AccommodationDraftController::class, 'saveDraft'])
-            ->name('accommodation.drafts.save');
+            ->name('save');
 
         Route::prefix('{accommodationDraft}')->group(function () {
-
             Route::get('photos', [AccommodationDraftPhotoController::class, 'index'])
-                ->name('accommodation-drafts.photos.index');
+                ->name('photos.index');
 
             Route::post('photos', [AccommodationDraftPhotoController::class, 'store'])
-                ->name('accommodation-drafts.photos.store');
+                ->name('photos.store');
 
             Route::put('photos/reorder', [AccommodationDraftPhotoController::class, 'reorder'])
-                ->name('accommodation-drafts.photos.reorder');
+                ->name('photos.reorder');
 
             Route::delete('photos', [AccommodationDraftPhotoController::class, 'destroyAll'])
-                ->name('accommodation-drafts.photos.destroy-all');
+                ->name('photos.destroy-all');
 
-            Route::prefix('photos/{photo}')->group(function () {
+            Route::prefix('photos/{photo}')->name('photos.')->group(function () {
                 Route::put('/', [AccommodationDraftPhotoController::class, 'update'])
-                    ->name('accommodation-drafts.photos.update');
+                    ->name('update');
 
                 Route::delete('/', [AccommodationDraftPhotoController::class, 'destroy'])
-                    ->name('accommodation-drafts.photos.destroy');
+                    ->name('destroy');
             });
         });
     });
-
-    Route::get('/amenities', [AmenityController::class, 'index'])
-        ->name('amenities');
 });

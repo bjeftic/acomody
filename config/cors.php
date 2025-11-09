@@ -15,11 +15,26 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'log-in', 'log-out'],
+    'paths' => [
+        'api/*',
+        'sanctum/csrf-cookie',
+        'log-in',
+        'log-out',
+        'sign-up',
+        'forgot-password',
+        'reset-password',
+        'resend',
+        'verify/*',
+    ],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:8080')],
+    'allowed_origins' => [
+        env('FRONTEND_URL', 'http://localhost:5173'),
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+    ],
+
 
     'allowed_origins_patterns' => [],
 

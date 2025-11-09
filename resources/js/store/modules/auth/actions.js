@@ -1,6 +1,5 @@
 import apiClient from "@/services/apiClient";
 import * as types from "./mutation-types";
-import axios from "axios";
 
 export const initializeAuth = async ({ commit, dispatch }) => {
     try {
@@ -44,36 +43,34 @@ export const signUp = async ({}, { email, password, confirmPassword }) => {
         });
 };
 
-export const logIn = async (
+export const logIn = (
     { commit, dispatch },
-    { email, password, rememberMe = false }
+    { email, password, rememberMe }
 ) => {
-    // Commit to root store
-    commit("CLEAR_AUTH");
+    commit(types.CLEAR_AUTH);
 
-    try {
-        const response = await axios.post("/log-in", {
-            email,
-            password,
-            remember_me: rememberMe,
+    // Koristi apiClient umesto direktnog axios poziva
+    return apiClient.logIn
+        .noAuth()
+        .post({ email, password, remember_me: rememberMe })
+        .then((response) => {
+            commit(types.SET_AUTHENTICATED, true);
+            commit(types.SET_INITIALIZED, true);
+
+            return dispatch("user/fetchUser", null, { root: true }).then(() => {
+                return Promise.resolve(response);
+            });
+        })
+        .catch((error) => {
+            return Promise.reject(error);
         });
-
-        commit("SET_AUTHENTICATED", true);
-        commit("SET_INITIALIZED", true);
-
-        await dispatch("user/fetchUser", null, { root: true });
-
-        return response;
-    } catch (error) {
-        throw error;
-    }
 };
 
 export const forgotPassword = async ({}, email) => {
     try {
-        apiClient.forgotPassword
+        return apiClient.forgotPassword
             .noAuth()
-            .post(email)
+            .post({ email })
             .then((response) => {
                 if (response.success) {
                     return Promise.resolve(response);
@@ -93,7 +90,7 @@ export const resetPassword = async (
     { email, password, confirmPassword, token }
 ) => {
     try {
-        await apiClient.resetPassword
+        return apiClient.resetPassword
             .noAuth()
             .post({
                 email,
@@ -129,20 +126,19 @@ export const resendVerificationEmail = async ({}) => {
         });
 };
 
-export const logOut = async ({ commit }) => {
+export const logOut = async ({ commit, rootState }) => {
     try {
-        const response = await axios.post("/log-out");
+        const response = await apiClient.logOut.post();
 
-        // Clear auth data regardless of response
-        commit("CLEAR_AUTH");
-        window.location.href = "/";
-        return response;
+        if (response.success) {
+            commit("CLEAR_AUTH");
+            window.location.href = "/";
+            return response;
+        } else {
+            throw new Error(response.error?.message || "Logout failed");
+        }
     } catch (error) {
-        console.error("Logout failed:", error);
-        // Clear auth even on error
         commit("CLEAR_AUTH");
-        // Redirect anyway
-        window.location.href = "/";
         return Promise.reject(error);
     }
 };

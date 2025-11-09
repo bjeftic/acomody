@@ -242,16 +242,12 @@ export default {
                 })
                 .catch((e) => {
                     if (
-                        e.response &&
-                        e.response.data &&
-                        e.response.data.error
+                        e.error.message
                     ) {
                         this.logInErrors =
-                            e.response.data.error.validation_errors || {};
+                            [e.error.message];
                     } else {
-                        this.logInErrors = {
-                            general: ["An error occurred. Please try again."],
-                        };
+                        this.logInErrors = ["An error occurred. Please try again."];
                     }
                 })
                 .finally(() => {

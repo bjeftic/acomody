@@ -5,7 +5,7 @@ import path from 'path';
 
 export default defineConfig({
     plugins: [
-         laravel({
+        laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
         }),
@@ -21,6 +21,18 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './resources/js'),
+        },
+    },
+    server: {
+        host: '0.0.0.0',
+        port: 5173,
+        strictPort: true,
+        hmr: {
+            host: 'localhost',
+            port: 5173,
+        },
+        watch: {
+            usePolling: true,
         },
     },
 });

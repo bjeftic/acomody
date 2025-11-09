@@ -14,8 +14,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web();
-        $middleware->api();
+        $middleware->api(prepend: [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+        ]);
+
+        // Stateful API for Sanctum
+        $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->renderable(function (Throwable $e, Request $request) {
