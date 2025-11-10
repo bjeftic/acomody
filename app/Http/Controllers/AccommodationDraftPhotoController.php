@@ -27,11 +27,18 @@ class AccommodationDraftPhotoController extends Controller
      * Get all photos for a draft
      *
      * @OA\Get(
-     *     path="/accommodation-drafts/{id}/photos",
+     *     path="/accommodation-drafts/{accommodationDraftId}/photos",
      *     operationId="getAccommodationDraftPhotos",
      *     tags={"Accommodation"},
      *     summary="Get all photos for accommodation draft",
      *    security={{"bearerAuth":{}}},
+     *  @OA\Parameter(
+     *         name="accommodationDraft",
+     *         in="path",
+     *         required=true,
+     *         description="Accommodation draft ID",
+     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *     ),
      *    @OA\Response(
      *         response=200,
      *         description="Accommodation draft photos retrieved successfully",
@@ -72,11 +79,18 @@ class AccommodationDraftPhotoController extends Controller
      * Upload photos
      *
      * @OA\Post(
-     *     path="/accommodation-drafts/{id}/photos",
+     *     path="/accommodation-drafts/{accommodationDraftId}/photos",
      *     operationId="uploadAccommodationDraftPhotos",
      *     tags={"Accommodation"},
      *     summary="Upload photos for accommodation draft",
      *     security={{"bearerAuth":{}}},
+     *  @OA\Parameter(
+     *         name="accommodationDraft",
+     *         in="path",
+     *         required=true,
+     *         description="Accommodation draft ID",
+     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *     ),
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\MediaType(
@@ -168,11 +182,18 @@ class AccommodationDraftPhotoController extends Controller
      * Reorder photos
      *
      * @OA\Put(
-     *     path="/accommodation-drafts/{accommodationDraft}/photos/reorder",
+     *     path="/accommodation-drafts/{accommodationDraftId}/photos/reorder",
      *     operationId="reorderAccommodationDraftPhotos",
      *     tags={"Accommodation"},
      *     summary="Reorder photos",
      *     security={{"bearerAuth":{}}},
+     *  @OA\Parameter(
+     *         name="accommodationDraft",
+     *         in="path",
+     *         required=true,
+     *         description="Accommodation draft ID",
+     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *     ),
      *     @OA\Parameter(
      *         name="accommodationDraft",
      *         in="path",
@@ -233,68 +254,21 @@ class AccommodationDraftPhotoController extends Controller
     }
 
     /**
-     * Update photo details
-     *
-     * @OA\Put(
-     *     path="/accommodation-drafts/{draftId}/photos/{photoId}",
-     *     operationId="updateAccommodationDraftPhoto",
-     *     tags={"Accommodation"},
-     *     summary="Update photo details",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="Photo updated successfully")
-     * )
-     */
-    public function update(
-        Request $request,
-        AccommodationDraft $accommodationDraft,
-        AccommodationDraftPhoto $photo
-    ): JsonResponse {
-        try {
-            // Verify photo belongs to draft
-            if ($photo->accommodation_draft_id !== $accommodationDraft->id) {
-                return ApiResponse::error('Photo not found.', null, null, 404);
-            }
-
-            $validated = $request->validate([
-                'alt_text' => 'nullable|string|max:255',
-                'caption' => 'nullable|string|max:500',
-                'is_primary' => 'nullable|boolean',
-            ]);
-
-            // If setting as primary, use service method
-            if (isset($validated['is_primary']) && $validated['is_primary']) {
-                $this->photoService->setPrimaryPhoto($accommodationDraft, $photo->id);
-                unset($validated['is_primary']);
-            }
-
-            // Update remaining fields
-            if (!empty($validated)) {
-                $photo->update($validated);
-            }
-
-            return ApiResponse::success(
-                'Photo updated successfully.',
-                new AccommodationDraftPhotoResource($photo->fresh())
-            );
-        } catch (Exception $e) {
-            Log::error('Failed to update photo', [
-                'photo_id' => $photo->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            return ApiResponse::error('Failed to update photo.', null, null, 500);
-        }
-    }
-
-    /**
      * Delete a photo
      *
      * @OA\Delete(
-     *     path="/accommodation-drafts/{draftId}/photos/{photoId}",
+     *     path="/accommodation-drafts/{accommodationDraftId}/photos/{photoId}",
      *     operationId="deleteAccommodationDraftPhoto",
      *     tags={"Accommodation"},
      *     summary="Delete a photo",
      *     security={{"bearerAuth":{}}},
+     *  @OA\Parameter(
+     *         name="accommodationDraft",
+     *         in="path",
+     *         required=true,
+     *         description="Accommodation draft ID",
+     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *     ),
      *     @OA\Response(response=200, description="Photo deleted successfully")
      * )
      */
@@ -332,50 +306,21 @@ class AccommodationDraftPhotoController extends Controller
     }
 
     /**
-     * Delete all photos for a draft
-     *
-     * @OA\Delete(
-     *     path="/accommodation-drafts/{id}/photos",
-     *     operationId="deleteAllAccommodationDraftPhotos",
-     *     tags={"Accommodation"},
-     *     summary="Delete all photos",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="All photos deleted successfully")
-     * )
-     */
-    public function destroyAll(AccommodationDraft $accommodationDraft): JsonResponse
-    {
-        try {
-            $success = $this->photoService->deleteAllPhotos($accommodationDraft);
-
-            if (!$success) {
-                return ApiResponse::error('Failed to delete all photos.', null, null, 500);
-            }
-
-            Log::info('All photos deleted', [
-                'draft_id' => $accommodationDraft->id,
-            ]);
-
-            return ApiResponse::success('All photos deleted successfully.', null);
-        } catch (Exception $e) {
-            Log::error('Failed to delete all photos', [
-                'draft_id' => $accommodationDraft->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            return ApiResponse::error('Failed to delete photos.', null, null, 500);
-        }
-    }
-
-    /**
      * Get photo statistics
      *
      * @OA\Get(
-     *     path="/accommodation-drafts/{id}/photos/stats",
+     *     path="/accommodation-drafts/{accommodationDraftId}/photos/stats",
      *     operationId="getAccommodationDraftPhotoStats",
      *     tags={"Accommodation"},
      *     summary="Get photo statistics",
      *     security={{"bearerAuth":{}}},
+     *  @OA\Parameter(
+     *         name="accommodationDraft",
+     *         in="path",
+     *         required=true,
+     *         description="Accommodation draft ID",
+     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *     ),
      *     @OA\Response(response=200, description="Statistics retrieved successfully")
      * )
      */

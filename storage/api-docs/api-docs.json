@@ -247,7 +247,7 @@
                 ]
             }
         },
-        "/accommodation-drafts/{id}/photos": {
+        "/accommodation-drafts/{accommodationDraftId}/photos": {
             "get": {
                 "tags": [
                     "Accommodation"
@@ -255,6 +255,19 @@
                 "summary": "Get all photos for accommodation draft",
                 "description": "Get all photos for a draft",
                 "operationId": "getAccommodationDraftPhotos",
+                "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Accommodation draft photos retrieved successfully",
@@ -286,6 +299,19 @@
                 "summary": "Upload photos for accommodation draft",
                 "description": "Upload photos",
                 "operationId": "uploadAccommodationDraftPhotos",
+                "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -318,27 +344,9 @@
                         "bearerAuth": []
                     }
                 ]
-            },
-            "delete": {
-                "tags": [
-                    "Accommodation"
-                ],
-                "summary": "Delete all photos",
-                "description": "Delete all photos for a draft",
-                "operationId": "deleteAllAccommodationDraftPhotos",
-                "responses": {
-                    "200": {
-                        "description": "All photos deleted successfully"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
             }
         },
-        "/accommodation-drafts/{accommodationDraft}/photos/reorder": {
+        "/accommodation-drafts/{accommodationDraftId}/photos/reorder": {
             "put": {
                 "tags": [
                     "Accommodation"
@@ -347,6 +355,17 @@
                 "description": "Reorder photos",
                 "operationId": "reorderAccommodationDraftPhotos",
                 "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    },
                     {
                         "name": "accommodationDraft",
                         "in": "path",
@@ -395,25 +414,7 @@
                 ]
             }
         },
-        "/accommodation-drafts/{draftId}/photos/{photoId}": {
-            "put": {
-                "tags": [
-                    "Accommodation"
-                ],
-                "summary": "Update photo details",
-                "description": "Update photo details",
-                "operationId": "updateAccommodationDraftPhoto",
-                "responses": {
-                    "200": {
-                        "description": "Photo updated successfully"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
+        "/accommodation-drafts/{accommodationDraftId}/photos/{photoId}": {
             "delete": {
                 "tags": [
                     "Accommodation"
@@ -421,6 +422,19 @@
                 "summary": "Delete a photo",
                 "description": "Delete a photo",
                 "operationId": "deleteAccommodationDraftPhoto",
+                "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Photo deleted successfully"
@@ -433,7 +447,7 @@
                 ]
             }
         },
-        "/accommodation-drafts/{id}/photos/stats": {
+        "/accommodation-drafts/{accommodationDraftId}/photos/stats": {
             "get": {
                 "tags": [
                     "Accommodation"
@@ -441,6 +455,19 @@
                 "summary": "Get photo statistics",
                 "description": "Get photo statistics",
                 "operationId": "getAccommodationDraftPhotoStats",
+                "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Statistics retrieved successfully"

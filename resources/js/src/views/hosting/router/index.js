@@ -17,6 +17,14 @@ const routes = [
         },
         component: () => import('@/src/views/hosting/createAccommodation/CreateAccommodation.vue'),
     },
+    {
+        path: 'listing-all',
+        name: 'page-listing-all',
+        meta: {
+            requiresAuth: true,
+        },
+        component: () => import('@/src/views/hosting/listingAll/ListingAll.vue'),
+    }
 ];
 
 export default routes;
