@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Traits\HasStorageFiles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
@@ -57,6 +56,26 @@ class AccommodationDraftPhoto extends Model
         'large_url',
         'formatted_size',
     ];
+
+    public function canBeReadBy($user): bool
+    {
+        return $user && $user->id === $this->accommodationDraft->user_id;
+    }
+
+    public function canBeCreatedBy($user): bool
+    {
+        return $user !== null;
+    }
+
+    public function canBeUpdatedBy($user): bool
+    {
+        return $user && $user->id === $this->accommodationDraft->user_id;
+    }
+
+    public function canBeDeletedBy($user): bool
+    {
+        return $user && $user->id === $this->accommodationDraft->user_id;
+    }
 
     /**
      * Relationships

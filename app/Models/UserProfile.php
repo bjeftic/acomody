@@ -20,6 +20,26 @@ class UserProfile extends Model
         'avatar'
     ];
 
+    public function canBeReadBy($user): bool
+    {
+        return $user && $user->id === $this->user_id;
+    }
+
+    public function canBeCreatedBy($user): bool
+    {
+        return $user !== null;
+    }
+
+    public function canBeUpdatedBy($user): bool
+    {
+        return $user && $user->id === $this->user_id;
+    }
+
+    public function canBeDeletedBy($user): bool
+    {
+        return $user && $user->id === $this->user_id;
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

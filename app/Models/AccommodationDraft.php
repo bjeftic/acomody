@@ -17,6 +17,26 @@ class AccommodationDraft extends Model
         'last_saved_at',
     ];
 
+    public function canBeReadBy($user): bool
+    {
+        return $user && $user->id === $this->user_id;
+    }
+
+    public function canBeCreatedBy($user): bool
+    {
+        return $user !== null;
+    }
+
+    public function canBeUpdatedBy($user): bool
+    {
+        return $user && $user->id === $this->user_id;
+    }
+
+    public function canBeDeletedBy($user): bool
+    {
+        return $user && $user->id === $this->user_id;
+    }
+
     public function photos(): HasMany
     {
         return $this->hasMany(AccommodationDraftPhoto::class);

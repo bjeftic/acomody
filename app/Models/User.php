@@ -53,6 +53,26 @@ class User extends Model implements MustVerifyEmail, AuthenticatableContract, Au
         'remember_token',
     ];
 
+    public function canBeReadBy($user): bool
+    {
+        return $user && $user->id === $this->id;
+    }
+
+    public function canBeCreatedBy($user): bool
+    {
+        return true;
+    }
+
+    public function canBeUpdatedBy($user): bool
+    {
+        return $user && $user->id === $this->id;
+    }
+
+    public function canBeDeletedBy($user): bool
+    {
+        return $user && $user->id === $this->id;
+    }
+
     /**
      * Get the attributes that should be cast.
      *

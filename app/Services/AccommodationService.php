@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AccommodationDraft;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class AccommodationService
 {
@@ -49,7 +50,7 @@ class AccommodationService
 
     public function getAccommodationDraftStats(int $userId): array
     {
-        $stats = AccommodationDraft::query()
+        $stats = DB::table('accommodation_drafts')
             ->where('user_id', $userId)
             ->selectRaw('status, COUNT(*) as count')
             ->groupBy('status')

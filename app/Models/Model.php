@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model as BaseModel;
+use App\Traits\Authorizable;
 
 abstract class Model extends BaseModel
 {
+    use Authorizable;
 
     /**
      * The attributes that should be cast to native types.

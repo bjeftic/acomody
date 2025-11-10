@@ -2,14 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Location extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = ['name', 'country_id', 'parent_id'];
+
+    public function canBeReadBy($user): bool
+    {
+        return true;
+    }
+
+    public function canBeCreatedBy($user): bool
+    {
+        return $user !== null;
+    }
+
+    public function canBeUpdatedBy($user): bool
+    {
+        return $user !== null;
+    }
+
+    public function canBeDeletedBy($user): bool
+    {
+        return $user !== null;
+    }
 
     public function country()
     {

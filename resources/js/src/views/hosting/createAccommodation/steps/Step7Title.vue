@@ -45,33 +45,7 @@
 
                 <!-- Suggestion Cards -->
                 <div class="space-y-3">
-                    <button
-                        v-for="(suggestion, index) in titleSuggestions"
-                        :key="index"
-                        @click="selectTitleSuggestion(suggestion)"
-                        class="w-full p-4 text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
-                    >
-                        <div class="flex items-start justify-between">
-                            <p
-                                class="text-base text-gray-900 dark:text-white font-medium flex-1"
-                            >
-                                {{ suggestion }}
-                            </p>
-                            <svg
-                                class="w-5 h-5 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white flex-shrink-0 ml-3"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M9 5l7 7-7 7"
-                                />
-                            </svg>
-                        </div>
-                    </button>
+                    <action-card v-for="(suggestion, index) in titleSuggestions" :key="index" :title="suggestion" @click="selectTitleSuggestion(suggestion)" />
                 </div>
             </div>
 

@@ -20,6 +20,26 @@ class Accommodation extends Model
         'occupation_type' => AccommodationOccupation::class,
     ];
 
+    public function canBeReadBy($user): bool
+    {
+        return true;
+    }
+
+    public function canBeCreatedBy($user): bool
+    {
+        return $user !== null;
+    }
+
+    public function canBeUpdatedBy($user): bool
+    {
+        return $user !== null;
+    }
+
+    public function canBeDeletedBy($user): bool
+    {
+        return $user !== null;
+    }
+
     public function listing()
     {
         return $this->morphOne(Listing::class, 'listable');
