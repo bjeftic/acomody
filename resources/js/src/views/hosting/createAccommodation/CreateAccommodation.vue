@@ -39,7 +39,7 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import WizardNavigation from "@/src/views/hosting/createAccommodation/components/WizardNavigation.vue";
-import Step1PropertyType from "@/src/views/hosting/createAccommodation/steps/Step1PropertyType.vue";
+import Step1AccommodationType from "@/src/views/hosting/createAccommodation/steps/Step1AccommodationType.vue";
 import Step2OccupationType from "@/src/views/hosting/createAccommodation/steps/Step2OccupationType.vue";
 import Step3Address from "@/src/views/hosting/createAccommodation/steps/Step3Address.vue";
 import Step4FloorPlan from "@/src/views/hosting/createAccommodation/steps/Step4FloorPlan.vue";
@@ -56,7 +56,7 @@ export default {
     name: "CreateAccommodation",
     components: {
         WizardNavigation,
-        Step1PropertyType,
+        Step1AccommodationType,
         Step2OccupationType,
         Step3Address,
         Step4FloorPlan,
@@ -73,7 +73,7 @@ export default {
         return {
             totalSteps: 11,
             formData: {
-                propertyType: null,
+                accommodationType: null,
                 accommodationOccupation: null,
                 address: {
                     country: "",
@@ -152,7 +152,7 @@ export default {
         canProceed() {
             switch (this.currentStep) {
                 case 1:
-                    return this.formData.propertyType !== null;
+                    return this.formData.accommodationType !== null;
                 case 2:
                     return this.formData.accommodationOccupation !== null;
                 case 3:
@@ -212,7 +212,7 @@ export default {
 
         getStepName(step) {
             const names = {
-                1: "PropertyType",
+                1: "AccommodationType",
                 2: "OccupationType",
                 3: "Address",
                 4: "FloorPlan",
@@ -236,7 +236,7 @@ export default {
                 const draftData = this.prepareDraftData();
 
                 if (this.currentStep < this.totalSteps) {
-                    if (this.currentStep === 1) {
+                    if (this.currentStep === 1 && !this.accommodationDraftId) {
                         this.createAccommodationDraft({
                             draftData,
                         });
@@ -289,7 +289,7 @@ export default {
 
         prepareDraftData() {
             return {
-                property_type: this.formData.propertyType,
+                accommodation_type: this.formData.accommodationType,
                 accommodation_occupation: this.formData.accommodationOccupation,
                 address: {
                     country: this.formData.address.country,
@@ -318,7 +318,7 @@ export default {
 
         loadDraftData(draft) {
             this.formData = {
-                propertyType: draft.property_type || null,
+                accommodationType: draft.accommodation_type || null,
                 accommodationOccupation: draft.accommodation_occupation || null,
                 address: {
                     country: draft.address?.country || "",

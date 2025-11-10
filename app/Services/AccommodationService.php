@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AccommodationDraft;
+use Illuminate\Database\Eloquent\Collection;
 
 class AccommodationService
 {
@@ -31,10 +32,18 @@ class AccommodationService
         return $accommodationDraft;
     }
 
-    public static function getAccommodationDraft(int $userId, ?string $status = null): AccommodationDraft
+    public static function getAccommodationDrafts(int $userId, ?string $status = null): Collection
     {
         return AccommodationDraft::where('user_id', $userId)
             ->when($status, fn($query) => $query->where('status', $status))
+            ->get();
+    }
+
+    // Fetch a single accommodation draft with 'draft' status for a user
+    public static function getAccommodationDraft(int $userId): AccommodationDraft
+    {
+        return AccommodationDraft::where('user_id', $userId)
+            ->where('status', 'draft')
             ->firstOrFail();
     }
 

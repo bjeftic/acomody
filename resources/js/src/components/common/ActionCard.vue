@@ -1,7 +1,7 @@
 <template>
     <div
-        class="group relative block p-4 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-lg transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600 cursor-pointer"
-        :class="[selected ? 'bg-gray-100' : 'bg-white']"
+        class="group relative block p-4 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-lg transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600"
+        :class="[selected ? 'bg-gray-100' : 'bg-white', disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer']"
         @click="$emit('click')"
     >
         <div class="flex items-start">
@@ -86,6 +86,10 @@ export default {
             default: false,
         },
         iconBackground: {
+            type: Boolean,
+            default: false,
+        },
+        disabled: {
             type: Boolean,
             default: false,
         },

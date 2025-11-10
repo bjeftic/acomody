@@ -20,9 +20,9 @@
                 "tags": [
                     "Accommodation"
                 ],
-                "summary": "Get accommodation draft",
-                "description": "Retrieves the saved draft for an accommodation listing",
-                "operationId": "getAccommodationDraft",
+                "summary": "Get accommodation drafts",
+                "description": "Retrieves a list of accommodation drafts for the authenticated user",
+                "operationId": "getAccommodationDrafts",
                 "parameters": [
                     {
                         "name": "status",
@@ -42,20 +42,20 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Accommodation draft retrieved successfully",
+                        "description": "Accommodation drafts retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/AccommodationDraft"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AccommodationDraft"
+                                    }
                                 }
                             }
                         }
                     },
                     "401": {
                         "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Draft not found"
                     }
                 },
                 "security": [
@@ -187,6 +187,39 @@
                     },
                     "401": {
                         "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/accommodation-draft/draft": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get accommodation draft",
+                "description": "Retrieves the saved draft for an accommodation listing",
+                "operationId": "getAccommodationDraft",
+                "responses": {
+                    "200": {
+                        "description": "Accommodation draft retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccommodationDraft"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Draft not found"
                     }
                 },
                 "security": [

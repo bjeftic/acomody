@@ -161,7 +161,7 @@
             <!-- Competitive Analysis -->
             <competitive-pricing
                 :city="formData.address.city"
-                :property-type-name="propertyTypeName"
+                :property-type-name="accommodationTypeName"
                 :currency="config.currency"
                 :average-price="config.averagePrice"
                 :price-range="config.priceRange"
@@ -214,10 +214,10 @@ export default {
     computed: {
         ...mapState("hosting/createAccommodation", ["accommodationTypes"]),
 
-        propertyTypeName() {
-            if (!this.formData.propertyType) return "place";
+        accommodationTypeName() {
+            if (!this.formData.accommodationType) return "place";
             const type = this.accommodationTypes.find(
-                (t) => t.id === this.formData.propertyType
+                (t) => t.id === this.formData.accommodationType
             );
             return type ? type.name.toLowerCase() : "place";
         },

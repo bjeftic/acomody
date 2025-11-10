@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AccommodationDraft\GetRequest;
 use App\Http\Requests\AccommodationDraft\UpdateRequest;
 use App\Http\Requests\AccommodationDraft\CreateRequest;
+use App\Http\Requests\AccommodationDraft\IndexRequest;
 use App\Http\Resources\AccommodationDraftResource;
 use App\Http\Support\ApiResponse;
 use App\Models\AccommodationDraft;
@@ -142,14 +142,13 @@ class AccommodationDraftController extends Controller
     }
 
     /**
-     * Get accommodation draft
-     *
+     * Get accommodation drafts
      * @OA\Get(
      *     path="/accommodation-draft",
-     *     operationId="getAccommodationDraft",
+     *     operationId="getAccommodationDrafts",
      *     tags={"Accommodation"},
-     *     summary="Get accommodation draft",
-     *     description="Retrieves the saved draft for an accommodation listing",
+     *     summary="Get accommodation drafts",
+     *     description="Retrieves a list of accommodation drafts for the authenticated user",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="status",
@@ -162,6 +161,45 @@ class AccommodationDraftController extends Controller
      *             default="draft"
      *         )
      *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Accommodation drafts retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/AccommodationDraft")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized"
+     *     )
+     * )
+     */
+    public function index(IndexRequest $request): JsonResponse
+    {
+        $status = $request->getStatus() ?? 'draft';
+
+        $accommodationDrafts = $this->accommodationService->getAccommodationDrafts(
+            userOrFail()->id,
+            $status
+        );
+
+        return ApiResponse::success(
+            'Accommodation drafts retrieved successfully',
+            AccommodationDraftResource::collection($accommodationDrafts)
+        );
+    }
+
+    /**
+     * Get accommodation draft
+     *
+     * @OA\Get(
+     *     path="/accommodation-draft/draft",
+     *     operationId="getAccommodationDraft",
+     *     tags={"Accommodation"},
+     *     summary="Get accommodation draft",
+     *     description="Retrieves the saved draft for an accommodation listing",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Accommodation draft retrieved successfully",
@@ -177,13 +215,11 @@ class AccommodationDraftController extends Controller
      *     )
      * )
      */
-    public function getDraft(GetRequest $request): JsonResponse
+    public function getAccommodationDraft(): JsonResponse
     {
-        $status = $request->getStatus() ?? 'draft';
-
         $accommodationDraft = $this->accommodationService->getAccommodationDraft(
             userOrFail()->id,
-            $status
+            'draft'
         );
 
         return ApiResponse::success(

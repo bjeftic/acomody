@@ -45,7 +45,7 @@ export default {
         accommodationOccupations() {
             return (
                 this.accommodationTypes.find(
-                    (type) => type.id === this.formData.propertyType
+                    (type) => type.id === this.formData.accommodationType
                 )?.available_occupations || []
             );
         },

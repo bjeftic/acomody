@@ -50,7 +50,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->name('api.amenities');
 
     Route::prefix('accommodation-drafts')->name('api.accommodation.drafts.')->group(function () {
-        Route::get('', [AccommodationDraftController::class, 'getDraft'])
+        Route::get('', [AccommodationDraftController::class, 'index'])
+            ->name('accommodation-draft.index');
+
+        Route::get('draft', [AccommodationDraftController::class, 'getAccommodationDraft'])
             ->name('accommodation-draft.get');
 
         Route::post('', [AccommodationDraftController::class, 'createDraft'])

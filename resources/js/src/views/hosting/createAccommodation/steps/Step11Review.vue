@@ -191,7 +191,7 @@
                             <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
-                                {{ propertyTypeName }}
+                                {{ accommodationTypeName }}
                             </span>
                         </div>
                         <div class="flex justify-between">
@@ -381,10 +381,10 @@ export default {
             "accommodationTypes",
         ]),
 
-        propertyTypeName() {
-            if (!this.formData.propertyType) return "";
+        accommodationTypeName() {
+            if (!this.formData.accommodationType) return "";
             const type = this.accommodationTypes.find(
-                (t) => t.id === this.formData.propertyType
+                (t) => t.id === this.formData.accommodationType
             );
             return type ? type.name : "";
         },
@@ -392,7 +392,7 @@ export default {
         occupationTypeName() {
             if (!this.formData.accommodationOccupation) return "";
             const type = this.accommodationTypes.find(
-                (t) => t.id === this.formData.propertyType
+                (t) => t.id === this.formData.accommodationType
             );
             const occupation = type?.available_occupations?.find(
                 (o) => o.id === this.formData.accommodationOccupation

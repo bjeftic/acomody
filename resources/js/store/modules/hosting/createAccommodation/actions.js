@@ -14,8 +14,7 @@ export const loadInitialCreateAccommodationData = async ({ dispatch }) => {
 
 export const fetchAccommodationDraft = async ({ commit }) => {
     try {
-        const { data } = await apiClient.accommodationDrafts
-            .query({ status: "draft" })
+        const { data } = await apiClient.accommodationDrafts.draft
             .get();
 
         commit("SET_ACCOMMODATION_DRAFT_ID", data);
@@ -169,21 +168,6 @@ export const reorderPhotos = async ({}, { draftId, photoIds }) => {
 };
 
 /**
- * Update photo details
- */
-export const updatePhoto = async ({}, { draftId, photoId, data }) => {
-    try {
-        const response = await apiClient.accommodationDrafts[draftId].photos[
-            photoId
-        ].put(data);
-
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
-};
-
-/**
  * Delete a single photo
  */
 export const deletePhoto = async ({ commit }, { draftId, photoId }) => {
@@ -198,25 +182,4 @@ export const deletePhoto = async ({ commit }, { draftId, photoId }) => {
     } catch (error) {
         throw error;
     }
-};
-
-/**
- * Delete all photos for a draft
- */
-export const deleteAllPhotos = async ({}, draftId) => {
-    try {
-        const response = await apiClient.accommodationDrafts[
-            draftId
-        ].photos.delete();
-
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
-};
-
-export const restartAccommodationDraftData = ({ commit }) => {
-    commit("SET_ACCOMMODATION_DRAFT_ID", null);
-    commit("SET_ACCOMMODATION_DRAFT", null);
-    commit("SET_CREATE_ACCOMMODATION_STEP", 1);
 };

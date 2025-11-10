@@ -23,7 +23,7 @@ const routes = [
         meta: {
             requiresAuth: true,
         },
-        component: () => import('@/src/views/hosting/listingAll/ListingAll.vue'),
+        component: () => import('@/src/views/hosting/listings/MyListings.vue'),
     }
 ];
 

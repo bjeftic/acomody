@@ -36,7 +36,7 @@
                     <span
                         class="text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                        Average {{ propertyTypeName }} price in {{ city }}
+                        Average {{ accommodationTypeName }} price in {{ city }}
                     </span>
                     <span
                         class="px-3 py-1 bg-white dark:bg-gray-900 rounded-full text-xs font-semibold text-gray-600 dark:text-gray-400"
@@ -287,7 +287,7 @@
                     clip-rule="evenodd"
                 />
             </svg>
-            Based on similar {{ propertyTypeName }} listings in {{ city }}. Updated weekly.
+            Based on similar {{ accommodationTypeName }} listings in {{ city }}. Updated weekly.
         </div>
     </div>
 </template>
@@ -300,7 +300,7 @@ export default {
             type: String,
             default: "",
         },
-        propertyTypeName: {
+        accommodationTypeName: {
             type: String,
             default: "property",
         },

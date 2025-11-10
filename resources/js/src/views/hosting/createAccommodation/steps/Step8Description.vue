@@ -282,10 +282,10 @@ export default {
     computed: {
         ...mapState("hosting/createAccommodation", ["accommodationTypes"]),
 
-        propertyTypeName() {
-            if (!this.formData.propertyType) return "place";
+        accommodationTypeName() {
+            if (!this.formData.accommodationType) return "place";
             const type = this.accommodationTypes.find(
-                (t) => t.id === this.formData.propertyType
+                (t) => t.id === this.formData.accommodationType
             );
             return type ? type.name.toLowerCase() : "place";
         },
@@ -300,7 +300,7 @@ export default {
 
         descriptionTemplates() {
             const city = this.formData.address.city || "the city";
-            const type = this.propertyTypeName;
+            const type = this.accommodationTypeName;
             const guests = this.formData.floorPlan.guests;
             const bedrooms = this.formData.floorPlan.bedrooms;
             const beds = this.formData.floorPlan.beds;

@@ -1,7 +1,7 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Now, let's give your {{ propertyTypeName }} a title
+            Now, let's give your {{ accommodationTypeName }} a title
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
             Short titles work best. Have fun with it—you can always change it later.
@@ -162,7 +162,7 @@
                 <h4
                     class="text-sm font-semibold text-gray-900 dark:text-white mb-3"
                 >
-                    Popular {{ propertyTypeName }} titles
+                    Popular {{ accommodationTypeName }} titles
                 </h4>
                 <div class="space-y-2">
                     <p
@@ -208,10 +208,10 @@ export default {
     computed: {
         ...mapState("hosting/createAccommodation", ["accommodationTypes"]),
 
-        propertyTypeName() {
-            if (!this.formData.propertyType) return "place";
+        accommodationTypeName() {
+            if (!this.formData.accommodationType) return "place";
             const type = this.accommodationTypes.find(
-                (t) => t.id === this.formData.propertyType
+                (t) => t.id === this.formData.accommodationType
             );
             return type ? type.name.toLowerCase() : "place";
         },
@@ -220,7 +220,7 @@ export default {
             const city = this.formData.address.city || "the city";
             const guests = this.formData.floorPlan.guests;
             const bedrooms = this.formData.floorPlan.bedrooms;
-            const type = this.propertyTypeName;
+            const type = this.accommodationTypeName;
 
             const suggestions = [];
 
@@ -283,7 +283,7 @@ export default {
             };
 
             return (
-                examples[this.formData.propertyType] || examples["default"]
+                examples[this.formData.accommodationType] || examples["default"]
             );
         },
     },

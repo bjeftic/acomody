@@ -5,7 +5,7 @@
         </h1>
 
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Select the property type that best matches your accommodation.
+            Select the accommodation type that best matches your accommodation.
         </p>
 
         <hr />
@@ -21,8 +21,8 @@
                     :title="type.name"
                     :icon="type.icon"
                     :tooltip="type.description"
-                    :selected="formData.propertyType === type.id"
-                    @select="selectPropertyType"
+                    :selected="formData.accommodationType === type.id"
+                    @select="selectAccommodationType"
                 >
                     <template #icon>
                         <component :is="type.icon + 'Icon'"></component>
@@ -37,7 +37,7 @@
 import { mapState } from "vuex";
 
 export default {
-    name: "Step1PropertyType",
+    name: "Step1AccommodationType",
     props: {
         formData: {
             type: Object,
@@ -53,10 +53,10 @@ export default {
         ...mapState("hosting/createAccommodation", ["accommodationTypes"]),
     },
     methods: {
-        selectPropertyType(typeId) {
+        selectAccommodationType(typeId) {
             this.$emit("update:form-data", {
                 ...this.formData,
-                propertyType: typeId,
+                accommodationType: typeId,
                 accommodationOccupation: null, // Reset occupation when type changes
             });
         },
