@@ -5,6 +5,10 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use App\Exceptions\ApiExceptionHandler;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -25,38 +29,47 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->renderable(function (Throwable $e, Request $request) {
-            // Only for API, laravel will handle web requests normally
+            // Only for API requests
             if (!$request->is('api/*') && !$request->expectsJson()) {
                 return null;
             }
 
             $apiHandler = new ApiExceptionHandler();
 
-            // Try to find a specific handler for the exception
+            // Handle specific exception types with proper order
+            // Order matters - check most specific first!
+
+            // 401 - Not authenticated (not logged in)
+            if ($e instanceof AuthenticationException) {
+                return $apiHandler->handleAuthenticationException($e, $request);
+            }
+
+            // 403 - Not authorized (logged in but no permission)
+            if ($e instanceof AuthorizationException) {
+                return $apiHandler->handleAuthorizationException($e, $request);
+            }
+
+            // 403 - Access denied (Symfony exception)
+            if ($e instanceof AccessDeniedHttpException) {
+                return $apiHandler->handleAccessDeniedException($e, $request);
+            }
+
+            // Try to find other specific handlers
             foreach (ApiExceptionHandler::$handlers as $exceptionClass => $method) {
+                // Skip already handled exceptions
+                if ($exceptionClass === AuthenticationException::class ||
+                    $exceptionClass === AuthorizationException::class ||
+                    $exceptionClass === AccessDeniedHttpException::class) {
+                    continue;
+                }
+
                 if ($e instanceof $exceptionClass) {
                     return $apiHandler->$method($e, $request);
                 }
             }
 
-            // Fallback - generic handler if exists
-            if (method_exists($apiHandler, 'handleGenericException')) {
-                return $apiHandler->handleGenericException($e, $request);
-            }
-
-            return response()->json([
-                'error' => [
-                    'type' => basename(str_replace('\\', '/', get_class($e))),
-                    'status' => 500,
-                    'message' => $e->getMessage() ?: 'An unexpected error occurred.',
-                    'timestamp' => now()->toISOString(),
-                    'debug' => app()->environment('local', 'testing') ? [
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine(),
-                        'trace' => explode("\n", $e->getTraceAsString())
-                    ] : null
-                ]
-            ], 500);
+            // Fallback to generic handler
+            return $apiHandler->handleGenericException($e, $request);
         });
     })
     ->create();

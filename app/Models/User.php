@@ -55,7 +55,11 @@ class User extends Model implements MustVerifyEmail, AuthenticatableContract, Au
 
     public function canBeReadBy($user): bool
     {
-        return $user && $user->id === $this->id;
+        if (!$user) {
+            return true;
+        }
+
+        return $user->id === $this->id;
     }
 
     public function canBeCreatedBy($user): bool

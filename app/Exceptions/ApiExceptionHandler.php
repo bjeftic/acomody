@@ -50,7 +50,7 @@ class ApiExceptionHandler
      * Handle authentication exceptions
      */
     public function handleAuthenticationException(
-        AuthenticationException|AccessDeniedHttpException $e,
+        AuthenticationException $e,
         Request $request
     ): JsonResponse {
         $this->logException($e, 'Authentication failed', 401);
@@ -79,6 +79,24 @@ class ApiExceptionHandler
                 'type' => $this->getExceptionType($e),
                 'status' => 403,
                 'message' => 'You do not have permission to perform this action.',
+                'timestamp' => now()->toISOString(),
+            ]
+        ], 403);
+    }
+
+    public function handleAccessDeniedException(AccessDeniedHttpException $e, Request $request): JsonResponse
+    {
+        $this->logException($e, 'Access denied', 403);
+
+        $message = $e->getMessage() ?: 'Access denied. You do not have permission to access this resource.';
+
+        return response()->json([
+            'success' => false,
+            'error' => [
+                'type' => 'AccessDeniedHttpException',
+                'code' => 'ACCESS_DENIED',
+                'status' => 403,
+                'message' => $message,
                 'timestamp' => now()->toISOString(),
             ]
         ], 403);

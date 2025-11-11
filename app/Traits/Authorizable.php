@@ -2,9 +2,10 @@
 
 namespace App\Traits;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Exceptions\AuthorizationMethodMissingException;
-use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 trait Authorizable
 {
@@ -30,7 +31,7 @@ trait Authorizable
         // Before creating
         static::creating(function ($model) use ($user) {
             if (!$model->canBeCreatedBy($user)) {
-                throw new AuthorizationException(
+                throw new AccessDeniedHttpException(
                     'You are not authorized to create ' . class_basename(static::class) . '.'
                 );
             }
@@ -38,8 +39,17 @@ trait Authorizable
 
         // Before updating
         static::updating(function ($model) use ($user) {
+            $user = Auth::user();
+
+            if ($model instanceof User) {
+                // If the model is a User, allow users to update their own record
+                if ($user && $user->id === $model->id) {
+                    return;
+                }
+            }
+
             if (!$model->canBeUpdatedBy($user)) {
-                throw new AuthorizationException(
+                throw new AccessDeniedHttpException(
                     'You are not authorized to update this ' . class_basename(static::class) . '.'
                 );
             }
@@ -48,7 +58,7 @@ trait Authorizable
         // Before deleting
         static::deleting(function ($model) use ($user) {
             if (!$model->canBeDeletedBy($user)) {
-                throw new AuthorizationException(
+                throw new AccessDeniedHttpException(
                     'You are not authorized to delete this ' . class_basename(static::class) . '.'
                 );
             }
@@ -56,6 +66,11 @@ trait Authorizable
 
         // Before retrieving (for single model retrieval)
         static::retrieved(function ($model) use ($user) {
+
+            if ($model instanceof User && !Auth::check()) {
+                return;
+            }
+
             // Check if this was a single model retrieval (not from query)
             // Only check if explicitly loaded via find(), first(), etc.
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 15);
@@ -69,7 +84,7 @@ trait Authorizable
             });
 
             if ($isDirectRetrieval && !$model->canBeReadBy($user)) {
-                throw new AuthorizationException(
+                throw new AccessDeniedHttpException(
                     'You are not authorized to view this ' . class_basename(static::class) . '.'
                 );
             }

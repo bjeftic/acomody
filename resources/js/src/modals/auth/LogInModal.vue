@@ -244,6 +244,7 @@ export default {
                     if (
                         e.error.message
                     ) {
+                    console.log(e);
                         this.logInErrors =
                             [e.error.message];
                     } else {
