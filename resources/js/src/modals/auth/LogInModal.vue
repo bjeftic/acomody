@@ -242,9 +242,17 @@ export default {
                 })
                 .catch((e) => {
                     if (
+                        e.status === 422
+                    ) {
+                        this.logInErrors = [];
+                        if (Array.isArray(e.error.validation_errors)) {
+                            e.error.validation_errors.forEach(validation => {
+                                this.logInErrors.push(validation.message);
+                            });
+                        }
+                    } else if (
                         e.error.message
                     ) {
-                    console.log(e);
                         this.logInErrors =
                             [e.error.message];
                     } else {

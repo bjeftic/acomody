@@ -260,7 +260,16 @@ export default {
                     this.ok();
                 })
                 .catch((e) => {
-                    if (e.error.message) {
+                    if (
+                        e.status === 422
+                    ) {
+                        this.signUpErrors = [];
+                        if (Array.isArray(e.error.validation_errors)) {
+                            e.error.validation_errors.forEach(validation => {
+                                this.signUpErrors.push(validation.message);
+                            });
+                        }
+                    } else if (e.error.message) {
                         this.signUpErrors = [e.error.message];
                     } else {
                         this.signUpErrors = { general: ['An error occurred. Please try again.'] };
