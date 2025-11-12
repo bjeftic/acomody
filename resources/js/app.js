@@ -1,65 +1,111 @@
-import { createApp } from 'vue'
-import naive from 'naive-ui'
-import { createDiscreteApi } from "naive-ui";
-import router from './router';
-import store from './store';
+import "./bootstrap";
+import "../css/app.css";
+import { createApp } from "vue";
+import router from "./router";
+import store from "./store";
 
-import App from './App.vue'
-
-const { message } = createDiscreteApi(["message"]);
-
-import FormWrapper from '@/src/layouts/FormWrapper.vue';
-import ValidationAlertBox from '@/src/components/ValidationAlertBox.vue';
-
+//Flowbite Vue Components
 import {
-    NLayout,
-    NLayoutHeader,
-    NLayoutContent,
-    NForm,
-    NFormItem,
-    NInput,
-    NButton,
-    NDropdown,
-    NCheckbox,
-    NModal,
-    NMessageProvider,
-    NConfigProvider,
-    NSpace,
-    NCard,
-    NIcon,
-    NTag,
-    darkTheme,
-} from "naive-ui";
+    FwbAlert,
+    FwbAccordion,
+    FwbAccordionPanel,
+    FwbAccordionHeader,
+    FwbAccordionContent,
+    FwbModal,
+    FwbBadge,
+    FwbButton,
+    FwbCard,
+    FwbInput,
+    FwbCheckbox,
+    FwbDropdown,
+    FwbListGroup,
+    FwbListGroupItem,
+    FwbNavbar,
+    FwbRating,
+    FwbSelect,
+    FwbSpinner,
+    FwbFooter,
+    FwbFooterBrand,
+    FwbFooterCopyright,
+    FwbFooterIcon,
+    FwbFooterLink,
+    FwbFooterLinkGroup,
+    FwbTooltip,
+    FwbTextarea,
+} from "flowbite-vue";
 
-const app = createApp(App)
+import App from "./App.vue";
 
-app.component("FormWrapper", FormWrapper);
-app.component("ValidationAlertBox", ValidationAlertBox);
-app.component("NLayout", NLayout);
-app.component("NLayoutHeader", NLayoutHeader);
-app.component("NLayoutContent", NLayoutContent);
-app.component("NForm", NForm);
-app.component("NFormItem", NFormItem);
-app.component("NInput", NInput);
-app.component("NButton", NButton);
-app.component("NCheckbox", NCheckbox);
-app.component("NModal", NModal);
-app.component("NMessageProvider", NMessageProvider);
-app.component("NSpace", NSpace);
-app.component("NCard", NCard);
-app.component("NIcon", NIcon);
-app.component("NTag", NTag);
-app.component("NConfigProvider", NConfigProvider);
-app.component("NDropdown", NDropdown);
+//Wrappers
+import BaseWrapper from "@/src/layouts/BaseWrapper.vue";
+import FormWrapper from "@/src/layouts/FormWrapper.vue";
+import SearchWrapper from "./src/layouts/SearchWrapper.vue";
 
-app.use(NConfigProvider, {
-    theme: darkTheme,
+//Custom Components
+import ValidationAlertBox from "@/src/components/ValidationAlertBox.vue";
+
+//Common Components
+import ActionCard from "@/src/components/common/ActionCard.vue";
+import SelectActionCard from "@/src/components/common/SelectActionCard.vue";
+import FormSkeleton from "@/src/components/common/skeletons/FormSkeleton.vue";
+
+
+const app = createApp(App);
+
+const iconModules = import.meta.glob('@/src/components/icons/*.vue', { eager: true });
+
+Object.entries(iconModules).forEach(([path, module]) => {
+    const iconName = path
+        .split('/')
+        .pop()
+        .replace(/\.\w+$/, '') + 'Icon';
+
+    app.component(iconName, module.default);
 });
 
-app.config.globalProperties.$message = message;
+app.component("FwbAlert", FwbAlert);
+app.component("FwbAccordion", FwbAccordion);
+app.component("FwbAccordionPanel", FwbAccordionPanel);
+app.component("FwbAccordionHeader", FwbAccordionHeader);
+app.component("FwbAccordionContent", FwbAccordionContent);
+app.component("FwbModal", FwbModal);
+app.component("FwbBadge", FwbBadge);
+app.component("FwbButton", FwbButton);
+app.component("FwbCard", FwbCard);
+app.component("FwbInput", FwbInput);
+app.component("FwbCheckbox", FwbCheckbox);
+app.component("FwbDropdown", FwbDropdown);
+app.component("FwbListGroup", FwbListGroup);
+app.component("FwbListGroupItem", FwbListGroupItem);
+app.component("FwbNavbar", FwbNavbar);
+app.component("FwbRating", FwbRating);
+app.component("FwbSelect", FwbSelect);
+app.component("FwbSpinner", FwbSpinner);
+app.component("FwbFooter", FwbFooter);
+app.component("FwbFooterBrand", FwbFooterBrand);
+app.component("FwbFooterCopyright", FwbFooterCopyright);
+app.component("FwbFooterIcon", FwbFooterIcon);
+app.component("FwbFooterLink", FwbFooterLink);
+app.component("FwbFooterLinkGroup", FwbFooterLinkGroup);
+app.component("FwbTooltip", FwbTooltip);
+app.component("FwbTextarea", FwbTextarea);
 
-app.use(naive)
-app.use(router);
-app.use(store);
+//Wrappers
+app.component("BaseWrapper", BaseWrapper);
+app.component("FormWrapper", FormWrapper);
+app.component("SearchWrapper", SearchWrapper);
 
-app.mount('#app')
+//Custom Components
+app.component("ValidationAlertBox", ValidationAlertBox);
+
+//Common Components
+app.component("ActionCard", ActionCard);
+app.component("SelectActionCard", SelectActionCard);
+app.component("FormSkeleton", FormSkeleton);
+
+
+store.dispatch('auth/initializeAuth').finally(() => {
+    app.use(store);
+    app.use(router);
+    app.mount('#app');
+});

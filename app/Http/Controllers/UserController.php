@@ -10,14 +10,21 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Services\UserService;
 
 class UserController extends Controller
 {
+    protected UserService $userService;
+    
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
     /**
      * Get authenticated user profile
      *
      * @OA\Get(
-     *     path="/user",
+     *     path="/users",
      *     operationId="getUserProfile",
      *     tags={"User"},
      *     summary="Get authenticated user profile",

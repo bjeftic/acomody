@@ -4,6 +4,11 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use App\Exceptions\ApiExceptionHandler;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,39 +18,58 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web();
-        $middleware->api();
+        $middleware->api(prepend: [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+        ]);
+
+        // Stateful API for Sanctum
+        $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->render(function (Throwable $e, Request $request) {
-            // Get the exception class name
-            $className = get_class($e);
-
-            // Get our custom handlers
-            $handlers = App\Exceptions\ApiExceptionHandler::$handlers;
-
-            // Check if we have a specific handler for this exception
-            if (array_key_exists($className, $handlers)) {
-                $method = $handlers[$className];
-                $apiHandler = new App\Exceptions\ApiExceptionHandler();
-                return $apiHandler->$method($e, $request);
+        $exceptions->renderable(function (Throwable $e, Request $request) {
+            // Only for API requests
+            if (!$request->is('api/*') && !$request->expectsJson()) {
+                return null;
             }
 
-            // Fallback to default error response
-            return response()->json([
-                'error' => [
-                    'type' => basename(get_class($e)),
-                    'status' => $e->getCode() ?: 500,
-                    'message' => $e->getMessage() ?: 'An unexpected error occurred',
-                    'timestamp' => now()->toISOString(),
-                    // Include debug info only in non-production environments
-                    'debug' => app()->environment('local', 'testing') ? [
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine(),
-                        'trace' => $e->getTraceAsString()
-                    ] : null
-                ]
-            ], $e->getCode() ?: 500);
+            $apiHandler = new ApiExceptionHandler();
+
+            // Handle specific exception types with proper order
+            // Order matters - check most specific first!
+
+            // 401 - Not authenticated (not logged in)
+            if ($e instanceof AuthenticationException) {
+                return $apiHandler->handleAuthenticationException($e, $request);
+            }
+
+            // 403 - Not authorized (logged in but no permission)
+            if ($e instanceof AuthorizationException) {
+                return $apiHandler->handleAuthorizationException($e, $request);
+            }
+
+            // 403 - Access denied (Symfony exception)
+            if ($e instanceof AccessDeniedHttpException) {
+                return $apiHandler->handleAccessDeniedException($e, $request);
+            }
+
+            // Try to find other specific handlers
+            foreach (ApiExceptionHandler::$handlers as $exceptionClass => $method) {
+                // Skip already handled exceptions
+                if ($exceptionClass === AuthenticationException::class ||
+                    $exceptionClass === AuthorizationException::class ||
+                    $exceptionClass === AccessDeniedHttpException::class) {
+                    continue;
+                }
+
+                if ($e instanceof $exceptionClass) {
+                    return $apiHandler->$method($e, $request);
+                }
+            }
+
+            // Fallback to generic handler
+            return $apiHandler->handleGenericException($e, $request);
         });
     })
     ->create();

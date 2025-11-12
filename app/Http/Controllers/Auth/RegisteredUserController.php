@@ -157,7 +157,8 @@ class RegisteredUserController extends Controller
             return ApiResponse::success(
                 'User registered successfully. Please check your email to verify your account.',
                 null,
-                $meta
+                $meta,
+                201
             );
         } catch (Exception $e) {
             DB::rollBack();

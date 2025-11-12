@@ -1,153 +1,176 @@
 <template>
-    <n-modal
-        v-model:show="show"
-        preset="card"
-        :style="bodyStyle"
-        title="Forgot password"
-        size="huge"
-        @close="close"
-    >
-        <n-p>Please enter your email address to reset your password, and we'll email you a link to reset your password.</n-p>
-        <n-form
-            ref="formRef"
-            :model="formData"
-            :rules="forgotPasswordRules"
-            size="large"
+  <fwb-modal v-if="show" @close="close" size="md">
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-semibold text-gray-900">
+          Forgot password
+        </h3>
+      </div>
+    </template>
+    <template #body>
+      <p class="text-gray-600 mb-6">
+        Please enter your email address to reset your password, and we'll email you a link to reset your password.
+      </p>
+
+      <form @submit.prevent="handleForgotPassword">
+        <!-- Validation Alert Box -->
+        <validation-alert-box
+          v-if="Object.keys(forgotPasswordErrors).length > 0"
+          :errors="forgotPasswordErrors"
+          class="mb-4"
+        />
+
+        <!-- Email Input -->
+        <div class="mb-6">
+          <label
+            for="email"
+            class="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Email address
+          </label>
+          <input
+            id="email"
+            v-model="formData.email"
+            type="email"
+            placeholder="john@example.com"
+            autocomplete="email"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            :class="{ 'border-red-500': emailError }"
+            @keypress.enter="handleForgotPassword"
+            @blur="validateEmail"
+          />
+          <p v-if="emailError" class="mt-2 text-sm text-red-600">
+            {{ emailError }}
+          </p>
+        </div>
+
+        <!-- Submit Button -->
+        <fwb-button
+          color="blue"
+          size="lg"
+          class="w-full"
+          :is-loading="isLoading"
+          :disabled="isLoading"
+          @click="handleForgotPassword"
         >
-            <validation-alert-box :errors="forgotPasswordErrors"></validation-alert-box>
-
-            <n-form-item path="email" label="Email address">
-                <n-input
-                    v-model:value="formData.email"
-                    placeholder="john@example.com"
-                    :input-props="{ autocomplete: 'email' }"
-                    @keypress.enter="handleForgotPassword"
-                />
-            </n-form-item>
-
-            <n-button
-                type="primary"
-                size="large"
-                block
-                :loading="isLoading"
-                @click="handleForgotPassword"
-            >
-                {{ isLoading ? "Sending..." : "Send reset link" }}
-            </n-button>
-        </n-form>
-    </n-modal>
+          {{ isLoading ? "Sending..." : "Send reset link" }}
+        </fwb-button>
+      </form>
+    </template>
+  </fwb-modal>
 </template>
 
 <script>
-import config from "@/config";
-import { toCamelCase } from "@/utils/helpers";
-import { mapState, mapActions } from "vuex";
+import { FwbModal, FwbButton } from 'flowbite-vue'
+import config from '@/config'
+import { toCamelCase } from '@/utils/helpers'
+import { mapState, mapActions } from 'vuex'
 
-const modalName = config.modals.forgotPasswordModal;
-const modalNameCamelCase = toCamelCase(modalName);
+const modalName = config.modals.forgotPasswordModal
+const modalNameCamelCase = toCamelCase(modalName)
 
 export default {
-    name: "ForgotPasswordModal",
-    computed: {
-        ...mapState({
-            show: (state) =>
-                state.modals[modalNameCamelCase]
-                    ? state.modals[modalNameCamelCase].shown
-                    : false,
-            promise: (state) =>
-                state.modals[modalNameCamelCase]
-                    ? state.modals[modalNameCamelCase].promise
-                    : null,
-            resolve: (state) =>
-                state.modals[modalNameCamelCase]
-                    ? state.modals[modalNameCamelCase].resolve
-                    : null,
-            reject: (state) =>
-                state.modals[modalNameCamelCase]
-                    ? state.modals[modalNameCamelCase].reject
-                    : null,
-            options: (state) =>
-                state.modals[modalNameCamelCase]
-                    ? state.modals[modalNameCamelCase].options
-                    : false,
-        }),
-        forgotPasswordRules() {
-            return {
-                email: [
-                    {
-                        required: true,
-                        message: "Email address is required",
-                        trigger: "blur",
-                    },
-                    {
-                        type: "email",
-                        message: "Please enter valid email address",
-                        trigger: "blur",
-                    },
-                ],
-            };
-        },
-    },
-    data() {
-        return {
-            bodyStyle: {
-                width: "400px",
-                maxWidth: "100%",
-            },
-            modalName,
-            formData: {
-                email: "",
-            },
-            isLoading: false,
-            forgotPasswordErrors: {},
-        };
-    },
-    methods: {
-        ...mapActions(["initModal", "closeModal", "forgotPassword"]),
-        async handleForgotPassword() {
-            this.clearMessage();
-            await this.$refs.formRef.validate();
-            this.isLoading = true;
-            await this.forgotPassword({ email: this.formData.email })
-                .then(() => {
-                    this.close();
-                })
-                .catch((e) => {
-                    this.forgotPasswordErrors = e.error.error.validation_errors;
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
-        },
-        clearMessage() {
-            this.forgotPasswordErrors = {};
-        },
-        ok() {
-            this.resolve !== null && this.resolve({ formData: this.formData });
-            this.close();
-        },
-        close() {
-            if (
-                this.$refs.formRef &&
-                typeof this.$refs.formRef.restoreValidation === "function"
-            ) {
-                this.$refs.formRef.restoreValidation();
-            }
-            if (
-                this.$refs.formRef &&
-                typeof this.$refs.formRef.resetFields === "function"
-            ) {
-                this.$refs.formRef.resetFields();
-            }
-            Object.assign(this.$data, this.$options.data.call(this));
+  name: 'ForgotPasswordModal',
+  components: {
+    FwbModal,
+    FwbButton
+  },
+  computed: {
+    ...mapState({
+      show: (state) =>
+        state.modals[modalNameCamelCase]
+          ? state.modals[modalNameCamelCase].shown
+          : false,
+      promise: (state) =>
+        state.modals[modalNameCamelCase]
+          ? state.modals[modalNameCamelCase].promise
+          : null,
+      resolve: (state) =>
+        state.modals[modalNameCamelCase]
+          ? state.modals[modalNameCamelCase].resolve
+          : null,
+      reject: (state) =>
+        state.modals[modalNameCamelCase]
+          ? state.modals[modalNameCamelCase].reject
+          : null,
+      options: (state) =>
+        state.modals[modalNameCamelCase]
+          ? state.modals[modalNameCamelCase].options
+          : false
+    })
+  },
+  data() {
+    return {
+      modalName,
+      formData: {
+        email: ''
+      },
+      isLoading: false,
+      forgotPasswordErrors: {},
+      emailError: ''
+    }
+  },
+  methods: {
+    ...mapActions(['initModal', 'closeModal']),
+    ...mapActions('auth', ['forgotPassword']),
+    validateEmail() {
+      this.emailError = ''
 
-            this.closeModal({ modalName: this.modalName });
-        },
+      if (!this.formData.email) {
+        this.emailError = 'Email address is required'
+        return false
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(this.formData.email)) {
+        this.emailError = 'Please enter valid email address'
+        return false
+      }
+
+      return true
     },
-    created() {
-        this.initModal({ modalName: this.modalName });
+
+    async handleForgotPassword() {
+      this.clearMessage()
+
+      if (!this.validateEmail()) {
+        return
+      }
+
+      this.isLoading = true
+
+      try {
+        await this.forgotPassword({ email: this.formData.email })
+        this.close()
+      } catch (e) {
+        if (e.error && e.error.error && e.error.error.validation_errors) {
+          this.forgotPasswordErrors = e.error.error.validation_errors
+        }
+      } finally {
+        this.isLoading = false
+      }
     },
-};
+
+    clearMessage() {
+      this.forgotPasswordErrors = {}
+      this.emailError = ''
+    },
+
+    ok() {
+      if (this.resolve !== null) {
+        this.resolve({ formData: this.formData })
+      }
+      this.close()
+    },
+
+    close() {
+      // Reset form data
+      Object.assign(this.$data, this.$options.data.call(this))
+      this.closeModal({ modalName: this.modalName })
+    }
+  },
+  created() {
+    this.initModal({ modalName: this.modalName })
+  }
+}
 </script>
-
-<style></style>

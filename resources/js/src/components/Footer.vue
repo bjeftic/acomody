@@ -1,347 +1,85 @@
 <template>
-  <footer class="footer-container">
-    <n-card class="footer-content">
-      <n-space vertical size="large">
-        <!-- Main Footer Content -->
-        <n-grid :cols="footerCols" :x-gap="24" :y-gap="24" responsive="screen">
-          <!-- Company Info -->
-          <n-grid-item>
-            <n-space vertical size="medium">
-              <n-text strong style="font-size: 20px; color: #2080f0;">
-                Premium Properties
-              </n-text>
-              <n-text depth="3">
-                Experience luxury accommodations at the finest destinations.
-                We offer unique properties that create unforgettable memories.
-              </n-text>
-              <n-space size="medium">
-                <n-button
-                  v-for="social in socialLinks"
-                  :key="social.name"
-                  circle
-                  secondary
-                  @click="openSocialLink(social.url)"
-                  :title="social.name"
-                >
-                  <template #icon>
-                    <n-icon size="18">
-                      <component :is="'svg'" viewBox="0 0 24 24" fill="currentColor">
-                        <path :d="social.iconPath"/>
-                      </component>
-                    </n-icon>
-                  </template>
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-grid-item>
-
-          <!-- Quick Links -->
-          <n-grid-item>
-            <n-space vertical size="medium">
-              <n-text strong style="font-size: 16px;">Quick Links</n-text>
-              <n-space vertical size="small">
-                <n-button
-                  v-for="link in quickLinks"
-                  :key="link.name"
-                  text
-                  @click="navigateTo(link.path)"
-                  class="footer-link"
-                >
-                  {{ link.name }}
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-grid-item>
-
-          <!-- Services -->
-          <n-grid-item>
-            <n-space vertical size="medium">
-              <n-text strong style="font-size: 16px;">Services</n-text>
-              <n-space vertical size="small">
-                <n-button
-                  v-for="service in services"
-                  :key="service.name"
-                  text
-                  @click="navigateTo(service.path)"
-                  class="footer-link"
-                >
-                  {{ service.name }}
-                </n-button>
-              </n-space>
-            </n-space>
-          </n-grid-item>
-
-          <!-- Contact Info -->
-          <n-grid-item>
-            <n-space vertical size="medium">
-              <n-text strong style="font-size: 16px;">Contact Us</n-text>
-              <n-space vertical size="small">
-                <n-space align="center" size="small">
-                  <n-icon color="#52c41a">
-                    <svg viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                    </svg>
-                  </n-icon>
-                  <n-text depth="3">{{ contactInfo.address }}</n-text>
-                </n-space>
-
-                <n-space align="center" size="small">
-                  <n-icon color="#1890ff">
-                    <svg viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                    </svg>
-                  </n-icon>
-                  <n-text depth="3">{{ contactInfo.phone }}</n-text>
-                </n-space>
-
-                <n-space align="center" size="small">
-                  <n-icon color="#fa8c16">
-                    <svg viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                    </svg>
-                  </n-icon>
-                  <n-text depth="3">{{ contactInfo.email }}</n-text>
-                </n-space>
-              </n-space>
-            </n-space>
-          </n-grid-item>
-        </n-grid>
-
-        <!-- Newsletter Subscription -->
-        <n-divider />
-
-        <n-space justify="center">
-          <n-card style="max-width: 500px; width: 100%;">
-            <n-space vertical align="center" size="medium">
-              <n-text strong style="font-size: 18px;">Stay Updated</n-text>
-              <n-text depth="3" style="text-align: center;">
-                Subscribe to our newsletter for exclusive offers and updates
-              </n-text>
-              <n-space style="width: 100%;">
-                <n-input
-                  v-model:value="newsletterEmail"
-                  placeholder="Enter your email"
-                  :status="emailError ? 'error' : undefined"
-                  style="flex: 1;"
-                />
-                <n-button
-                  type="primary"
-                  @click="subscribeNewsletter"
-                  :loading="subscribing"
-                >
-                  Subscribe
-                </n-button>
-              </n-space>
-              <n-text v-if="emailError" type="error" depth="3">
-                {{ emailError }}
-              </n-text>
-              <n-text v-if="subscriptionMessage" type="success" depth="3">
-                {{ subscriptionMessage }}
-              </n-text>
-            </n-space>
-          </n-card>
-        </n-space>
-
-        <!-- Bottom Bar -->
-        <n-divider />
-
-        <n-space justify="space-between" align="center" class="footer-bottom">
-          <n-text depth="3">
-            © {{ currentYear }} Premium Properties. All rights reserved.
-          </n-text>
-
-          <n-space size="medium">
-            <n-button
-              v-for="legal in legalLinks"
-              :key="legal.name"
-              text
-              size="small"
-              @click="navigateTo(legal.path)"
-              class="footer-legal-link"
-            >
-              {{ legal.name }}
-            </n-button>
-          </n-space>
-        </n-space>
-      </n-space>
-    </n-card>
-  </footer>
+  <fwb-footer footer-type="socialmedia">
+    <div class="md:flex md:justify-between">
+      <fwb-footer-brand alt="Acomody Logo" href="https://flowbite.com" name="Acomody" src="https://flowbite.com/docs/images/logo.svg" />
+      <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
+        <div>
+          <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
+            Resources
+          </h2>
+          <fwb-footer-link-group class="flex flex-col items-start">
+            <fwb-footer-link class="mb-4" href="/">
+              Acomody
+            </fwb-footer-link>
+            <fwb-footer-link class="mb-4" href="/">
+              Tailwind CSS
+            </fwb-footer-link>
+          </fwb-footer-link-group>
+        </div>
+        <div>
+          <h2 class="mb-6 text-sm font-semibold uppercase text-gray-900 dark:text-white">
+            Follow us
+          </h2>
+          <fwb-footer-link-group class="flex flex-col items-start">
+            <fwb-footer-link class="mb-4" href="/">
+              GitHub
+            </fwb-footer-link>
+            <fwb-footer-link class="mb-4" href="/">
+              Discord
+            </fwb-footer-link>
+          </fwb-footer-link-group>
+        </div>
+        <div>
+          <h2 class="mb-6 text-sm font-semibold uppercase text-gray-900 dark:text-white">
+            Legal
+          </h2>
+          <fwb-footer-link-group class="flex flex-col items-start">
+            <fwb-footer-link class="mb-4" href="/">
+              Privacy Policy
+            </fwb-footer-link>
+            <fwb-footer-link class="mb-4" href="/">
+              Terms & Conditions
+            </fwb-footer-link>
+          </fwb-footer-link-group>
+        </div>
+      </div>
+    </div>
+    <hr class="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8">
+    <div class="sm:flex sm:items-center sm:justify-between">
+      <fwb-footer-copyright by="Acomody" href="/" />
+      <div class="flex mt-4 space-x-6 sm:justify-center sm:mt-0">
+        <fwb-footer-icon href="/">
+          <svg aria-hidden="true" class="w-4 h-4 text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path clip-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" fill-rule="evenodd" />
+          </svg>
+        </fwb-footer-icon>
+        <fwb-footer-icon href="/">
+          <svg aria-hidden="true" class="w-4 h-4 text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white" fill="currentColor" viewBox="0 0 21 16" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16.942 1.556a16.3 16.3 0 0 0-4.126-1.3 12.04 12.04 0 0 0-.529 1.1 15.175 15.175 0 0 0-4.573 0 11.585 11.585 0 0 0-.535-1.1 16.274 16.274 0 0 0-4.129 1.3A17.392 17.392 0 0 0 .182 13.218a15.785 15.785 0 0 0 4.963 2.521c.41-.564.773-1.16 1.084-1.785a10.63 10.63 0 0 1-1.706-.83c.143-.106.283-.217.418-.33a11.664 11.664 0 0 0 10.118 0c.137.113.277.224.418.33-.544.328-1.116.606-1.71.832a12.52 12.52 0 0 0 1.084 1.785 16.46 16.46 0 0 0 5.064-2.595 17.286 17.286 0 0 0-2.973-11.59ZM6.678 10.813a1.941 1.941 0 0 1-1.8-2.045 1.93 1.93 0 0 1 1.8-2.047 1.919 1.919 0 0 1 1.8 2.047 1.93 1.93 0 0 1-1.8 2.045Zm6.644 0a1.94 1.94 0 0 1-1.8-2.045 1.93 1.93 0 0 1 1.8-2.047 1.918 1.918 0 0 1 1.8 2.047 1.93 1.93 0 0 1-1.8 2.045Z" />
+          </svg>
+        </fwb-footer-icon>
+        <fwb-footer-icon href="/">
+          <svg aria-hidden="true" class="w-4 h-4 text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white" fill="currentColor" viewBox="0 0 20 17" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd" d="M20 1.892a8.178 8.178 0 0 1-2.355.635 4.074 4.074 0 0 0 1.8-2.235 8.344 8.344 0 0 1-2.605.98A4.13 4.13 0 0 0 13.85 0a4.068 4.068 0 0 0-4.1 4.038 4 4 0 0 0 .105.919A11.705 11.705 0 0 1 1.4.734a4.006 4.006 0 0 0 1.268 5.392 4.165 4.165 0 0 1-1.859-.5v.05A4.057 4.057 0 0 0 4.1 9.635a4.19 4.19 0 0 1-1.856.07 4.108 4.108 0 0 0 3.831 2.807A8.36 8.36 0 0 1 0 14.184 11.732 11.732 0 0 0 6.291 16 11.502 11.502 0 0 0 17.964 4.5c0-.177 0-.35-.012-.523A8.143 8.143 0 0 0 20 1.892Z" fill-rule="evenodd" />
+          </svg>
+        </fwb-footer-icon>
+        <fwb-footer-icon href="/">
+          <svg aria-hidden="true" class="w-4 h-4 text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd" d="M10 .333A9.911 9.911 0 0 0 6.866 19.65c.5.092.678-.215.678-.477 0-.237-.01-1.017-.014-1.845-2.757.6-3.338-1.169-3.338-1.169a2.627 2.627 0 0 0-1.1-1.451c-.9-.615.07-.6.07-.6a2.084 2.084 0 0 1 1.518 1.021 2.11 2.11 0 0 0 2.884.823c.044-.503.268-.973.63-1.325-2.2-.25-4.516-1.1-4.516-4.9A3.832 3.832 0 0 1 4.7 7.068a3.56 3.56 0 0 1 .095-2.623s.832-.266 2.726 1.016a9.409 9.409 0 0 1 4.962 0c1.89-1.282 2.717-1.016 2.717-1.016.366.83.402 1.768.1 2.623a3.827 3.827 0 0 1 1.02 2.659c0 3.807-2.319 4.644-4.525 4.889a2.366 2.366 0 0 1 .673 1.834c0 1.326-.012 2.394-.012 2.72 0 .263.18.572.681.475A9.911 9.911 0 0 0 10 .333Z" fill-rule="evenodd" />
+          </svg>
+        </fwb-footer-icon>
+        <fwb-footer-icon href="/">
+          <svg aria-hidden="true" class="w-4 h-4 text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd" d="M10 0a10 10 0 1 0 10 10A10.009 10.009 0 0 0 10 0Zm6.613 4.614a8.523 8.523 0 0 1 1.93 5.32 20.094 20.094 0 0 0-5.949-.274c-.059-.149-.122-.292-.184-.441a23.879 23.879 0 0 0-.566-1.239 11.41 11.41 0 0 0 4.769-3.366ZM8 1.707a8.821 8.821 0 0 1 2-.238 8.5 8.5 0 0 1 5.664 2.152 9.608 9.608 0 0 1-4.476 3.087A45.758 45.758 0 0 0 8 1.707ZM1.642 8.262a8.57 8.57 0 0 1 4.73-5.981A53.998 53.998 0 0 1 9.54 7.222a32.078 32.078 0 0 1-7.9 1.04h.002Zm2.01 7.46a8.51 8.51 0 0 1-2.2-5.707v-.262a31.64 31.64 0 0 0 8.777-1.219c.243.477.477.964.692 1.449-.114.032-.227.067-.336.1a13.569 13.569 0 0 0-6.942 5.636l.009.003ZM10 18.556a8.508 8.508 0 0 1-5.243-1.8 11.717 11.717 0 0 1 6.7-5.332.509.509 0 0 1 .055-.02 35.65 35.65 0 0 1 1.819 6.476 8.476 8.476 0 0 1-3.331.676Zm4.772-1.462A37.232 37.232 0 0 0 13.113 11a12.513 12.513 0 0 1 5.321.364 8.56 8.56 0 0 1-3.66 5.73h-.002Z" fill-rule="evenodd" />
+          </svg>
+        </fwb-footer-icon>
+      </div>
+    </div>
+  </fwb-footer>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import {
-  NCard, NSpace, NGrid, NGridItem, NText, NButton, NIcon,
-  NDivider, NInput
-} from 'naive-ui'
-
-// Reactive data
-const newsletterEmail = ref('')
-const subscribing = ref(false)
-const emailError = ref('')
-const subscriptionMessage = ref('')
-
-// Computed
-const currentYear = computed(() => new Date().getFullYear())
-
-const footerCols = computed(() => {
-  return 'xs:1 s:2 m:2 l:4 xl:4'
-})
-
-// Static data
-const socialLinks = [
-  {
-    name: 'Facebook',
-    url: 'https://facebook.com',
-    iconPath: 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z'
-  },
-  {
-    name: 'Instagram',
-    url: 'https://instagram.com',
-    iconPath: 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z'
-  },
-  {
-    name: 'Twitter',
-    url: 'https://twitter.com',
-    iconPath: 'M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z'
-  },
-  {
-    name: 'LinkedIn',
-    url: 'https://linkedin.com',
-    iconPath: 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z'
-  }
-]
-
-const quickLinks = [
-  { name: 'Home', path: '/' },
-  { name: 'Accommodations', path: '/accommodations' },
-  { name: 'About Us', path: '/about' },
-  { name: 'Contact', path: '/contact' },
-  { name: 'Blog', path: '/blog' }
-]
-
-const services = [
-  { name: 'Property Management', path: '/services/management' },
-  { name: 'Booking Support', path: '/services/support' },
-  { name: 'Guest Services', path: '/services/guest' },
-  { name: 'Maintenance', path: '/services/maintenance' },
-  { name: 'Marketing', path: '/services/marketing' }
-]
-
-const legalLinks = [
-  { name: 'Privacy Policy', path: '/privacy' },
-  { name: 'Terms of Service', path: '/terms' },
-  { name: 'Cookie Policy', path: '/cookies' },
-  { name: 'Disclaimer', path: '/disclaimer' }
-]
-
-const contactInfo = {
-  address: 'Belgrade, Serbia',
-  phone: '+381 11 123 4567',
-  email: 'info@premiumproperties.com'
-}
-
-// Methods
-const navigateTo = (path) => {
-  // For Laravel/Vue router
-  // this.$router.push(path)
-  console.log(`Navigate to: ${path}`)
-}
-
-const openSocialLink = (url) => {
-  window.open(url, '_blank', 'noopener,noreferrer')
-}
-
-const validateEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
-}
-
-const subscribeNewsletter = async () => {
-  emailError.value = ''
-  subscriptionMessage.value = ''
-
-  if (!newsletterEmail.value) {
-    emailError.value = 'Email is required'
-    return
-  }
-
-  if (!validateEmail(newsletterEmail.value)) {
-    emailError.value = 'Please enter a valid email address'
-    return
-  }
-
-  subscribing.value = true
-
-  try {
-    // Laravel API call for newsletter subscription
-    // await axios.post('/api/newsletter/subscribe', {
-    //   email: newsletterEmail.value
-    // })
-
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    subscriptionMessage.value = 'Thank you for subscribing to our newsletter!'
-    newsletterEmail.value = ''
-
-    setTimeout(() => {
-      subscriptionMessage.value = ''
-    }, 5000)
-
-  } catch (error) {
-    emailError.value = 'Subscription failed. Please try again.'
-  } finally {
-    subscribing.value = false
-  }
-}
-
-// Lifecycle
-onMounted(() => {
-  // Any initialization logic
-})
+<script>
+export default {
+  name: "Footer",
+};
 </script>
-
-<style scoped>
-.footer-container {
-  margin-top: auto;
-}
-
-.footer-content {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: none;
-}
-
-.footer-link {
-  justify-content: flex-start !important;
-  padding: 4px 0 !important;
-  color: #666 !important;
-  transition: color 0.3s ease;
-}
-
-.footer-link:hover {
-  color: #2080f0 !important;
-}
-
-.footer-legal-link {
-  color: #999 !important;
-  font-size: 12px !important;
-}
-
-.footer-legal-link:hover {
-  color: #2080f0 !important;
-}
-
-.footer-bottom {
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-@media (max-width: 768px) {
-  .footer-bottom {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-}
-</style>

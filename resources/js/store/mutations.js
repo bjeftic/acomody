@@ -2,33 +2,6 @@ import * as types from "./mutation-types";
 import { toCamelCase } from "@/utils/helpers";
 
 export default {
-    /**
-     * **********************************
-     * Users
-     * **********************************
-     */
-    [types.SET_CURRENT_USER](state, { data }) {
-        state.currentUser = data;
-    },
-    [types.SET_AUTHENTICATED](state, status) {
-        state.isAuthenticated = status;
-    },
-    [types.SET_INITIALIZED](state, status) {
-        state.isInitialized = status;
-    },
-    [types.CLEAR_AUTH](state) {
-        state.currentUser = null;
-        state.isAuthenticated = false;
-    },
-
-    /**
-     * **********************************
-     * Currencies
-     * **********************************
-     */
-    [types.SET_CURRENCIES](state, { response }) {
-        state.currencies = response.data;
-    },
 
     /*
      * **********************************

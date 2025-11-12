@@ -3,31 +3,36 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "dev": "vite",
         "build": "vite build",
-        "dev": "vite"
+        "preview": "vite preview"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.10",
-        "@tailwindcss/postcss": "^4.1.11",
-        "@vicons/ionicons4": "^0.13.0",
-        "@vicons/material": "^0.13.0",
         "@vitejs/plugin-vue": "^6.0.1",
         "autoprefixer": "^10.4.21",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^2.0.0",
-        "naive-ui": "^2.42.0",
         "postcss": "^8.5.6",
-        "tailwindcss": "^4.1.11",
+        "tailwindcss": "^3.4.17",
         "vite": "^7.0.4",
         "vue": "^3.5.18"
     },
     "dependencies": {
-        "@tailwindcss/vite": "^4.1.11",
-        "@vicons/ionicons5": "^0.13.0",
-        "@vueuse/core": "^13.6.0",
-        "class-variance-authority": "^0.7.1",
+        "@tailwindcss/forms": "^0.5.10",
+        "@vitejs/plugin-vue": "^6.0.1",
+        "axios": "^1.11.0",
+        "concurrently": "^9.0.1",
+        "flowbite": "^3.1.2",
+        "flowbite-vue": "^0.2.1",
+        "laravel-vite-plugin": "^2.0.0",
+        "leaflet": "^1.9.4",
+        "vite": "^7.0.4",
+        "vue": "^3.5.18",
+        "vue-leaflet": "^0.1.0",
         "vue-router": "^4.5.1",
+        "vuedraggable": "^4.1.0",
         "vuex": "^4.0.2"
     }
 }

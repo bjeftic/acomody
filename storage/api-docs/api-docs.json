@@ -15,38 +15,155 @@
         }
     ],
     "paths": {
-        "/log-in": {
+        "/accommodation-draft": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get accommodation drafts",
+                "description": "Retrieves a list of accommodation drafts for the authenticated user",
+                "operationId": "getAccommodationDrafts",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by draft status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "draft",
+                            "enum": [
+                                "draft",
+                                "waiting_for_approval",
+                                "published"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Accommodation drafts retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AccommodationDraft"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Accommodation"
                 ],
-                "summary": "User log in",
-                "description": "Authenticates user with email and password",
-                "operationId": "loginUser",
+                "summary": "Create accommodation draft",
+                "description": "Creates a new draft for an accommodation listing",
+                "operationId": "createAccommodationDraft",
                 "requestBody": {
-                    "description": "User login credentials",
+                    "description": "Accommodation draft data",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "email",
-                                    "password"
+                                    "data"
                                 ],
                                 "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "john.smith@example.com"
+                                    "data": {
+                                        "description": "The draft data for the accommodation listing",
+                                        "type": "object",
+                                        "example": {
+                                            "title": "Cozy Apartment",
+                                            "description": "A nice place to stay"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Accommodation draft created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccommodationDraft"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/accommodation-draft/{accommodationDraft}": {
+            "put": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Update accommodation draft",
+                "description": "Updates a draft for an accommodation listing",
+                "operationId": "updateAccommodationDraft",
+                "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Accommodation draft data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_step",
+                                    "data"
+                                ],
+                                "properties": {
+                                    "current_step": {
+                                        "description": "The current step in the accommodation listing process",
+                                        "type": "integer",
+                                        "example": 2
                                     },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password123"
-                                    },
-                                    "remember_me": {
-                                        "type": "boolean",
-                                        "example": true
+                                    "data": {
+                                        "description": "The draft data for the accommodation listing",
+                                        "type": "object",
+                                        "example": {
+                                            "title": "Cozy Apartment",
+                                            "description": "A nice place to stay"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -56,7 +173,357 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "User successfully logged in",
+                        "description": "Accommodation draft saved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccommodationDraft"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/accommodation-draft/draft": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get accommodation draft",
+                "description": "Retrieves the saved draft for an accommodation listing",
+                "operationId": "getAccommodationDraft",
+                "responses": {
+                    "200": {
+                        "description": "Accommodation draft retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccommodationDraft"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Draft not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/accommodation-drafts/stats": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get accommodation draft statistics",
+                "description": "Retrieves statistics about accommodation drafts",
+                "operationId": "getAccommodationDraftStats",
+                "responses": {
+                    "200": {
+                        "description": "Accommodation draft statistics retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "description": "Draft statistics by status",
+                                            "type": "object",
+                                            "example": {
+                                                "draft": 3,
+                                                "waiting_for_approval": 1,
+                                                "published": 5
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total_drafts": {
+                                                    "description": "Total number of accommodation drafts",
+                                                    "type": "integer",
+                                                    "example": 9
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/accommodation-drafts/{accommodationDraftId}/photos": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get all photos for accommodation draft",
+                "description": "Get all photos for a draft",
+                "operationId": "getAccommodationDraftPhotos",
+                "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Accommodation draft photos retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccommodationDraftPhoto"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Accommodation draft photos not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Upload photos for accommodation draft",
+                "description": "Upload photos",
+                "operationId": "uploadAccommodationDraftPhotos",
+                "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "photos[]": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Photos uploaded successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/accommodation-drafts/{accommodationDraftId}/photos/reorder": {
+            "put": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Reorder photos",
+                "description": "Reorder photos",
+                "operationId": "reorderAccommodationDraftPhotos",
+                "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    },
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "photo_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            1,
+                                            3,
+                                            2,
+                                            4
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Photos reordered successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/accommodation-drafts/{accommodationDraftId}/photos/{photoId}": {
+            "delete": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Delete a photo",
+                "description": "Delete a photo",
+                "operationId": "deleteAccommodationDraftPhoto",
+                "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Photo deleted successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/accommodation-drafts/{accommodationDraftId}/photos/stats": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get photo statistics",
+                "description": "Get photo statistics",
+                "operationId": "getAccommodationDraftPhotoStats",
+                "parameters": [
+                    {
+                        "name": "accommodationDraft",
+                        "in": "path",
+                        "description": "Accommodation draft ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Statistics retrieved successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/accommodation-types": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get accommodation types list",
+                "description": "Returns a list of all accommodation types",
+                "operationId": "getAccommodationTypes",
+                "responses": {
+                    "200": {
+                        "description": "Accommodation types retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -67,30 +534,32 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "User logged in successfully."
+                                            "example": "Accommodation types retrieved successfully."
                                         },
                                         "data": {
                                             "properties": {
-                                                "": {
-                                                    "$ref": "#/components/schemas/User"
+                                                "accommodation_types": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/AccommodationType"
+                                                    }
                                                 }
                                             },
                                             "type": "object"
                                         },
                                         "meta": {
                                             "properties": {
-                                                "login_at": {
-                                                    "type": "string",
-                                                    "format": "date-time",
-                                                    "example": "2025-08-31T21:47:00.911232Z"
+                                                "email_verified": {
+                                                    "type": "boolean",
+                                                    "example": true
                                                 },
-                                                "ip_address": {
-                                                    "type": "string",
-                                                    "example": "172.19.0.1"
+                                                "profile_complete": {
+                                                    "type": "boolean",
+                                                    "example": true
                                                 },
-                                                "user_agent": {
+                                                "account_status": {
                                                     "type": "string",
-                                                    "example": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+                                                    "example": "active"
                                                 }
                                             },
                                             "type": "object"
@@ -101,38 +570,25 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/log-out": {
-            "post": {
+        "/amenities": {
+            "get": {
                 "tags": [
-                    "Authentication"
+                    "Amenity"
                 ],
-                "summary": "User log out",
-                "description": "Logs out the authenticated user and revokes their token",
-                "operationId": "logoutUser",
-                "requestBody": {
-                    "description": "Logout options",
-                    "required": false,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "logout_all_devices": {
-                                        "description": "Revoke tokens from all devices",
-                                        "type": "boolean",
-                                        "example": false
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
+                "summary": "Get amenities list",
+                "description": "Returns a list of all amenities",
+                "operationId": "getAmenities",
                 "responses": {
                     "200": {
-                        "description": "User successfully logged out",
+                        "description": "Amenities retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -143,27 +599,19 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "User logged out successfully."
+                                            "example": "Amenities retrieved successfully."
                                         },
                                         "data": {
-                                            "properties": {
-                                                "logged_out_at": {
-                                                    "type": "string",
-                                                    "format": "date-time",
-                                                    "example": "2025-08-14T14:30:00.000000Z"
-                                                }
-                                            },
-                                            "type": "object"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Amenity"
+                                            }
                                         },
                                         "meta": {
                                             "properties": {
-                                                "logout_all_devices": {
-                                                    "type": "boolean",
-                                                    "example": false
-                                                },
-                                                "tokens_revoked": {
+                                                "total": {
                                                     "type": "integer",
-                                                    "example": 1
+                                                    "example": 15
                                                 }
                                             },
                                             "type": "object"
@@ -433,7 +881,7 @@
                 }
             }
         },
-        "/user": {
+        "/users": {
             "get": {
                 "tags": [
                     "User"
@@ -498,24 +946,220 @@
     },
     "components": {
         "schemas": {
-            "UserSignUpRequest": {
-                "title": "UserSignUpRequest",
-                "description": "User sign up request",
+            "AccommodationDraftPhoto": {
                 "properties": {
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "example": "john.smith@example.com"
+                    "id": {
+                        "type": "integer",
+                        "example": 1
                     },
-                    "password": {
-                        "type": "string",
-                        "format": "password",
-                        "example": "password123"
+                    "accommodation_draft_id": {
+                        "type": "integer",
+                        "example": 1
                     },
-                    "confirm_password": {
+                    "urls": {
+                        "properties": {
+                            "original": {
+                                "type": "string",
+                                "example": "https://cdn.example.com/photos/original/photo1.jpg"
+                            },
+                            "large": {
+                                "type": "string",
+                                "example": "https://cdn.example.com/photos/large/photo1.jpg"
+                            },
+                            "medium": {
+                                "type": "string",
+                                "example": "https://cdn.example.com/photos/medium/photo1.jpg"
+                            },
+                            "thumbnail": {
+                                "type": "string",
+                                "example": "https://cdn.example.com/photos/thumbnail/photo1.jpg"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "file_info": {
+                        "properties": {
+                            "original_filename": {
+                                "type": "string",
+                                "example": "photo1.jpg"
+                            },
+                            "mime_type": {
+                                "type": "string",
+                                "example": "image/jpeg"
+                            },
+                            "file_size": {
+                                "type": "integer",
+                                "example": 204800
+                            },
+                            "formatted_size": {
+                                "type": "string",
+                                "example": "200 KB"
+                            },
+                            "width": {
+                                "type": "integer",
+                                "example": 1920
+                            },
+                            "height": {
+                                "type": "integer",
+                                "example": 1080
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "order": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "is_primary": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "status": {
                         "type": "string",
-                        "format": "password",
-                        "example": "password123"
+                        "example": "completed"
+                    },
+                    "alt_text": {
+                        "type": "string",
+                        "example": "A beautiful view from the apartment"
+                    },
+                    "caption": {
+                        "type": "string",
+                        "example": "Sunset over the city skyline"
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "example": {
+                            "camera": "Canon EOS 80D",
+                            "lens": "EF-S18-135mm"
+                        }
+                    },
+                    "error_message": {
+                        "type": "string",
+                        "example": "Failed to process image"
+                    },
+                    "uploaded_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-28T12:34:56Z"
+                    },
+                    "processed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-28T12:45:00Z"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-28T12:34:56Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-28T12:50:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "AccommodationDraft": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    },
+                    "current_step": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "draft"
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": {
+                            "title": "Cozy Apartment",
+                            "description": "A nice place to stay"
+                        }
+                    },
+                    "last_saved_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-28T12:34:56Z"
+                    }
+                },
+                "type": "object"
+            },
+            "AccommodationType": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Apartment"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "example": "Apartment"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "A private, self-contained unit within a building, featuring its own kitchen, bathroom, and living area—ideal for independent stays."
+                    },
+                    "available_occupations": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "example": "An entire place"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "example": "Guests have the whole place to themselves."
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Amenity": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "wifi"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "WiFi"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "example": "wifi"
+                    },
+                    "category": {
+                        "type": "string",
+                        "example": "internet"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "boolean"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
                     }
                 },
                 "type": "object"
@@ -572,6 +1216,14 @@
         }
     },
     "tags": [
+        {
+            "name": "Accommodation",
+            "description": "Accommodation"
+        },
+        {
+            "name": "Amenity",
+            "description": "Amenity"
+        },
         {
             "name": "Authentication",
             "description": "Authentication"

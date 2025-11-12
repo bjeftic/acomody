@@ -24,10 +24,18 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'email_verification_token' => Str::random(32),
+            'email_verification_token_expires_at' => now()->addHours(2),
+            'terms_accepted_at' => now(),
+            'privacy_policy_accepted_at' => now(),
+            'last_login_at' => null,
+            'last_login_ip' => null,
+            'last_login_user_agent' => null,
+            'is_admin' => false,
+            'status' => 'active',
             'remember_token' => Str::random(10),
         ];
     }
