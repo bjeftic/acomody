@@ -43,7 +43,7 @@ return new class extends Migration
             $table->integer('failed_login_attempts')->default(0)->after('email_verification_token');
             $table->timestamp('locked_until')->nullable()->after('failed_login_attempts');
 
-            $table->boolean('is_admin')->default(false);
+            $table->boolean('is_superadmin')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
@@ -62,6 +62,27 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        if(config('app.env') === 'local') {
+            DB::table('users')->insert([[
+                'email' => 'superadmin@acomody.com',
+                'password' => bcrypt('Password123*'),
+                'is_superadmin' => true,
+                'email_verified_at' => now(),
+                'terms_accepted_at' => now(),
+                'privacy_policy_accepted_at' => now(),
+                'status' => 'active',
+            ],
+            [
+                'email' => 'user@acomody.com',
+                'password' => bcrypt('Password123*'),
+                'is_superadmin' => false,
+                'email_verified_at' => now(),
+                'terms_accepted_at' => now(),
+                'privacy_policy_accepted_at' => now(),
+                'status' => 'active',
+            ]]);
+        }
     }
 
     /**

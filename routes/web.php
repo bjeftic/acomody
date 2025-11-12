@@ -13,6 +13,13 @@ Route::get('/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
 // ============================================
 // SPA CATCH-ALL ROUTE (must be last)
 // ============================================
-Route::get('/{any}', function () {
-    return view('welcome');
-})->where('any', '.*');
+Route::middleware(['redirect.super.admin'])->group(function () {
+    include __DIR__ . '/admin.php';
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('login');
+
+    Route::get('/{any}', function () {
+        return view('welcome');
+    })->where('any', '^(?!admin|api).*$');
+});

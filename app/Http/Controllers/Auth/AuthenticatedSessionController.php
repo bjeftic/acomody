@@ -67,13 +67,15 @@ class AuthenticatedSessionController extends Controller
                 'ip' => $request->ip(),
             ]);
 
+            $meta = [
+                'login_at' => now()->toISOString(),
+                'refresh_page' => $user->is_superadmin,
+            ];
+
             return ApiResponse::success(
                 'User logged in successfully.',
                 new UserResource($user),
-                [
-                    'login_at' => now()->toISOString(),
-                    'ip_address' => $request->ip(),
-                ]
+                $meta
             );
         } catch (ValidationException $e) {
             throw $e;

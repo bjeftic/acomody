@@ -28,6 +28,10 @@ trait Authorizable
     {
         $user = auth()->user();
 
+        if (Auth::user()->is_superadmin) {
+                return;
+            }
+
         // Before creating
         static::creating(function ($model) use ($user) {
             if (!$model->canBeCreatedBy($user)) {
@@ -48,6 +52,10 @@ trait Authorizable
                 }
             }
 
+            if (Auth::user()->is_superadmin) {
+                return;
+            }
+
             if (!$model->canBeUpdatedBy($user)) {
                 throw new AccessDeniedHttpException(
                     'You are not authorized to update this ' . class_basename(static::class) . '.'
@@ -57,6 +65,9 @@ trait Authorizable
 
         // Before deleting
         static::deleting(function ($model) use ($user) {
+            if (Auth::user()->is_superadmin) {
+                return;
+            }
             if (!$model->canBeDeletedBy($user)) {
                 throw new AccessDeniedHttpException(
                     'You are not authorized to delete this ' . class_basename(static::class) . '.'
@@ -68,6 +79,10 @@ trait Authorizable
         static::retrieved(function ($model) use ($user) {
 
             if ($model instanceof User && !Auth::check()) {
+                return;
+            }
+
+            if (Auth::user()->is_superadmin) {
                 return;
             }
 
