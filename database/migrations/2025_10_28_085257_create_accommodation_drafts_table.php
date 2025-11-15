@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('accommodation_drafts', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->integer('current_step')->default(1);
             $table->enum('status', ['draft', 'waiting_for_approval', 'published'])->default('draft');
             $table->json('data'); // Store draft data as JSON

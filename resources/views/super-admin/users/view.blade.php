@@ -28,11 +28,11 @@
           <div style="font-size:2rem;font-weight:bold;">User details</div>
           <div class="flex" style="gap:1rem;">
             {!! html()->a()
-                ->href("/superadmin/users/{$user->id}/edit")
+                ->href("/admin/users/{$user->id}/edit")
                 ->class('btn btn-primary')
                 ->text('Edit user') !!}
 
-            {!! html()->form("/superadmin/users/{$user->id}", 'DELETE')
+            {!! html()->form("/admin/users/{$user->id}", 'DELETE')
                 ->class('form-delete m-0')
                 ->open() !!}
 

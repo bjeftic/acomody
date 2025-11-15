@@ -118,4 +118,14 @@ enum AccommodationOccupation: string
     {
         return in_array($this, self::forAccommodationType($accommodationType), true);
     }
+
+    public static function fromId(int $id): ?self
+    {
+        return match($id) {
+            1 => self::ENTIRE_PLACE,
+            2 => self::PRIVATE_ROOM,
+            3 => self::SHARED_ROOM,
+            default => null,
+        };
+    }
 }

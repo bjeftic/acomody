@@ -28,9 +28,9 @@ trait Authorizable
     {
         $user = auth()->user();
 
-        if (Auth::user()->is_superadmin) {
-                return;
-            }
+        if (is_null($user) || !$user->is_superadmin) {
+            return;
+        }
 
         // Before creating
         static::creating(function ($model) use ($user) {
@@ -93,7 +93,7 @@ trait Authorizable
             // Check if called from route model binding or direct retrieval
             $isDirectRetrieval = collect($backtrace)->contains(function ($trace) {
                 return isset($trace['class']) &&
-                       (str_contains($trace['class'], 'Router') ||
+                    (str_contains($trace['class'], 'Router') ||
                         str_contains($trace['class'], 'Controller') ||
                         isset($trace['function']) && in_array($trace['function'], ['find', 'findOrFail', 'first', 'firstOrFail']));
             });

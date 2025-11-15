@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::create('accommodations', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->foreignUuid('accommodation_draft_id');
             $table->foreignId('accommodation_type_id')->constrained()->cascadeOnDelete();
-            $table->string('occupation_type');
+            $table->string('accommodation_occupation_id');
+            $table->string('title');
+            $table->text('description')->nullable();
             $table->json('amenities')->nullable();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

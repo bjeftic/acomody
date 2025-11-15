@@ -12,12 +12,16 @@ class Accommodation extends Model
 
     protected $fillable = [
         'accommodation_type_id',
-        'occupation_type',
+        'accommodation_occupation_id',
+        'title',
+        'description',
+        'accommodation_draft_id',
+        'user_id',
         'amenities',
     ];
 
     protected $casts = [
-        'occupation_type' => AccommodationOccupation::class,
+        'accommodation_occupation_id' => AccommodationOccupation::class,
     ];
 
     public function canBeReadBy($user): bool

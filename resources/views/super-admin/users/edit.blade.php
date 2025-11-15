@@ -26,7 +26,7 @@
                     </div>
                 @endif
 
-                {!! html()->form('PUT', "/superadmin/users/{$user->id}")
+                {!! html()->form('PUT', "/admin/users/{$user->id}")
                     ->attribute('onsubmit', 'document.getElementById("configuration").value = JSON.stringify(window.editor.get()); return true;')
                     ->open() !!}
 
