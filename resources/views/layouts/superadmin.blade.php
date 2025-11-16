@@ -89,7 +89,7 @@
                           </form>
                         </li>
                         <li>
-                            <a href="{{ url('/logout') }}"
+                            <a href="{{ url('/admin/logout') }}"
                                 onclick="event.preventDefault();
                                           document.getElementById('logout-form').submit();"
                                 style="{{ App::environment('production') ? 'color:white;' : '' }}"
@@ -97,7 +97,7 @@
                                 Logout
                             </a>
 
-                            <form id="logout-form" action="{{ url('/api/logout') }}" method="POST" style="display: none;">
+                            <form id="logout-form" action="{{ url('/admin/logout') }}" method="POST" style="display: none;">
                                 {{ csrf_field() }}
                             </form>
                         </li>
@@ -119,8 +119,10 @@
                                     <li {{ (Request::is('admin/home') ? 'class=active' : '') }}><a href="{{ url('/admin/home') }}">Home</a></li>
                                     <li {{ (Request::is('admin/users') ? 'class=active' : '') }}><a href="{{ url('/admin/users') }}">Users</a></li>
                                     <li {{ (Request::is('admin/superadmin-users') ? 'class=active' : '') }}><a href="{{ url('/admin/superadmin-users') }}">Superadmin users</a></li>
+                                    <li {{ (Request::is('admin/locations') ? 'class=active' : '') }}><a href="{{ url('/admin/locations') }}">Locations</a></li>
                                     <li {{ (Request::is('admin/accommodation-drafts') ? 'class=active' : '') }}><a href="{{ url('/admin/accommodation-drafts') }}">Accommodation Drafts</a></li>
                                     <li {{ (Request::is('admin/accommodations') ? 'class=active' : '') }}><a href="{{ url('/admin/accommodations') }}">Accommodations</a></li>
+                                    <li {{ (Request::is('admin/horizon') ? 'class=active' : '') }}><a href="{{ url('/admin/horizon') }}">Horizon</a></li>
                                 @endif
                             </ul>
                         </nav>

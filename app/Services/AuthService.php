@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Support\ApiResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Auth;
 
 class AuthService
 {
@@ -279,5 +280,27 @@ class AuthService
     {
         $rateLimitKey = 'login_attempts:' . $request->ip();
         cache()->forget($rateLimitKey);
+    }
+
+    /**
+     * Logout user and clear session/token
+     */
+    public function logout(User $user,Request $request): void
+    {
+        // Update logout info
+            $user->update([
+                'last_logout_at' => now(),
+                'last_logout_ip' => $request->ip(),
+            ]);
+
+            // Logout and invalidate session
+            Auth::guard('web')->logout();
+
+            if ($request->hasSession()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+
+            Log::info('User logged out', ['user_id' => $user->id]);
     }
 }

@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('listings', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->text('description')->nullable();
             $table->morphs('listable');
-            $table->string('status')->default('draft'); // draft, published, archived
             $table->boolean('is_active')->default(false);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('location_id')->constrained()->cascadeOnDelete();
+            $table->decimal('longitude', 10, 7)->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->string('street_address')->nullable();
             $table->timestamps();
 
             $table->index(['user_id', 'location_id']);
