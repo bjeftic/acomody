@@ -2,15 +2,21 @@
     <div>
         <div class="min-h-screen">
             <navbar class="mb-12"></navbar>
-            <router-view></router-view>
-            <modal-index />
-            <hr />
+            <template v-if="mainLoading">
+                <main-skeleton />
+            </template>
+            <template v-else>
+                <router-view></router-view>
+                <modal-index />
+                <hr />
+            </template>
             <Footer class="max-w-[1280px] mx-auto"></Footer>
         </div>
     </div>
 </template>
 
 <script>
+import { mapState } from "vuex";
 import Navbar from "@/src/components/Navbar.vue";
 import ModalIndex from "@/src/modals/ModalIndex.vue";
 import Footer from "@/src/components/Footer.vue";
@@ -21,6 +27,11 @@ export default {
         Navbar,
         ModalIndex,
         Footer,
+    },
+    computed: {
+        ...mapState({
+            mainLoading: (state) => state.mainLoading,
+        }),
     },
 };
 </script>

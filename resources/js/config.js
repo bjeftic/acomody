@@ -9,6 +9,9 @@ export default {
     ui: {
         countries: runtimeConstants.countries,
         currencies: runtimeConstants.currencies,
+        selectedCurrency: runtimeConstants.selectedCurrency,
+
+        countryCurrencyMap: runtimeConstants.countryCurrencyMap,
         daysOfWeek: [
             { id: "monday", name: "Monday" },
             { id: "tuesday", name: "Tuesday" },
@@ -18,6 +21,5 @@ export default {
             { id: "saturday", name: "Saturday" },
             { id: "sunday", name: "Sunday" }
         ],
-        currency: "RSD",
     }
 }

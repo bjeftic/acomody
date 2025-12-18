@@ -10,6 +10,25 @@ class PasswordHistory extends Model
         'created_at',
     ];
 
+    public function canBeReadBy($user): bool
+    {
+        return true;
+    }
+
+    public function canBeCreatedBy($user): bool
+    {
+        return $user !== null;
+    }
+
+    public function canBeUpdatedBy($user): bool
+    {
+        return true;
+    }
+
+    public function canBeDeletedBy($user): bool
+    {
+        return true;
+    }
 
     public function user()
     {

@@ -89,7 +89,7 @@ class AccommodationDraftController extends Controller
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
      *     ),
      *     @OA\RequestBody(
      *         required=true,

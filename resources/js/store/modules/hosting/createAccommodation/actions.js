@@ -95,6 +95,10 @@ export const updateAccommodationDraft = async (
     }
 };
 
+export const restartAccommodationDraftData = ({ commit }) => {
+    commit("RESET_ACCOMMODATION_DRAFT");
+}
+
 export const setCreateAccommodationLoading = ({ commit }, isLoading) => {
     commit("SET_CREATE_ACCOMMODATION_LOADING", isLoading);
 };

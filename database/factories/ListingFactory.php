@@ -28,6 +28,11 @@ class ListingFactory extends Factory
             'listable_type' => null,
             'location_id' => $locationId,
             'user_id' => User::inRandomOrder()->first()->id,
+            'longitude' => fake()->longitude(-180, 180),
+            'latitude' => fake()->latitude(-90, 90),
+            'street_address' => fake()->address(),
+            'is_active' => fake()->boolean(95),
+            'approved_by' => User::where('is_superadmin', true)->inRandomOrder()->first()->id,
         ];
     }
 }

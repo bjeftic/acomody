@@ -10,5 +10,12 @@
 import { mapActions } from "vuex";
 export default {
     name: "HostingHome",
+    methods: {
+        ...mapActions("hosting", ["getFeeTypes", "getFeeChargeTypes"]),
+    },
+    created() {
+        this.getFeeTypes();
+        this.getFeeChargeTypes();
+    },
 };
 </script>

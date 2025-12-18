@@ -10,22 +10,6 @@
         <hr />
 
         <div class="mx-auto py-4 pr-4 overflow-auto h-[60vh] space-y-8">
-            <!-- Standard Rules -->
-            <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Standard rules
-                </h3>
-                <div class="space-y-4">
-                    <rule-toggle
-                        v-for="rule in config.standardRules"
-                        :key="rule.id"
-                        :rule="rule"
-                        :value="localHouseRules[rule.id]"
-                        @update:value="updateRule(rule.id, $event)"
-                    />
-                </div>
-            </div>
-
             <!-- Check-in/Check-out Times -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">

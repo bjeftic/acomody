@@ -18,3 +18,13 @@ export const getAccommodationDraftStats = async ({ commit }) => {
 export const setHostingLoading = ({ commit }, isLoading) => {
     commit("SET_HOSTING_LOADING", isLoading);
 };
+
+export const getFeeTypes = async ({ commit }) => {
+    const response = await apiClient.fees.feeTypes.get();
+    commit("SET_FEE_TYPES", response.data);
+}
+
+export const getFeeChargeTypes = async ({ commit }) => {
+    const response = await apiClient.fees.chargeTypes.get();
+    commit("SET_FEE_CHARGE_TYPES", response.data);
+}

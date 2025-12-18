@@ -17,6 +17,7 @@ class Amenity extends Model
         'icon',
         'category',
         'type',
+        'is_feeable',
         'is_active',
     ];
 

@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AccommodationDraft extends Model
 {
-    use HasUuids, HasFactory;
+    use HasUlids, HasFactory;
 
     protected $fillable = [
         'user_id',

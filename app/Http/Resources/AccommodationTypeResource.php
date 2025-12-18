@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Enums\AccommodationOccupation;
+use App\Enums\Accommodation\AccommodationOccupation;
 
 /**
  * @OA\Schema(
@@ -43,7 +43,7 @@ class AccommodationTypeResource extends JsonResource
             'icon' => $this->icon,
             'available_occupations' => collect(AccommodationOccupation::forAccommodationType($this->resource))
                 ->map(fn($occupation) => [
-                    'id' => $occupation->id(),
+                    'id' => $occupation->value,
                     'name' => $occupation->label(),
                     'description' => $occupation->description(),
                 ])

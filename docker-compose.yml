@@ -64,14 +64,16 @@ services:
         environment:
             WWWUSER: "${WWWUSER}"
             LARAVEL_SAIL: 1
+            XDEBUG_MODE: "${SAIL_XDEBUG_MODE:-off}"
         volumes:
             - ".:/var/www/html"
         networks:
             - sail
         depends_on:
-            - laravel.test
+            - pgsql
             - redis
         command: php artisan horizon
+        restart: unless-stopped
     redis:
         image: "redis:7.2.11-alpine"
         ports:
@@ -107,6 +109,17 @@ services:
                 - 'exec 3<>/dev/tcp/localhost/8108 && printf ''GET /health HTTP/1.1\r\nConnection: close\r\n\r\n'' >&3 && head -n1 <&3 | grep ''200'' && exec 3>&-'
             retries: 5
             timeout: 7s
+    typesense-dashboard:
+        image: "ghcr.io/bfritscher/typesense-dashboard:latest"
+        ports:
+            - "127.0.0.1:${FORWARD_TYPESENSE_DASHBOARD_PORT:-8109}:80"
+        environment:
+            TYPESENSE_URL: "http://typesense:8108"
+            TYPESENSE_API_KEY: "${TYPESENSE_API_KEY:-xyz}"
+        networks:
+            - sail
+        depends_on:
+            - typesense
     minio:
         image: "minio/minio:latest"
         ports:

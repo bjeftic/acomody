@@ -2,13 +2,23 @@
 
 namespace App\Models;
 
+use App\Enums\Location\LocationType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Scout\Searchable;
+use Spatie\Translatable\HasTranslations;
 
 class Location extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable, HasTranslations;
 
-    protected $fillable = ['name', 'country_id', 'parent_id'];
+    protected $fillable = ['name', 'location_type', 'country_id', 'parent_id', 'latitude', 'longitude', 'user_id'];
+
+    public $translatable = ['name'];
+
+    protected $casts = [
+        'latitude' => 'float',
+        'longitude' => 'float',
+    ];
 
     public function canBeReadBy($user): bool
     {
@@ -30,6 +40,125 @@ class Location extends Model
         return $user !== null;
     }
 
+    /**
+     * Get the name of the index associated with the model.
+     */
+    public function searchableAs(): string
+    {
+        return 'locations';
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        $array = [
+            'id' => (string) $this->id,
+            'type' => 'location',
+            'country_id' => (string) $this->country_id,
+            'location_type' => $this->location_type,
+            'parent_id' => $this->parent_id ? (string) $this->parent_id : null,
+            'created_at' => $this->created_at->timestamp,
+        ];
+
+        // Get all translations
+        $translations = $this->getTranslations('name');
+
+        // Add translations as separate fields
+        foreach ($translations as $locale => $value) {
+            $array["name_{$locale}"] = $value ?? '';
+        }
+
+        $array['name'] = $this->getTranslation('name', app()->getLocale())
+                      ?? $this->getTranslation('name', config('app.fallback_locale'))
+                      ?? '';
+
+        // Add location coordinates
+        if ($this->latitude !== null && $this->longitude !== null) {
+            $array['location'] = [
+                (float) $this->latitude,
+                (float) $this->longitude
+            ];
+        }
+
+        return $array;
+    }
+
+    /**
+     * Get the Typesense collection schema.
+     * This defines the structure and field types for Typesense.
+     *
+     * @return array<string, mixed>
+     */
+    public function getTypesenseSchema(): array
+    {
+        // Get supported locales from config
+        $locales = config('app.supported_locales', ['en', 'sr', 'de']);
+
+        $fields = [
+            [
+                'name' => 'id',
+                'type' => 'string',
+            ],
+            [
+                'name' => 'name',
+                'type' => 'string',
+                'facet' => false,
+                'optional' => false, // Default name field
+            ],
+            [
+                'name' => 'type',
+                'type' => 'string',
+                'facet' => true,
+            ],
+            [
+                'name' => 'country_id',
+                'type' => 'string',
+                'facet' => true,
+            ],
+            [
+                'name' => 'location_type',
+                'type' => 'string',
+                'facet' => true,
+            ],
+            [
+                'name' => 'parent_id',
+                'type' => 'string',
+                'facet' => true,
+                'optional' => true,
+            ],
+            [
+                'name' => 'location',
+                'type' => 'geopoint',
+                'optional' => false,
+            ],
+            [
+                'name' => 'created_at',
+                'type' => 'int64',
+            ],
+        ];
+
+        // Add a field for each locale
+        foreach ($locales as $locale) {
+            $fields[] = [
+                'name' => "name_{$locale}",
+                'type' => 'string',
+                'facet' => false,
+                'optional' => true,
+                'locale' => $locale,
+            ];
+        }
+
+        return [
+            'name' => $this->searchableAs(),
+            'fields' => $fields,
+            'default_sorting_field' => 'created_at',
+        ];
+    }
+
     public function country()
     {
         return $this->belongsTo(Country::class);
@@ -43,5 +172,10 @@ class Location extends Model
     public function childrens()
     {
         return $this->hasMany(Location::class, 'parent_id');
+    }
+
+    public function locationType(): array
+    {
+        return LocationType::fromId($this->id)?->toArray() ?? [];
     }
 }

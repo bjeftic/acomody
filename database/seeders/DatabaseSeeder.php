@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\AccommodationDraft;
 use App\Models\Accommodation;
+use App\Models\Location;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -25,6 +26,7 @@ class DatabaseSeeder extends Seeder
             // ]);
             User::factory(150)->create();
             AccommodationDraft::factory(150)->create();
+            Location::factory(150)->create();
             // Accommodation::factory(50)->create();
         }
     }

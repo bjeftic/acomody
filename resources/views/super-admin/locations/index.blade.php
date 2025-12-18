@@ -4,11 +4,11 @@
     <section>
         <div class="panel panel-default">
             <div class="panel-heading">
-              Users
-              @if ($users instanceof \Illuminate\Database\Eloquent\Collection)
-                <a href="/superadmin/locations">(paginated locations)</a>
+              Locations
+              @if ($locations instanceof \Illuminate\Database\Eloquent\Collection)
+                <a href="/admin/locations">(paginated locations)</a>
               @else
-                <a href="/superadmin/locations/all">(all locations)</a>
+                <a href="/admin/locations/all">(all locations)</a>
               @endif
             </div>
 
@@ -18,6 +18,7 @@
             </div>
 
             <div class="panel-body">
+                <a href="{{ url('/admin/locations/create') }}" class="btn btn-default">Add Location</a>
                 @foreach (['danger', 'warning', 'success', 'info'] as $msg)
                     @if(Session::has('alert-' . $msg))
                         <p class="alert alert-{{ $msg }}">{{ Session::get('alert-' . $msg) }} <a href="#"
@@ -41,14 +42,14 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach ($users as $user)
+                    @foreach ($locations as $location)
                         <tr>
-                            <td>{{ $user->id }}</td>
-                            <td>{{ $user->country->name }}</td>
-                            <td>{{ $user->parent->name ?? '' }}</td>
-                            <td>{{ $user->name }}</td>
-                            <td>{{ $user->created_at }}</td>
-                            <td>{{ $user->updated_at }}</td>
+                            <td>{{ $location->id }}</td>
+                            <td>{{ $location->country?->name }}</td>
+                            <td>{{ $location->parent?->name ?? '' }}</td>
+                            <td>{{ $location->name }}</td>
+                            <td>{{ $location->created_at }}</td>
+                            <td>{{ $location->updated_at }}</td>
                             <td align="right">
                                 <div class="btn-group">
                                     <a href='/admin/locations/{{ $location->id }}' class="btn btn-default btn-xs">View</a>
@@ -62,8 +63,8 @@
             </div>
         </div>
     </section>
-    @if (!$users instanceof \Illuminate\Database\Eloquent\Collection)
-      {!! $users->render() !!}
+    @if (!$locations instanceof \Illuminate\Database\Eloquent\Collection)
+      {!! $locations->render() !!}
     @endif
     <script>
       function loadFrame(src, to, subject) {
@@ -73,12 +74,12 @@
       }
 
       function search() {
-        window.location.assign('/superadmin/locations?page={{$page}}&search=' + document.getElementById('search').value)
+        window.location.assign('/admin/locations?page={{$page}}&search=' + document.getElementById('search').value)
       }
 
       document.getElementById('triggerByEnter').onkeyup = function(e) {
       if (e.keyCode === 13) {
-        window.location.assign('/superadmin/locations?page={{$page}}&search=' + document.getElementById('search').value)
+        window.location.assign('/admin/locations?page={{$page}}&search=' + document.getElementById('search').value)
       }
       return true;
       }

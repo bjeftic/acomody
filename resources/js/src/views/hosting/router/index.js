@@ -18,13 +18,21 @@ const routes = [
         component: () => import('@/src/views/hosting/createAccommodation/CreateAccommodation.vue'),
     },
     {
-        path: 'listing-all',
-        name: 'page-listing-all',
+        path: 'listings',
+        name: 'page-listings',
         meta: {
             requiresAuth: true,
         },
         component: () => import('@/src/views/hosting/listings/MyListings.vue'),
-    }
+    },
+    {
+        path: 'listings/:listingId',
+        name: 'page-listings-show',
+        meta: {
+            requiresAuth: true,
+        },
+        component: () => import('@/src/views/hosting/listings/ShowListing.vue'),
+    },
 ];
 
 export default routes;

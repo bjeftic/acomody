@@ -7,9 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Models\AccommodationDraft;
 use App\Models\AccommodationType;
-use App\Enums\AccommodationOccupation;
+use App\Enums\Accommodation\AccommodationOccupation;
 use App\Jobs\CreateAccommodation;
 use Illuminate\Http\RedirectResponse;
+use App\Models\Location;
 
 class AccommodationDraftController
 {
@@ -53,7 +54,7 @@ class AccommodationDraftController
 
         $draftData = [];
         $draftData['accommodation_type'] = AccommodationType::find($accommodationDraft->data['accommodation_type'])->name ?? null;
-        $draftData['accommodation_occupation'] = AccommodationOccupation::fromId($accommodationDraft->data['accommodation_occupation'])?->label() ?? null;
+        $draftData['accommodation_occupation'] = AccommodationOccupation::from($accommodationDraft->data['accommodation_occupation'] ?? null)->label() ?? null;
         $draftData['title'] = $accommodationDraft->data['title'] ?? null;
         $draftData['description'] = $accommodationDraft->data['description'] ?? null;
         $draftData['website'] = $accommodationDraft->data['website'] ?? null;
@@ -74,6 +75,7 @@ class AccommodationDraftController
         $accommodationDraft->draftData = $draftData;
         // dd($accommodationDraft);
         return view('super-admin.accommodation-drafts.view')
+            ->with('locationOptions', Location::pluck('name', 'id'))
             ->with('accommodationDraft', $accommodationDraft);
     }
 
@@ -83,14 +85,23 @@ class AccommodationDraftController
      * @param int $id
      * @return RedirectResponse
      */
-    public function approve($id): RedirectResponse
+    public function approve(Request $request, $id): RedirectResponse
     {
+        $validated = $request->validate([
+            'location_id' => 'required|exists:locations,id',
+        ]);
+        $locationId = $validated['location_id'];
         $accommodationDraft = AccommodationDraft::whereId($id)->firstOrFail();
 
-        CreateAccommodation::dispatch($accommodationDraft, userOrFail()->id)->onQueue('accommodation-queue');
+        $accommodationDraft->update(['status' => 'processing']);
+
+        \Log::channel('queue')->info('Approving accommodation draft', [
+            'draft_id' => $accommodationDraft->id,
+        ]);
+        CreateAccommodation::dispatch($accommodationDraft, $locationId,userOrFail()->id)->onQueue('accommodation-queue');
 
         return redirect()
-            ->route('super-admin.accommodation-drafts.index')
+            ->route('admin.accommodation-drafts.index')
             ->with('success', 'Accommodation draft approved and accommodation creation job dispatched.');
     }
 }

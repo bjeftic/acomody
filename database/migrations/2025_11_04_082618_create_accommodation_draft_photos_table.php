@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('accommodation_draft_photos', function (Blueprint $table) {
             $table->id();
-            $table->foreignUuid('accommodation_draft_id')
+            $table->foreignUlid('accommodation_draft_id')
                 ->constrained('accommodation_drafts')
                 ->onDelete('cascade');
 

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('amenities', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->json('name'); // Multilingual support
+            $table->json('name');
             $table->string('icon')->nullable();
             $table->enum('category', ['property', 'unit', 'both'])->default('both');
             $table->enum('type', [
@@ -30,6 +30,7 @@ return new class extends Migration
                 'family',
                 'workspace'
             ])->default('general');
+            $table->boolean('is_feeable')->default(false);
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
@@ -64,6 +65,7 @@ return new class extends Migration
                 'icon' => 'WiFi',
                 'category' => 'both',
                 'type' => 'general',
+                'is_feeable' => true,
                 'sort_order' => 1
             ],
             [
@@ -72,6 +74,7 @@ return new class extends Migration
                 'icon' => 'Snowflake',
                 'category' => 'both',
                 'type' => 'general',
+                'is_feeable' => true,
                 'sort_order' => 2
             ],
             [
@@ -80,23 +83,17 @@ return new class extends Migration
                 'icon' => 'Heating',
                 'category' => 'both',
                 'type' => 'general',
+                'is_feeable' => true,
                 'sort_order' => 3
             ],
             [
-                'slug' => 'free-parking',
-                'name' => json_encode(['en' => 'Free Parking', 'sr' => 'Besplatan parking']),
-                'icon' => 'FreeParking',
+                'slug' => 'parking',
+                'name' => json_encode(['en' => 'Parking', 'sr' => 'Parking']),
+                'icon' => 'Parking',
                 'category' => 'property',
                 'type' => 'general',
+                'is_feeable' => true,
                 'sort_order' => 4
-            ],
-            [
-                'slug' => 'paid-parking',
-                'name' => json_encode(['en' => 'Paid Parking', 'sr' => 'Parking uz naplatu']),
-                'icon' => 'PaidParking',
-                'category' => 'property',
-                'type' => 'general',
-                'sort_order' => 5
             ],
             [
                 'slug' => 'elevator',
@@ -104,6 +101,7 @@ return new class extends Migration
                 'icon' => 'Elevator',
                 'category' => 'property',
                 'type' => 'general',
+                'is_feeable' => false,
                 'sort_order' => 6
             ],
             [
@@ -112,6 +110,7 @@ return new class extends Migration
                 'icon' => 'Washer',
                 'category' => 'both',
                 'type' => 'general',
+                'is_feeable' => true,
                 'sort_order' => 7
             ],
             [
@@ -120,6 +119,7 @@ return new class extends Migration
                 'icon' => 'Dryer',
                 'category' => 'both',
                 'type' => 'general',
+                'is_feeable' => true,
                 'sort_order' => 8
             ],
 
@@ -132,6 +132,7 @@ return new class extends Migration
                 'icon' => 'Kitchen',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 10
             ],
             [
@@ -140,6 +141,7 @@ return new class extends Migration
                 'icon' => 'Kitchenette',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 11
             ],
             [
@@ -148,6 +150,7 @@ return new class extends Migration
                 'icon' => 'Refrigerator',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 12
             ],
             [
@@ -156,6 +159,7 @@ return new class extends Migration
                 'icon' => 'Microwave',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 13
             ],
             [
@@ -164,6 +168,7 @@ return new class extends Migration
                 'icon' => 'Oven',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 14
             ],
             [
@@ -172,6 +177,7 @@ return new class extends Migration
                 'icon' => 'Stove',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 15
             ],
             [
@@ -180,6 +186,7 @@ return new class extends Migration
                 'icon' => 'Dishwasher',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 16
             ],
             [
@@ -188,6 +195,7 @@ return new class extends Migration
                 'icon' => 'CoffeeMaker',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 17
             ],
             [
@@ -196,6 +204,7 @@ return new class extends Migration
                 'icon' => 'Kettle',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 18
             ],
             [
@@ -204,6 +213,7 @@ return new class extends Migration
                 'icon' => 'Toaster',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 19
             ],
             [
@@ -212,6 +222,7 @@ return new class extends Migration
                 'icon' => 'DiningTable',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 20
             ],
             [
@@ -220,6 +231,7 @@ return new class extends Migration
                 'icon' => 'CookingBasics',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 21
             ],
             [
@@ -228,6 +240,7 @@ return new class extends Migration
                 'icon' => 'DishesSilverware',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 22
             ],
             [
@@ -236,6 +249,7 @@ return new class extends Migration
                 'icon' => 'WineGlasses',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 23
             ],
             [
@@ -244,6 +258,7 @@ return new class extends Migration
                 'icon' => 'Freezer',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => false,
                 'sort_order' => 24
             ],
             [
@@ -252,6 +267,7 @@ return new class extends Migration
                 'icon' => 'MiniBar',
                 'category' => 'unit',
                 'type' => 'kitchen',
+                'is_feeable' => true,
                 'sort_order' => 25
             ],
 
@@ -264,6 +280,7 @@ return new class extends Migration
                 'icon' => 'PrivateBathroom',
                 'category' => 'unit',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 30
             ],
             [
@@ -272,6 +289,7 @@ return new class extends Migration
                 'icon' => 'SharedBathroom',
                 'category' => 'property',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 31
             ],
             [
@@ -280,6 +298,7 @@ return new class extends Migration
                 'icon' => 'Shower',
                 'category' => 'unit',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 32
             ],
             [
@@ -288,6 +307,7 @@ return new class extends Migration
                 'icon' => 'Bathtub',
                 'category' => 'unit',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 33
             ],
             [
@@ -296,6 +316,7 @@ return new class extends Migration
                 'icon' => 'HotWater',
                 'category' => 'both',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 34
             ],
             [
@@ -304,6 +325,7 @@ return new class extends Migration
                 'icon' => 'HairDryer',
                 'category' => 'unit',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 35
             ],
             [
@@ -312,6 +334,7 @@ return new class extends Migration
                 'icon' => 'Shampoo',
                 'category' => 'unit',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 36
             ],
             [
@@ -320,6 +343,7 @@ return new class extends Migration
                 'icon' => 'BodySoap',
                 'category' => 'unit',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 37
             ],
             [
@@ -328,6 +352,7 @@ return new class extends Migration
                 'icon' => 'Towels',
                 'category' => 'unit',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 38
             ],
             [
@@ -336,6 +361,7 @@ return new class extends Migration
                 'icon' => 'ToiletPaper',
                 'category' => 'unit',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 39
             ],
             [
@@ -344,6 +370,7 @@ return new class extends Migration
                 'icon' => 'Bidet',
                 'category' => 'unit',
                 'type' => 'bathroom',
+                'is_feeable' => false,
                 'sort_order' => 40
             ],
 
@@ -356,6 +383,7 @@ return new class extends Migration
                 'icon' => 'BedLinens',
                 'category' => 'unit',
                 'type' => 'bedroom',
+                'is_feeable' => true,
                 'sort_order' => 45
             ],
             [
@@ -364,6 +392,7 @@ return new class extends Migration
                 'icon' => 'ExtraPillows',
                 'category' => 'unit',
                 'type' => 'bedroom',
+                'is_feeable' => true,
                 'sort_order' => 46
             ],
             [
@@ -372,6 +401,7 @@ return new class extends Migration
                 'icon' => 'Hangers',
                 'category' => 'unit',
                 'type' => 'bedroom',
+                'is_feeable' => false,
                 'sort_order' => 47
             ],
             [
@@ -380,6 +410,7 @@ return new class extends Migration
                 'icon' => 'Iron',
                 'category' => 'unit',
                 'type' => 'bedroom',
+                'is_feeable' => false,
                 'sort_order' => 48
             ],
             [
@@ -388,6 +419,7 @@ return new class extends Migration
                 'icon' => 'IronBoard',
                 'category' => 'unit',
                 'type' => 'bedroom',
+                'is_feeable' => false,
                 'sort_order' => 49
             ],
             [
@@ -396,6 +428,7 @@ return new class extends Migration
                 'icon' => 'Wardrobe',
                 'category' => 'unit',
                 'type' => 'bedroom',
+                'is_feeable' => false,
                 'sort_order' => 50
             ],
             [
@@ -404,6 +437,7 @@ return new class extends Migration
                 'icon' => 'BlackoutCurtains',
                 'category' => 'unit',
                 'type' => 'bedroom',
+                'is_feeable' => false,
                 'sort_order' => 51
             ],
             [
@@ -412,6 +446,7 @@ return new class extends Migration
                 'icon' => 'Safe',
                 'category' => 'unit',
                 'type' => 'bedroom',
+                'is_feeable' => true,
                 'sort_order' => 52
             ],
 
@@ -424,6 +459,7 @@ return new class extends Migration
                 'icon' => 'TV',
                 'category' => 'unit',
                 'type' => 'entertainment',
+                'is_feeable' => false,
                 'sort_order' => 55
             ],
             [
@@ -432,6 +468,7 @@ return new class extends Migration
                 'icon' => 'CableTV',
                 'category' => 'unit',
                 'type' => 'entertainment',
+                'is_feeable' => false,
                 'sort_order' => 56
             ],
             [
@@ -440,6 +477,7 @@ return new class extends Migration
                 'icon' => 'Netflix',
                 'category' => 'unit',
                 'type' => 'entertainment',
+                'is_feeable' => true,
                 'sort_order' => 57
             ],
             [
@@ -448,6 +486,7 @@ return new class extends Migration
                 'icon' => 'SoundSystem',
                 'category' => 'unit',
                 'type' => 'entertainment',
+                'is_feeable' => false,
                 'sort_order' => 58
             ],
             [
@@ -456,6 +495,7 @@ return new class extends Migration
                 'icon' => 'BoardGames',
                 'category' => 'both',
                 'type' => 'entertainment',
+                'is_feeable' => false,
                 'sort_order' => 59
             ],
             [
@@ -464,6 +504,7 @@ return new class extends Migration
                 'icon' => 'Books',
                 'category' => 'unit',
                 'type' => 'entertainment',
+                'is_feeable' => false,
                 'sort_order' => 60
             ],
 
@@ -476,6 +517,7 @@ return new class extends Migration
                 'icon' => 'Pool',
                 'category' => 'property',
                 'type' => 'outdoor',
+                'is_feeable' => true,
                 'sort_order' => 65
             ],
             [
@@ -484,6 +526,7 @@ return new class extends Migration
                 'icon' => 'HotTub',
                 'category' => 'both',
                 'type' => 'outdoor',
+                'is_feeable' => true,
                 'sort_order' => 66
             ],
             [
@@ -492,6 +535,7 @@ return new class extends Migration
                 'icon' => 'Sauna',
                 'category' => 'property',
                 'type' => 'outdoor',
+                'is_feeable' => true,
                 'sort_order' => 67
             ],
             [
@@ -500,6 +544,7 @@ return new class extends Migration
                 'icon' => 'Garden',
                 'category' => 'property',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 68
             ],
             [
@@ -508,6 +553,7 @@ return new class extends Migration
                 'icon' => 'Balcony',
                 'category' => 'unit',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 69
             ],
             [
@@ -516,6 +562,7 @@ return new class extends Migration
                 'icon' => 'Terrace',
                 'category' => 'both',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 70
             ],
             [
@@ -524,6 +571,7 @@ return new class extends Migration
                 'icon' => 'Patio',
                 'category' => 'property',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 71
             ],
             [
@@ -532,6 +580,7 @@ return new class extends Migration
                 'icon' => 'BBQGrill',
                 'category' => 'property',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 72
             ],
             [
@@ -540,6 +589,7 @@ return new class extends Migration
                 'icon' => 'OutdoorFurniture',
                 'category' => 'property',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 73
             ],
             [
@@ -548,6 +598,7 @@ return new class extends Migration
                 'icon' => 'BeachAccess',
                 'category' => 'property',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 74
             ],
             [
@@ -556,6 +607,7 @@ return new class extends Migration
                 'icon' => 'Waterfront',
                 'category' => 'property',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 75
             ],
             [
@@ -564,6 +616,7 @@ return new class extends Migration
                 'icon' => 'LakeAccess',
                 'category' => 'property',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 76
             ],
             [
@@ -572,6 +625,7 @@ return new class extends Migration
                 'icon' => 'SkiInSkiOut',
                 'category' => 'property',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 77
             ],
 
@@ -584,6 +638,7 @@ return new class extends Migration
                 'icon' => 'BreakfastIncluded',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => false,
                 'sort_order' => 80
             ],
             [
@@ -592,6 +647,7 @@ return new class extends Migration
                 'icon' => 'Gym',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => true,
                 'sort_order' => 81
             ],
             [
@@ -600,6 +656,7 @@ return new class extends Migration
                 'icon' => 'Spa',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => true,
                 'sort_order' => 82
             ],
             [
@@ -608,6 +665,7 @@ return new class extends Migration
                 'icon' => 'Restaurant',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => true,
                 'sort_order' => 83
             ],
             [
@@ -616,6 +674,7 @@ return new class extends Migration
                 'icon' => 'Bar',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => true,
                 'sort_order' => 84
             ],
             [
@@ -624,6 +683,7 @@ return new class extends Migration
                 'icon' => 'RoomService',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => true,
                 'sort_order' => 85
             ],
             [
@@ -632,6 +692,7 @@ return new class extends Migration
                 'icon' => 'Concierge',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => true,
                 'sort_order' => 86
             ],
             [
@@ -640,6 +701,7 @@ return new class extends Migration
                 'icon' => 'LaundryService',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => true,
                 'sort_order' => 87
             ],
             [
@@ -648,15 +710,8 @@ return new class extends Migration
                 'icon' => 'LuggageStorage',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => true,
                 'sort_order' => 88
-            ],
-            [
-                'slug' => 'cleaning-service',
-                'name' => json_encode(['en' => 'Cleaning Service', 'sr' => 'Usluga čišćenja']),
-                'icon' => 'CleaningService',
-                'category' => 'property',
-                'type' => 'services',
-                'sort_order' => 89
             ],
             [
                 'slug' => '24-hour-reception',
@@ -664,6 +719,7 @@ return new class extends Migration
                 'icon' => '24HourReception',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => false,
                 'sort_order' => 90
             ],
             [
@@ -672,6 +728,7 @@ return new class extends Migration
                 'icon' => 'AirportShuttle',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => true,
                 'sort_order' => 91
             ],
 
@@ -684,6 +741,7 @@ return new class extends Migration
                 'icon' => 'SmokeAlarm',
                 'category' => 'both',
                 'type' => 'safety',
+                'is_feeable' => false,
                 'sort_order' => 95
             ],
             [
@@ -692,6 +750,7 @@ return new class extends Migration
                 'icon' => 'CarbonMonoxideAlarm',
                 'category' => 'both',
                 'type' => 'safety',
+                'is_feeable' => false,
                 'sort_order' => 96
             ],
             [
@@ -700,6 +759,7 @@ return new class extends Migration
                 'icon' => 'FireExtinguisher',
                 'category' => 'both',
                 'type' => 'safety',
+                'is_feeable' => false,
                 'sort_order' => 97
             ],
             [
@@ -708,6 +768,7 @@ return new class extends Migration
                 'icon' => 'FirstAidKit',
                 'category' => 'both',
                 'type' => 'safety',
+                'is_feeable' => false,
                 'sort_order' => 98
             ],
             [
@@ -716,6 +777,7 @@ return new class extends Migration
                 'icon' => 'SecurityCameras',
                 'category' => 'property',
                 'type' => 'safety',
+                'is_feeable' => false,
                 'sort_order' => 99
             ],
             [
@@ -724,6 +786,7 @@ return new class extends Migration
                 'icon' => 'KeypadLock',
                 'category' => 'unit',
                 'type' => 'safety',
+                'is_feeable' => false,
                 'sort_order' => 100
             ],
 
@@ -736,6 +799,7 @@ return new class extends Migration
                 'icon' => 'WheelchairAccessible',
                 'category' => 'property',
                 'type' => 'accessibility',
+                'is_feeable' => false,
                 'sort_order' => 105
             ],
             [
@@ -744,6 +808,7 @@ return new class extends Migration
                 'icon' => 'StepFreeAccess',
                 'category' => 'property',
                 'type' => 'accessibility',
+                'is_feeable' => false,
                 'sort_order' => 106
             ],
             [
@@ -752,6 +817,7 @@ return new class extends Migration
                 'icon' => 'WideDoorways',
                 'category' => 'unit',
                 'type' => 'accessibility',
+                'is_feeable' => false,
                 'sort_order' => 107
             ],
             [
@@ -760,6 +826,7 @@ return new class extends Migration
                 'icon' => 'AccessibleBathroom',
                 'category' => 'unit',
                 'type' => 'accessibility',
+                'is_feeable' => false,
                 'sort_order' => 108
             ],
 
@@ -772,6 +839,7 @@ return new class extends Migration
                 'icon' => 'PetsAllowed',
                 'category' => 'property',
                 'type' => 'family',
+                'is_feeable' => true,
                 'sort_order' => 110
             ],
             [
@@ -780,6 +848,7 @@ return new class extends Migration
                 'icon' => 'ChildrenWelcome',
                 'category' => 'property',
                 'type' => 'family',
+                'is_feeable' => false,
                 'sort_order' => 111
             ],
             [
@@ -788,6 +857,7 @@ return new class extends Migration
                 'icon' => 'BabyCot',
                 'category' => 'unit',
                 'type' => 'family',
+                'is_feeable' => false,
                 'sort_order' => 112
             ],
             [
@@ -796,6 +866,7 @@ return new class extends Migration
                 'icon' => 'HighChair',
                 'category' => 'unit',
                 'type' => 'family',
+                'is_feeable' => false,
                 'sort_order' => 113
             ],
             [
@@ -804,6 +875,7 @@ return new class extends Migration
                 'icon' => 'ChildrensBooksToys',
                 'category' => 'unit',
                 'type' => 'family',
+                'is_feeable' => false,
                 'sort_order' => 114
             ],
             [
@@ -812,6 +884,7 @@ return new class extends Migration
                 'icon' => 'BabySafetyGates',
                 'category' => 'unit',
                 'type' => 'family',
+                'is_feeable' => false,
                 'sort_order' => 115
             ],
             [
@@ -820,6 +893,7 @@ return new class extends Migration
                 'icon' => 'Playground',
                 'category' => 'property',
                 'type' => 'family',
+                'is_feeable' => true,
                 'sort_order' => 116
             ],
 
@@ -832,6 +906,7 @@ return new class extends Migration
                 'icon' => 'DedicatedWorkspace',
                 'category' => 'unit',
                 'type' => 'workspace',
+                'is_feeable' => true,
                 'sort_order' => 120
             ],
             [
@@ -840,6 +915,7 @@ return new class extends Migration
                 'icon' => 'Desk',
                 'category' => 'unit',
                 'type' => 'workspace',
+                'is_feeable' => false,
                 'sort_order' => 121
             ],
             [
@@ -848,6 +924,7 @@ return new class extends Migration
                 'icon' => 'OfficeChair',
                 'category' => 'unit',
                 'type' => 'workspace',
+                'is_feeable' => false,
                 'sort_order' => 122
             ],
             [
@@ -856,6 +933,7 @@ return new class extends Migration
                 'icon' => 'Printer',
                 'category' => 'unit',
                 'type' => 'workspace',
+                'is_feeable' => false,
                 'sort_order' => 123
             ],
             [
@@ -864,6 +942,7 @@ return new class extends Migration
                 'icon' => 'EthernetConnection',
                 'category' => 'unit',
                 'type' => 'workspace',
+                'is_feeable' => false,
                 'sort_order' => 124
             ],
 
@@ -876,6 +955,7 @@ return new class extends Migration
                 'icon' => 'LongTermStaysAllowed',
                 'category' => 'property',
                 'type' => 'general',
+                'is_feeable' => false,
                 'sort_order' => 130
             ],
             [
@@ -884,6 +964,7 @@ return new class extends Migration
                 'icon' => 'SelfCheckIn',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => false,
                 'sort_order' => 131
             ],
             [
@@ -892,6 +973,7 @@ return new class extends Migration
                 'icon' => 'Lockbox',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => false,
                 'sort_order' => 132
             ],
             [
@@ -900,6 +982,7 @@ return new class extends Migration
                 'icon' => 'Doorman',
                 'category' => 'property',
                 'type' => 'services',
+                'is_feeable' => false,
                 'sort_order' => 133
             ],
             [
@@ -908,6 +991,7 @@ return new class extends Migration
                 'icon' => 'EVCharger',
                 'category' => 'property',
                 'type' => 'general',
+                'is_feeable' => true,
                 'sort_order' => 134
             ],
             [
@@ -916,6 +1000,7 @@ return new class extends Migration
                 'icon' => 'BikeStorage',
                 'category' => 'property',
                 'type' => 'general',
+                'is_feeable' => true,
                 'sort_order' => 135
             ],
             [
@@ -924,6 +1009,7 @@ return new class extends Migration
                 'icon' => 'Piano',
                 'category' => 'unit',
                 'type' => 'entertainment',
+                'is_feeable' => false,
                 'sort_order' => 136
             ],
             [
@@ -932,6 +1018,7 @@ return new class extends Migration
                 'icon' => 'Fireplace',
                 'category' => 'unit',
                 'type' => 'general',
+                'is_feeable' => false,
                 'sort_order' => 137
             ],
             [
@@ -940,6 +1027,7 @@ return new class extends Migration
                 'icon' => 'CeilingFan',
                 'category' => 'unit',
                 'type' => 'general',
+                'is_feeable' => false,
                 'sort_order' => 138
             ],
             [
@@ -948,6 +1036,7 @@ return new class extends Migration
                 'icon' => 'MosquitoNet',
                 'category' => 'unit',
                 'type' => 'general',
+                'is_feeable' => false,
                 'sort_order' => 139
             ],
             [
@@ -956,6 +1045,7 @@ return new class extends Migration
                 'icon' => 'LakeView',
                 'category' => 'unit',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 140
             ],
             [
@@ -964,6 +1054,7 @@ return new class extends Migration
                 'icon' => 'MountainView',
                 'category' => 'unit',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 141
             ],
             [
@@ -972,6 +1063,7 @@ return new class extends Migration
                 'icon' => 'SeaView',
                 'category' => 'unit',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 142
             ],
             [
@@ -980,6 +1072,7 @@ return new class extends Migration
                 'icon' => 'CityView',
                 'category' => 'unit',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 143
             ],
             [
@@ -988,31 +1081,8 @@ return new class extends Migration
                 'icon' => 'GardenView',
                 'category' => 'unit',
                 'type' => 'outdoor',
+                'is_feeable' => false,
                 'sort_order' => 144
-            ],
-            [
-                'slug' => 'smoking-allowed',
-                'name' => json_encode(['en' => 'Smoking Allowed', 'sr' => 'Dozvoljeno pušenje']),
-                'icon' => 'SmokingAllowed',
-                'category' => 'property',
-                'type' => 'general',
-                'sort_order' => 145
-            ],
-            [
-                'slug' => 'non-smoking',
-                'name' => json_encode(['en' => 'Non-smoking', 'sr' => 'Zabranjeno pušenje']),
-                'icon' => 'NonSmoking',
-                'category' => 'property',
-                'type' => 'general',
-                'sort_order' => 146
-            ],
-            [
-                'slug' => 'parties-events-allowed',
-                'name' => json_encode(['en' => 'Parties & Events Allowed', 'sr' => 'Dozvoljene žurke i događaji']),
-                'icon' => 'PartiesEventsAllowed',
-                'category' => 'property',
-                'type' => 'general',
-                'sort_order' => 147
             ],
         ];
 

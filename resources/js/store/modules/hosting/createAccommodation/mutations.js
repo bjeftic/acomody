@@ -33,4 +33,9 @@ export default {
     [types.SET_CREATE_ACCOMMODATION_LOADING](state, isLoading) {
         state.createAccommodationLoading = isLoading;
     },
+    [types.RESET_ACCOMMODATION_DRAFT](state) {
+        state.accommodationDraftId = null;
+        state.accommodationDraft = {};
+        state.currentStep = 1;
+    },
 };

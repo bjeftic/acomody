@@ -38,6 +38,8 @@ class User extends Model implements MustVerifyEmail, AuthenticatableContract, Au
         'last_login_at',
         'last_login_ip',
         'last_login_user_agent',
+        'registration_ip',
+        'preferred_currency',
         'created_at',
         'updated_at',
     ];

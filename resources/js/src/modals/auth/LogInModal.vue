@@ -239,7 +239,6 @@ export default {
                     // Just close modal and resolve promise
                     // Middleware will handle the redirect
                     this.ok();
-                    console.log(res);
                     if(res.data.meta.refresh_page) {
                         window.location.reload();
                     }

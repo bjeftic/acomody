@@ -26,8 +26,11 @@ return new class extends Migration
             $table->text('last_login_user_agent')->nullable()->after('last_login_ip');
             $table->ipAddress('registration_ip')->nullable()->after('last_login_user_agent');
 
+            // Currency preference
+            $table->string('preferred_currency')->nullable()->after('registration_ip');
+
             // Privacy and terms
-            $table->timestamp('terms_accepted_at')->nullable()->after('registration_ip');
+            $table->timestamp('terms_accepted_at')->nullable()->after('preferred_currency');
             $table->timestamp('privacy_policy_accepted_at')->nullable()->after('terms_accepted_at');
             $table->boolean('newsletter_subscription')->default(false)->after('privacy_policy_accepted_at');
 

@@ -881,6 +881,58 @@
                 }
             }
         },
+        "/fees/types": {
+            "get": {
+                "tags": [
+                    "Fee"
+                ],
+                "summary": "Get fee types list",
+                "description": "Returns a list of all fee types",
+                "operationId": "getFeeTypes",
+                "responses": {
+                    "200": {
+                        "description": "Fee types retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Fee types retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/FeeType"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/users": {
             "get": {
                 "tags": [
@@ -1164,6 +1216,23 @@
                 },
                 "type": "object"
             },
+            "FeeType": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "cleaning"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Cleaning Fee"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "A one-time fee for cleaning the accommodation after your stay."
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "properties": {
                     "id": {
@@ -1227,6 +1296,10 @@
         {
             "name": "Authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "Fee",
+            "description": "Fee"
         },
         {
             "name": "User",

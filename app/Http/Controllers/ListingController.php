@@ -8,6 +8,7 @@ use App\Http\Requests\Listing\IndexRequest;
 use App\Http\Resources\ListingResource;
 use App\Services\ListingService;
 use App\Http\Support\ApiResponse;
+use App\Models\Listing;
 
 class ListingController extends Controller
 {
@@ -93,6 +94,56 @@ class ListingController extends Controller
         return ApiResponse::success(
             'Listings retrieved successfully',
             ListingResource::collection($listings)
+        );
+    }
+
+    /**
+     * Get a specific listing by ID
+     * @OA\Get(
+     *     path="/listings/{listing}",
+     *     operationId="getListingById",
+     *     tags={"Listing"},
+     *     summary="Get a specific listing by ID",
+     *     description="Retrieves a specific listing for the authenticated user by its ID",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="listing",
+     *         in="path",
+     *         description="ID of the listing to retrieve",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Listing retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="data", ref="#/components/schemas/Listing")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Listing not found"
+     *     )
+     * )
+     */
+    public function show(Listing $listing)
+    {
+        $listing = $this->listingService->getListingById(
+            userOrFail()->id,
+            $listing->id
+        );
+
+        if (!$listing) {
+            return ApiResponse::error('Listing not found', null, null, 404);
+        }
+
+        return ApiResponse::success(
+            'Listing retrieved successfully',
+            new ListingResource($listing)
         );
     }
 }

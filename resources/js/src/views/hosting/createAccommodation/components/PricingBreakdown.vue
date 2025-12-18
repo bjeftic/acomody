@@ -14,7 +14,7 @@
                 Base price
             </span>
             <span class="text-sm font-medium text-gray-900 dark:text-white">
-                {{ currency }}{{ basePrice || 0 }}
+                {{ formatPrice(basePrice, currency, true, 'code') }}
             </span>
         </div>
 
@@ -31,7 +31,11 @@
                     @click="$emit('toggle-info')"
                     class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <svg
+                        class="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                    >
                         <path
                             fill-rule="evenodd"
                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
@@ -41,7 +45,7 @@
                 </button>
             </div>
             <span class="text-sm font-medium text-gray-900 dark:text-white">
-                {{ currency }}{{ serviceFee }}
+                {{ formatPrice(serviceFee, currency, true, 'code') }}
             </span>
         </div>
 
@@ -51,13 +55,14 @@
                 Guest pays
             </span>
             <span class="text-base font-semibold text-gray-900 dark:text-white">
-                {{ currency }}{{ guestPaysTotal }}
+                {{ formatPrice(guestPaysTotal, currency, true, 'code') }}
             </span>
         </div>
     </div>
 </template>
 
 <script>
+import { formatPrice } from "@/utils/helpers";
 export default {
     name: "PricingBreakdown",
     props: {
@@ -70,8 +75,8 @@ export default {
             required: true,
         },
         currency: {
-            type: String,
-            default: "$",
+            type: Object,
+            required: true,
         },
         guestServiceFeePercentage: {
             type: Number,
@@ -94,6 +99,9 @@ export default {
         guestPaysTotal() {
             return this.basePrice + this.serviceFee;
         },
+    },
+    methods: {
+        formatPrice,
     },
 };
 </script>

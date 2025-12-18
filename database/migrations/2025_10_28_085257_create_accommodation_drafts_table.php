@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('accommodation_drafts', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->ulid('id')->primary();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->integer('current_step')->default(1);
-            $table->enum('status', ['draft', 'waiting_for_approval', 'published'])->default('draft');
+            $table->enum('status', ['draft', 'waiting_for_approval', 'processing', 'published'])->default('draft');
             $table->json('data'); // Store draft data as JSON
             $table->timestamp('last_saved_at')->nullable();
             $table->timestamps();

@@ -71,7 +71,7 @@
                     <!-- My Listings Link -->
                      <action-card
                         title="My listings"
-                        @click="$router.push({ name: 'page-listing-all' })"
+                        @click="$router.push({ name: 'page-listings' })"
                     >
                         <template #icon>
                             <ArchiveIcon />
