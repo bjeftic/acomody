@@ -12,6 +12,9 @@ use App\Http\Controllers\AccommodationTypeController;
 use App\Http\Controllers\AccommodationDraftController;
 use App\Http\Controllers\AccommodationDraftPhotoController;
 use App\Http\Controllers\AmenityController;
+use App\Http\Controllers\FeeController;
+use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\ListingController;
 
 // ============================================
 // PUBLIC ROUTES
@@ -27,6 +30,9 @@ Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
 
 Route::post('/reset-password', [NewPasswordController::class, 'store'])
     ->name('api.password.store');
+
+Route::post('/currency/set', [CurrencyController::class, 'set'])
+        ->name('api.currency.set');
 
 // ============================================
 // PROTECTED ROUTES (auth:sanctum)
@@ -48,6 +54,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/amenities', [AmenityController::class, 'index'])
         ->name('api.amenities');
+
+    Route::prefix('/fees')->name('api.fees.')->group(function () {
+        Route::get('/fee-types', [FeeController::class, 'indexFeeTypes'])
+            ->name('fee-types');
+        Route::get('/charge-types', [FeeController::class, 'indexFeeChargeTypes'])
+            ->name('charge-types');
+    });
 
     Route::prefix('accommodation-drafts')->name('api.accommodation.drafts.')->group(function () {
         Route::get('', [AccommodationDraftController::class, 'index'])
@@ -86,5 +99,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
                     ->name('accommodation-draft.photos.destroy');
             });
         });
+    });
+
+    Route::prefix('listings')->name('api.listings')->group(function () {
+        Route::get('', [ListingController::class, 'index'])
+            ->name('index');
+        Route::get('{listing}', [ListingController::class, 'show'])
+            ->name('show');
     });
 });

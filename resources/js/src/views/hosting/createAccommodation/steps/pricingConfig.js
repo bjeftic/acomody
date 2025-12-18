@@ -16,21 +16,10 @@ export const pricingConfig = {
         max: 120,
     },
 
-    // Days of week for minimum stay
-    daysOfWeek: [
-        { id: "monday", name: "Monday" },
-        { id: "tuesday", name: "Tuesday" },
-        { id: "wednesday", name: "Wednesday" },
-        { id: "thursday", name: "Thursday" },
-        { id: "friday", name: "Friday" },
-        { id: "saturday", name: "Saturday" },
-        { id: "sunday", name: "Sunday" },
-    ],
-
     // Booking types
     bookingTypes: [
         {
-            id: "instant",
+            id: "instant-booking",
             name: "Instant Booking",
             icon: "⚡",
             description:
@@ -78,15 +67,15 @@ export const pricingConfig = {
 
     // Default values for new listings
     defaults: {
-        basePrice: 50,
-        weekendPrice: 0,
-        hasWeekendPrice: false,
-        weeklyDiscount: 0,
-        monthlyDiscount: 0,
+        basePrice: 5000,
+        // weekendPrice: 0,
+        // hasWeekendPrice: false,
+        // weeklyDiscount: 0,
+        // monthlyDiscount: 0,
         minStay: 1,
-        hasDaySpecificMinStay: false,
-        daySpecificMinStay: {},
-        bookingType: "instant",
+        // hasDaySpecificMinStay: false,
+        // daySpecificMinStay: {},
+        bookingType: "instant-booking",
     },
 
     // Pricing strategies

@@ -37,7 +37,7 @@ class AccommodationDraftPhotoController extends Controller
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
      *     ),
      *    @OA\Response(
      *         response=200,
@@ -89,7 +89,7 @@ class AccommodationDraftPhotoController extends Controller
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
      *     ),
      *     @OA\RequestBody(
      *         required=true,
@@ -192,14 +192,14 @@ class AccommodationDraftPhotoController extends Controller
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
      *     ),
      *     @OA\Parameter(
      *         name="accommodationDraft",
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
      *     ),
      *     @OA\RequestBody(
      *         required=true,
@@ -267,7 +267,7 @@ class AccommodationDraftPhotoController extends Controller
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
      *     ),
      *     @OA\Response(response=200, description="Photo deleted successfully")
      * )
@@ -319,7 +319,7 @@ class AccommodationDraftPhotoController extends Controller
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="uuid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
      *     ),
      *     @OA\Response(response=200, description="Statistics retrieved successfully")
      * )

@@ -1,3 +1,4 @@
+
 import { createRouter, createWebHistory } from 'vue-router';
 import hostingRoutes from '@/src/views/hosting/router';
 import store from '@/store';
@@ -92,7 +93,11 @@ router.beforeEach((to, from, next) => {
                 }
             }).then(() => {
                 authModalShowing = false;
-                router.push(to.fullPath);
+                router.push(to.fullPath).then(() => {
+                    state.mainLoading = true;
+                }).finally(() => {
+                    window.location.reload();
+                });
             }).catch(() => {
                 authModalShowing = false;
             });

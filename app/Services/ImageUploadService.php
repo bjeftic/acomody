@@ -263,7 +263,7 @@ class ImageUploadService
     protected function generateFilename(UploadedFile $file): string
     {
         $extension = $file->getClientOriginalExtension();
-        return Str::uuid() . '.' . $extension;
+        return Str::ulid() . '.' . $extension;
     }
 
     /**

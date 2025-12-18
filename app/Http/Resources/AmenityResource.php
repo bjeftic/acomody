@@ -9,18 +9,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class AmenityResource extends JsonResource
 {
     /**
- * @OA\Schema(
- *     schema="Amenity",
- *     type="object",
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="slug", type="string", example="wifi"),
- *     @OA\Property(property="name", type="string", example="WiFi"),
- *     @OA\Property(property="icon", type="string", example="wifi"),
- *     @OA\Property(property="category", type="string", example="internet"),
- *     @OA\Property(property="type", type="string", example="boolean"),
- *     @OA\Property(property="is_active", type="boolean", example=true)
- * )
- */
+     * @OA\Schema(
+     *     schema="Amenity",
+     *     type="object",
+     *     @OA\Property(property="id", type="integer", example=1),
+     *     @OA\Property(property="slug", type="string", example="wifi"),
+     *     @OA\Property(property="name", type="string", example="WiFi"),
+     *     @OA\Property(property="icon", type="string", example="wifi"),
+     *     @OA\Property(property="category", type="string", example="internet"),
+     *     @OA\Property(property="type", type="string", example="boolean"),
+     *     @OA\Property(property="is_feeable", type="boolean", example=false),
+     *     @OA\Property(property="is_active", type="boolean", example=true)
+     * )
+     */
     public function toArray(Request $request): array
     {
         return [
@@ -30,6 +31,7 @@ class AmenityResource extends JsonResource
             'icon' => $this->icon,
             'category' => $this->category,
             'type' => $this->type,
+            'is_feeable' => $this->is_feeable,
             'is_active' => $this->is_active,
         ];
     }

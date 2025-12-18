@@ -127,6 +127,14 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'queue' => [
+            'driver' => 'daily',
+            // 'permission' => 0660,
+            'path' => storage_path("logs/queue.log"),
+            'days' => 7,
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+
     ],
 
 ];

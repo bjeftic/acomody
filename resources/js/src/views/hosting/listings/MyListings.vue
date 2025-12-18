@@ -14,7 +14,7 @@
                     Manage your property listings here.
                 </p>
             </div>
-            <div class="mb-10">
+            <div v-if="myAccommodationDrafts.length > 0" class="mb-10">
                 <h2
                     class="text-xl font-semibold text-gray-900 dark:text-white mb-4"
                 >
@@ -36,6 +36,28 @@
                     </action-card>
                 </div>
             </div>
+            <div class="mb-10">
+                <h2
+                    class="text-xl font-semibold text-gray-900 dark:text-white mb-4"
+                >
+                    Listings
+                </h2>
+                <div class="space-y-3">
+                    <!-- My Listings Link -->
+                    <action-card
+                        v-for="listing in myListings"
+                        :key="listing.id"
+                        :title="
+                            listing.listable.title || 'Untitled Listing'
+                        "
+                        @click="$router.push({ name: 'page-listings-show', params: { listingId: listing.id } })"
+                    >
+                        <template #icon>
+                            <HouseIcon />
+                        </template>
+                    </action-card>
+                </div>
+            </div>
         </template>
     </div>
 </template>
@@ -45,7 +67,7 @@ import { mapState, mapActions } from "vuex";
 export default {
     name: "MyListings",
     computed: {
-        ...mapState("hosting/listings", ["myAccommodationDrafts"]),
+        ...mapState("hosting/listings", ["myAccommodationDrafts", "myListings"]),
     },
     methods: {
         ...mapActions("hosting/listings", ["loadInitialMyListingsData"]),

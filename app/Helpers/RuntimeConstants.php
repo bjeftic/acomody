@@ -22,7 +22,9 @@ class RuntimeConstants
     const APP_ENVIRONMENT = 'appEnvironment';
     const APP_VERSION = 'appVersion';
     const COUNTRIES = 'countries';
+    const COUNTRY_CURRENCY_MAP = 'countryCurrencyMap';
     const CURRENCIES = 'currencies';
+    const SELECTED_CURRENCY = 'selectedCurrency';
     const LANGUAGES = 'languages';
     // const ANNOUNCEMENTS = 'announcements';
     // const SCOUT_DRIVER = 'scoutDriver';
@@ -52,7 +54,9 @@ class RuntimeConstants
                     self::APP_ENVIRONMENT => config('app.env'),
                     self::APP_VERSION => config('app.version'),
                     self::COUNTRIES => self::getAvailableCountries(),
+                    self::COUNTRY_CURRENCY_MAP => self::getCountryCurrencyMap(),
                     self::CURRENCIES => self::getAvailableCurrencies(),
+                    self::SELECTED_CURRENCY => self::getSelectedCurrency(),
                     // Name of route should match name of index route in shared routing group
                     // self::ANNOUNCEMENTS => self::getAnnouncements($appIsShared),
                     // self::SCOUT_DRIVER => config('scout.driver'),
@@ -82,5 +86,25 @@ class RuntimeConstants
     protected static function getAvailableCurrencies()
     {
         return CurrencyResource::collection(CurrencyService::getAvailableCurrencies());
+    }
+
+    protected static function getSelectedCurrency()
+    {
+        return CurrencyService::getUserCurrency();
+    }
+
+    protected static function getCountryCurrencyMap()
+    {
+        $availableCountries = CountryService::getAvailableCountries();
+        $countryCurrencyMap = config('constants.country_currency_map');
+
+        // Filter to only include countries with available currencies
+        $filteredMap = [];
+        foreach ($countryCurrencyMap as $countryCode => $currencyCode) {
+            if ($availableCountries->contains('iso_code_2', $countryCode)) {
+                $filteredMap[$countryCode] = $currencyCode;
+            }
+        }
+        return $filteredMap;
     }
 }

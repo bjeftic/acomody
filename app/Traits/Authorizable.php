@@ -28,6 +28,10 @@ trait Authorizable
     {
         $user = auth()->user();
 
+        if (is_null($user) || !$user->is_superadmin) {
+            return;
+        }
+
         // Before creating
         static::creating(function ($model) use ($user) {
             if (!$model->canBeCreatedBy($user)) {
@@ -48,6 +52,10 @@ trait Authorizable
                 }
             }
 
+            if (Auth::user()->is_superadmin) {
+                return;
+            }
+
             if (!$model->canBeUpdatedBy($user)) {
                 throw new AccessDeniedHttpException(
                     'You are not authorized to update this ' . class_basename(static::class) . '.'
@@ -57,6 +65,9 @@ trait Authorizable
 
         // Before deleting
         static::deleting(function ($model) use ($user) {
+            if (Auth::user()->is_superadmin) {
+                return;
+            }
             if (!$model->canBeDeletedBy($user)) {
                 throw new AccessDeniedHttpException(
                     'You are not authorized to delete this ' . class_basename(static::class) . '.'
@@ -71,6 +82,10 @@ trait Authorizable
                 return;
             }
 
+            if (Auth::user()->is_superadmin) {
+                return;
+            }
+
             // Check if this was a single model retrieval (not from query)
             // Only check if explicitly loaded via find(), first(), etc.
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 15);
@@ -78,7 +93,7 @@ trait Authorizable
             // Check if called from route model binding or direct retrieval
             $isDirectRetrieval = collect($backtrace)->contains(function ($trace) {
                 return isset($trace['class']) &&
-                       (str_contains($trace['class'], 'Router') ||
+                    (str_contains($trace['class'], 'Router') ||
                         str_contains($trace['class'], 'Controller') ||
                         isset($trace['function']) && in_array($trace['function'], ['find', 'findOrFail', 'first', 'firstOrFail']));
             });

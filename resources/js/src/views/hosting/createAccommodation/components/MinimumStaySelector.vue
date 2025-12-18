@@ -59,7 +59,7 @@
         </div>
 
         <!-- Day-Specific Minimum Stay Toggle -->
-        <div class="mb-4">
+        <!-- <div class="mb-4">
             <div
                 class="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
             >
@@ -90,14 +90,14 @@
                     </label>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Day-Specific Rules -->
-        <div
+        <!-- <div
             v-if="localMinStay.hasDaySpecific"
             class="space-y-3"
-        >
-            <h4
+        > -->
+            <!-- <h4
                 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
             >
                 Minimum stay by check-in day
@@ -141,10 +141,10 @@
                         {{ localMinStay.daySpecific[day.id].nights === 1 ? "night" : "nights" }}
                     </span>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Quick Presets -->
-            <div
+            <!-- <div
                 class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
             >
                 <h5
@@ -178,8 +178,8 @@
                         Clear all
                     </button>
                 </div>
-            </div>
-        </div>
+            </div> -->
+        <!-- </div> -->
 
         <!-- Summary -->
         <div
@@ -245,8 +245,8 @@
                     <ul class="space-y-1 text-xs">
                         <li>• Lower minimums = more bookings, but more turnovers</li>
                         <li>• Higher minimums = fewer bookings, but longer stays</li>
-                        <li>• Weekend minimums help reduce single-night bookings</li>
-                        <li>• You can always adjust these later</li>
+                        <!-- <li>• Weekend minimums help reduce single-night bookings</li>
+                        <li>• You can always adjust these later</li> -->
                     </ul>
                 </div>
             </div>

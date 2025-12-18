@@ -4,18 +4,241 @@ namespace App\Services;
 
 use App\Models\Currency;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use App\Models\ExchangeRate;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Stevebauman\Location\Facades\Location;
 
 class CurrencyService
 {
+    private const CACHE_KEY_PREFIX = 'exchange_rates';
+
+    /**
+     * Get user's currency following Booking.com logic:
+     * 1. User's saved preference (if logged in)
+     * 2. Session currency (if set by user)
+     * 3. Auto-detect from IP (first visit only)
+     */
+    public static function getUserCurrency(): string
+    {
+        $user = Auth::user();
+
+        //1 Authenticated user's preference
+        if ($user && $user->preferred_currency) {
+            return $user->preferred_currency;
+        }
+
+        //2 Session currency
+        if (session()->has('currency')) {
+            return session('currency');
+        }
+
+        //3 Auto-detect (first visit)
+        $detected = self::detectCurrency();
+
+        session()->put('currency', $detected);
+        session()->put('currency_auto_detected', true);
+
+        return $detected;
+    }
+
+    /**
+     * Detect currency based on user's IP location
+     */
+    public static function detectCurrency(): string
+    {
+        $position = Location::get();
+
+        $countryCode = $position?->countryCode;
+
+        if (
+            $countryCode &&
+            isset(config('constants.country_currency_map')[$countryCode])
+        ) {
+            return config('constants.country_currency_map')[$countryCode];
+        }
+
+        return config('currency.default', 'EUR');
+    }
+
+    /**
+     * Set user's currency preference (manual change by user)
+     */
+    public function setUserCurrency(?User $user, string $currencyCode, Request $request): bool
+    {
+        $currency = Currency::getByCode($currencyCode);
+
+        if (!$currency || !$currency->is_active) {
+            return false;
+        }
+
+        // Update authenticated user's preference
+        if ($user) {
+            $user->update(['preferred_currency' => $currency->code]);
+
+            Log::info('User manually changed currency', [
+                'user_id' => $user->id,
+                'currency' => $currency->code,
+                'previous' => $user->getOriginal('preferred_currency')
+            ]);
+        }
+
+        // Always update session (for both logged in and guest users)
+        $request->session()->put('currency', $currency->code);
+        $request->session()->put('currency_manually_set', true); // Mark as manually set
+        $request->session()->forget('currency_auto_detected'); // Remove auto-detect flag
+
+        Log::info('Currency manually set', [
+            'user_id' => $user?->id,
+            'currency' => $currency->code,
+            'ip' => $request->ip()
+        ]);
+
+        return true;
+    }
+
     public static function getAvailableCurrencies(): Collection
     {
         return Currency::all();
     }
 
-    public function isCurrencyActive(string $code): bool
+    public function getCurrencyByCountry(string $countryCode): ?Currency
     {
-        $currency = Currency::where('code', $code)->first();
+        $currencyCode = config('constants.country_currency_map')[$countryCode] ?? 'USD';
 
-        return $currency ? $currency->is_active : false;
+        if ($currencyCode) {
+            return Currency::getByCode($currencyCode);
+        }
+
+        return null;
+    }
+
+    /**
+     * Format amount in specific currency
+     */
+    public function format(float $amount, string $currencyCode, bool $includeSymbol = true): string
+    {
+        $currency = Currency::getByCode($currencyCode);
+
+        if (!$currency) {
+            $currency = Currency::getDefault();
+        }
+
+        return $currency->format($amount, $includeSymbol);
+    }
+
+    /**
+     * Convert amount between currencies
+     */
+    public function convert(
+        float $amount,
+        string $fromCode,
+        string $toCode,
+        ?Carbon $date = null
+    ): float {
+        return ExchangeRate::convert($amount, $fromCode, $toCode, $date);
+    }
+
+    /**
+     * Convert and format amount
+     */
+    public function convertAndFormat(
+        float $amount,
+        string $fromCode,
+        string $toCode,
+        bool $includeSymbol = true,
+        ?Carbon $date = null
+    ): string {
+        $converted = $this->convert($amount, $fromCode, $toCode, $date);
+        return $this->format($converted, $toCode, $includeSymbol);
+    }
+
+    /**
+     * Get currency information for frontend
+     */
+    public function getCurrency(string $currencyCode): Currency
+    {
+        $currency = Currency::getByCode($currencyCode);
+
+        if (!$currency) {
+            $currency = Currency::getDefault();
+        }
+
+        return $currency;
+    }
+
+    /**
+     * Get exchange rate history
+     */
+    public function getRateHistory(
+        string $fromCurrency,
+        string $toCurrency,
+        Carbon $startDate,
+        Carbon $endDate
+    ): array {
+        $history = ExchangeRate::getHistory($fromCurrency, $toCurrency, $startDate, $endDate);
+
+        return $history->map(function ($rate) {
+            return [
+                'date' => $rate->date->format('Y-m-d'),
+                'rate' => (float) $rate->rate,
+                'formatted_date' => $rate->date->format('M d, Y')
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Check if rates need update
+     */
+    public function needsUpdate(): bool
+    {
+        $currencies = Currency::where('is_active', true)
+            ->where('is_base', false)
+            ->get();
+
+        foreach ($currencies as $currency) {
+            if ($currency->needsRateUpdate()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Clear all currency cache
+     */
+    public function clearCache(): void
+    {
+        $currencies = Currency::where('is_active', true)->pluck('code');
+
+        foreach ($currencies as $code) {
+            Cache::forget(self::CACHE_KEY_PREFIX . '_active_today');
+            Cache::forget(self::CACHE_KEY_PREFIX . '_active_' . now()->format('Y-m-d'));
+        }
+    }
+
+    /**
+     * Get statistics for dashboard
+     */
+    public function getStatistics(): array
+    {
+        $baseCurrency = Currency::getBaseCurrency();
+        $activeCurrencies = Currency::where('is_active', true)->count();
+        $lastUpdate = ExchangeRate::where('is_active', true)
+            ->orderBy('date', 'desc')
+            ->first()?->date;
+
+        return [
+            'base_currency' => $baseCurrency->code,
+            'active_currencies' => $activeCurrencies,
+            'last_update' => $lastUpdate?->toISOString(),
+            'needs_update' => $this->needsUpdate(),
+            'total_rates' => ExchangeRate::where('is_active', true)->count()
+        ];
     }
 }

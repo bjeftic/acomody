@@ -34,7 +34,7 @@ class UserFactory extends Factory
             'last_login_at' => null,
             'last_login_ip' => null,
             'last_login_user_agent' => null,
-            'is_admin' => false,
+            'is_superadmin' => false,
             'status' => 'active',
             'remember_token' => Str::random(10),
         ];

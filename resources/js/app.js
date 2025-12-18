@@ -48,6 +48,7 @@ import ValidationAlertBox from "@/src/components/ValidationAlertBox.vue";
 import ActionCard from "@/src/components/common/ActionCard.vue";
 import SelectActionCard from "@/src/components/common/SelectActionCard.vue";
 import FormSkeleton from "@/src/components/common/skeletons/FormSkeleton.vue";
+import MainSkeleton from "@/src/components/common/skeletons/MainSkeleton.vue";
 
 
 const app = createApp(App);
@@ -102,6 +103,7 @@ app.component("ValidationAlertBox", ValidationAlertBox);
 app.component("ActionCard", ActionCard);
 app.component("SelectActionCard", SelectActionCard);
 app.component("FormSkeleton", FormSkeleton);
+app.component("MainSkeleton", MainSkeleton);
 
 
 store.dispatch('auth/initializeAuth').finally(() => {

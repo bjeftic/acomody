@@ -10,6 +10,27 @@
                 </div>
                 <!-- Navigation Items -->
                 <div class="flex items-center gap-2">
+                    <!-- Become a host button -->
+                    <fwb-dropdown
+                        :text="currentCurrency || selectedCurrency"
+                        size="lg"
+                        color="alternative"
+                        align-to-end
+                        close-inside
+                    >
+                        <nav
+                            class="py-2 text-sm rounded-lg text-gray-700 border border-gray-200 dark:text-gray-200 dark:border-gray-700 flex flex-col"
+                        >
+                            <span
+                                v-for="currency in currencies"
+                                :key="currency.code"
+                                class="cursor-pointer px-4 py-2 min-w-24 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                @click="setCurrency(currency.code); currentCurrency = currency.code"
+                            >
+                                {{ currency.code }}
+                            </span>
+                        </nav>
+                    </fwb-dropdown>
                     <fwb-button
                         v-if="isLoggedIn && $route.name !== 'page-hosting-home'"
                         color="alternative"
@@ -89,16 +110,23 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 
 export default {
     name: "Navbar",
     computed: {
         ...mapGetters("auth", ["isLoggedIn"]),
+        ...mapState("ui", ["currencies", "selectedCurrency"]),
+    },
+    data() {
+        return {
+            currentCurrency: null,
+        };
     },
     methods: {
         ...mapActions(["openModal"]),
         ...mapActions("auth", ["logOut"]),
+        ...mapActions("ui", ["setCurrency"]),
         openLogInModal() {
             this.openModal({
                 modalName: "logInModal",

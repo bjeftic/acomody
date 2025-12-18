@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums;
+namespace App\Enums\Accommodation;
 
 use App\Models\AccommodationType;
 
@@ -10,30 +10,21 @@ enum AccommodationOccupation: string
     case PRIVATE_ROOM = 'private-room';
     case SHARED_ROOM = 'shared-room';
 
-    public function id(): int
-    {
-        return match($this) {
-            self::ENTIRE_PLACE => 1,
-            self::PRIVATE_ROOM => 2,
-            self::SHARED_ROOM => 3,
-        };
-    }
-
     public function label(): string
     {
         return match($this) {
-            self::ENTIRE_PLACE => __('accommodationOccupation.entire_place'),
-            self::PRIVATE_ROOM => __('accommodationOccupation.private_room'),
-            self::SHARED_ROOM => __('accommodationOccupation.shared_room'),
+            self::ENTIRE_PLACE => __('enums/accommodationOccupation.entire_place'),
+            self::PRIVATE_ROOM => __('enums/accommodationOccupation.private_room'),
+            self::SHARED_ROOM => __('enums/accommodationOccupation.shared_room'),
         };
     }
 
     public function description(): string
     {
         return match($this) {
-            self::ENTIRE_PLACE => __('accommodationOccupation.entire_place_description'),
-            self::PRIVATE_ROOM => __('accommodationOccupation.private_room_description'),
-            self::SHARED_ROOM => __('accommodationOccupation.shared_room_description'),
+            self::ENTIRE_PLACE => __('enums/accommodationOccupation.entire_place_description'),
+            self::PRIVATE_ROOM => __('enums/accommodationOccupation.private_room_description'),
+            self::SHARED_ROOM => __('enums/accommodationOccupation.shared_room_description'),
         };
     }
 

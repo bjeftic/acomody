@@ -403,7 +403,7 @@ class PhotoUploadService
 
         try {
             // Extract size prefix and filename from source path
-            // draft-123/thumbnail/uuid.jpg -> property-456/thumbnail/uuid.jpg
+            // draft-123/thumbnail/ulid.jpg -> property-456/thumbnail/ulid.jpg
             $pathParts = explode('/', $sourcePath);
             $size = $pathParts[1] ?? 'original'; // thumbnail, medium, large, original
             $filename = $pathParts[2] ?? basename($sourcePath);

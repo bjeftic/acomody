@@ -234,11 +234,14 @@ export default {
 
             this.isLoading = true;
             await this.logIn(this.formData)
-                .then(() => {
+                .then((res) => {
 
                     // Just close modal and resolve promise
                     // Middleware will handle the redirect
                     this.ok();
+                    if(res.data.meta.refresh_page) {
+                        window.location.reload();
+                    }
                 })
                 .catch((e) => {
                     if (

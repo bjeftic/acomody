@@ -30,7 +30,7 @@ class User extends Model implements MustVerifyEmail, AuthenticatableContract, Au
     protected $fillable = [
         'email',
         'password',
-        'is_admin',
+        'is_superadmin',
         'email_verification_token',
         'email_verification_token_expires_at',
         'terms_accepted_at',
@@ -38,6 +38,8 @@ class User extends Model implements MustVerifyEmail, AuthenticatableContract, Au
         'last_login_at',
         'last_login_ip',
         'last_login_user_agent',
+        'registration_ip',
+        'preferred_currency',
         'created_at',
         'updated_at',
     ];
@@ -48,7 +50,7 @@ class User extends Model implements MustVerifyEmail, AuthenticatableContract, Au
      * @var list<string>
      */
     protected $hidden = [
-        'is_admin',
+        'is_superadmin',
         'password',
         'remember_token',
     ];

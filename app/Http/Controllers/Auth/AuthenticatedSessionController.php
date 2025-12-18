@@ -67,13 +67,15 @@ class AuthenticatedSessionController extends Controller
                 'ip' => $request->ip(),
             ]);
 
+            $meta = [
+                'login_at' => now()->toISOString(),
+                'refresh_page' => $user->is_superadmin,
+            ];
+
             return ApiResponse::success(
                 'User logged in successfully.',
                 new UserResource($user),
-                [
-                    'login_at' => now()->toISOString(),
-                    'ip_address' => $request->ip(),
-                ]
+                $meta
             );
         } catch (ValidationException $e) {
             throw $e;
@@ -103,21 +105,7 @@ class AuthenticatedSessionController extends Controller
                 return ApiResponse::error('Unauthorized', null, null, 401);
             }
 
-            // Update logout info
-            $user->update([
-                'last_logout_at' => now(),
-                'last_logout_ip' => $request->ip(),
-            ]);
-
-            // Logout and invalidate session
-            Auth::guard('web')->logout();
-
-            if ($request->hasSession()) {
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-            }
-
-            Log::info('User logged out', ['user_id' => $user->id]);
+            $this->authService->logout($user, $request);
 
             return ApiResponse::success('User logged out successfully.');
         } catch (Exception $e) {
