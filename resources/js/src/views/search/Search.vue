@@ -391,26 +391,24 @@ export default {
             this.loading = true;
 
             try {
+                const filtersToSend = { ...this.filters };
+                delete filtersToSend.priceRange;
+                const currencyCode = this.selectedCurrency.code;
+                filtersToSend[`priceRange_${currencyCode}`] = {
+                    min: this.filters.priceRange?.min ?? null,
+                    max: this.filters.priceRange?.max ?? null,
+                };
                 const response = await this.searchAccommodations({
                     ...this.searchParams,
                     ...this.geoLocation,
-                    ...this.filters,
+                    ...filtersToSend,
                     sortBy: this.sortBy,
                     page: this.page,
-                    perPage: this.config.resultsPerPage || 10,
+                    perPage: 12,
                 });
 
                 const data = response.hits || response.data || response;
                 const found = response.found || response.total || 0;
-
-                console.log("performSearch:", {
-                    page: this.page,
-                    append,
-                    dataLength: data?.length || 0,
-                    found,
-                    currentResultsLength: this.results.length,
-                    perPage: this.config.resultsPerPage || 10,
-                });
 
                 if (append) {
                     this.results = [...this.results, ...data];
@@ -418,12 +416,9 @@ export default {
                     this.results = data || [];
                 }
 
-                // Ako API vraća 'found', koristi to, inače koristi dužinu trenutnih rezultata
                 if (found > 0) {
                     this.totalResults = found;
                 } else {
-                    // Ako nema 'found' polja, prikaži trenutni broj učitanih rezultata
-                    // i dodaj "+" ako je verovatno da ima još
                     this.totalResults = this.results.length;
                 }
 
@@ -433,9 +428,6 @@ export default {
                 };
             } catch (error) {
                 console.error("Search error:", error);
-
-                // Vrati prazne rezultate umesto da baciš exception
-                // Ovo omogućava da infinite scroll gracefully završi
                 return {
                     data: [],
                     found: 0,
@@ -465,8 +457,36 @@ export default {
         },
 
         clearAllFilters() {
-            this.filters = { ...filtersConfig.defaults };
-            this.updateFiltersInURL();
+            this.filters = {
+                ...filtersConfig.defaults,
+                priceRange: {
+                    min: this.pricesFilter.min,
+                    max: this.pricesFilter.max,
+                },
+            };
+
+            const query = { ...this.$route.query };
+
+            delete query.property_types;
+            delete query.amenities;
+            delete query.room_types;
+            delete query.bedrooms;
+            delete query.beds;
+            delete query.bathrooms;
+            delete query.instant_book;
+            delete query.self_check_in;
+            delete query.superhost;
+
+            Object.keys(query).forEach((key) => {
+                if (
+                    key.startsWith("price_min_") ||
+                    key.startsWith("price_max_")
+                ) {
+                    delete query[key];
+                }
+            });
+
+            this.$router.replace({ query });
             this.resetPaginationAndSearch();
         },
 
@@ -485,7 +505,7 @@ export default {
             try {
                 const { data, found } = await this.performSearch(true);
 
-                const perPage = this.config.resultsPerPage || 10;
+                const perPage = 12;
 
                 console.log("loadMore decision:", {
                     dataLength: data?.length || 0,
@@ -579,24 +599,37 @@ export default {
         updateFiltersInURL() {
             const query = { ...this.$route.query };
 
+            Object.keys(query).forEach((key) => {
+                if (
+                    key.startsWith("price_min_") ||
+                    key.startsWith("price_max_")
+                ) {
+                    delete query[key];
+                }
+            });
+
+            if (
+                this.filters.priceRange?.min !== null &&
+                this.filters.priceRange?.min !== undefined &&
+                this.filters.priceRange.min !== this.pricesFilter.min
+            ) {
+                query["price_min_" + this.selectedCurrency.code] =
+                    this.filters.priceRange.min;
+            }
+
+            if (
+                this.filters.priceRange?.max !== null &&
+                this.filters.priceRange?.max !== undefined &&
+                this.filters.priceRange.max !== this.pricesFilter.max
+            ) {
+                query["price_max_" + this.selectedCurrency.code] =
+                    this.filters.priceRange.max;
+            }
+
             if (this.filters.propertyTypes?.length) {
                 query.property_types = this.filters.propertyTypes.join(",");
             } else {
                 delete query.property_types;
-            }
-
-            if (this.filters.priceRange?.min > 0) {
-                query["price_min_" + this.selectedCurrency.code] =
-                    this.filters.priceRange.min;
-            } else {
-                delete query["price_min_" + this.selectedCurrency.code];
-            }
-
-            if (this.filters.priceRange?.max > this.filters.priceRange?.min) {
-                query["price_max_" + this.selectedCurrency.code] =
-                    this.filters.priceRange.max;
-            } else {
-                delete query["price_max_" + this.selectedCurrency.code];
             }
 
             if (this.filters.amenities?.length) {
