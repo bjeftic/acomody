@@ -515,22 +515,17 @@ export default {
                     hasMore: data && data.length >= perPage,
                 });
 
-                // Proveri da li ima još rezultata
-                // Ako API vraća punu stranicu (perPage rezultata), verovatno ima još
                 if (data && data.length > 0) {
                     if (data.length >= perPage) {
-                        // Puna stranica = ima još rezultata
                         console.log("-> $state.loaded() - full page received");
                         $state.loaded();
                     } else {
-                        // Nepuna stranica = poslednja stranica
                         console.log(
                             "-> $state.complete() - partial page, no more results"
                         );
                         $state.complete();
                     }
                 } else {
-                    // Nema podataka, završi
                     console.log("-> $state.complete() - no data");
                     $state.complete();
                 }
@@ -654,6 +649,7 @@ export default {
         parseURLParams() {
             const query = this.$route.query;
 
+            // Parse search params
             if (query.locationId || query.locationName) {
                 this.searchParams.location = {
                     id: query.locationId || null,
@@ -681,21 +677,63 @@ export default {
                 this.searchParams.guests.pets = parseInt(query.pets);
             }
 
+            // Parse filters
             if (query.property_types) {
                 this.filters.propertyTypes = query.property_types.split(",");
             }
-            if (query["price_min_" + this.selectedCurrency.code]) {
-                this.filters.priceRange.min = parseInt(
-                    query["price_min_" + this.selectedCurrency.code]
-                );
-            }
-            if (query["price_max_" + this.selectedCurrency.code]) {
-                this.filters.priceRange.max = parseInt(
-                    query["price_max_" + this.selectedCurrency.code]
-                );
-            }
+
             if (query.amenities) {
                 this.filters.amenities = query.amenities.split(",");
+            }
+
+            // Parse price filters - check for current currency first
+            const currentCurrencyMinKey =
+                "price_min_" + this.selectedCurrency.code;
+            const currentCurrencyMaxKey =
+                "price_max_" + this.selectedCurrency.code;
+
+            if (query[currentCurrencyMinKey]) {
+                this.filters.priceRange.min = parseInt(
+                    query[currentCurrencyMinKey]
+                );
+            }
+
+            if (query[currentCurrencyMaxKey]) {
+                this.filters.priceRange.max = parseInt(
+                    query[currentCurrencyMaxKey]
+                );
+            }
+
+            // If no price filters for current currency, check all other currencies in URL
+            if (
+                !query[currentCurrencyMinKey] &&
+                !query[currentCurrencyMaxKey]
+            ) {
+                // Look for any price filters in URL
+                const priceMinKeys = Object.keys(query).filter((k) =>
+                    k.startsWith("price_min_")
+                );
+                const priceMaxKeys = Object.keys(query).filter((k) =>
+                    k.startsWith("price_max_")
+                );
+
+                if (priceMinKeys.length > 0) {
+                    this.filters.priceRange.min = parseInt(
+                        query[priceMinKeys[0]]
+                    );
+                }
+
+                if (priceMaxKeys.length > 0) {
+                    this.filters.priceRange.max = parseInt(
+                        query[priceMaxKeys[0]]
+                    );
+                }
+
+                if (priceMinKeys.length > 0 || priceMaxKeys.length > 0) {
+                    this.$nextTick(() => {
+                        this.updateFiltersInURL();
+                    });
+                }
             }
         },
 
