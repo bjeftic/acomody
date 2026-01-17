@@ -239,7 +239,7 @@ export default {
             geoLocation: null,
             filters: {
                 priceRange: { min: null, max: null },
-                propertyTypes: [],
+                accommodationTypes: [],
                 roomTypes: [],
                 amenities: [],
                 bedrooms: { min: 0, max: null },
@@ -292,7 +292,7 @@ export default {
         },
         activeFiltersCount() {
             let count = 0;
-            if (this.filters.propertyTypes.length) count++;
+            if (this.filters.accommodationTypes.length) count++;
             if (
                 this.filters.priceRange.min > 0 ||
                 this.filters.priceRange.max < 1000
@@ -444,7 +444,6 @@ export default {
         },
 
         handleFiltersUpdate(newFilters) {
-            console.log(newFilters);
             this.filters = { ...this.filters, ...newFilters };
             this.updateFiltersInURL();
             this.resetPaginationAndSearch();
@@ -467,7 +466,7 @@ export default {
 
             const query = { ...this.$route.query };
 
-            delete query.property_types;
+            delete query.accommodation_types;
             delete query.amenities;
             delete query.room_types;
             delete query.bedrooms;
@@ -497,7 +496,6 @@ export default {
         },
 
         async loadMore($state) {
-            console.log("loadMore called, current page:", this.page);
 
             this.lastInfiniteState = $state;
             this.page++;
@@ -507,26 +505,13 @@ export default {
 
                 const perPage = 12;
 
-                console.log("loadMore decision:", {
-                    dataLength: data?.length || 0,
-                    currentResultsLength: this.results.length,
-                    totalFound: found,
-                    perPage: perPage,
-                    hasMore: data && data.length >= perPage,
-                });
-
                 if (data && data.length > 0) {
                     if (data.length >= perPage) {
-                        console.log("-> $state.loaded() - full page received");
                         $state.loaded();
                     } else {
-                        console.log(
-                            "-> $state.complete() - partial page, no more results"
-                        );
                         $state.complete();
                     }
                 } else {
-                    console.log("-> $state.complete() - no data");
                     $state.complete();
                 }
             } catch (error) {
@@ -536,9 +521,6 @@ export default {
                     error.response?.status === 404 ||
                     error.message?.includes("No results")
                 ) {
-                    console.log(
-                        "-> $state.complete() - no more results (from error)"
-                    );
                     $state.complete();
                 } else {
                     $state.error();
@@ -550,10 +532,6 @@ export default {
             if (this.lastInfiniteState) {
                 this.loadMore(this.lastInfiniteState);
             }
-        },
-
-        handleMapBoundsChanged(bounds) {
-            console.log("Map bounds changed:", bounds);
         },
 
         handleCardHover(cardId) {
@@ -621,10 +599,10 @@ export default {
                     this.filters.priceRange.max;
             }
 
-            if (this.filters.propertyTypes?.length) {
-                query.property_types = this.filters.propertyTypes.join(",");
+            if (this.filters.accommodationTypes?.length) {
+                query.accommodation_types = this.filters.accommodationTypes.join(",");
             } else {
-                delete query.property_types;
+                delete query.accommodation_types;
             }
 
             if (this.filters.amenities?.length) {
@@ -678,20 +656,54 @@ export default {
             }
 
             // Parse filters
-            if (query.property_types) {
-                this.filters.propertyTypes = query.property_types.split(",");
+            if (query.accommodation_types) {
+                this.filters.accommodationTypes = query.accommodation_types.split(",");
             }
 
             if (query.amenities) {
                 this.filters.amenities = query.amenities.split(",");
             }
 
-            // Parse price filters - check for current currency first
+            // Parse price filters - check for current currency
             const currentCurrencyMinKey =
                 "price_min_" + this.selectedCurrency.code;
             const currentCurrencyMaxKey =
                 "price_max_" + this.selectedCurrency.code;
 
+            // Check if there are price filters for different currencies
+            const allPriceMinKeys = Object.keys(query).filter((k) =>
+                k.startsWith("price_min_")
+            );
+            const allPriceMaxKeys = Object.keys(query).filter((k) =>
+                k.startsWith("price_max_")
+            );
+
+            const hasDifferentCurrencyPrices =
+                allPriceMinKeys.some((k) => k !== currentCurrencyMinKey) ||
+                allPriceMaxKeys.some((k) => k !== currentCurrencyMaxKey);
+
+            // If there are price filters for different currencies, remove them from URL
+            if (hasDifferentCurrencyPrices) {
+                const newQuery = { ...query };
+
+                // Remove all price filters that don't match current currency
+                allPriceMinKeys.forEach((key) => {
+                    if (key !== currentCurrencyMinKey) {
+                        delete newQuery[key];
+                    }
+                });
+
+                allPriceMaxKeys.forEach((key) => {
+                    if (key !== currentCurrencyMaxKey) {
+                        delete newQuery[key];
+                    }
+                });
+
+                // Update URL without wrong currency filters
+                this.$router.replace({ query: newQuery });
+            }
+
+            // Only apply price filters if they match current currency
             if (query[currentCurrencyMinKey]) {
                 this.filters.priceRange.min = parseInt(
                     query[currentCurrencyMinKey]
@@ -702,38 +714,6 @@ export default {
                 this.filters.priceRange.max = parseInt(
                     query[currentCurrencyMaxKey]
                 );
-            }
-
-            // If no price filters for current currency, check all other currencies in URL
-            if (
-                !query[currentCurrencyMinKey] &&
-                !query[currentCurrencyMaxKey]
-            ) {
-                // Look for any price filters in URL
-                const priceMinKeys = Object.keys(query).filter((k) =>
-                    k.startsWith("price_min_")
-                );
-                const priceMaxKeys = Object.keys(query).filter((k) =>
-                    k.startsWith("price_max_")
-                );
-
-                if (priceMinKeys.length > 0) {
-                    this.filters.priceRange.min = parseInt(
-                        query[priceMinKeys[0]]
-                    );
-                }
-
-                if (priceMaxKeys.length > 0) {
-                    this.filters.priceRange.max = parseInt(
-                        query[priceMaxKeys[0]]
-                    );
-                }
-
-                if (priceMinKeys.length > 0 || priceMaxKeys.length > 0) {
-                    this.$nextTick(() => {
-                        this.updateFiltersInURL();
-                    });
-                }
             }
         },
 
