@@ -88,3 +88,23 @@ export const formatPrice = (
     ? `${suffixOrPrefix} ${formattedNumber}`
     : `${formattedNumber} ${suffixOrPrefix}`;
 };
+
+export const sortSearchResults = (results) => {
+    let sortedResults = [];
+
+    results.hits.forEach((hit) => {
+        let res = {
+            collection: results.request_params.collection_name,
+            data: hit.document,
+            text_match: hit.text_match,
+            highlight: hit.highlight,
+            highlights: hit.highlights,
+        };
+
+        sortedResults.push(res);
+    });
+
+    sortedResults.sort((a, b) => b.text_match - a.text_match);
+
+    return sortedResults;
+};

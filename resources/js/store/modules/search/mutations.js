@@ -5,6 +5,16 @@ export default {
         state.searchBar.results = data || [];
     },
     [types.SET_ACCOMMODATIONS_SEARCH_RESULTS](state, data) {
-        state.accommodations = data || [];
+        if (data.page === 1) {
+            state.accommodations = data.hits || [];
+            return;
+        }
+        state.accommodations.push(...(data.hits || []));
     },
+    [types.SET_FILTERS](state, counts) {
+       state.filters = counts || [];
+    },
+    [types.SET_TOTAL_ACCOMMODATIONS_FOUND](state, data) {
+        state.totalAccommodationsFound = data || 0;
+    }
 };

@@ -9,4 +9,6 @@ export default {
         results: [],
     },
     accommodations: [],
+    totalAccommodationsFound: 0,
+    filters: {},
 };

@@ -18,7 +18,9 @@ export const searchAccommodations = async ({ commit }, searchParams) => {
         const response = await apiClient.search.accommodations
             .query(searchParams)
             .get();
-        commit("SET_ACCOMMODATIONS_SEARCH_RESULTS", response.data.hits);
+        commit("SET_ACCOMMODATIONS_SEARCH_RESULTS", response.data);
+        commit("SET_FILTERS", response.data.facet_counts || []);
+        commit("SET_TOTAL_ACCOMMODATIONS_FOUND", response.data.found || 0);
         return response.data.hits;
     } catch (error) {
         console.error("Failed to search accommodations:", error);

@@ -1,4 +1,4 @@
-export const pricesFilter = (state) => {
+export const accommodationPricesFilters = (state) => {
     if (!state.filters || !Array.isArray(state.filters)) {
         return [];
     }
@@ -8,4 +8,11 @@ export const pricesFilter = (state) => {
     } else {
         return [];
     }
+};
+
+export const accommodationFilters = (state) => {
+    if (!state.filters || !Array.isArray(state.filters)) {
+        return [];
+    }
+    return state.filters.filter((filter) => filter.field_name !== "price");
 };
