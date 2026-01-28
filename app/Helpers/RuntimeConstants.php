@@ -90,7 +90,7 @@ class RuntimeConstants
 
     protected static function getSelectedCurrency()
     {
-        return CurrencyService::getUserCurrency();
+        return new CurrencyResource(CurrencyService::getUserCurrency());
     }
 
     protected static function getCountryCurrencyMap()

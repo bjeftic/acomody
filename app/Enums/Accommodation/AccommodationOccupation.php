@@ -2,90 +2,117 @@
 
 namespace App\Enums\Accommodation;
 
-use App\Models\AccommodationType;
-
 enum AccommodationOccupation: string
 {
-    case ENTIRE_PLACE = 'entire-place';
-    case PRIVATE_ROOM = 'private-room';
-    case SHARED_ROOM = 'shared-room';
+    case ENTIRE_PLACE = 'entire_place';
+    case PRIVATE_ROOM = 'private_room';
+    case SHARED_ROOM = 'shared_room';
 
     public function label(): string
     {
         return match($this) {
-            self::ENTIRE_PLACE => __('enums/accommodationOccupation.entire_place'),
-            self::PRIVATE_ROOM => __('enums/accommodationOccupation.private_room'),
-            self::SHARED_ROOM => __('enums/accommodationOccupation.shared_room'),
+            self::ENTIRE_PLACE => __('enums/accommodation_occupation.entire_place'),
+            self::PRIVATE_ROOM => __('enums/accommodation_occupation.private_room'),
+            self::SHARED_ROOM => __('enums/accommodation_occupation.shared_room'),
         };
     }
 
     public function description(): string
     {
         return match($this) {
-            self::ENTIRE_PLACE => __('enums/accommodationOccupation.entire_place_description'),
-            self::PRIVATE_ROOM => __('enums/accommodationOccupation.private_room_description'),
-            self::SHARED_ROOM => __('enums/accommodationOccupation.shared_room_description'),
+            self::ENTIRE_PLACE => __('enums/accommodation_occupation.entire_place_description'),
+            self::PRIVATE_ROOM => __('enums/accommodation_occupation.private_room_description'),
+            self::SHARED_ROOM => __('enums/accommodation_occupation.shared_room_description'),
         };
     }
 
     public static function forAccommodationType(AccommodationType $accommodationType): array
     {
-        return match($accommodationType->slug) {
-            'apartment', 'house', 'villa', 'townhouse', 'condo' => [
+        return match($accommodationType) {
+            AccommodationType::APARTMENT,
+            AccommodationType::HOUSE,
+            AccommodationType::VILLA,
+            AccommodationType::TOWNHOUSE,
+            AccommodationType::CONDO => [
                 self::ENTIRE_PLACE,
                 self::PRIVATE_ROOM,
                 self::SHARED_ROOM
             ],
 
-            'penthouse', 'castle', 'yacht' => [
+            AccommodationType::PENTHOUSE,
+            AccommodationType::CASTLE,
+            AccommodationType::YACHT => [
                 self::ENTIRE_PLACE
             ],
 
-            'studio', 'cottage', 'cabin', 'chalet', 'bungalow', 'loft', 'tiny-house' => [
+            AccommodationType::STUDIO,
+            AccommodationType::COTTAGE,
+            AccommodationType::CABIN,
+            AccommodationType::CHALET,
+            AccommodationType::BUNGALOW,
+            AccommodationType::LOFT,
+            AccommodationType::TINY_HOUSE => [
                 self::ENTIRE_PLACE,
                 self::PRIVATE_ROOM
             ],
 
-            'hotel', 'resort', 'motel', 'pension-inn' => [
+            AccommodationType::HOTEL,
+            AccommodationType::RESORT => [
                 self::PRIVATE_ROOM
             ],
 
-            'hostel' => [
+            AccommodationType::HOSTEL => [
                 self::SHARED_ROOM,
                 self::PRIVATE_ROOM
             ],
 
-            'guesthouse', 'bed-breakfast', 'homestay', 'guest-suite' => [
+            AccommodationType::GUESTHOUSE,
+            AccommodationType::BED_BREAKFAST,
+            AccommodationType::GUEST_SUITE => [
                 self::ENTIRE_PLACE,
                 self::PRIVATE_ROOM,
                 self::SHARED_ROOM
             ],
 
-            'farm-stay', 'barn' => [
+            AccommodationType::FARM_STAY,
+            AccommodationType::BARN => [
                 self::ENTIRE_PLACE,
                 self::PRIVATE_ROOM
             ],
 
-            'boat', 'houseboat' => [
+            AccommodationType::BOAT,
+            AccommodationType::HOUSEBOAT => [
                 self::ENTIRE_PLACE,
                 self::PRIVATE_ROOM
             ],
 
-            'camper' => [
+            AccommodationType::CAMPER_RV => [
                 self::ENTIRE_PLACE
             ],
 
-            'camping-tent', 'tent', 'glamping', 'yurt' => [
+            AccommodationType::TENT,
+            AccommodationType::GLAMPING,
+            AccommodationType::YURT => [
                 self::ENTIRE_PLACE,
                 self::SHARED_ROOM
             ],
 
-            'treehouse', 'dome', 'container', 'cave', 'lighthouse',
-            'windmill', 'earth-house', 'shepherd-hut', 'igloo' => [
+            AccommodationType::TREEHOUSE,
+            AccommodationType::DOME,
+            AccommodationType::CONTAINER,
+            AccommodationType::CAVE,
+            AccommodationType::LIGHTHOUSE,
+            AccommodationType::WINDMILL,
+            AccommodationType::EARTH_HOUSE,
+            AccommodationType::SHEPHERD_HOUSE,
+            AccommodationType::IGLOO => [
                 self::ENTIRE_PLACE
             ],
 
-            'cycladic', 'trullo', 'riad', 'ryokan', 'casa' => [
+            AccommodationType::CYCLADIC_HOME,
+            AccommodationType::TRULLO,
+            AccommodationType::RIAD,
+            AccommodationType::RYOKAN => [
                 self::ENTIRE_PLACE,
                 self::PRIVATE_ROOM
             ],

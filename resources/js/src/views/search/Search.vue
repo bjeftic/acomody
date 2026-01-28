@@ -9,6 +9,7 @@
             >
                 <search-filters
                     :filters="filters"
+                    :active-filters="activeFilters"
                     :active-filters-count="activeFiltersCount"
                     @update:filters="handleFiltersUpdate"
                     @clear-all="clearAllFilters"
@@ -149,7 +150,7 @@
                         {{ totalAccommodationsFound }} results
                     </div>
                     <search-results
-                        :results="results"
+                        :results="accommodations"
                         :loading="loading"
                         :view-mode="viewMode"
                         :hovered-card-id="hoveredCardId"
@@ -186,16 +187,6 @@
                 </div>
             </main>
         </div>
-
-        <!-- Mobile Filters Modal -->
-        <filter-modal
-            v-if="isMobile && showFilters"
-            :filters="filters"
-            :active-filters-count="activeFiltersCount"
-            @update:filters="handleFiltersUpdate"
-            @clear-all="clearAllFilters"
-            @close="showFilters = false"
-        />
     </div>
 </template>
 
@@ -237,9 +228,10 @@ export default {
             config: searchConfig,
             searchParams: { ...searchConfig.defaults },
             geoLocation: null,
-            filters: {
+            activeFilters: {
                 priceRange: { min: null, max: null },
-                accommodationTypes: [],
+                accommodation_type: null,
+                accommodation_occupation: null,
                 roomTypes: [],
                 amenities: [],
                 bedrooms: { min: 0, max: null },
@@ -254,8 +246,6 @@ export default {
                 houseRules: [],
                 cancellationPolicy: null,
             },
-            results: [],
-            totalResults: 0,
             loading: false,
             viewMode: searchConfig.defaultViewMode,
             sortBy: "recommended",
@@ -275,7 +265,8 @@ export default {
         }),
         ...mapState("ui", ["selectedCurrency"]),
         ...mapGetters("search", {
-            pricesFilter: "pricesFilter",
+            accommodationPricesFilters: "accommodationPricesFilters",
+            filters: "accommodationFilters",
         }),
         dateRangeText() {
             if (!this.searchParams.checkIn || !this.searchParams.checkOut) {
@@ -287,20 +278,20 @@ export default {
             const nights = checkOut.diff(checkIn, "days");
 
             return `${checkIn.format("MMM D")} - ${checkOut.format(
-                "MMM D"
+                "MMM D",
             )} (${nights} nights)`;
         },
         activeFiltersCount() {
             let count = 0;
-            if (this.filters.accommodationTypes.length) count++;
+            if (this.activeFilters.accommodation_type) count++;
             if (
-                this.filters.priceRange.min > 0 ||
-                this.filters.priceRange.max < 1000
+                this.activeFilters.priceRange.min > 0 ||
+                this.activeFilters.priceRange.max < 1000
             )
                 count++;
-            if (this.filters.amenities.length) count++;
-            if (this.filters.bedrooms.min > 0) count++;
-            if (this.filters.instantBook) count++;
+            if (this.activeFilters.amenities.length) count++;
+            if (this.activeFilters.bedrooms.min > 0) count++;
+            if (this.activeFilters.instantBook) count++;
             return count;
         },
         currentSortOption() {
@@ -355,28 +346,19 @@ export default {
                     parseInt(
                         this.$route.query[
                             "price_min_" + this.selectedCurrency.code
-                        ]
+                        ],
                     ) || null,
                 max:
                     parseInt(
                         this.$route.query[
                             "price_max_" + this.selectedCurrency.code
-                        ]
+                        ],
                     ) || null,
             };
         },
-        displayTotalResults() {
-            if (
-                this.totalResults === this.results.length &&
-                this.results.length > 0
-            ) {
-                return `${this.totalResults}+`;
-            }
-            return this.totalResults;
-        },
     },
-    mounted() {
-        this.parseURLParams();
+    async mounted() {
+        await this.parseURLParams();
         this.performSearch();
 
         window.addEventListener("resize", this.handleResize);
@@ -387,16 +369,16 @@ export default {
     methods: {
         ...mapActions("search", ["searchAccommodations"]),
 
-        async performSearch(append = false) {
+        async performSearch() {
             this.loading = true;
 
             try {
-                const filtersToSend = { ...this.filters };
+                const filtersToSend = { ...this.activeFilters };
                 delete filtersToSend.priceRange;
                 const currencyCode = this.selectedCurrency.code;
                 filtersToSend[`priceRange_${currencyCode}`] = {
-                    min: this.filters.priceRange?.min ?? null,
-                    max: this.filters.priceRange?.max ?? null,
+                    min: this.activeFilters.priceRange?.min ?? null,
+                    max: this.activeFilters.priceRange?.max ?? null,
                 };
                 const response = await this.searchAccommodations({
                     ...this.searchParams,
@@ -409,18 +391,6 @@ export default {
 
                 const data = response.hits || response.data || response;
                 const found = response.found || response.total || 0;
-
-                if (append) {
-                    this.results = [...this.results, ...data];
-                } else {
-                    this.results = data || [];
-                }
-
-                if (found > 0) {
-                    this.totalResults = found;
-                } else {
-                    this.totalResults = this.results.length;
-                }
 
                 return {
                     data: data || [],
@@ -444,7 +414,7 @@ export default {
         },
 
         handleFiltersUpdate(newFilters) {
-            this.filters = { ...this.filters, ...newFilters };
+            this.activeFilters = { ...this.activeFilters, ...newFilters };
             this.updateFiltersInURL();
             this.resetPaginationAndSearch();
         },
@@ -456,17 +426,18 @@ export default {
         },
 
         clearAllFilters() {
-            this.filters = {
+            this.activeFilters = {
                 ...filtersConfig.defaults,
                 priceRange: {
-                    min: this.pricesFilter.min,
-                    max: this.pricesFilter.max,
+                    min: this.accommodationPricesFilters.min,
+                    max: this.accommodationPricesFilters.max,
                 },
             };
 
             const query = { ...this.$route.query };
 
-            delete query.accommodation_types;
+            delete query.accommodation_type;
+            delete query.accommodation_occupation;
             delete query.amenities;
             delete query.room_types;
             delete query.bedrooms;
@@ -496,12 +467,11 @@ export default {
         },
 
         async loadMore($state) {
-
             this.lastInfiniteState = $state;
             this.page++;
 
             try {
-                const { data, found } = await this.performSearch(true);
+                const { data, found } = await this.performSearch();
 
                 const perPage = 12;
 
@@ -570,152 +540,194 @@ export default {
         },
 
         updateFiltersInURL() {
-            const query = { ...this.$route.query };
+    const query = { ...this.$route.query };
 
-            Object.keys(query).forEach((key) => {
-                if (
-                    key.startsWith("price_min_") ||
-                    key.startsWith("price_max_")
-                ) {
-                    delete query[key];
-                }
-            });
+    // Remove all existing price filters first
+    Object.keys(query).forEach((key) => {
+        if (
+            key.startsWith("price_min_") ||
+            key.startsWith("price_max_")
+        ) {
+            delete query[key];
+        }
+    });
 
-            if (
-                this.filters.priceRange?.min !== null &&
-                this.filters.priceRange?.min !== undefined &&
-                this.filters.priceRange.min !== this.pricesFilter.min
-            ) {
-                query["price_min_" + this.selectedCurrency.code] =
-                    this.filters.priceRange.min;
-            }
+    const priceMin = this.activeFilters.priceRange?.min;
+    const priceMax = this.activeFilters.priceRange?.max;
+    const facetMin = this.accommodationPricesFilters?.stats?.min;
+    const facetMax = this.accommodationPricesFilters?.stats?.max;
 
-            if (
-                this.filters.priceRange?.max !== null &&
-                this.filters.priceRange?.max !== undefined &&
-                this.filters.priceRange.max !== this.pricesFilter.max
-            ) {
-                query["price_max_" + this.selectedCurrency.code] =
-                    this.filters.priceRange.max;
-            }
+    // Check if both values are valid and not equal to facet range
+    const hasValidMin = priceMin !== null && priceMin !== undefined && facetMin !== undefined;
+    const hasValidMax = priceMax !== null && priceMax !== undefined && facetMax !== undefined;
+    const minDifferent = hasValidMin && priceMin !== facetMin;
+    const maxDifferent = hasValidMax && priceMax !== facetMax;
 
-            if (this.filters.accommodationTypes?.length) {
-                query.accommodation_types = this.filters.accommodationTypes.join(",");
-            } else {
-                delete query.accommodation_types;
-            }
+    // Add prices in  URL ONLY if BOTH are present or one is non equal to facet range
+    if (hasValidMin && hasValidMax && (minDifferent || maxDifferent)) {
+        query["price_min_" + this.selectedCurrency.code] = priceMin;
+        query["price_max_" + this.selectedCurrency.code] = priceMax;
+    }
 
-            if (this.filters.amenities?.length) {
-                query.amenities = this.filters.amenities.join(",");
-            } else {
-                delete query.amenities;
-            }
+    // Accommodation type
+    if (this.activeFilters.accommodation_type !== null) {
+        query.accommodation_type = this.activeFilters.accommodation_type;
+    } else {
+        delete query.accommodation_type;
+    }
 
-            Object.keys(query).forEach((key) => {
-                if (
-                    query[key] === null ||
-                    query[key] === undefined ||
-                    query[key] === ""
-                ) {
-                    delete query[key];
-                }
-            });
+    // Accommodation occupation
+    if (this.activeFilters.accommodation_occupation !== null) {
+        query.accommodation_occupation = this.activeFilters.accommodation_occupation;
+    } else {
+        delete query.accommodation_occupation;
+    }
 
-            this.$router.replace({ query });
-        },
+    // Amenities
+    if (this.activeFilters.amenities?.length) {
+        query.amenities = this.activeFilters.amenities.join(",");
+    } else {
+        delete query.amenities;
+    }
+
+    // Clean up null/undefined/empty values
+    Object.keys(query).forEach((key) => {
+        if (
+            query[key] === null ||
+            query[key] === undefined ||
+            query[key] === ""
+        ) {
+            delete query[key];
+        }
+    });
+
+    this.$router.replace({ query });
+},
 
         parseURLParams() {
-            const query = this.$route.query;
+    const query = this.$route.query;
 
-            // Parse search params
-            if (query.locationId || query.locationName) {
-                this.searchParams.location = {
-                    id: query.locationId || null,
-                    name: query.locationName || "",
-                };
-                this.searchParams.locationId = query.locationId || null;
+    // Parse search params
+    if (query.locationId || query.locationName) {
+        this.searchParams.location = {
+            id: query.locationId || null,
+            name: query.locationName || "",
+        };
+        this.searchParams.locationId = query.locationId || null;
+    }
+
+    if (query.checkIn) {
+        this.searchParams.checkIn = query.checkIn;
+    }
+    if (query.checkOut) {
+        this.searchParams.checkOut = query.checkOut;
+    }
+    if (query.adults) {
+        this.searchParams.guests.adults = parseInt(query.adults);
+    }
+    if (query.children) {
+        this.searchParams.guests.children = parseInt(query.children);
+    }
+    if (query.infants) {
+        this.searchParams.guests.infants = parseInt(query.infants);
+    }
+    if (query.pets) {
+        this.searchParams.guests.pets = parseInt(query.pets);
+    }
+
+    // Parse filters
+    if (query.accommodation_type) {
+        this.activeFilters.accommodation_type = query.accommodation_type;
+    }
+
+    if (query.accommodation_occupation) {
+        this.activeFilters.accommodation_occupation = query.accommodation_occupation;
+    }
+
+    if (query.amenities) {
+        this.activeFilters.amenities = query.amenities.split(",");
+    }
+
+    // Parse price filters - check for current currency
+    const currentCurrencyMinKey = "price_min_" + this.selectedCurrency.code;
+    const currentCurrencyMaxKey = "price_max_" + this.selectedCurrency.code;
+
+    // Check if there are price filters for different currencies
+    const allPriceMinKeys = Object.keys(query).filter((k) =>
+        k.startsWith("price_min_")
+    );
+    const allPriceMaxKeys = Object.keys(query).filter((k) =>
+        k.startsWith("price_max_")
+    );
+
+    const hasDifferentCurrencyPrices =
+        allPriceMinKeys.some((k) => k !== currentCurrencyMinKey) ||
+        allPriceMaxKeys.some((k) => k !== currentCurrencyMaxKey);
+
+    // If there are price filters for different currencies, remove them from URL
+    if (hasDifferentCurrencyPrices) {
+        const newQuery = { ...query };
+
+        // Remove all price filters that don't match current currency
+        allPriceMinKeys.forEach((key) => {
+            if (key !== currentCurrencyMinKey) {
+                delete newQuery[key];
             }
+        });
 
-            if (query.checkIn) {
-                this.searchParams.checkIn = query.checkIn;
+        allPriceMaxKeys.forEach((key) => {
+            if (key !== currentCurrencyMaxKey) {
+                delete newQuery[key];
             }
-            if (query.checkOut) {
-                this.searchParams.checkOut = query.checkOut;
-            }
-            if (query.adults) {
-                this.searchParams.guests.adults = parseInt(query.adults);
-            }
-            if (query.children) {
-                this.searchParams.guests.children = parseInt(query.children);
-            }
-            if (query.infants) {
-                this.searchParams.guests.infants = parseInt(query.infants);
-            }
-            if (query.pets) {
-                this.searchParams.guests.pets = parseInt(query.pets);
-            }
+        });
 
-            // Parse filters
-            if (query.accommodation_types) {
-                this.filters.accommodationTypes = query.accommodation_types.split(",");
-            }
+        // Update URL without wrong currency filters
+        this.$router.replace({ query: newQuery });
+    }
 
-            if (query.amenities) {
-                this.filters.amenities = query.amenities.split(",");
-            }
+    // BOTH parameters must be present
+    const hasMinInUrl = query[currentCurrencyMinKey] !== undefined;
+    const hasMaxInUrl = query[currentCurrencyMaxKey] !== undefined;
 
-            // Parse price filters - check for current currency
-            const currentCurrencyMinKey =
-                "price_min_" + this.selectedCurrency.code;
-            const currentCurrencyMaxKey =
-                "price_max_" + this.selectedCurrency.code;
+    // If there is only one delete it
+    if (hasMinInUrl !== hasMaxInUrl) {
+        const newQuery = { ...query };
+        delete newQuery[currentCurrencyMinKey];
+        delete newQuery[currentCurrencyMaxKey];
+        this.$router.replace({ query: newQuery });
 
-            // Check if there are price filters for different currencies
-            const allPriceMinKeys = Object.keys(query).filter((k) =>
-                k.startsWith("price_min_")
-            );
-            const allPriceMaxKeys = Object.keys(query).filter((k) =>
-                k.startsWith("price_max_")
-            );
+        // Set to null (full range)
+        this.activeFilters.priceRange = {
+            min: null,
+            max: null
+        };
+        return;
+    }
 
-            const hasDifferentCurrencyPrices =
-                allPriceMinKeys.some((k) => k !== currentCurrencyMinKey) ||
-                allPriceMaxKeys.some((k) => k !== currentCurrencyMaxKey);
+    // If there are both (parse them)
+    if (hasMinInUrl && hasMaxInUrl) {
+        const minValue = parseInt(query[currentCurrencyMinKey]);
+        const maxValue = parseInt(query[currentCurrencyMaxKey]);
 
-            // If there are price filters for different currencies, remove them from URL
-            if (hasDifferentCurrencyPrices) {
-                const newQuery = { ...query };
-
-                // Remove all price filters that don't match current currency
-                allPriceMinKeys.forEach((key) => {
-                    if (key !== currentCurrencyMinKey) {
-                        delete newQuery[key];
-                    }
-                });
-
-                allPriceMaxKeys.forEach((key) => {
-                    if (key !== currentCurrencyMaxKey) {
-                        delete newQuery[key];
-                    }
-                });
-
-                // Update URL without wrong currency filters
-                this.$router.replace({ query: newQuery });
-            }
-
-            // Only apply price filters if they match current currency
-            if (query[currentCurrencyMinKey]) {
-                this.filters.priceRange.min = parseInt(
-                    query[currentCurrencyMinKey]
-                );
-            }
-
-            if (query[currentCurrencyMaxKey]) {
-                this.filters.priceRange.max = parseInt(
-                    query[currentCurrencyMaxKey]
-                );
-            }
-        },
+        if (this.accommodationPricesFilters?.stats) {
+            this.activeFilters.priceRange = {
+                min: Math.max(minValue, this.accommodationPricesFilters.stats.min),
+                max: Math.min(maxValue, this.accommodationPricesFilters.stats.max)
+            };
+        } else {
+            this.activeFilters.priceRange = {
+                min: minValue,
+                max: maxValue
+            };
+        }
+    } else {
+        // Set them on null (full range)
+        this.activeFilters.priceRange = {
+            min: null,
+            max: null
+        };
+    }
+},
 
         handleSearch(searchData) {
             this.searchParams = {

@@ -12,15 +12,42 @@
             </div>
 
             <!-- Results Grid -->
-            <div v-else-if="results.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <accommodation-card
-                    v-for="accommodation in results"
-                    :key="accommodation.id"
-                    :accommodation="accommodation"
-                    :hovered="hoveredCardId === accommodation.id"
-                    @click="$emit('card-click', accommodation)"
-                    @hover="$emit('card-hover', $event)"
-                />
+            <div v-else-if="results.length > 0">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <accommodation-card
+                        v-for="accommodation in results"
+                        :key="accommodation.id"
+                        :accommodation="accommodation"
+                        :hovered="hoveredCardId === accommodation.id"
+                        @click="$emit('card-click', accommodation)"
+                        @hover="$emit('card-hover', $event)"
+                    />
+                </div>
+
+                <!-- Infinite Loading -->
+                <v3-infinite-loading
+                    @infinite="handleInfiniteScroll"
+                    :key="infiniteId"
+                >
+                    <template #spinner>
+                        <div class="py-8 text-center">
+                            <div class="inline-flex items-center space-x-2">
+                                <svg class="animate-spin h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span class="text-gray-600 dark:text-gray-400">Loading more...</span>
+                            </div>
+                        </div>
+                    </template>
+                    <template #complete>
+                        <div class="py-8 text-center">
+                            <p class="text-gray-500 dark:text-gray-400">
+                                You've reached the end of the results
+                            </p>
+                        </div>
+                    </template>
+                </v3-infinite-loading>
             </div>
 
             <!-- No Results -->
@@ -41,17 +68,6 @@
                     Clear all filters
                 </button>
             </div>
-
-            <!-- Load More (Infinite Scroll) -->
-            <div
-                v-if="results.length > 0 && !loading"
-                ref="loadMoreTrigger"
-                class="h-20 flex items-center justify-center"
-            >
-                <div v-if="hasMore" class="text-sm text-gray-500">
-                    Loading more...
-                </div>
-            </div>
         </div>
 
         <!-- Map View -->
@@ -68,6 +84,32 @@
                             @click="$emit('card-click', accommodation)"
                             @hover="$emit('card-hover', $event)"
                         />
+
+                        <!-- Infinite Loading for Map View -->
+                        <v3-infinite-loading
+                            v-if="results.length > 0"
+                            @infinite="handleInfiniteScroll"
+                            :key="infiniteId"
+                        >
+                            <template #spinner>
+                                <div class="py-4 text-center">
+                                    <div class="inline-flex items-center space-x-2">
+                                        <svg class="animate-spin h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <span class="text-gray-600 dark:text-gray-400 text-sm">Loading more...</span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template #complete>
+                                <div class="py-4 text-center">
+                                    <p class="text-gray-500 dark:text-gray-400 text-sm">
+                                        No more results
+                                    </p>
+                                </div>
+                            </template>
+                        </v3-infinite-loading>
                     </div>
                 </div>
 
@@ -87,6 +129,8 @@
 </template>
 
 <script>
+import V3InfiniteLoading from 'v3-infinite-loading';
+import 'v3-infinite-loading/lib/style.css';
 import AccommodationCard from './AccommodationCard.vue';
 import SearchMap from './SearchMap.vue';
 
@@ -95,6 +139,7 @@ export default {
     components: {
         AccommodationCard,
         SearchMap,
+        V3InfiniteLoading,
     },
     props: {
         results: {
@@ -113,39 +158,17 @@ export default {
             type: [Number, String],
             default: null,
         },
-        hasMore: {
-            type: Boolean,
-            default: true,
+        infiniteId: {
+            type: [String, Number],
+            default: 0,
         },
     },
-    mounted() {
-        // Setup intersection observer for infinite scroll
-        if (this.$refs.loadMoreTrigger) {
-            this.setupIntersectionObserver();
-        }
-    },
-    beforeDestroy() {
-        if (this.observer) {
-            this.observer.disconnect();
-        }
-    },
     methods: {
-        setupIntersectionObserver() {
-            const options = {
-                root: null,
-                rootMargin: '300px',
-                threshold: 0,
-            };
-
-            this.observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting && !this.loading && this.hasMore) {
-                        this.$emit('load-more');
-                    }
-                });
-            }, options);
-
-            this.observer.observe(this.$refs.loadMoreTrigger);
+        handleInfiniteScroll($state) {
+            this.$emit('load-more', $state);
+        },
+        handleRetry() {
+            this.$emit('retry');
         },
     },
 };
