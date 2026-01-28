@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Accommodation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Models\Location;
-use App\Models\Listing;
 
 class ScoutReindex extends Command
 {
@@ -35,7 +35,7 @@ class ScoutReindex extends Command
     {
         $indexableModels = [
             Location::class => 'locations',
-            Listing::class => 'listings',
+            Accommodation::class => 'accommodations',
         ];
         $indexableModelClasses = array_keys($indexableModels);
 
@@ -43,7 +43,7 @@ class ScoutReindex extends Command
         $model = $this->option('model');
         if (!is_null($model)) {
             $models = [
-                Arr::first($indexableModelClasses, fn ($m) => Str::endsWith($m, $model))
+                Arr::first($indexableModelClasses, fn($m) => Str::endsWith($m, $model))
             ];
         } else {
             $models = &$indexableModelClasses;
@@ -57,7 +57,7 @@ class ScoutReindex extends Command
         // we don't want to overflow the queue with this one
         config(['scout.queue' => false]);
 
-        // Ensure collections exist
+        // Ensure collections exist (with rebuild)
         $this->ensureCollectionsExist($models);
 
         foreach ($models as $modelClass) {
@@ -93,13 +93,13 @@ class ScoutReindex extends Command
 
     /**
      * Ensure Typesense collections exist for all models
+     * ALWAYS rebuilds collections to ensure latest schema
      */
     protected function ensureCollectionsExist(array $models): void
     {
-        $this->info("Checking Typesense collections...");
+        $this->info("Rebuilding Typesense collections...");
 
         try {
-            // Create Typesense client manually
             $config = [
                 'api_key' => config('scout.typesense.client-settings.api_key'),
                 'nodes' => config('scout.typesense.client-settings.nodes'),
@@ -117,33 +117,75 @@ class ScoutReindex extends Command
                 $indexName = $model->searchableAs();
 
                 try {
-                    // Check if collection exists
-                    $typesense->collections[$indexName]->retrieve();
-                    $this->info("✓ Collection '{$indexName}' already exists");
-                } catch (\Typesense\Exceptions\ObjectNotFound $e) {
-                    // Collection doesn't exist, create it
-                    $this->warn("Collection '{$indexName}' not found, creating...");
-
-                    // Get schema from model if it has the method
-                    if (method_exists($model, 'getCollectionSchema')) {
-                        $schema = $model->getCollectionSchema();
-                    } elseif (method_exists($model, 'getTypesenseSchema')) {
-                        $schema = $model->getTypesenseSchema();
-                    } else {
-                        // Create basic schema from first record
-                        $schema = $this->generateSchemaFromModel($modelClass, $indexName);
+                    // Try to delete existing collection
+                    try {
+                        $typesense->collections[$indexName]->delete();
+                        $this->warn("Deleted old collection '{$indexName}'");
+                    } catch (\Typesense\Exceptions\ObjectNotFound $e) {
+                        $this->info("Collection '{$indexName}' doesn't exist yet");
                     }
 
+                    // Get schema from model
+                    $schema = $this->getModelSchema($model, $modelClass, $indexName);
+
+                    // Debug: Show schema fields
+                    $this->info("Creating collection '{$indexName}' with fields:");
+
+                    // Validate schema structure
+                    if (!isset($schema['fields']) || !is_array($schema['fields'])) {
+                        $this->error("Invalid schema structure for '{$indexName}': 'fields' must be an array");
+                        throw new \Exception("Invalid schema structure");
+                    }
+
+                    foreach ($schema['fields'] as $index => $field) {
+                        // Check if field is actually an array
+                        if (!is_array($field)) {
+                            $this->error("Invalid field at index {$index} in '{$indexName}' schema:");
+                            $this->error("Expected array, got: " . gettype($field));
+                            $this->error("Value: " . (is_string($field) ? $field : json_encode($field)));
+                            throw new \Exception("Invalid field structure at index {$index}");
+                        }
+
+                        // Check for required keys
+                        if (!isset($field['name']) || !isset($field['type'])) {
+                            $this->error("Field at index {$index} missing 'name' or 'type':");
+                            $this->error(json_encode($field, JSON_PRETTY_PRINT));
+                            throw new \Exception("Invalid field structure at index {$index}");
+                        }
+
+                        $optional = isset($field['optional']) && $field['optional'] ? ' (optional)' : '';
+                        $this->info("   - {$field['name']} ({$field['type']}){$optional}");
+                    }
+
+                    // Create new collection
                     $typesense->collections->create($schema);
-                    $this->info("✓ Collection '{$indexName}' created successfully");
+                    $this->info("Collection '{$indexName}' created successfully");
                 } catch (\Exception $e) {
                     $this->error("Error with collection '{$indexName}': " . $e->getMessage());
+                    throw $e; // Stop execution on error
                 }
             }
         } catch (\Exception $e) {
             $this->error("Error ensuring collections exist: " . $e->getMessage());
             $this->error($e->getTraceAsString());
-            throw $e; // Stop execution if we can't create collections
+            throw $e;
+        }
+    }
+
+    /**
+     * Get schema from model
+     */
+    protected function getModelSchema($model, string $modelClass, string $indexName): array
+    {
+        if (method_exists($model, 'getCollectionSchema')) {
+            $this->info("   Using getCollectionSchema() from model");
+            return $model->getCollectionSchema();
+        } elseif (method_exists($model, 'getTypesenseSchema')) {
+            $this->info("   Using getTypesenseSchema() from model");
+            return $model->getTypesenseSchema();
+        } else {
+            $this->warn("   No schema method found, generating from model data");
+            return $this->generateSchemaFromModel($modelClass, $indexName);
         }
     }
 
@@ -152,13 +194,11 @@ class ScoutReindex extends Command
      */
     protected function generateSchemaFromModel(string $modelClass, string $indexName): array
     {
-        // Try to get a sample record to infer schema
         $sample = $modelClass::first();
 
         if ($sample) {
             $searchableData = $sample->toSearchableArray();
         } else {
-            // No records exist, create minimal schema
             $this->warn("No records found for {$modelClass}, creating minimal schema");
             return [
                 'name' => $indexName,
@@ -219,7 +259,7 @@ class ScoutReindex extends Command
     protected function inferTypesenseType($value): string
     {
         if (is_null($value)) {
-            return 'string'; // default for null
+            return 'string';
         }
 
         if (is_bool($value)) {
@@ -238,7 +278,6 @@ class ScoutReindex extends Command
             if (empty($value)) {
                 return 'string[]';
             }
-            // Check type of first element
             $firstElement = reset($value);
             if (is_string($firstElement)) {
                 return 'string[]';
@@ -250,6 +289,6 @@ class ScoutReindex extends Command
             return 'string[]';
         }
 
-        return 'string'; // default
+        return 'string';
     }
 }
