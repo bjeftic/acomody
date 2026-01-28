@@ -14,7 +14,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.22",
         "laravel/tinker": "^2.10.1",
-        "league/flysystem-aws-s3-v3": "^3.0",
+        "league/flysystem-aws-s3-v3": "^3.30",
         "spatie/laravel-html": "^3.12",
         "spatie/laravel-translatable": "^6.11",
         "stevebauman/location": "^7.6",
