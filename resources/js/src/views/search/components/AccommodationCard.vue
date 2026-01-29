@@ -184,10 +184,10 @@ export default {
             if (!price) return this.selectedCurrency.symbol + ' 0';
 
             if (typeof price === 'object' && price.amount) {
-                return price.currency + ' ' + price.amount;
+                return price.currency + ' ' + Math.ceil(price.amount);
             }
 
-            return price + ' ' + this.selectedCurrency.symbol;
+            return Math.ceil(price) + ' ' + this.selectedCurrency.symbol;
         }
     },
 };

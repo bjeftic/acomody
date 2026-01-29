@@ -41,10 +41,10 @@
                             @update:price-range="handleFilterUpdate('priceRange', $event)"
                         />
 
-                        <!-- Property Type -->
-                        <property-type-filter
-                            :selected-types="localFilters.propertyTypes"
-                            @update:types="handleFilterUpdate('propertyTypes', $event)"
+                        <!-- Accommodation Type -->
+                        <accommodation-type-filter
+                            :selected-types="localFilters.accommodationTypes"
+                            @update:types="handleFilterUpdate('accommodationTypes', $event)"
                         />
 
                         <!-- Rooms & Beds -->
@@ -117,7 +117,7 @@
 
 <script>
 import PriceFilter from './filters/PriceFilter.vue';
-import PropertyTypeFilter from './filters/PropertyTypeFilter.vue';
+import PropertyTypeFilter from './filters/AccommodationTypeFilter.vue';
 import RoomsBedsFilter from './filters/RoomsBedsFilter.vue';
 import AmenitiesFilter from './filters/AmenitiesFilter.vue';
 import BookingOptionsFilter from './filters/BookingOptionsFilter.vue';

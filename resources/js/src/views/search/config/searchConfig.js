@@ -14,9 +14,6 @@ export const searchConfig = {
         flexibleDates: false,
     },
 
-    // Results per page
-    resultsPerPage: 20,
-
     // Map configuration
     map: {
         defaultCenter: { lat: 47.4979, lng: 19.0402 }, // Budapest

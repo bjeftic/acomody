@@ -20,6 +20,11 @@ const routes = [
         children: hostingRoutes,
     },
     {
+        path: '/s',
+        name: 'page-search',
+        component: () => import('@/src/views/search/Search.vue'),
+    },
+    {
         path: '/become-a-host',
         name: 'page-become-a-host',
         component: () => import('@/src/views/BecomeAHost.vue'),

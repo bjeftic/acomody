@@ -48,21 +48,13 @@ import ValidationAlertBox from "@/src/components/ValidationAlertBox.vue";
 import ActionCard from "@/src/components/common/ActionCard.vue";
 import SelectActionCard from "@/src/components/common/SelectActionCard.vue";
 import FormSkeleton from "@/src/components/common/skeletons/FormSkeleton.vue";
+import FilterSkeleton from "@/src/components/common/skeletons/FilterSkeleton.vue";
 import MainSkeleton from "@/src/components/common/skeletons/MainSkeleton.vue";
 
+// Lucide icons loader
+import IconLoader from "@/src/components/IconLoader.vue";
 
 const app = createApp(App);
-
-const iconModules = import.meta.glob('@/src/components/icons/*.vue', { eager: true });
-
-Object.entries(iconModules).forEach(([path, module]) => {
-    const iconName = path
-        .split('/')
-        .pop()
-        .replace(/\.\w+$/, '') + 'Icon';
-
-    app.component(iconName, module.default);
-});
 
 app.component("FwbAlert", FwbAlert);
 app.component("FwbAccordion", FwbAccordion);
@@ -103,11 +95,13 @@ app.component("ValidationAlertBox", ValidationAlertBox);
 app.component("ActionCard", ActionCard);
 app.component("SelectActionCard", SelectActionCard);
 app.component("FormSkeleton", FormSkeleton);
+app.component("FilterSkeleton", FilterSkeleton);
 app.component("MainSkeleton", MainSkeleton);
 
+app.component("IconLoader", IconLoader)
 
-store.dispatch('auth/initializeAuth').finally(() => {
+store.dispatch("auth/initializeAuth").finally(() => {
     app.use(store);
     app.use(router);
-    app.mount('#app');
+    app.mount("#app");
 });

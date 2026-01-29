@@ -105,7 +105,7 @@
                             <template #complete>
                                 <div class="py-4 text-center">
                                     <p class="text-gray-500 dark:text-gray-400 text-sm">
-                                        No more results
+                                        No more results in this area
                                     </p>
                                 </div>
                             </template>
@@ -118,6 +118,7 @@
                     <search-map
                         :results="results"
                         :hovered-card-id="hoveredCardId"
+                        :current-map-bounds="currentMapBounds"
                         @map-bounds-changed="$emit('map-bounds-changed', $event)"
                         @marker-hover="$emit('card-hover', $event)"
                         @marker-click="$emit('card-click', $event)"
@@ -161,6 +162,10 @@ export default {
         infiniteId: {
             type: [String, Number],
             default: 0,
+        },
+        currentMapBounds: {
+            type: Object,
+            default: null,
         },
     },
     methods: {

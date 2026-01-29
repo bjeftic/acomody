@@ -5,7 +5,7 @@
         <!-- Loading Indicator -->
         <div v-if="loading" class="map-loading">
             <div class="spinner"></div>
-            <p>Loading map...</p>
+            <p>Loading properties...</p>
         </div>
 
         <!-- Map Controls -->
@@ -46,7 +46,7 @@
         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000]">
             <div class="px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700">
                 <span class="text-sm font-medium text-gray-900 dark:text-white">
-                    {{ results.length }} properties
+                    {{ results.length }} properties in view
                 </span>
             </div>
         </div>
@@ -88,6 +88,10 @@ export default {
             type: Number,
             default: 12,
         },
+        currentMapBounds: {
+            type: Object,
+            default: null,
+        },
     },
     computed: {
         ...mapState("ui", ["selectedCurrency"]),
@@ -98,9 +102,10 @@ export default {
             markers: {},
             markerCluster: null,
             loading: false,
-            fetchTimeout: null,
+            boundsChangeTimeout: null,
             userInteracted: false,
-            initRecenter: true,
+            isInitialLoad: true,
+            lastEmittedBounds: null,
         };
     },
     watch: {
@@ -111,7 +116,6 @@ export default {
             deep: true,
         },
         hoveredCardId(newId, oldId) {
-            // Highlight hovered marker
             if (oldId && this.markers[oldId]) {
                 this.unhighlightMarker(oldId);
             }
@@ -129,13 +133,17 @@ export default {
         });
     },
     beforeDestroy() {
+        if (this.boundsChangeTimeout) {
+            clearTimeout(this.boundsChangeTimeout);
+        }
         if (this.map) {
             this.map.remove();
             this.map = null;
         }
     },
     methods: {
-    ...mapActions("search", ["searchListings"]),
+        ...mapActions("search", ["searchListings"]),
+
         initializeMap() {
             // Initialize map
             this.map = L.map(this.$refs.mapContainer, {
@@ -173,15 +181,23 @@ export default {
 
             this.map.addLayer(this.markerCluster);
 
+            // Track user interaction
             this.map.on('dragstart zoomstart', () => {
                 this.userInteracted = true;
             });
 
+            // Emit bounds after map movement stops
             this.map.on('moveend', () => {
+                // Skip first moveend that is triggered automaticaly
+                if (this.isInitialLoad) {
+                    this.isInitialLoad = false;
+                    return;
+                }
+
+                // only if user moved map
                 if (this.userInteracted) {
-                    this.debouncedFetch();
+                    this.debouncedEmitBounds();
                     this.userInteracted = false;
-                    this.initRecenter = false;
                 }
             });
         },
@@ -195,16 +211,15 @@ export default {
 
             // Add new markers
             results.forEach((accommodation) => {
-                if (accommodation.coordinates.longitude && accommodation.coordinates.latitude) {
+                if (accommodation.coordinates?.latitude && accommodation.coordinates?.longitude) {
                     const marker = this.createMarker(accommodation);
                     this.markers[accommodation.id] = marker;
                     this.markerCluster.addLayer(marker);
                 }
             });
 
-            // Fit bounds to show all markers
-            if (!this.initRecenter) return;
-            if (results.length > 0) {
+            // Fit bounds only on initial load
+            if (!this.currentMapBounds && results.length > 0) {
                 const bounds = this.markerCluster.getBounds();
                 if (bounds.isValid()) {
                     this.map.fitBounds(bounds, { padding: [50, 50] });
@@ -255,15 +270,10 @@ export default {
         createPopupContent(accommodation) {
             return `
                 <div class="p-2">
-                    // <img
-                    //     src='image'
-                    //     alt="image"
-                    //     class="w-full h-32 object-cover rounded-lg mb-2"
-                    // />
                     <div class="font-semibold text-sm mb-1">${accommodation.title}</div>
-                    <div class="text-xs text-gray-600 mb-1">${accommodation.location}</div>
+                    <div class="text-xs text-gray-600 mb-1">${accommodation.location || ''}</div>
                     <div class="flex items-center justify-between">
-                        <div class="text-sm font-bold">$${accommodation.price}/night</div>
+                        <div class="text-sm font-bold">${accommodation.price} ${this.selectedCurrency.symbol}/night</div>
                         ${accommodation.rating ? `
                             <div class="flex items-center text-xs">
                                 <svg class="w-3 h-3 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -334,6 +344,8 @@ export default {
             if (!this.map) return null;
 
             const bounds = this.map.getBounds();
+            const center = this.map.getCenter();
+
             return {
                 northEast: {
                     lat: bounds.getNorthEast().lat,
@@ -344,8 +356,8 @@ export default {
                     lng: bounds.getSouthWest().lng
                 },
                 center: {
-                    lat: this.map.getCenter().lat,
-                    lng: this.map.getCenter().lng
+                    lat: center.lat,
+                    lng: center.lng
                 },
                 zoom: this.map.getZoom()
             };
@@ -355,13 +367,40 @@ export default {
             const mapBounds = this.getCurrentMapBounds();
             if (!mapBounds) return;
 
+            // Check if the bounds are significantly diff than before
+            if (this.areBoundsSimilar(mapBounds, this.lastEmittedBounds)) {
+                console.log('Bounds not changed significantly, skipping emit');
+                return;
+            }
+
+            this.lastEmittedBounds = mapBounds;
             this.$emit('map-bounds-changed', mapBounds);
         },
 
-        debouncedFetch() {
-            clearTimeout(this.fetchTimeout);
-            this.fetchTimeout = setTimeout(() => {
+        areBoundsSimilar(bounds1, bounds2) {
+            if (!bounds1 || !bounds2) return false;
+
+            const threshold = 0.001; // ~100m diff
+
+            return (
+                Math.abs(bounds1.northEast.lat - bounds2.northEast.lat) < threshold &&
+                Math.abs(bounds1.northEast.lng - bounds2.northEast.lng) < threshold &&
+                Math.abs(bounds1.southWest.lat - bounds2.southWest.lat) < threshold &&
+                Math.abs(bounds1.southWest.lng - bounds2.southWest.lng) < threshold
+            );
+        },
+
+        debouncedEmitBounds() {
+            this.loading = true;
+
+            if (this.boundsChangeTimeout) {
+                clearTimeout(this.boundsChangeTimeout);
+            }
+
+            // set new timeout
+            this.boundsChangeTimeout = setTimeout(() => {
                 this.emitMapBounds();
+                this.loading = false;
             }, 500);
         },
     },
@@ -383,16 +422,18 @@ export default {
 
 .map-loading {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.9);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 1001;
 }
 
 .spinner {
@@ -402,7 +443,7 @@ export default {
     width: 40px;
     height: 40px;
     animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 @keyframes spin {

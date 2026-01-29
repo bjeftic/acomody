@@ -1,7 +1,7 @@
 // Filters Configuration
 export const filtersConfig = {
     // Property types
-    propertyTypes: [
+    accommodationTypes: [
         { id: "house", name: "House", icon: "🏠", popular: true },
         { id: "apartment", name: "Apartment", icon: "🏢", popular: true },
         { id: "villa", name: "Villa", icon: "🏰", popular: true },
@@ -174,10 +174,10 @@ export const filtersConfig = {
     // Filter groups for "More filters" modal
     filterGroups: [
         {
-            id: "property_type",
-            name: "Property type",
+            id: "accommodation_type",
+            name: "Accommodation type",
             icon: "🏠",
-            filters: "propertyTypes",
+            filters: "accommodationTypes",
         },
         {
             id: "rooms_beds",
@@ -210,23 +210,4 @@ export const filtersConfig = {
             filters: "hostLanguages",
         },
     ],
-
-    // Default filter values
-    defaults: {
-        priceRange: { min: 0, max: 1000 },
-        propertyTypes: [],
-        roomTypes: [],
-        amenities: [],
-        bedrooms: { min: 0, max: null },
-        beds: { min: 0, max: null },
-        bathrooms: { min: 0, max: null },
-        bookingOptions: [],
-        instantBook: false,
-        selfCheckIn: false,
-        superhost: false,
-        hostLanguages: [],
-        accessibility: [],
-        houseRules: [],
-        cancellationPolicy: null,
-    },
 };

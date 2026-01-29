@@ -11,10 +11,20 @@ export default {
         }
         state.accommodations.push(...(data.hits || []));
     },
+    [types.SET_ACCOMMODATIONS_ON_MAP_SEARCH_RESULTS](state, data) {
+        if (!state.isMapSearch && data.page === 1) {
+            state.accommodations = data.hits || [];
+            return;
+        }
+        state.accommodations.push(...(data.hits || []));
+    },
     [types.SET_FILTERS](state, counts) {
        state.filters = counts || [];
     },
     [types.SET_TOTAL_ACCOMMODATIONS_FOUND](state, data) {
         state.totalAccommodationsFound = data || 0;
+    },
+    [types.SET_IS_MAP_SEARCH](state, data) {
+        state.isMapSearch = data;
     }
 };

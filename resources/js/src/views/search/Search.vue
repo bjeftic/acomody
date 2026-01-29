@@ -3,7 +3,7 @@
         <!-- Main Content -->
         <div class="flex">
             <!-- Filters Sidebar (Desktop) -->
-            <aside
+            <!-- <aside
                 v-if="!isMobile"
                 class="w-80 flex-shrink-0 h-[calc(100vh-80px)] sticky top-20 overflow-y-auto border-r border-gray-200 dark:border-gray-800"
             >
@@ -14,7 +14,7 @@
                     @update:filters="handleFiltersUpdate"
                     @clear-all="clearAllFilters"
                 />
-            </aside>
+            </aside> -->
 
             <!-- Results Section -->
             <main class="flex-1">
@@ -91,7 +91,7 @@
                                 class="flex items-center space-x-2 border border-gray-300 dark:border-gray-700 rounded-lg p-1"
                             >
                                 <button
-                                    @click="viewMode = 'grid'"
+                                    @click="switchToGridView"
                                     :class="[
                                         'p-2 rounded transition-colors',
                                         viewMode === 'grid'
@@ -148,6 +148,9 @@
                         class="ml-6 mt-6 text-base font-semibold text-gray-900 dark:text-white"
                     >
                         {{ totalAccommodationsFound }} results
+                        <span v-if="isMapSearch" class="text-sm font-normal text-gray-500">
+                            (in current map area)
+                        </span>
                     </div>
                     <search-results
                         :results="accommodations"
@@ -155,6 +158,7 @@
                         :view-mode="viewMode"
                         :hovered-card-id="hoveredCardId"
                         :infinite-id="infiniteId"
+                        :current-map-bounds="currentMapBounds"
                         @map-bounds-changed="handleMapBoundsChanged"
                         @card-hover="handleCardHover"
                         @card-click="handleCardClick"
@@ -256,12 +260,14 @@ export default {
             showSortMenu: false,
             isMobile: window.innerWidth < searchConfig.breakpoints.tablet,
             lastInfiniteState: null,
+            currentMapBounds: null,
         };
     },
     computed: {
         ...mapState("search", {
             accommodations: (state) => state.accommodations,
             totalAccommodationsFound: (state) => state.totalAccommodationsFound,
+            isMapSearch: (state) => state.isMapSearch
         }),
         ...mapState("ui", ["selectedCurrency"]),
         ...mapGetters("search", {
@@ -367,7 +373,7 @@ export default {
         window.removeEventListener("resize", this.handleResize);
     },
     methods: {
-        ...mapActions("search", ["searchAccommodations"]),
+        ...mapActions("search", ["searchAccommodations", "setIsMapSearch"]),
 
         async performSearch() {
             this.loading = true;
@@ -380,14 +386,23 @@ export default {
                     min: this.activeFilters.priceRange?.min ?? null,
                     max: this.activeFilters.priceRange?.max ?? null,
                 };
-                const response = await this.searchAccommodations({
+
+                // Build search payload
+                const searchPayload = {
                     ...this.searchParams,
-                    ...this.geoLocation,
                     ...filtersToSend,
                     sortBy: this.sortBy,
                     page: this.page,
                     perPage: 12,
-                });
+                };
+
+                // If map search, use bounds instead of location
+                if (this.isMapSearch && this.currentMapBounds) {
+                    delete searchPayload.location;
+                    searchPayload.bounds = this.currentMapBounds;
+                }
+
+                const response = await this.searchAccommodations(searchPayload);
 
                 const data = response.hits || response.data || response;
                 const found = response.found || response.total || 0;
@@ -422,6 +437,31 @@ export default {
         handleSortChange(newSortBy) {
             this.sortBy = newSortBy;
             this.showSortMenu = false;
+            this.resetPaginationAndSearch();
+        },
+
+        handleMapBoundsChanged(mapBounds) {
+
+            this.setIsMapSearch(true);
+
+            // Keep current bounds
+            this.currentMapBounds = {
+                northEast: mapBounds.northEast,
+                southWest: mapBounds.southWest
+            };
+
+            // Reset pagination and make search
+            this.resetPaginationAndSearch();
+        },
+
+        switchToGridView() {
+            this.viewMode = 'grid';
+
+            // Restart search map flag and bounds
+            this.setIsMapSearch(false);
+            this.currentMapBounds = null;
+
+            // Restart location based search
             this.resetPaginationAndSearch();
         },
 
@@ -540,194 +580,176 @@ export default {
         },
 
         updateFiltersInURL() {
-    const query = { ...this.$route.query };
+            const query = { ...this.$route.query };
 
-    // Remove all existing price filters first
-    Object.keys(query).forEach((key) => {
-        if (
-            key.startsWith("price_min_") ||
-            key.startsWith("price_max_")
-        ) {
-            delete query[key];
-        }
-    });
+            // Remove all existing price filters first
+            Object.keys(query).forEach((key) => {
+                if (
+                    key.startsWith("price_min_") ||
+                    key.startsWith("price_max_")
+                ) {
+                    delete query[key];
+                }
+            });
 
-    const priceMin = this.activeFilters.priceRange?.min;
-    const priceMax = this.activeFilters.priceRange?.max;
-    const facetMin = this.accommodationPricesFilters?.stats?.min;
-    const facetMax = this.accommodationPricesFilters?.stats?.max;
+            const priceMin = this.activeFilters.priceRange?.min;
+            const priceMax = this.activeFilters.priceRange?.max;
+            const facetMin = this.accommodationPricesFilters?.stats?.min;
+            const facetMax = this.accommodationPricesFilters?.stats?.max;
 
-    // Check if both values are valid and not equal to facet range
-    const hasValidMin = priceMin !== null && priceMin !== undefined && facetMin !== undefined;
-    const hasValidMax = priceMax !== null && priceMax !== undefined && facetMax !== undefined;
-    const minDifferent = hasValidMin && priceMin !== facetMin;
-    const maxDifferent = hasValidMax && priceMax !== facetMax;
+            const hasValidMin = priceMin !== null && priceMin !== undefined && facetMin !== undefined;
+            const hasValidMax = priceMax !== null && priceMax !== undefined && facetMax !== undefined;
+            const minDifferent = hasValidMin && priceMin !== facetMin;
+            const maxDifferent = hasValidMax && priceMax !== facetMax;
 
-    // Add prices in  URL ONLY if BOTH are present or one is non equal to facet range
-    if (hasValidMin && hasValidMax && (minDifferent || maxDifferent)) {
-        query["price_min_" + this.selectedCurrency.code] = priceMin;
-        query["price_max_" + this.selectedCurrency.code] = priceMax;
-    }
+            if (hasValidMin && hasValidMax && (minDifferent || maxDifferent)) {
+                query["price_min_" + this.selectedCurrency.code] = priceMin;
+                query["price_max_" + this.selectedCurrency.code] = priceMax;
+            }
 
-    // Accommodation type
-    if (this.activeFilters.accommodation_type !== null) {
-        query.accommodation_type = this.activeFilters.accommodation_type;
-    } else {
-        delete query.accommodation_type;
-    }
+            if (this.activeFilters.accommodation_type !== null) {
+                query.accommodation_type = this.activeFilters.accommodation_type;
+            } else {
+                delete query.accommodation_type;
+            }
 
-    // Accommodation occupation
-    if (this.activeFilters.accommodation_occupation !== null) {
-        query.accommodation_occupation = this.activeFilters.accommodation_occupation;
-    } else {
-        delete query.accommodation_occupation;
-    }
+            if (this.activeFilters.accommodation_occupation !== null) {
+                query.accommodation_occupation = this.activeFilters.accommodation_occupation;
+            } else {
+                delete query.accommodation_occupation;
+            }
 
-    // Amenities
-    if (this.activeFilters.amenities?.length) {
-        query.amenities = this.activeFilters.amenities.join(",");
-    } else {
-        delete query.amenities;
-    }
+            if (this.activeFilters.amenities?.length) {
+                query.amenities = this.activeFilters.amenities.join(",");
+            } else {
+                delete query.amenities;
+            }
 
-    // Clean up null/undefined/empty values
-    Object.keys(query).forEach((key) => {
-        if (
-            query[key] === null ||
-            query[key] === undefined ||
-            query[key] === ""
-        ) {
-            delete query[key];
-        }
-    });
+            Object.keys(query).forEach((key) => {
+                if (
+                    query[key] === null ||
+                    query[key] === undefined ||
+                    query[key] === ""
+                ) {
+                    delete query[key];
+                }
+            });
 
-    this.$router.replace({ query });
-},
+            this.$router.replace({ query });
+        },
 
         parseURLParams() {
-    const query = this.$route.query;
+            const query = this.$route.query;
 
-    // Parse search params
-    if (query.locationId || query.locationName) {
-        this.searchParams.location = {
-            id: query.locationId || null,
-            name: query.locationName || "",
-        };
-        this.searchParams.locationId = query.locationId || null;
-    }
-
-    if (query.checkIn) {
-        this.searchParams.checkIn = query.checkIn;
-    }
-    if (query.checkOut) {
-        this.searchParams.checkOut = query.checkOut;
-    }
-    if (query.adults) {
-        this.searchParams.guests.adults = parseInt(query.adults);
-    }
-    if (query.children) {
-        this.searchParams.guests.children = parseInt(query.children);
-    }
-    if (query.infants) {
-        this.searchParams.guests.infants = parseInt(query.infants);
-    }
-    if (query.pets) {
-        this.searchParams.guests.pets = parseInt(query.pets);
-    }
-
-    // Parse filters
-    if (query.accommodation_type) {
-        this.activeFilters.accommodation_type = query.accommodation_type;
-    }
-
-    if (query.accommodation_occupation) {
-        this.activeFilters.accommodation_occupation = query.accommodation_occupation;
-    }
-
-    if (query.amenities) {
-        this.activeFilters.amenities = query.amenities.split(",");
-    }
-
-    // Parse price filters - check for current currency
-    const currentCurrencyMinKey = "price_min_" + this.selectedCurrency.code;
-    const currentCurrencyMaxKey = "price_max_" + this.selectedCurrency.code;
-
-    // Check if there are price filters for different currencies
-    const allPriceMinKeys = Object.keys(query).filter((k) =>
-        k.startsWith("price_min_")
-    );
-    const allPriceMaxKeys = Object.keys(query).filter((k) =>
-        k.startsWith("price_max_")
-    );
-
-    const hasDifferentCurrencyPrices =
-        allPriceMinKeys.some((k) => k !== currentCurrencyMinKey) ||
-        allPriceMaxKeys.some((k) => k !== currentCurrencyMaxKey);
-
-    // If there are price filters for different currencies, remove them from URL
-    if (hasDifferentCurrencyPrices) {
-        const newQuery = { ...query };
-
-        // Remove all price filters that don't match current currency
-        allPriceMinKeys.forEach((key) => {
-            if (key !== currentCurrencyMinKey) {
-                delete newQuery[key];
+            if (query.locationId || query.locationName) {
+                this.searchParams.location = {
+                    id: query.locationId || null,
+                    name: query.locationName || "",
+                };
+                this.searchParams.locationId = query.locationId || null;
             }
-        });
 
-        allPriceMaxKeys.forEach((key) => {
-            if (key !== currentCurrencyMaxKey) {
-                delete newQuery[key];
+            if (query.checkIn) {
+                this.searchParams.checkIn = query.checkIn;
             }
-        });
+            if (query.checkOut) {
+                this.searchParams.checkOut = query.checkOut;
+            }
+            if (query.adults) {
+                this.searchParams.guests.adults = parseInt(query.adults);
+            }
+            if (query.children) {
+                this.searchParams.guests.children = parseInt(query.children);
+            }
+            if (query.infants) {
+                this.searchParams.guests.infants = parseInt(query.infants);
+            }
+            if (query.pets) {
+                this.searchParams.guests.pets = parseInt(query.pets);
+            }
 
-        // Update URL without wrong currency filters
-        this.$router.replace({ query: newQuery });
-    }
+            if (query.accommodation_type) {
+                this.activeFilters.accommodation_type = query.accommodation_type;
+            }
 
-    // BOTH parameters must be present
-    const hasMinInUrl = query[currentCurrencyMinKey] !== undefined;
-    const hasMaxInUrl = query[currentCurrencyMaxKey] !== undefined;
+            if (query.accommodation_occupation) {
+                this.activeFilters.accommodation_occupation = query.accommodation_occupation;
+            }
 
-    // If there is only one delete it
-    if (hasMinInUrl !== hasMaxInUrl) {
-        const newQuery = { ...query };
-        delete newQuery[currentCurrencyMinKey];
-        delete newQuery[currentCurrencyMaxKey];
-        this.$router.replace({ query: newQuery });
+            if (query.amenities) {
+                this.activeFilters.amenities = query.amenities.split(",");
+            }
 
-        // Set to null (full range)
-        this.activeFilters.priceRange = {
-            min: null,
-            max: null
-        };
-        return;
-    }
+            const currentCurrencyMinKey = "price_min_" + this.selectedCurrency.code;
+            const currentCurrencyMaxKey = "price_max_" + this.selectedCurrency.code;
 
-    // If there are both (parse them)
-    if (hasMinInUrl && hasMaxInUrl) {
-        const minValue = parseInt(query[currentCurrencyMinKey]);
-        const maxValue = parseInt(query[currentCurrencyMaxKey]);
+            const allPriceMinKeys = Object.keys(query).filter((k) =>
+                k.startsWith("price_min_")
+            );
+            const allPriceMaxKeys = Object.keys(query).filter((k) =>
+                k.startsWith("price_max_")
+            );
 
-        if (this.accommodationPricesFilters?.stats) {
-            this.activeFilters.priceRange = {
-                min: Math.max(minValue, this.accommodationPricesFilters.stats.min),
-                max: Math.min(maxValue, this.accommodationPricesFilters.stats.max)
-            };
-        } else {
-            this.activeFilters.priceRange = {
-                min: minValue,
-                max: maxValue
-            };
-        }
-    } else {
-        // Set them on null (full range)
-        this.activeFilters.priceRange = {
-            min: null,
-            max: null
-        };
-    }
-},
+            const hasDifferentCurrencyPrices =
+                allPriceMinKeys.some((k) => k !== currentCurrencyMinKey) ||
+                allPriceMaxKeys.some((k) => k !== currentCurrencyMaxKey);
+
+            if (hasDifferentCurrencyPrices) {
+                const newQuery = { ...query };
+
+                allPriceMinKeys.forEach((key) => {
+                    if (key !== currentCurrencyMinKey) {
+                        delete newQuery[key];
+                    }
+                });
+
+                allPriceMaxKeys.forEach((key) => {
+                    if (key !== currentCurrencyMaxKey) {
+                        delete newQuery[key];
+                    }
+                });
+
+                this.$router.replace({ query: newQuery });
+            }
+
+            const hasMinInUrl = query[currentCurrencyMinKey] !== undefined;
+            const hasMaxInUrl = query[currentCurrencyMaxKey] !== undefined;
+
+            if (hasMinInUrl !== hasMaxInUrl) {
+                const newQuery = { ...query };
+                delete newQuery[currentCurrencyMinKey];
+                delete newQuery[currentCurrencyMaxKey];
+                this.$router.replace({ query: newQuery });
+
+                this.activeFilters.priceRange = {
+                    min: null,
+                    max: null
+                };
+                return;
+            }
+
+            if (hasMinInUrl && hasMaxInUrl) {
+                const minValue = parseInt(query[currentCurrencyMinKey]);
+                const maxValue = parseInt(query[currentCurrencyMaxKey]);
+
+                if (this.accommodationPricesFilters?.stats) {
+                    this.activeFilters.priceRange = {
+                        min: Math.max(minValue, this.accommodationPricesFilters.stats.min),
+                        max: Math.min(maxValue, this.accommodationPricesFilters.stats.max)
+                    };
+                } else {
+                    this.activeFilters.priceRange = {
+                        min: minValue,
+                        max: maxValue
+                    };
+                }
+            } else {
+                this.activeFilters.priceRange = {
+                    min: null,
+                    max: null
+                };
+            }
+        },
 
         handleSearch(searchData) {
             this.searchParams = {
@@ -736,6 +758,10 @@ export default {
                 checkOut: searchData.checkOut,
                 guests: searchData.guests,
             };
+
+            // Reset map search when we do location search
+            this.setIsMapSearch(false);
+            this.currentMapBounds = null;
 
             this.updateSearchParamsInURL();
             this.resetPaginationAndSearch();

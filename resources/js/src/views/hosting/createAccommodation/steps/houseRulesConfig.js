@@ -100,20 +100,6 @@ export const houseRulesConfig = {
         },
     ],
 
-    // Common additional rules templates
-    additionalRulesTemplates: [
-        "Please remove shoes at the entrance",
-        "No loud music after 10 PM",
-        "Keep the garden gate closed at all times",
-        "Please turn off all lights and AC when leaving",
-        "No cooking with strong-smelling foods (e.g., fish)",
-        "Please respect our neighbors and keep noise to a minimum",
-        "Guests are responsible for any damages",
-        "Maximum occupancy is strictly enforced",
-        "Only registered guests are allowed on the property",
-        "Please take out trash before checkout",
-    ],
-
     // Default values
     defaults: {
         // Check-in/out times
@@ -137,11 +123,10 @@ export const houseRulesConfig = {
         cancellationPolicy: "moderate",
 
         // Additional
-        additionalRules: "",
         checkInMethod: "self-checkin",
     },
 
-    // Recommended settings by property type
+    // Recommended settings by accommodation type
     recommendedByType: {
         apartment: {
             allowSmoking: false,
@@ -205,6 +190,5 @@ export const houseRulesConfig = {
         minCheckInWindow: 1, // Minimum 1 hour check-in window
         maxCheckInWindow: 12, // Maximum 12 hour check-in window
         checkOutAfterCheckIn: true, // checkOut must be after checkInFrom (next day)
-        additionalRulesMaxLength: 500, // Maximum characters for additional rules
     },
 };

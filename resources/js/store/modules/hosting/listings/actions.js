@@ -3,7 +3,7 @@ import apiClient from "@/services/apiClient";
 export const loadInitialMyListingsData = async ({ dispatch }) => {
     const actions = [
         dispatch("fetchAccommodationDrafts"),
-        dispatch("fetchMyListings"),
+        dispatch("fetchMyAccommodations"),
     ];
 
     await Promise.all(actions).finally(() => {
@@ -31,32 +31,32 @@ export const setMyListingsLoading = ({ commit }, isLoading) => {
     commit("SET_MY_LISTINGS_LOADING", isLoading);
 };
 
-export const fetchMyListings = async ({ commit }, { page = 1, perPage = 15 } = {}) => {
+export const fetchMyAccommodations = async ({ commit }, { page = 1, perPage = 15 } = {}) => {
     try {
-        const listings = await apiClient.listings
+        const accommodations = await apiClient.accommodations
             .query({
                 page: page,
                 per_page: perPage
             })
             .get();
 
-        commit("SET_MY_LISTINGS", listings.data);
-        return listings;
+        commit("SET_ACCOMMODATIONS", accommodations.data);
+        return accommodations;
     } catch (error) {
-        console.error("Failed to fetch my listings:", error);
+        console.error("Failed to fetch my accommodations:", error);
         throw error;
     }
 };
 
-export const fetchListing = async ({ commit }, listingId) => {
+export const fetchAccommodation = async ({ commit }, accommodationId) => {
     try {
-        const listing = await apiClient.listings[listingId]
+        const accommodation = await apiClient.accommodations[accommodationId]
             .get();
 
-        commit("SET_CURRENT_LISTING", listing.data);
-        return listing;
+        commit("SET_ACCOMMODATION", accommodation.data);
+        return accommodation;
     } catch (error) {
-        console.error(`Failed to fetch listing with ID ${listingId}:`, error);
+        console.error(`Failed to fetch accommodation with ID ${accommodationId}:`, error);
         throw error;
     }
 };

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="currentListing" class="max-w-4xl mx-auto pb-12">
+    <div v-if="accommodation" class="max-w-4xl mx-auto py-12">
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
             Listing details
         </h1>
@@ -43,11 +43,11 @@
                         <h2
                             class="text-2xl font-semibold text-gray-900 dark:text-white mb-2"
                         >
-                            {{ currentListing.listable.title || "Untitled listing" }}
+                            {{ accommodation.title || "Untitled listing" }}
                         </h2>
                         <!-- <p class="text-base text-gray-600 dark:text-gray-400">
-                            {{ currentListing.address.city }},
-                            {{ currentListing.address.country }}
+                            {{ accommodation.city }},
+                            {{ accommodation.country }}
                         </p> -->
                     </div>
 ``
@@ -72,7 +72,7 @@
                             <!-- <span
                                 class="text-sm text-gray-700 dark:text-gray-300"
                             >
-                                {{ currentListing.listable.guests }} guests
+                                {{ accommodation.guests }} guests
                             </span> -->
                         </div>
                         <div class="flex items-center space-x-2">
@@ -143,7 +143,7 @@
                             class="text-sm text-gray-700 dark:text-gray-300 line-clamp-3"
                         >
                             {{
-                                currentListing.listable.description ||
+                                accommodation.description ||
                                 "No description provided"
                             }}
                         </p>
@@ -235,8 +235,8 @@
                             <!-- <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
-                                {{ currentListing.listable.houseRules.checkInFrom }} -
-                                {{ currentListing.listable.houseRules.checkInUntil }}
+                                {{ accommodation.houseRules.checkInFrom }} -
+                                {{ accommodation.houseRules.checkInUntil }}
                             </span> -->
                         </div>
                         <div class="flex justify-between">
@@ -246,7 +246,7 @@
                             <!-- <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
-                                {{ currentListing.listable.houseRules.checkOutUntil }}
+                                {{ accommodation.houseRules.checkOutUntil }}
                             </span> -->
                         </div>
                         <div class="flex justify-between">
@@ -271,16 +271,16 @@ import { mapState, mapActions } from 'vuex';
 
 export default {
     computed: {
-        ...mapState('hosting/listings', ["currentListing"]),
-        listingId() {
-            return this.$route.params.listingId;
+        ...mapState('hosting/listings', ["accommodation"]),
+        accommodationId() {
+            return this.$route.params.accommodationId;
         },
     },
     methods: {
-        ...mapActions("hosting/listings", ["fetchListing"]),
+        ...mapActions("hosting/listings", ["fetchAccommodation"]),
     },
     created() {
-        this.fetchListing(this.listingId);
+        this.fetchAccommodation(this.accommodationId);
     },
 };
 </script>

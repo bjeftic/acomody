@@ -8,7 +8,9 @@ export default {
         dateFormat: config.dateFormat,
         results: [],
     },
+    isMapSearch: false,
     accommodations: [],
+    accommodationsOnMap: [],
     totalAccommodationsFound: 0,
     filters: {},
 };

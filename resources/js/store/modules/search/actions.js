@@ -27,3 +27,7 @@ export const searchAccommodations = async ({ commit }, searchParams) => {
         throw error;
     }
 };
+
+export const setIsMapSearch = ({ commit }, isMapSearch) => {
+    commit("SET_IS_MAP_SEARCH", isMapSearch);
+}

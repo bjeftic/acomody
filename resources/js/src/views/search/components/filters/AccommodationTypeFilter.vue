@@ -1,11 +1,11 @@
 <template>
     <div class="pb-6 border-b border-gray-200 dark:border-gray-800">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">
-            Property type
+            Accommodation type
         </h3>
         <div class="grid grid-cols-2 gap-3">
             <button
-                v-for="type in propertyTypes"
+                v-for="type in accommodationTypes"
                 :key="type.id"
                 @click="toggleType(type.id)"
                 :class="[
@@ -37,7 +37,7 @@ export default {
     },
     data() {
         return {
-            propertyTypes: filtersConfig.propertyTypes,
+            accommodationTypes: filtersConfig.accommodationTypes,
         };
     },
     methods: {
