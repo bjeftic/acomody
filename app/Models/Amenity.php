@@ -40,4 +40,9 @@ class Amenity extends Model
     {
         return $user !== null;
     }
+
+    public function accommodations()
+    {
+        return $this->belongsToMany(Accommodation::class, 'accommodation_amenity');
+    }
 }

@@ -24,8 +24,8 @@ class LocationFactory extends Factory
                 ? \App\Models\Location::inRandomOrder()->first()?->id
                 : null,
             'location_type' => LocationType::cases()[array_rand(LocationType::cases())]->value,
-            'latitude' => fake()->latitude(),
-            'longitude' => fake()->longitude(),
+            'longitude' => fake()->longitude(41, 44),
+            'latitude' => fake()->latitude(19, 22),
             'is_active' => true,
             'user_id' => \App\Models\User::inRandomOrder()->first()->id,
         ];

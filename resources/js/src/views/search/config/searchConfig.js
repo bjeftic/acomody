@@ -1,19 +1,5 @@
 // Search Configuration
 export const searchConfig = {
-    // Default search parameters
-    defaults: {
-        location: "",
-        checkIn: null,
-        checkOut: null,
-        guests: {
-            adults: 1,
-            children: 0,
-            infants: 0,
-            pets: 0,
-        },
-        flexibleDates: false,
-    },
-
     // Map configuration
     map: {
         defaultCenter: { lat: 47.4979, lng: 19.0402 }, // Budapest
@@ -23,10 +9,6 @@ export const searchConfig = {
         clusterRadius: 60, // pixels
         markerSize: { width: 40, height: 40 },
     },
-
-    // View modes
-    viewModes: ["grid", "list", "map"],
-    defaultViewMode: "grid",
 
     // Sort options
     sortOptions: [

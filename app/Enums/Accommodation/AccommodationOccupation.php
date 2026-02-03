@@ -123,13 +123,21 @@ enum AccommodationOccupation: string
         };
     }
 
-    public static function toArray(): array
+    public function toArray(): array
     {
-        return array_map(fn($case) => [
-            'id' => $case->value,
-            'name' => $case->label(),
-            'description' => $case->description(),
-        ], self::cases());
+        return [
+            'value' => $this->value,
+            'name' => $this->label(),
+            'description' => $this->description(),
+        ];
+    }
+
+    public static function options(): array
+    {
+        return array_map(
+            fn (self $case) => $case->toArray(),
+            self::cases()
+        );
     }
 
     public function isValidFor(AccommodationType $accommodationType): bool

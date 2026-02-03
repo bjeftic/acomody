@@ -2,6 +2,8 @@
 
 namespace App\Enums\Accommodation;
 
+use App\Enums\Accommodation\AccommodationCategory;
+
 enum AccommodationType: string
 {
     case APARTMENT = 'apartment';
@@ -49,7 +51,7 @@ enum AccommodationType: string
 
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::APARTMENT => __('enums/accommodation_type.apartment'),
             self::HOUSE => __('enums/accommodation_type.house'),
             self::VILLA => __('enums/accommodation_type.villa'),
@@ -97,7 +99,7 @@ enum AccommodationType: string
 
     public function description(): string
     {
-        return match($this) {
+        return match ($this) {
             self::APARTMENT => __('enums/accommodation_type.apartment_description'),
             self::HOUSE => __('enums/accommodation_type.house_description'),
             self::VILLA => __('enums/accommodation_type.villa_description'),
@@ -145,7 +147,7 @@ enum AccommodationType: string
 
     public function icon(): string
     {
-        return match($this) {
+        return match ($this) {
             self::APARTMENT => 'Apartment',
             self::HOUSE => 'House',
             self::VILLA => 'Villa',
@@ -191,13 +193,88 @@ enum AccommodationType: string
         };
     }
 
-    public static function toArray(): array
+    public function toArray(): array
     {
-        return array_map(fn($case) => [
-            'id' => $case->value,
-            'name' => $case->label(),
-            'description' => $case->description(),
-            'icon' => $case->icon(),
-        ], self::cases());
+        return [
+            'value' => $this->value,
+            'name' => $this->label(),
+            'description' => $this->description(),
+            'icon' => $this->icon(),
+            'category' => $this->category()->value,
+        ];
+    }
+
+    public static function options(): array
+    {
+        return array_map(
+            fn (self $case) => $case->toArray(),
+            self::cases()
+        );
+    }
+
+    public function category(): AccommodationCategory
+    {
+        return match ($this) {
+
+            // APARTMENT
+            self::APARTMENT,
+            self::CONDO,
+            self::STUDIO,
+            self::LOFT,
+            self::PENTHOUSE
+            => AccommodationCategory::APARTMENT,
+
+            // HOUSE
+            self::HOUSE,
+            self::VILLA,
+            self::TOWNHOUSE,
+            self::BUNGALOW,
+            self::COTTAGE,
+            self::CABIN,
+            self::CHALET,
+            self::TINY_HOUSE,
+            self::EARTH_HOUSE,
+            self::CYCLADIC_HOME,
+            self::TRULLO,
+            self::SHEPHERD_HOUSE
+            => AccommodationCategory::HOUSE,
+
+            // HOSPITALITY
+            self::HOTEL,
+            self::RESORT,
+            self::HOSTEL,
+            self::BED_BREAKFAST,
+            self::GUESTHOUSE,
+            self::GUEST_SUITE,
+            self::FARM_STAY,
+            self::RIAD,
+            self::RYOKAN
+            => AccommodationCategory::HOSPITALITY,
+
+            // UNIQUE
+            self::TREEHOUSE,
+            self::BARN,
+            self::CASTLE,
+            self::DOME,
+            self::CONTAINER,
+            self::CAVE,
+            self::LIGHTHOUSE,
+            self::WINDMILL,
+            self::IGLOO
+            => AccommodationCategory::UNIQUE,
+
+            // OUTDOOR
+            self::TENT,
+            self::YURT,
+            self::GLAMPING,
+            self::CAMPER_RV
+            => AccommodationCategory::OUTDOOR,
+
+            // WATER
+            self::HOUSEBOAT,
+            self::BOAT,
+            self::YACHT
+            => AccommodationCategory::WATER,
+        };
     }
 }

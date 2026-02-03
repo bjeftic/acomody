@@ -6,6 +6,7 @@ namespace App\Http\Resources\Search;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Lang;
+use App\Models\Amenity;
 
 class AccommodationFacetResource extends JsonResource
 {
@@ -13,11 +14,18 @@ class AccommodationFacetResource extends JsonResource
     {
         $counts = [];
         foreach ($this->resource['counts'] as $filter) {
-            if (Lang::has('enums/'.$this->resource['field_name'].'.'.$filter['value'])) {
-                $filter['title'] = __('enums/'.$this->resource['field_name'].'.'.$filter['value']);
+            if($this->resource['field_name'] === 'amenities') {
+                $amenity = Amenity::where('slug', $filter['value'])->first();
+                $filter['title'] = $amenity->name ?? $filter['value'];
+                $filter['category'] = __('amenity_category.'.$amenity->category) ?? null;
             } else {
-                $filter['title'] = $filter['value'];
+                if (Lang::has('enums/'.$this->resource['field_name'].'.'.$filter['value'])) {
+                    $filter['title'] = __('enums/'.$this->resource['field_name'].'.'.$filter['value']);
+                } else {
+                    $filter['title'] = $filter['value'];
+                }
             }
+
             array_push($counts, $filter);
         }
 
@@ -25,7 +33,8 @@ class AccommodationFacetResource extends JsonResource
             'counts' => $counts,
             'field_name' => $this->resource['field_name'],
             'sampled' => $this->resource['sampled'],
-            'stats' => $this->resource['stats']
+            'stats' => $this->resource['stats'],
+            'title' => __('filters.'.$this->resource['field_name']),
         ];
     }
 }

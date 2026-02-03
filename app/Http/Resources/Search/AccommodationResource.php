@@ -13,14 +13,14 @@ class AccommodationResource extends JsonResource
     {
         $document = $this->resource['document'] ?? $this->resource;
         $userSettedCurrency = CurrencyService::getUserCurrency()->code;
-        
+
         return [
             'id' => $document['id'] ?? null,
             'title' => $document['title'] ?? null,
             'location_id' => $document['location_id'] ?? null,
             'coordinates' => [
-                'latitude' => $document['location']['1'] ?? null,
-                'longitude' => $document['location']['0'] ?? null,
+                'latitude' => $document['location']['0'] ?? null,
+                'longitude' => $document['location']['1'] ?? null,
             ],
             'is_featured' => $document['is_featured'] ?? false,
             'price' => $userSettedCurrency === $document['currency'] ? $document['regular_price'] : calculatePriceInSettedCurrency($document['regular_price'], $document['currency'], $userSettedCurrency),

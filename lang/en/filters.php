@@ -4,7 +4,7 @@ return [
 
     'price' => 'Price',
     'accommodation_occupation' => 'Type of place',
-    'accommodation_type' => 'Property type',
+    'accommodation_category' => 'Property type',
     'amenities' => 'Amenities',
 
 ];

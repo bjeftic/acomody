@@ -72,11 +72,13 @@ class Location extends Model
             $array["name_{$locale}"] = $value ?? '';
         }
 
+        // Always include a default 'name' field for searching
         $array['name'] = $this->getTranslation('name', app()->getLocale())
                       ?? $this->getTranslation('name', config('app.fallback_locale'))
                       ?? '';
 
-        // Add location coordinates
+        // Add location coordinates ONLY if both latitude and longitude exist
+        // This prevents Typesense errors for documents without coordinates
         if ($this->latitude !== null && $this->longitude !== null) {
             $array['location'] = [
                 (float) $this->latitude,
@@ -87,13 +89,30 @@ class Location extends Model
         return $array;
     }
 
+     /**
+     * Get the Typesense search parameters
+     * Define which fields should be searched by default
+     */
+    public function typesenseQueryBy(): array
+    {
+        $locales = config('app.supported_locales', ['en', 'sr', 'de']);
+        $queryFields = ['name'];
+
+        // Add all locale-specific name fields
+        foreach ($locales as $locale) {
+            $queryFields[] = "name_{$locale}";
+        }
+
+        return $queryFields;
+    }
+
     /**
      * Get the Typesense collection schema.
      * This defines the structure and field types for Typesense.
      *
      * @return array<string, mixed>
      */
-    public function getTypesenseSchema(): array
+    public function getCollectionSchema(): array
     {
         // Get supported locales from config
         $locales = config('app.supported_locales', ['en', 'sr', 'de']);
@@ -107,7 +126,7 @@ class Location extends Model
                 'name' => 'name',
                 'type' => 'string',
                 'facet' => false,
-                'optional' => false, // Default name field
+                'optional' => false,
             ],
             [
                 'name' => 'type',
@@ -123,6 +142,7 @@ class Location extends Model
                 'name' => 'location_type',
                 'type' => 'string',
                 'facet' => true,
+                'optional' => true,
             ],
             [
                 'name' => 'parent_id',
@@ -133,7 +153,7 @@ class Location extends Model
             [
                 'name' => 'location',
                 'type' => 'geopoint',
-                'optional' => false,
+                'optional' => true,
             ],
             [
                 'name' => 'created_at',
@@ -147,6 +167,7 @@ class Location extends Model
                 'name' => "name_{$locale}",
                 'type' => 'string',
                 'facet' => false,
+                'infix' => true,
                 'optional' => true,
                 'locale' => $locale,
             ];

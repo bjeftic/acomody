@@ -4,8 +4,7 @@
         @mouseenter="$emit('hover', accommodation.id)"
         @mouseleave="$emit('hover', null)"
         :class="[
-            'group cursor-pointer transition-transform duration-200',
-            hovered ? 'scale-105' : ''
+            'group cursor-pointer transition-transform duration-200'
         ]"
     >
         <!-- Image Carousel -->

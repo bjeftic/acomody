@@ -6,8 +6,8 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Models\AccommodationDraft;
-use App\Models\AccommodationType;
 use App\Enums\Accommodation\AccommodationOccupation;
+use App\Enums\Accommodation\AccommodationType;
 use App\Jobs\CreateAccommodation;
 use Illuminate\Http\RedirectResponse;
 use App\Models\Location;
@@ -53,7 +53,7 @@ class AccommodationDraftController
         $accommodationDraft->data = json_decode($accommodationDraft->data, true);
 
         $draftData = [];
-        $draftData['accommodation_type'] = AccommodationType::find($accommodationDraft->data['accommodation_type'])->name ?? null;
+        $draftData['accommodation_type'] = AccommodationType::from($accommodationDraft->data['accommodation_type'] ?? null)->label() ?? null;
         $draftData['accommodation_occupation'] = AccommodationOccupation::from($accommodationDraft->data['accommodation_occupation'] ?? null)->label() ?? null;
         $draftData['title'] = $accommodationDraft->data['title'] ?? null;
         $draftData['description'] = $accommodationDraft->data['description'] ?? null;
@@ -98,7 +98,7 @@ class AccommodationDraftController
         \Log::channel('queue')->info('Approving accommodation draft', [
             'draft_id' => $accommodationDraft->id,
         ]);
-        CreateAccommodation::dispatch($accommodationDraft, $locationId,userOrFail()->id)->onQueue('accommodation-queue');
+        CreateAccommodation::dispatch($accommodationDraft, $locationId, userOrFail()->id)->onQueue('accommodation-queue');
 
         return redirect()
             ->route('admin.accommodation-drafts.index')

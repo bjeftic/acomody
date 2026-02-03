@@ -14,12 +14,54 @@ return new class extends Migration
         Schema::create('accommodations', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('accommodation_draft_id');
-            $table->foreignId('accommodation_type_id')->constrained()->cascadeOnDelete();
-            $table->enum('accommodation_occupation', ['entire-place', 'private-room', 'shared-room']);
+            $table->enum('accommodation_type', [
+                'apartment',
+                'house',
+                'villa',
+                'condo',
+                'hotel',
+                'cottage',
+                'cabin',
+                'studio',
+                'bed_breakfast',
+                'townhouse',
+                'chalet',
+                'bungalow',
+                'guesthouse',
+                'loft',
+                'penthouse',
+                'resort',
+                'guest_suite',
+                'hostel',
+                'farm_stay',
+                'barn',
+                'treehouse',
+                'houseboat',
+                'boat',
+                'camper_rv',
+                'tiny_house',
+                'glamping',
+                'castle',
+                'yacht',
+                'dome',
+                'tent',
+                'yurt',
+                'container',
+                'cave',
+                'lighthouse',
+                'windmill',
+                'earth_house',
+                'cycladic_home',
+                'trullo',
+                'riad',
+                'ryokan',
+                'shepherd_house',
+                'igloo'
+            ]);
+            $table->enum('accommodation_occupation', ['entire_place', 'private_room', 'shared_room']);
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('booking_type', ['instant-booking', 'request-to-book']);
-            $table->json('amenities')->nullable();
+            $table->enum('booking_type', ['instant_booking', 'request_to_book']);
             $table->integer('max_guests')->default(1);
             $table->unsignedBigInteger('views_count')->default(0);
             $table->unsignedBigInteger('favorites_count')->default(0);
@@ -35,6 +77,9 @@ return new class extends Migration
             $table->time('quiet_hours_from')->nullable();
             $table->time('quiet_hours_until')->nullable();
             $table->enum('cancellation_policy', ['flexible', 'moderate', 'firm', 'strict', 'non-refundable'])->default('moderate');
+            $table->integer('bedrooms')->default(1);
+            $table->integer('beds')->default(1);
+            $table->integer('bathrooms')->default(1);
             $table->boolean('is_active')->default(false);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();

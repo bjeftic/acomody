@@ -1,11 +1,11 @@
 <template>
-    <div class="pb-6 border-b border-gray-200 dark:border-gray-800">
+    <div class="py-6">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">
             {{ title }}
         </h3>
 
         <!-- Popular/Initial Options grouped by category -->
-        <div class="space-y-4 mb-4">
+        <div class="space-y-4 my-4">
             <div
                 v-for="(categoryOptions, categoryName) in groupedOptions"
                 :key="categoryName"
@@ -17,33 +17,30 @@
                 >
                     {{ categoryName }}
                 </h4>
-                <div class="space-y-2">
-                    <label
+                <div class="space-x-2 space-y-2">
+                    <fwb-button
                         v-for="option in categoryOptions"
+                        class="m-2 focus:ring-0 text-gray-500 border-gray-300"
                         :key="option.value"
-                        class="flex items-center cursor-pointer group"
+                        @click="toggleOption(option.value)"
+                        color="dark"
+                        :class="{ 'border-black text-gray-900': isSelected(option.value) }"
+                        outline
+                        pill
+                        square
                     >
-                        <input
-                            type="checkbox"
-                            :checked="isSelected(option.value)"
-                            @change="toggleOption(option.value)"
-                            class="w-5 h-5 text-blue-600 border-gray-300 dark:border-gray-700 rounded focus:ring-blue-500 dark:focus:ring-blue-600"
-                        />
-                        <div class="ml-3 flex items-center space-x-2">
-                            <span
-                                class="text-sm text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-300"
-                            >
-                                {{ option.title }}
-                            </span>
-                        </div>
-                    </label>
+                        <template v-if="option.icon" #prefix>
+                            <IconLoader :name="option.icon" :size="24" />
+                        </template>
+                        {{ option.title }}
+                    </fwb-button>
                 </div>
             </div>
         </div>
 
         <!-- Show All Button -->
         <button
-            v-if="totalOptionsCount > options.length"
+            v-if="showMoreButton && totalOptionsCount > options.length"
             @click="showAllOptions = !showAllOptions"
             class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white underline"
         >
@@ -93,10 +90,8 @@
 </template>
 
 <script>
-import { filtersConfig } from "../../config/filtersConfig";
-
 export default {
-    name: "AmenitiesFilter",
+    name: "FilterCheck",
     props: {
         title: {
             type: String,
@@ -110,11 +105,14 @@ export default {
             type: [String, Array],
             default: () => [],
         },
+        showMoreButton: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {
             showAllOptions: false,
-            allOptions: filtersConfig.amenities,
         };
     },
     computed: {
@@ -141,7 +139,7 @@ export default {
         groupByCategory(optionsList) {
             const grouped = {};
             optionsList.forEach((option) => {
-                const category = option.category || 'other';
+                const category = option.category || "other";
                 if (!grouped[category]) {
                     grouped[category] = [];
                 }

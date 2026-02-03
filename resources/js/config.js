@@ -5,6 +5,7 @@ export default {
         logInModal: "log-in-modal",
         signUpModal: "sign-up-modal",
         forgotPasswordModal: "forgot-password-modal",
+        filtersModal: "filters-modal",
     },
     ui: {
         countries: runtimeConstants.countries,

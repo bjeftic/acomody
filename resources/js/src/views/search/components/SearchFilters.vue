@@ -103,8 +103,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import PriceFilter from "./filters/PriceFilter.vue";
-import CheckboxFilter from "./filters/CheckboxFilter.vue";
+
 import AccommodationTypeFilter from "./filters/AccommodationTypeFilter.vue";
 import RoomsBedsFilter from "./filters/RoomsBedsFilter.vue";
 import AmenitiesFilter from "./filters/AmenitiesFilter.vue";

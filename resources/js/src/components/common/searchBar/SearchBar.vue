@@ -369,6 +369,10 @@ export default {
             type: Number,
             default: 0,
         },
+        initialMapBounds: {
+            type: Object,
+            default: {}
+        },
     },
     data() {
         return {
@@ -393,6 +397,7 @@ export default {
                 adults: 2,
                 children: 0,
                 infants: 0,
+                bounds: null,
             },
             localSearchResults: [],
             debounceTimer: null,
@@ -472,6 +477,7 @@ export default {
             this.searchForm.adults = this.initialAdults || 2;
             this.searchForm.children = this.initialChildren || 0;
             this.searchForm.infants = this.initialInfants || 0;
+            this.searchForm.bounds = this.initialMapBounds;
         },
 
         async findLocations(query) {

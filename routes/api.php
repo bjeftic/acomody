@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Public\FilterController as PublicFilterController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -34,6 +35,11 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])
 
 Route::post('/currency/set', [CurrencyController::class, 'set'])
         ->name('api.currency.set');
+
+Route::prefix('public')->name('api.public')->group(function () {
+    Route::get('/filters', [PublicFilterController::class, 'index'])
+        ->name('api.filters');
+});
 
 Route::prefix('search')->name('api.search.')->group(function () {
     Route::get('locations', [SearchController::class, 'searchLocations'])

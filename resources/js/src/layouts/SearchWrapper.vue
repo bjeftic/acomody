@@ -28,6 +28,7 @@ export default {
                     adults: searchParams.guests.adults,
                     children: searchParams.guests.children,
                     infants: searchParams.guests.infants,
+                    page: 1
                 },
             });
         }

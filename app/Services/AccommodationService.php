@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\AccommodationDraft;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Models\Accommodation;
 
 class AccommodationService
 {
@@ -58,5 +60,19 @@ class AccommodationService
             ->mapWithKeys(fn($item) => [$item->status => $item->count]);
 
         return $stats->toArray();
+    }
+
+    public static function getAccommodations(int $userId, int $perPage = 15): LengthAwarePaginator
+    {
+        return Accommodation::where('user_id', $userId)
+            ->latest() // or orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
+
+    public static function getAccommodationById(int $userId, string $accommodationId): ?Accommodation
+    {
+        return Accommodation::where('user_id', $userId)
+            ->where('id', $accommodationId)
+            ->first();
     }
 }

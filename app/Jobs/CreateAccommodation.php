@@ -73,13 +73,14 @@ class CreateAccommodation
         ]);
         $data = json_decode($this->accommodationDraft->data, true);
 
-        $accommodation = $this->createAccommodation($data);
+        // We need to disable search syncing here to avoid indexing incomplete accommodation
+        $accommodation = Accommodation::withoutSyncingToSearch(function () use ($data) {
+            return $this->createAccommodation($data);
+        });
 
         \Log::channel('queue')->info('Accommodation created', [
             'accommodation_id' => $accommodation->id,
         ]);
-
-        $this->createListing($accommodation, $data);
 
         if (isset($data['pricing'])) {
             $this->setupPricing($accommodation, $data, $pricingService, $currencyService);
@@ -88,9 +89,6 @@ class CreateAccommodation
         $this->accommodationDraft->update(['status' => 'published']);
 
         DB::commit();
-
-        // Sync to search index
-        $accommodation->listing->searchable();
 
         // Notify user
         $user = User::find($this->userId);
@@ -103,6 +101,7 @@ class CreateAccommodation
         //     ]);
         //     throw $e;
         // }
+        $accommodation->searchable();
     }
 
     /**
@@ -123,41 +122,34 @@ class CreateAccommodation
     private function createAccommodation(array $data): Accommodation
     {
         $accommodationData = [
+            'location_id' => $this->locationId,
             'accommodation_draft_id' => $this->accommodationDraft->id,
-            'accommodation_type_id' => $data['accommodation_type'],
+            'accommodation_type' => $data['accommodation_type'],
             'accommodation_occupation' => AccommodationOccupation::from($data['accommodation_occupation']),
             'title' => $data['title'],
             'description' => $data['description'],
-            'booking_type' => $data['pricing']['bookingType'] ?? 'instant',
+            'booking_type' => $data['pricing']['bookingType'] ?? 'instant_booking',
             'amenities' => json_encode($data['amenities'] ?? []),
-            'house_rules' => json_encode($data['house_rules'] ?? []),
             'user_id' => $this->userId,
+            'check_in_from' => $data['house_rules']['checkInFrom'] ?? null,
+            'check_in_until' => $data['house_rules']['checkInUntil'] ?? null,
+            'check_out_until' => $data['house_rules']['checkOutUntil'] ?? null,
+            'quiet_hours_from' => $data['house_rules']['quietHoursFrom'] ?? null,
+            'quiet_hours_until' => $data['house_rules']['quietHoursUntil'] ?? null,
+            'cancellation_policy' => $data['house_rules']['cancellationPolicy'] ?? null,
+            'max_guests' => $data['max_guests'] ?? 1,
+            'latitude' => $data['coordinates']['latitude'] ?? null,
+            'longitude' => $data['coordinates']['longitude'] ?? null,
+            'approved_by' => userOrFail()->id,
+            'is_active' => true,
+            'is_featured' => false,
 
             // Add location fields for tax assignment
-            'country_code' => $data['location']['country_code'] ?? null,
-            'region_code' => $data['location']['region_code'] ?? null,
-            'city' => $data['location']['city'] ?? null,
+            'street_address' => $data['address']['street'] ?? null,
+            'postal_code' => $data['address']['postal_code'] ?? null,
         ];
 
         return Accommodation::create($accommodationData);
-    }
-
-    /**
-     * Create listing record
-     */
-    private function createListing(Accommodation $accommodation, array $data): void
-    {
-        Listing::withoutSyncingToSearch(function () use ($accommodation, $data) {
-            $accommodation->listing()->create([
-                'is_active' => true,
-                'user_id' => $this->accommodationDraft->user_id,
-                'approved_by' => userOrFail()->id,
-                'location_id' => $this->locationId,
-                'longitude' => $data['coordinates']['longitude'] ?? null,
-                'latitude' => $data['coordinates']['latitude'] ?? null,
-                'street_address' => $data['address']['street'] ?? null,
-            ]);
-        });
     }
 
     private function setupPricing(Accommodation $accommodation, array $data, PricingService $pricingService, CurrencyService $currencyService): void
@@ -170,10 +162,13 @@ class CreateAccommodation
         ]);
 
         // 1. Create base pricing
+        $currency = $currencyService->getCurrencyByCountry($data['address']['country'])?->code ?? 'EUR';
+
         $pricingData = [
             'pricing_type' => PricingType::NIGHTLY,
             'base_price' => $pricing['basePrice'],
-            'currency' => $currencyService->getCurrencyByCountry($data['address']['country'])?->code ?? 'USD',
+            'currency' => $currency,
+            'base_price_eur' => calculatePriceInSettedCurrency($pricing['basePrice'], $currency, 'EUR'),
             'min_quantity' => $pricing['minNights'] ?? 1,
             'max_quantity' => $pricing['maxNights'] ?? null,
             'is_active' => true,

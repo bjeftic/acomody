@@ -51,7 +51,8 @@ class SearchAccommodationRequest extends FormRequest
             'guests.children' => 'integer|min:0',
             'guests.infants' => 'integer|min:0',
 
-            'accommodationTypes' => 'array',
+            'accommodation_categories' => 'array',
+            'accommodation_occupations' => 'array',
             'amenities' => 'array',
 
             'page' => 'integer|min:1',

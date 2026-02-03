@@ -92,22 +92,25 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet.markercluster';
-import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 // Fix for default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    iconRetinaUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+    iconUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+    shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
 export default {
-    name: 'SearchMap',
+    name: "SearchMap",
     props: {
         results: {
             type: Array,
@@ -193,8 +196,9 @@ export default {
             });
 
             // Add OpenStreetMap tile layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution:
+                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19,
             }).addTo(this.map);
 
@@ -206,9 +210,9 @@ export default {
                 zoomToBoundsOnClick: true,
                 iconCreateFunction: (cluster) => {
                     const count = cluster.getChildCount();
-                    let className = 'marker-cluster-small';
-                    if (count >= 10) className = 'marker-cluster-medium';
-                    if (count >= 50) className = 'marker-cluster-large';
+                    let className = "marker-cluster-small";
+                    if (count >= 10) className = "marker-cluster-medium";
+                    if (count >= 50) className = "marker-cluster-large";
 
                     return L.divIcon({
                         html: `<div class="marker-cluster-inner">${count}</div>`,
@@ -221,7 +225,7 @@ export default {
             this.map.addLayer(this.markerCluster);
 
             // Track user drag interactions - only real user drags, not programmatic
-            this.map.on('dragstart', () => {
+            this.map.on("dragstart", () => {
                 if (!this.isProgrammaticMove) {
                     this.userInteracted = true;
                     this.hasUserEverInteracted = true;
@@ -229,7 +233,7 @@ export default {
             });
 
             // Track user zoom interactions - only real user zooms, not programmatic
-            this.map.on('zoomstart', () => {
+            this.map.on("zoomstart", () => {
                 if (!this.isProgrammaticMove) {
                     this.userInteracted = true;
                     this.hasUserEverInteracted = true;
@@ -237,7 +241,7 @@ export default {
             });
 
             // Emit bounds after map movement stops
-            this.map.on('moveend', () => {
+            this.map.on("moveend", () => {
                 // Skip first moveend that is triggered automatically on map init
                 if (this.isInitialLoad) {
                     this.isInitialLoad = false;
@@ -268,16 +272,22 @@ export default {
 
             // Add new markers to the map
             results.forEach((accommodation) => {
-                if (accommodation.coordinates?.latitude && accommodation.coordinates?.longitude) {
+                if (
+                    accommodation.coordinates?.latitude &&
+                    accommodation.coordinates?.longitude
+                ) {
                     const marker = this.createMarker(accommodation);
                     this.markers[accommodation.id] = marker;
                     this.markerCluster.addLayer(marker);
                 }
             });
 
-            // Fit bounds only on initial load (when there are no current map bounds)
-            // Mark this as programmatic move to prevent bounds emission
-            if (!this.bounds && results.length > 0) {
+            // Only fit bounds on the very first load, before user has ever interacted with the map
+            if (
+                !this.hasUserEverInteracted &&
+                !this.bounds &&
+                results.length > 0
+            ) {
                 const bounds = this.markerCluster.getBounds();
                 if (bounds.isValid()) {
                     this.isProgrammaticMove = true;
@@ -289,9 +299,9 @@ export default {
         createMarker(accommodation) {
             // Create custom marker icon with price display
             const customIcon = L.divIcon({
-                className: 'custom-marker',
+                className: "custom-marker",
                 html: `
-                    <div class="marker-pin ${accommodation.id === this.hoveredCardId ? 'marker-pin-hovered' : ''}">
+                    <div class="marker-pin ${accommodation.id === this.hoveredCardId ? "marker-pin-hovered" : ""}">
                         <div class="marker-price">
                             ${accommodation.price} ${this.selectedCurrency.symbol}
                         </div>
@@ -301,27 +311,33 @@ export default {
                 iconAnchor: [30, 40],
             });
 
-            const marker = L.marker([accommodation.coordinates.latitude, accommodation.coordinates.longitude], {
-                icon: customIcon,
-            });
+            const marker = L.marker(
+                [
+                    accommodation.coordinates.latitude,
+                    accommodation.coordinates.longitude,
+                ],
+                {
+                    icon: customIcon,
+                },
+            );
 
             // Add popup with accommodation details
             marker.bindPopup(this.createPopupContent(accommodation), {
                 maxWidth: 250,
-                className: 'custom-popup',
+                className: "custom-popup",
             });
 
             // Add event listeners for marker interactions
-            marker.on('mouseover', () => {
-                this.$emit('marker-hover', accommodation.id);
+            marker.on("mouseover", () => {
+                this.$emit("marker-hover", accommodation.id);
             });
 
-            marker.on('mouseout', () => {
-                this.$emit('marker-hover', null);
+            marker.on("mouseout", () => {
+                this.$emit("marker-hover", null);
             });
 
-            marker.on('click', () => {
-                this.$emit('marker-click', accommodation.id);
+            marker.on("click", () => {
+                this.$emit("marker-click", accommodation.id);
             });
 
             return marker;
@@ -332,17 +348,21 @@ export default {
             return `
                 <div class="p-2">
                     <div class="font-semibold text-sm mb-1">${accommodation.title}</div>
-                    <div class="text-xs text-gray-600 mb-1">${accommodation.location || ''}</div>
+                    <div class="text-xs text-gray-600 mb-1">${accommodation.location || ""}</div>
                     <div class="flex items-center justify-between">
                         <div class="text-sm font-bold">${accommodation.price} ${this.selectedCurrency.symbol}/night</div>
-                        ${accommodation.rating ? `
+                        ${
+                            accommodation.rating
+                                ? `
                             <div class="flex items-center text-xs">
                                 <svg class="w-3 h-3 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                 </svg>
                                 ${accommodation.rating}
                             </div>
-                        ` : ''}
+                        `
+                                : ""
+                        }
                     </div>
                 </div>
             `;
@@ -354,7 +374,10 @@ export default {
             if (!marker) return;
 
             const icon = marker.getIcon();
-            const newHtml = icon.options.html.replace('marker-pin"', 'marker-pin marker-pin-hovered"');
+            const newHtml = icon.options.html.replace(
+                'marker-pin"',
+                'marker-pin marker-pin-hovered"',
+            );
 
             const highlightedIcon = L.divIcon({
                 ...icon.options,
@@ -371,7 +394,10 @@ export default {
             if (!marker) return;
 
             const icon = marker.getIcon();
-            const newHtml = icon.options.html.replace(' marker-pin-hovered', '');
+            const newHtml = icon.options.html.replace(
+                " marker-pin-hovered",
+                "",
+            );
 
             const normalIcon = L.divIcon({
                 ...icon.options,
@@ -417,17 +443,17 @@ export default {
             return {
                 northEast: {
                     lat: bounds.getNorthEast().lat,
-                    lng: bounds.getNorthEast().lng
+                    lng: bounds.getNorthEast().lng,
                 },
                 southWest: {
                     lat: bounds.getSouthWest().lat,
-                    lng: bounds.getSouthWest().lng
+                    lng: bounds.getSouthWest().lng,
                 },
                 center: {
                     lat: center.lat,
-                    lng: center.lng
+                    lng: center.lng,
                 },
-                zoom: this.map.getZoom()
+                zoom: this.map.getZoom(),
             };
         },
 
@@ -438,12 +464,12 @@ export default {
 
             // Check if bounds changed significantly to avoid unnecessary API calls
             if (this.areBoundsSimilar(mapBounds, this.lastEmittedBounds)) {
-                console.log('Bounds not changed significantly, skipping emit');
+                console.log("Bounds not changed significantly, skipping emit");
                 return;
             }
 
             this.lastEmittedBounds = mapBounds;
-            this.$emit('map-bounds-changed', mapBounds);
+            this.$emit("map-bounds-changed", mapBounds);
         },
 
         areBoundsSimilar(bounds1, bounds2) {
@@ -454,10 +480,14 @@ export default {
             const threshold = 0.001;
 
             return (
-                Math.abs(bounds1.northEast.lat - bounds2.northEast.lat) < threshold &&
-                Math.abs(bounds1.northEast.lng - bounds2.northEast.lng) < threshold &&
-                Math.abs(bounds1.southWest.lat - bounds2.southWest.lat) < threshold &&
-                Math.abs(bounds1.southWest.lng - bounds2.southWest.lng) < threshold
+                Math.abs(bounds1.northEast.lat - bounds2.northEast.lat) <
+                    threshold &&
+                Math.abs(bounds1.northEast.lng - bounds2.northEast.lng) <
+                    threshold &&
+                Math.abs(bounds1.southWest.lat - bounds2.southWest.lat) <
+                    threshold &&
+                Math.abs(bounds1.southWest.lng - bounds2.southWest.lng) <
+                    threshold
             );
         },
 

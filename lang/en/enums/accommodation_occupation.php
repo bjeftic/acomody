@@ -14,12 +14,12 @@ return [
     */
 
     // Names
-    'entire-place' => 'An entire place',
-    'private-room' => 'A private room',
-    'shared-room' => 'A shared room',
+    'entire_place' => 'An entire place',
+    'private_room' => 'A private room',
+    'shared_room' => 'A shared room',
 
     // Descriptions
-    'entire-place_description' => 'Guests have the whole place to themselves.',
-    'private-room_description' => 'Guests have their own room in a home, plus access to shared spaces.',
-    'shared-room_description' => 'Guests sleep in a room or common area that may be shared with you or others.',
+    'entire_place_description' => 'Guests have the whole place to themselves.',
+    'private_room_description' => 'Guests have their own room in a home, plus access to shared spaces.',
+    'shared_room_description' => 'Guests sleep in a room or common area that may be shared with you or others.',
 ];

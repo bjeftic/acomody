@@ -233,10 +233,21 @@ export default {
             if (!this.facetPriceRange) return 1;
             const range = this.facetPriceRange.max - this.facetPriceRange.min;
 
-            if (range > 10000) return 100;
-            if (range > 1000) return 10;
-            if (range > 100) return 5;
-            return 1;
+            let step;
+            if (range > 10000) step = 100;
+            else if (range > 1000) step = 10;
+            else if (range > 100) step = 5;
+            else step = 1;
+
+            while (range % step !== 0) {
+                step--;
+                if (step < 1) {
+                    step = 1;
+                    break;
+                }
+            }
+
+            return step;
         },
 
         isFullRange() {

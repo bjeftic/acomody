@@ -21,6 +21,7 @@ import {
     FwbListGroup,
     FwbListGroupItem,
     FwbNavbar,
+    FwbPagination,
     FwbRating,
     FwbSelect,
     FwbSpinner,
@@ -71,6 +72,7 @@ app.component("FwbDropdown", FwbDropdown);
 app.component("FwbListGroup", FwbListGroup);
 app.component("FwbListGroupItem", FwbListGroupItem);
 app.component("FwbNavbar", FwbNavbar);
+app.component("FwbPagination", FwbPagination);
 app.component("FwbRating", FwbRating);
 app.component("FwbSelect", FwbSelect);
 app.component("FwbSpinner", FwbSpinner);

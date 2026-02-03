@@ -7,7 +7,6 @@ use App\Http\Requests\Search\SearchLocationRequest;
 use App\Http\Requests\Search\SearchAccommodationRequest;
 use App\Http\Resources\Search\AccommodationResource;
 use App\Http\Resources\Search\AccommodationFacetResource;
-use App\Models\Currency;
 use App\Services\CurrencyService;
 use App\Services\SearchService;
 
@@ -42,9 +41,7 @@ class SearchController extends Controller
 
         $filters = [];
 
-        if (!empty($validated['location']['id'])) {
-            $filters[] = "location_id:={$validated['location']['id']}";
-        } elseif (!empty($validated['bounds'])) {
+        if (!empty($validated['bounds'])) {
             // Coordinate-based search
             // Typesense expects: field_name:(lat1, lng1, lat2, lng2)
             $neLat = $validated['bounds']['northEast']['lat'];
@@ -54,14 +51,25 @@ class SearchController extends Controller
 
             // Build bounding box filter
             // Note: Typesense uses geopoint format: [lat, lng]
-            $filters[] = "location:({$swLat}, {$swLng}, {$neLat}, {$neLng})";
+            $filters[] = "location:({$neLat}, {$swLng}, {$neLat}, {$neLng}, {$swLat}, {$neLng}, {$swLat}, {$swLng})";
+        } elseif (!empty($validated['location']['id'])) {
+            $filters[] = "location_id:={$validated['location']['id']}";
         }
 
-        if (!empty($validated['accommodation_type'])) {
-            $filters[] = "accommodation_type:={$validated['accommodation_type']}";
+        if (!empty($validated['accommodation_categories'])) {
+            $categoryFilters = array_map(
+                fn($categoryId) => "accommodation_category:={$categoryId}",
+                (array) $validated['accommodation_categories']
+            );
+            $filters[] = "(" . implode(' || ', $categoryFilters) . ")";
         }
-        if (!empty($validated['accommodation_occupation'])) {
-            $filters[] = "accommodation_occupation:={$validated['accommodation_occupation']}";
+
+        if (!empty($validated['accommodation_occupations'])) {
+            $occupationFilters = array_map(
+                fn($occupationId) => "accommodation_occupation:={$occupationId}",
+                (array) $validated['accommodation_occupations']
+            );
+            $filters[] = "(" . implode(' || ', $occupationFilters) . ")";
         }
         if (!empty($validated['guests'])) {
             $totalGuests = ($validated['guests']['adults'] ?? 0) +
@@ -73,7 +81,6 @@ class SearchController extends Controller
             }
         }
 
-        // Amenities filter
         if (!empty($validated['amenities'])) {
             $amenityFilters = array_map(
                 fn($amenityId) => "amenities:={$amenityId}",
@@ -91,6 +98,16 @@ class SearchController extends Controller
             'page' => $validated['page'] ?? 1,
             'per_page' => $validated['perPage'] ?? 10,
         ]);
+
+        if ($firstResults['found'] == 0) {
+            return [
+                'facet_counts' => [],
+                'hits' => [],
+                'found' => 0,
+                'page' => $validated['page'] ?? 1,
+                'per_page' => $validated['perPage'] ?? 10,
+            ];
+        }
 
         $priceRangeEntry = collect($validated)
             ->filter(fn($_, $key) => str_starts_with($key, 'priceRange_'))
@@ -117,7 +134,7 @@ class SearchController extends Controller
                 if ($currency === 'EUR') {
                     $convertedMin = $min;
                 } else {
-                    $convertedMin = calculatePriceInSettedCurrency($min, $currency, 'EUR');
+                    $convertedMin = floor(calculatePriceInSettedCurrency($min, $currency, 'EUR'));
                 }
                 $priceQuery .= "base_price_eur:>={$convertedMin}";
             }
@@ -128,7 +145,7 @@ class SearchController extends Controller
                 if ($currency === 'EUR') {
                     $convertedMax = $max;
                 } else {
-                    $convertedMax = calculatePriceInSettedCurrency($max, $currency, 'EUR');
+                    $convertedMax = ceil(calculatePriceInSettedCurrency($max, $currency, 'EUR'));
                 }
                 $priceQuery .= "base_price_eur:<={$convertedMax}";
             }
@@ -149,7 +166,7 @@ class SearchController extends Controller
         $secondResults = $this->searchService->searchCollection('accommodations', '*',  [
             // 'query_by' => 'name,description,address',  // Text fields!
             'filter_by' => $filterBy,
-            'facet_by' => 'accommodation_type,accommodation_occupation',
+            'max_facet_values' => 100,
             'page' => $validated['page'] ?? 1,
             'per_page' => $validated['perPage'] ?? 10,
         ]);
@@ -169,8 +186,8 @@ class SearchController extends Controller
                 $facet['stats'] = [
                     'filter_max' => $maxInUserCurrency ?? null,
                     'filter_min' => $minInUserCurrency ?? null,
-                    'min' => calculatePriceInSettedCurrency((int)$facet['stats']['min'], 'EUR', $settedCurrencyCode),
-                    'max' => calculatePriceInSettedCurrency((int)$facet['stats']['max'], 'EUR', $settedCurrencyCode),
+                    'min' => floor(calculatePriceInSettedCurrency($facet['stats']['min'], 'EUR', $settedCurrencyCode)),
+                    'max' => ceil(calculatePriceInSettedCurrency($facet['stats']['max'], 'EUR', $settedCurrencyCode)),
                     'avg' => calculatePriceInSettedCurrency((float)$facet['stats']['avg'], 'EUR', $settedCurrencyCode),
                     'sum' => calculatePriceInSettedCurrency((float)$facet['stats']['sum'], 'EUR', $settedCurrencyCode),
                     'total_values' => $facet['stats']['total_values'],
