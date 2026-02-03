@@ -13,12 +13,6 @@
                             class="text-base font-semibold text-gray-900 dark:text-white"
                         >
                             {{ totalAccommodationsFound }} results
-                            <span
-                                v-if="isMapSearch"
-                                class="text-sm font-normal text-gray-500"
-                            >
-                                (in current map area)
-                            </span>
                         </div>
 
                         <div class="flex items-center space-x-4 ml-auto">
@@ -51,7 +45,7 @@
                                             v-for="sortOption in config.sortOptions"
                                             :key="sortOption.id"
                                             class="cursor-pointer px-4 py-2 min-w-24 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                            @click="handleSortChange(sortOption.id)"
+                                            @click="handleSortChange({ route: $route, router: $router, newSortBy: sortOption.id})"
                                         >
                                             {{ sortOption.name }}
                                         </span>
@@ -129,11 +123,12 @@ export default {
         ...mapState("search", {
             accommodations: (state) => state.accommodations,
             totalAccommodationsFound: (state) => state.totalAccommodationsFound,
+            searchParams: (state) => state.searchParams,
             page: (state) => state.page,
         }),
         currentSortOption() {
             return (
-                this.config.sortOptions.find((opt) => opt.id === this.sortBy) ||
+                this.config.sortOptions.find((opt) => opt.id === this.searchParams.sortBy) ||
                 this.config.sortOptions[0]
             );
         },
@@ -141,11 +136,11 @@ export default {
     data() {
         return {
             config: searchConfig,
-            sortBy: "recommended",
         };
     },
     methods: {
         ...mapActions(["openModal"]),
+        ...mapActions("search", ["handleSortChange"]),
         handlePageChange(newPage) {
             this.$emit("page-changed", newPage);
         },
@@ -153,10 +148,6 @@ export default {
             this.openModal({
                 modalName: "filtersModal",
             });
-        },
-        handleSortChange(newSortBy) {
-            this.sortBy = newSortBy;
-            this.resetPaginationAndSearch();
         },
     },
 };

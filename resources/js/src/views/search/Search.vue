@@ -65,7 +65,6 @@ import { mapActions, mapState, mapGetters } from "vuex";
 import SearchBar from "@/src/components/common/searchBar/SearchBar.vue";
 import SearchResults from "./components/SearchResults.vue";
 import { searchConfig } from "./config/searchConfig";
-import { filtersConfig } from "./config/filtersConfig";
 
 export default {
     name: "SearchPage",
@@ -101,7 +100,6 @@ export default {
         ...mapState("search", {
             accommodations: (state) => state.accommodations,
             totalAccommodationsFound: (state) => state.totalAccommodationsFound,
-            isMapSearch: (state) => state.isMapSearch,
             loading: (state) => state.loading,
         }),
         ...mapState("ui", ["selectedCurrency"]),
@@ -172,7 +170,6 @@ export default {
         ...mapActions("search", [
             "performSearch",
             "handleSearch",
-            "setIsMapSearch",
             "parseURLParams",
             "updateFiltersInURL",
             "handleMapBoundsChanged",

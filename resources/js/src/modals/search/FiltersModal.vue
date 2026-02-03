@@ -3,13 +3,6 @@
         <template #header>
             <div class="flex items-center justify-between">
                 <h3 class="text-xl font-semibold text-gray-900">Filters</h3>
-                <button
-                    v-if="activeFiltersCount > 0"
-                    @click="$emit('clear-all')"
-                    class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                    Clear all
-                </button>
             </div>
         </template>
         <template #body>
@@ -41,7 +34,7 @@
         </template>
         <template #footer>
             <div class="flex justify-between">
-                <fwb-button @click="closeModal" color="alternative">
+                <fwb-button @click="handleClearAll" color="alternative">
                     Clear all
                 </fwb-button>
                 <fwb-button
@@ -168,7 +161,13 @@ export default {
     },
     methods: {
         ...mapActions(["initModal", "closeModal"]),
-        ...mapActions("search", ["countAccommodations", "handleFiltersUpdate", "updateFiltersInURL", "resetPaginationAndSearch"]),
+        ...mapActions("search", [
+            "countAccommodations",
+            "handleFiltersUpdate",
+            "updateFiltersInURL",
+            "resetPaginationAndSearch",
+            "clearAllFilters",
+        ]),
         handleFilterUpdate(key, value) {
             this.localActiveFilters = {
                 ...this.localActiveFilters,
@@ -179,15 +178,34 @@ export default {
         async handleApplyFilters() {
             try {
                 await this.handleFiltersUpdate(this.localActiveFilters);
-                await this.updateFiltersInURL({ route: this.$route, router: this.$router });
-                await this.resetPaginationAndSearch({ route: this.$route, router: this.$router });
+                await this.updateFiltersInURL({
+                    route: this.$route,
+                    router: this.$router,
+                });
+                await this.resetPaginationAndSearch({
+                    route: this.$route,
+                    router: this.$router,
+                });
             } finally {
                 this.close();
             }
         },
         handleClearAll() {
-            this.$emit("clear-all");
-            this.close();
+            this.localActiveFilters = {
+                priceRange: {
+                    min: null,
+                    max: null,
+                },
+                accommodation_categories: [],
+                accommodation_occupations: [],
+                amenities: [],
+                bedrooms: { min: 0, max: null },
+                beds: { min: 0, max: null },
+                bathrooms: { min: 0, max: null },
+                bookingOptions: [],
+                hostLanguages: [],
+            };
+            this.fetchCount();
         },
         async fetchCount() {
             this.isLoading = true;

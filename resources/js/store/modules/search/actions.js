@@ -16,10 +16,8 @@ export const searchLocations = async ({ commit }, query) => {
 };
 
 export const searchAccommodations = async ({}, searchParams) => {
-    return await apiClient.search.accommodations
-            .query(searchParams)
-            .get();
-}
+    return await apiClient.search.accommodations.query(searchParams).get();
+};
 
 export const countAccommodations = async ({ dispatch }, searchParams) => {
     try {
@@ -28,13 +26,19 @@ export const countAccommodations = async ({ dispatch }, searchParams) => {
         console.error("Failed to search accommodations:", error);
         throw error;
     }
-}
+};
 
 export const getAccommodations = async ({ commit, dispatch }, searchParams) => {
     try {
         const response = await dispatch("searchAccommodations", searchParams);
         commit("SET_ACCOMMODATIONS_SEARCH_RESULTS", response.data);
-        commit("SET_FILTERS", { filters: response.data.facet_counts.find(stat => stat.field_name === 'price') || [], type: 'price' });
+        commit("SET_FILTERS", {
+            filters:
+                response.data.facet_counts.find(
+                    (stat) => stat.field_name === "price",
+                ) || [],
+            type: "price",
+        });
         commit("SET_TOTAL_ACCOMMODATIONS_FOUND", response.data.found || 0);
         commit("SET_PAGE", response.data.page || 1);
         return response.data.hits;
@@ -44,11 +48,10 @@ export const getAccommodations = async ({ commit, dispatch }, searchParams) => {
     }
 };
 
-export const setIsMapSearch = ({ commit }, isMapSearch) => {
-    commit("SET_IS_MAP_SEARCH", isMapSearch);
-};
-
-export const updateFiltersInURL = async ({ rootState, state, getters }, { route, router }) => {
+export const updateFiltersInURL = async (
+    { rootState, state, getters },
+    { route, router },
+) => {
     const query = { ...route.query };
 
     // Remove all existing price filters first
@@ -71,18 +74,22 @@ export const updateFiltersInURL = async ({ rootState, state, getters }, { route,
     const maxDifferent = hasValidMax && priceMax !== facetMax;
 
     if (hasValidMin && hasValidMax && (minDifferent || maxDifferent)) {
-        query["price_min_" + rootState.ui.selectedCurrency.code] = String(priceMin);
-        query["price_max_" + rootState.ui.selectedCurrency.code] = String(priceMax);
+        query["price_min_" + rootState.ui.selectedCurrency.code] =
+            String(priceMin);
+        query["price_max_" + rootState.ui.selectedCurrency.code] =
+            String(priceMax);
     }
 
     if (state.activeFilters.accommodation_category !== null) {
-        query.accommodation_categories = state.activeFilters.accommodation_categories.join(",");
+        query.accommodation_categories =
+            state.activeFilters.accommodation_categories.join(",");
     } else {
         delete query.accommodation_categories;
     }
 
     if (state.activeFilters.accommodation_occupation !== null) {
-        query.accommodation_occupations = state.activeFilters.accommodation_occupations.join(",");
+        query.accommodation_occupations =
+            state.activeFilters.accommodation_occupations.join(",");
     } else {
         delete query.accommodation_occupations;
     }
@@ -111,9 +118,9 @@ export const updateFiltersInURL = async ({ rootState, state, getters }, { route,
     const newQuery = JSON.stringify(query);
 
     if (currentQuery !== newQuery) {
-        await router.replace({ query }).catch(err => {
+        await router.replace({ query }).catch((err) => {
             // Ignore navigation duplicated errors
-            if (err.name !== 'NavigationDuplicated') {
+            if (err.name !== "NavigationDuplicated") {
                 throw err;
             }
         });
@@ -124,7 +131,10 @@ export const handleFiltersUpdate = ({ state, commit }, newFilters) => {
     commit("SET_ACTIVE_FILTERS", { ...state.activeFilters, ...newFilters });
 };
 
-export const resetPaginationAndSearch = ({ commit, dispatch }, { route, router }) => {
+export const resetPaginationAndSearch = (
+    { commit, dispatch },
+    { route, router },
+) => {
     commit("SET_PAGE", 1);
     dispatch("updatePageInURL", { route, router });
     dispatch("performSearch");
@@ -136,7 +146,7 @@ export const updatePageInURL = ({ state }, { route, router }) => {
     router.replace({ query });
 };
 
-export const parseURLParams = ({ commit, state, rootState }, query) => {
+export const parseURLParams = ({ commit, state, rootState, getters }, query) => {
     let searchParams = clone(state.searchParams);
     let activeFilters = clone(state.activeFilters);
 
@@ -185,19 +195,19 @@ export const parseURLParams = ({ commit, state, rootState }, query) => {
     if (query.infants) {
         searchParams.guests.infants = parseInt(query.infants);
     }
-    if (query.pets) {
-        searchParams.guests.pets = parseInt(query.pets);
+    if (query.sort_by) {
+        searchParams.sortBy = query.sort_by;
     }
 
     // we need to commit searchParams here
     commit("SET_SEARCH_PARAMS", searchParams);
 
-    if (query.accommodation_category) {
-        activeFilters.accommodation_category = query.accommodation_category;
+    if (query.accommodation_categories) {
+        activeFilters.accommodation_categories = query.accommodation_categories.split(",");
     }
 
-    if (query.accommodation_occupation) {
-        activeFilters.accommodation_occupation = query.accommodation_occupation;
+    if (query.accommodation_occupations) {
+        activeFilters.accommodation_occupations = query.accommodation_occupations.split(",");
     }
 
     if (query.amenities) {
@@ -335,38 +345,6 @@ export const performSearch = async ({ commit, rootState, state, dispatch }) => {
     }
 };
 
-export const clearAllFilters = ({ dispatch }, { route, router }) => {
-    this.activeFilters = {
-        ...filtersConfig.defaults,
-        priceRange: {
-            min: this.accommodationPricesFilters.min,
-            max: this.accommodationPricesFilters.max,
-        },
-    };
-
-    const query = { ...route.query };
-
-    delete query.accommodation_category;
-    delete query.accommodation_occupation;
-    delete query.amenities;
-    delete query.room_types;
-    delete query.bedrooms;
-    delete query.beds;
-    delete query.bathrooms;
-    delete query.instant_book;
-    delete query.self_check_in;
-    delete query.superhost;
-
-    Object.keys(query).forEach((key) => {
-        if (key.startsWith("price_min_") || key.startsWith("price_max_")) {
-            delete query[key];
-        }
-    });
-
-    this.$router.replace({ query });
-    dispatch("resetPaginationAndSearch", { route, router });
-};
-
 export const handleMapBoundsChanged = (
     { commit, dispatch },
     { route, router, mapBounds },
@@ -431,6 +409,7 @@ export const handleSearch = (
         checkIn: searchData.checkIn,
         checkOut: searchData.checkOut,
         guests: searchData.guests,
+        sortBy: searchData.sortBy,
     };
 
     // Reset map search when doing location search
@@ -470,13 +449,23 @@ export const updateSearchParamsInURL = ({ state }, { route, router }) => {
     query.adults = state.searchParams.guests.adults || 2;
     query.children = state.searchParams.guests.children || 0;
     query.infants = state.searchParams.guests.infants || 0;
+    query.sort_by = state.searchParams.sortBy || "recommended";
     query.page = state.page;
 
     router.replace({ query });
 };
 
 export const getFilters = async ({ commit }) => {
-    const filters = await apiClient.public.filters
-        .get();
-    commit("SET_FILTERS", { filters: filters.data, type: 'highlighted' });
-}
+    const filters = await apiClient.public.filters.get();
+    commit("SET_FILTERS", { filters: filters.data, type: "highlighted" });
+};
+
+export const handleSortChange = (
+    { commit, dispatch },
+    { route, router, newSortBy },
+) => {
+    commit("SET_SORT_BY", newSortBy);
+    commit("SET_PAGE", 1);
+    dispatch("updateSearchParamsInURL", { route, router });
+    dispatch("performSearch");
+};

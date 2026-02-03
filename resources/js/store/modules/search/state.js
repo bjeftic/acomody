@@ -38,8 +38,8 @@ export default {
             pets: 0,
         },
         bounds: null,
+        sortBy: "recommended",
         flexibleDates: false,
     },
-    sortBy: "recommended",
     page: 1,
 };

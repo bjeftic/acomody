@@ -34,5 +34,8 @@ export default {
     },
     [types.SET_CURRENT_MAP_BOUNDS](state, data) {
         state.searchParams.bounds = data;
+    },
+    [types.SET_SORT_BY](state, data) {
+        state.searchParams.sortBy = data;
     }
 };
