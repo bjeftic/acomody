@@ -15,8 +15,18 @@
                 @click="zoomIn"
                 class="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
-                <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                <svg
+                    class="w-5 h-5 text-gray-700 dark:text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
                 </svg>
             </button>
 
@@ -25,8 +35,18 @@
                 @click="zoomOut"
                 class="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
-                <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                <svg
+                    class="w-5 h-5 text-gray-700 dark:text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M20 12H4"
+                    />
                 </svg>
             </button>
 
@@ -35,16 +55,33 @@
                 @click="recenterMap"
                 class="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
-                <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                <svg
+                    class="w-5 h-5 text-gray-700 dark:text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                 </svg>
             </button>
         </div>
 
         <!-- Results Count Badge -->
         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000]">
-            <div class="px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700">
+            <div
+                class="px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700"
+            >
                 <span class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ results.length }} properties in view
                 </span>
@@ -88,7 +125,7 @@ export default {
             type: Number,
             default: 12,
         },
-        currentMapBounds: {
+        bounds: {
             type: Object,
             default: null,
         },
@@ -103,9 +140,11 @@ export default {
             markerCluster: null,
             loading: false,
             boundsChangeTimeout: null,
-            userInteracted: false,
-            isInitialLoad: true,
-            lastEmittedBounds: null,
+            userInteracted: false, // Flag to track if user interacted in current movement
+            isInitialLoad: true, // Flag to skip first automatic moveend event
+            lastEmittedBounds: null, // Store last emitted bounds to avoid duplicate emissions
+            hasUserEverInteracted: false, // Flag to track if user has ever interacted with the map
+            isProgrammaticMove: false, // Flag to distinguish programmatic moves from user interactions
         };
     },
     watch: {
@@ -145,7 +184,7 @@ export default {
         ...mapActions("search", ["searchListings"]),
 
         initializeMap() {
-            // Initialize map
+            // Initialize Leaflet map
             this.map = L.map(this.$refs.mapContainer, {
                 center: [this.center.lat, this.center.lng],
                 zoom: this.zoom,
@@ -153,13 +192,13 @@ export default {
                 attributionControl: true,
             });
 
-            // Add tile layer
+            // Add OpenStreetMap tile layer
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19,
             }).addTo(this.map);
 
-            // Initialize marker cluster group
+            // Initialize marker cluster group for better performance with many markers
             this.markerCluster = L.markerClusterGroup({
                 maxClusterRadius: 60,
                 spiderfyOnMaxZoom: true,
@@ -181,21 +220,39 @@ export default {
 
             this.map.addLayer(this.markerCluster);
 
-            // Track user interaction
-            this.map.on('dragstart zoomstart', () => {
-                this.userInteracted = true;
+            // Track user drag interactions - only real user drags, not programmatic
+            this.map.on('dragstart', () => {
+                if (!this.isProgrammaticMove) {
+                    this.userInteracted = true;
+                    this.hasUserEverInteracted = true;
+                }
+            });
+
+            // Track user zoom interactions - only real user zooms, not programmatic
+            this.map.on('zoomstart', () => {
+                if (!this.isProgrammaticMove) {
+                    this.userInteracted = true;
+                    this.hasUserEverInteracted = true;
+                }
             });
 
             // Emit bounds after map movement stops
             this.map.on('moveend', () => {
-                // Skip first moveend that is triggered automaticaly
+                // Skip first moveend that is triggered automatically on map init
                 if (this.isInitialLoad) {
                     this.isInitialLoad = false;
+                    this.isProgrammaticMove = false;
                     return;
                 }
 
-                // only if user moved map
-                if (this.userInteracted) {
+                // Reset programmatic flag and skip emission for programmatic moves
+                if (this.isProgrammaticMove) {
+                    this.isProgrammaticMove = false;
+                    return;
+                }
+
+                // Only emit bounds if user has ever interacted and interacted in this movement
+                if (this.hasUserEverInteracted && this.userInteracted) {
                     this.debouncedEmitBounds();
                     this.userInteracted = false;
                 }
@@ -203,13 +260,13 @@ export default {
         },
 
         updateMarkers(results) {
-            // Clear existing markers
+            // Clear existing markers from the cluster
             this.markerCluster.clearLayers();
             this.markers = {};
 
             if (!results || results.length === 0) return;
 
-            // Add new markers
+            // Add new markers to the map
             results.forEach((accommodation) => {
                 if (accommodation.coordinates?.latitude && accommodation.coordinates?.longitude) {
                     const marker = this.createMarker(accommodation);
@@ -218,16 +275,19 @@ export default {
                 }
             });
 
-            // Fit bounds only on initial load
-            if (!this.currentMapBounds && results.length > 0) {
+            // Fit bounds only on initial load (when there are no current map bounds)
+            // Mark this as programmatic move to prevent bounds emission
+            if (!this.bounds && results.length > 0) {
                 const bounds = this.markerCluster.getBounds();
                 if (bounds.isValid()) {
+                    this.isProgrammaticMove = true;
                     this.map.fitBounds(bounds, { padding: [50, 50] });
                 }
             }
         },
 
         createMarker(accommodation) {
+            // Create custom marker icon with price display
             const customIcon = L.divIcon({
                 className: 'custom-marker',
                 html: `
@@ -245,13 +305,13 @@ export default {
                 icon: customIcon,
             });
 
-            // Add popup
+            // Add popup with accommodation details
             marker.bindPopup(this.createPopupContent(accommodation), {
                 maxWidth: 250,
                 className: 'custom-popup',
             });
 
-            // Add event listeners
+            // Add event listeners for marker interactions
             marker.on('mouseover', () => {
                 this.$emit('marker-hover', accommodation.id);
             });
@@ -268,6 +328,7 @@ export default {
         },
 
         createPopupContent(accommodation) {
+            // Generate HTML content for marker popup
             return `
                 <div class="p-2">
                     <div class="font-semibold text-sm mb-1">${accommodation.title}</div>
@@ -288,6 +349,7 @@ export default {
         },
 
         highlightMarker(accommodationId) {
+            // Highlight a marker when its card is hovered
             const marker = this.markers[accommodationId];
             if (!marker) return;
 
@@ -304,6 +366,7 @@ export default {
         },
 
         unhighlightMarker(accommodationId) {
+            // Remove highlight from a marker when its card is no longer hovered
             const marker = this.markers[accommodationId];
             if (!marker) return;
 
@@ -320,16 +383,20 @@ export default {
         },
 
         zoomIn() {
-            this.userInteracted = true;
+            // Zoom in - user interaction will be tracked by zoomstart event
             this.map.zoomIn();
         },
 
         zoomOut() {
-            this.userInteracted = true;
+            // Zoom out - user interaction will be tracked by zoomstart event
             this.map.zoomOut();
         },
 
         recenterMap() {
+            // Recenter map to show all markers or default center
+            // Mark as programmatic move to prevent bounds emission
+            this.isProgrammaticMove = true;
+
             if (this.results.length > 0) {
                 const bounds = this.markerCluster.getBounds();
                 if (bounds.isValid()) {
@@ -341,6 +408,7 @@ export default {
         },
 
         getCurrentMapBounds() {
+            // Get current map bounds and center
             if (!this.map) return null;
 
             const bounds = this.map.getBounds();
@@ -364,10 +432,11 @@ export default {
         },
 
         emitMapBounds() {
+            // Emit map bounds change event to parent component
             const mapBounds = this.getCurrentMapBounds();
             if (!mapBounds) return;
 
-            // Check if the bounds are significantly diff than before
+            // Check if bounds changed significantly to avoid unnecessary API calls
             if (this.areBoundsSimilar(mapBounds, this.lastEmittedBounds)) {
                 console.log('Bounds not changed significantly, skipping emit');
                 return;
@@ -378,9 +447,11 @@ export default {
         },
 
         areBoundsSimilar(bounds1, bounds2) {
+            // Compare two bounds to see if they're similar enough
+            // Returns true if difference is less than threshold (~100m)
             if (!bounds1 || !bounds2) return false;
 
-            const threshold = 0.001; // ~100m diff
+            const threshold = 0.001;
 
             return (
                 Math.abs(bounds1.northEast.lat - bounds2.northEast.lat) < threshold &&
@@ -391,13 +462,14 @@ export default {
         },
 
         debouncedEmitBounds() {
+            // Debounce bounds emission to avoid too many API calls
             this.loading = true;
 
             if (this.boundsChangeTimeout) {
                 clearTimeout(this.boundsChangeTimeout);
             }
 
-            // set new timeout
+            // Set new timeout to emit bounds after 500ms of no movement
             this.boundsChangeTimeout = setTimeout(() => {
                 this.emitMapBounds();
                 this.loading = false;
@@ -447,8 +519,12 @@ export default {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 </style>
 

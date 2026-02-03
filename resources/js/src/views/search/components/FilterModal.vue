@@ -116,7 +116,7 @@
 </template>
 
 <script>
-import PriceFilter from './filters/PriceFilter.vue';
+import PriceFilter from '../../../modals/search/components/PriceFilter.vue';
 import PropertyTypeFilter from './filters/AccommodationTypeFilter.vue';
 import RoomsBedsFilter from './filters/RoomsBedsFilter.vue';
 import AmenitiesFilter from './filters/AmenitiesFilter.vue';
