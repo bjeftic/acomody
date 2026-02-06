@@ -63,7 +63,7 @@
 <script>
 import { mapActions, mapState, mapGetters } from "vuex";
 import SearchBar from "@/src/components/common/searchBar/SearchBar.vue";
-import SearchResults from "./components/SearchResults.vue";
+import SearchResults from "@/src/views/search/components/SearchResults.vue";
 import { searchConfig } from "./config/searchConfig";
 
 export default {

@@ -96,7 +96,7 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import config from "@/config";
-import AccommodationCard from "./AccommodationCard.vue";
+import AccommodationCard from "@/src/views/search/components/AccommodationCard.vue";
 import SearchMap from "./SearchMap.vue";
 
 export default {

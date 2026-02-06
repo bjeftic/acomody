@@ -94,6 +94,9 @@
 import { mapActions, mapState } from "vuex";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { createApp, h } from "vue";
+import MapMarker from "@/src/views/search/components/map/MapMarker.vue";
+import MapPopup from "@/src/views/search/components/map/MapPopup.vue";
 
 // Fix for default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -129,6 +132,10 @@ export default {
             type: Object,
             default: null,
         },
+    },
+    components: {
+        MapMarker,
+        MapPopup,
     },
     computed: {
         ...mapState("ui", ["selectedCurrency"]),
@@ -240,11 +247,8 @@ export default {
         },
 
         updateMarkers(results) {
-            // Clear existing markers
-            if (this.markersLayer) {
-                this.markersLayer.clearLayers();
-            }
-            this.markers = {};
+            // Clear existing markers i unmount Vue instances
+            this.clearMarkers();
 
             // Early return if no results
             if (!results || results.length === 0) return;
@@ -255,7 +259,6 @@ export default {
             results.forEach((accommodation) => {
                 const { coordinates, id } = accommodation;
 
-                // Validate coordinates
                 if (!coordinates?.latitude || !coordinates?.longitude) {
                     return;
                 }
@@ -273,7 +276,7 @@ export default {
                 }
             });
 
-            // Auto-fit bounds only on initial load before any user interaction
+            // Auto-fit bounds
             if (
                 !this.hasUserEverInteracted &&
                 !this.bounds &&
@@ -296,16 +299,22 @@ export default {
         },
 
         createMarker(accommodation) {
-            // Create custom marker icon with price display
+            // Create component for marker
+            const markerContainer = document.createElement("div");
+            const markerApp = createApp({
+                render: () =>
+                    h(MapMarker, {
+                        accommodation: accommodation,
+                        currency: this.selectedCurrency,
+                        isHovered: accommodation.id === this.hoveredCardId,
+                    }),
+            });
+            markerApp.mount(markerContainer);
+
+            // Create custom marker for map
             const customIcon = L.divIcon({
                 className: "custom-marker",
-                html: `
-                    <div class="marker-pin ${accommodation.id === this.hoveredCardId ? "marker-pin-hovered" : ""}">
-                        <div class="marker-price">
-                            ${accommodation.runded_price} ${this.selectedCurrency.symbol}
-                        </div>
-                    </div>
-                `,
+                html: markerContainer.innerHTML,
                 iconSize: [60, 40],
                 iconAnchor: [30, 40],
             });
@@ -320,13 +329,24 @@ export default {
                 },
             );
 
-            // Add popup with accommodation details
-            marker.bindPopup(this.createPopupContent(accommodation), {
+            // Create component for popup
+            const popupContainer = document.createElement("div");
+            const popupApp = createApp({
+                render: () =>
+                    h(MapPopup, {
+                        accommodation: accommodation,
+                        currency: this.selectedCurrency,
+                    }),
+            });
+            popupApp.mount(popupContainer);
+
+            // Add popup
+            marker.bindPopup(popupContainer, {
                 maxWidth: 250,
                 className: "custom-popup",
             });
 
-            // Add event listeners for marker interactions
+            // Event listeners
             marker.on("mouseover", () => {
                 this.$emit("marker-hover", accommodation.id);
             });
@@ -335,86 +355,118 @@ export default {
                 this.$emit("marker-hover", null);
             });
 
-            // marker.on("click", () => {
-            //     this.$emit("marker-click", accommodation.id);
-            // });
+            marker.on("click", () => {
+                this.$emit("marker-click", accommodation.id);
+            });
+
+            // Save reverence instance for cleanup
+            marker._markerApp = markerApp;
+            marker._popupApp = popupApp;
 
             return marker;
         },
 
-        createPopupContent(accommodation) {
-            // Generate HTML content for marker popup
-            return `
-                <div class="p-2">
-                    <div class="font-semibold text-sm mb-1">${accommodation.title}</div>
-                    <div class="text-xs text-gray-600 mb-1">${accommodation.location || ""}</div>
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm font-bold">${accommodation.runded_price} ${this.selectedCurrency.symbol}/night</div>
-                        ${
-                            accommodation.rating
-                                ? `
-                            <div class="flex items-center text-xs">
-                                <svg class="w-3 h-3 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                </svg>
-                                ${accommodation.rating}
-                            </div>
-                        `
-                                : ""
-                        }
-                    </div>
-                </div>
-            `;
-        },
-
         highlightMarker(accommodationId) {
-            // Highlight a marker when its card is hovered
             const marker = this.markers[accommodationId];
             if (!marker) return;
 
-            const icon = marker.getIcon();
-            const newHtml = icon.options.html.replace(
-                'marker-pin"',
-                'marker-pin marker-pin-hovered"',
+            const accommodation = this.results.find(
+                (r) => r.id === accommodationId,
             );
+            if (!accommodation) return;
+
+            // Unmount old Vue instance
+            if (marker._markerApp) {
+                marker._markerApp.unmount();
+            }
+
+            // Create new with hovered
+            const markerContainer = document.createElement("div");
+            const markerApp = createApp({
+                render: () =>
+                    h(MapMarker, {
+                        accommodation: accommodation,
+                        currency: this.selectedCurrency,
+                        isHovered: true,
+                    }),
+            });
+            markerApp.mount(markerContainer);
 
             const highlightedIcon = L.divIcon({
-                ...icon.options,
-                html: newHtml,
+                className: "custom-marker",
+                html: markerContainer.innerHTML,
+                iconSize: [60, 40],
+                iconAnchor: [30, 40],
             });
 
             marker.setIcon(highlightedIcon);
             marker.setZIndexOffset(1000);
+            marker._markerApp = markerApp;
         },
 
         unhighlightMarker(accommodationId) {
-            // Remove highlight from a marker when its card is no longer hovered
             const marker = this.markers[accommodationId];
             if (!marker) return;
 
-            const icon = marker.getIcon();
-            const newHtml = icon.options.html.replace(
-                " marker-pin-hovered",
-                "",
+            const accommodation = this.results.find(
+                (r) => r.id === accommodationId,
             );
+            if (!accommodation) return;
+
+            // Unmount old vue instance
+            if (marker._markerApp) {
+                marker._markerApp.unmount();
+            }
+
+            // Create new withoid hover
+            const markerContainer = document.createElement("div");
+            const markerApp = createApp({
+                render: () =>
+                    h(MapMarker, {
+                        accommodation: accommodation,
+                        currency: this.selectedCurrency,
+                        isHovered: false,
+                    }),
+            });
+            markerApp.mount(markerContainer);
 
             const normalIcon = L.divIcon({
-                ...icon.options,
-                html: newHtml,
+                className: "custom-marker",
+                html: markerContainer.innerHTML,
+                iconSize: [60, 40],
+                iconAnchor: [30, 40],
             });
 
             marker.setIcon(normalIcon);
             marker.setZIndexOffset(0);
+            marker._markerApp = markerApp;
         },
 
         zoomIn() {
             // Zoom in - user interaction will be tracked by zoomstart event
+            this.clearMarkers();
             this.map.zoomIn();
         },
 
         zoomOut() {
             // Zoom out - user interaction will be tracked by zoomstart event
+            this.clearMarkers();
             this.map.zoomOut();
+        },
+
+        clearMarkers() {
+            if (this.markersLayer) {
+                this.markersLayer.eachLayer((layer) => {
+                    if (layer._markerApp) {
+                        layer._markerApp.unmount();
+                    }
+                    if (layer._popupApp) {
+                        layer._popupApp.unmount();
+                    }
+                });
+                this.markersLayer.clearLayers();
+            }
+            this.markers = {};
         },
 
         recenterMap() {
@@ -504,6 +556,27 @@ export default {
                 this.loading = false;
             }, 500);
         },
+    },
+    beforeDestroy() {
+        // Cleanup Vue instances
+        if (this.markersLayer) {
+            this.markersLayer.eachLayer((layer) => {
+                if (layer._markerApp) {
+                    layer._markerApp.unmount();
+                }
+                if (layer._popupApp) {
+                    layer._popupApp.unmount();
+                }
+            });
+        }
+
+        if (this.boundsChangeTimeout) {
+            clearTimeout(this.boundsChangeTimeout);
+        }
+        if (this.map) {
+            this.map.remove();
+            this.map = null;
+        }
     },
 };
 </script>
