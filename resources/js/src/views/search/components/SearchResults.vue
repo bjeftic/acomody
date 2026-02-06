@@ -42,7 +42,7 @@
                                         class="py-2 text-sm rounded-lg text-gray-700 border border-gray-200 dark:text-gray-200 dark:border-gray-700 flex flex-col"
                                     >
                                         <span
-                                            v-for="sortOption in config.sortOptions"
+                                            v-for="sortOption in config.ui.sortOptions"
                                             :key="sortOption.id"
                                             class="cursor-pointer px-4 py-2 min-w-24 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                             @click="handleSortChange({ route: $route, router: $router, newSortBy: sortOption.id})"
@@ -95,7 +95,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
-import { searchConfig } from "../config/searchConfig";
+import config from "@/config";
 import AccommodationCard from "./AccommodationCard.vue";
 import SearchMap from "./SearchMap.vue";
 
@@ -128,14 +128,14 @@ export default {
         }),
         currentSortOption() {
             return (
-                this.config.sortOptions.find((opt) => opt.id === this.searchParams.sortBy) ||
-                this.config.sortOptions[0]
+                this.config.ui.sortOptions.find((opt) => opt.id === this.searchParams.sortBy) ||
+                this.config.ui.sortOptions[0]
             );
         },
     },
     data() {
         return {
-            config: searchConfig,
+            config,
         };
     },
     methods: {

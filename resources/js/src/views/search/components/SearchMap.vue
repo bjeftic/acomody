@@ -94,9 +94,6 @@
 import { mapActions, mapState } from "vuex";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "leaflet.markercluster";
-import "leaflet.markercluster/dist/MarkerCluster.css";
-import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 // Fix for default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -140,7 +137,6 @@ export default {
         return {
             map: null,
             markers: {},
-            markerCluster: null,
             loading: false,
             boundsChangeTimeout: null,
             userInteracted: false, // Flag to track if user interacted in current movement
@@ -202,27 +198,7 @@ export default {
                 maxZoom: 19,
             }).addTo(this.map);
 
-            // Initialize marker cluster group for better performance with many markers
-            this.markerCluster = L.markerClusterGroup({
-                maxClusterRadius: 60,
-                spiderfyOnMaxZoom: true,
-                showCoverageOnHover: false,
-                zoomToBoundsOnClick: true,
-                iconCreateFunction: (cluster) => {
-                    const count = cluster.getChildCount();
-                    let className = "marker-cluster-small";
-                    if (count >= 10) className = "marker-cluster-medium";
-                    if (count >= 50) className = "marker-cluster-large";
-
-                    return L.divIcon({
-                        html: `<div class="marker-cluster-inner">${count}</div>`,
-                        className: `marker-cluster ${className}`,
-                        iconSize: L.point(40, 40),
-                    });
-                },
-            });
-
-            this.map.addLayer(this.markerCluster);
+            this.markersLayer = L.featureGroup().addTo(this.map);
 
             // Track user drag interactions - only real user drags, not programmatic
             this.map.on("dragstart", () => {
@@ -264,34 +240,57 @@ export default {
         },
 
         updateMarkers(results) {
-            // Clear existing markers from the cluster
-            this.markerCluster.clearLayers();
+            // Clear existing markers
+            if (this.markersLayer) {
+                this.markersLayer.clearLayers();
+            }
             this.markers = {};
 
+            // Early return if no results
             if (!results || results.length === 0) return;
 
             // Add new markers to the map
+            let validMarkerCount = 0;
+
             results.forEach((accommodation) => {
-                if (
-                    accommodation.coordinates?.latitude &&
-                    accommodation.coordinates?.longitude
-                ) {
+                const { coordinates, id } = accommodation;
+
+                // Validate coordinates
+                if (!coordinates?.latitude || !coordinates?.longitude) {
+                    return;
+                }
+
+                try {
                     const marker = this.createMarker(accommodation);
-                    this.markers[accommodation.id] = marker;
-                    this.markerCluster.addLayer(marker);
+                    this.markers[id] = marker;
+                    this.markersLayer.addLayer(marker);
+                    validMarkerCount++;
+                } catch (error) {
+                    console.error(
+                        `Error creating marker for accommodation ${id}:`,
+                        error,
+                    );
                 }
             });
 
-            // Only fit bounds on the very first load, before user has ever interacted with the map
+            // Auto-fit bounds only on initial load before any user interaction
             if (
                 !this.hasUserEverInteracted &&
                 !this.bounds &&
-                results.length > 0
+                validMarkerCount > 0
             ) {
-                const bounds = this.markerCluster.getBounds();
-                if (bounds.isValid()) {
-                    this.isProgrammaticMove = true;
-                    this.map.fitBounds(bounds, { padding: [50, 50] });
+                try {
+                    const bounds = this.markersLayer.getBounds();
+
+                    if (bounds && bounds.isValid()) {
+                        this.isProgrammaticMove = true;
+                        this.map.fitBounds(bounds, {
+                            padding: [50, 50],
+                            maxZoom: 15,
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error fitting bounds:", error);
                 }
             }
         },
@@ -303,7 +302,7 @@ export default {
                 html: `
                     <div class="marker-pin ${accommodation.id === this.hoveredCardId ? "marker-pin-hovered" : ""}">
                         <div class="marker-price">
-                            ${accommodation.price} ${this.selectedCurrency.symbol}
+                            ${accommodation.runded_price} ${this.selectedCurrency.symbol}
                         </div>
                     </div>
                 `,
@@ -336,9 +335,9 @@ export default {
                 this.$emit("marker-hover", null);
             });
 
-            marker.on("click", () => {
-                this.$emit("marker-click", accommodation.id);
-            });
+            // marker.on("click", () => {
+            //     this.$emit("marker-click", accommodation.id);
+            // });
 
             return marker;
         },
@@ -350,7 +349,7 @@ export default {
                     <div class="font-semibold text-sm mb-1">${accommodation.title}</div>
                     <div class="text-xs text-gray-600 mb-1">${accommodation.location || ""}</div>
                     <div class="flex items-center justify-between">
-                        <div class="text-sm font-bold">${accommodation.price} ${this.selectedCurrency.symbol}/night</div>
+                        <div class="text-sm font-bold">${accommodation.runded_price} ${this.selectedCurrency.symbol}/night</div>
                         ${
                             accommodation.rating
                                 ? `
@@ -424,7 +423,7 @@ export default {
             this.isProgrammaticMove = true;
 
             if (this.results.length > 0) {
-                const bounds = this.markerCluster.getBounds();
+                const bounds = this.markersLayer.getBounds();
                 if (bounds.isValid()) {
                     this.map.fitBounds(bounds, { padding: [50, 50] });
                 }
@@ -589,49 +588,6 @@ export default {
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     z-index: 1000;
-}
-
-/* Marker Cluster Styles */
-.marker-cluster {
-    background-color: rgba(59, 130, 246, 0.6);
-    border-radius: 50%;
-}
-
-.marker-cluster-inner {
-    background-color: rgb(59, 130, 246);
-    color: white;
-    border-radius: 50%;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.marker-cluster-small {
-    background-color: rgba(34, 197, 94, 0.6);
-}
-
-.marker-cluster-small .marker-cluster-inner {
-    background-color: rgb(34, 197, 94);
-}
-
-.marker-cluster-medium {
-    background-color: rgba(251, 146, 60, 0.6);
-}
-
-.marker-cluster-medium .marker-cluster-inner {
-    background-color: rgb(251, 146, 60);
-}
-
-.marker-cluster-large {
-    background-color: rgba(239, 68, 68, 0.6);
-}
-
-.marker-cluster-large .marker-cluster-inner {
-    background-color: rgb(239, 68, 68);
 }
 
 /* Custom Popup Styles */

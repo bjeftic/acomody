@@ -10,16 +10,6 @@ export const searchConfig = {
         markerSize: { width: 40, height: 40 },
     },
 
-    // Sort options
-    sortOptions: [
-        { id: "recommended", name: "Recommended" },
-        { id: "price_asc", name: "Price (Low to High)" },
-        { id: "price_desc", name: "Price (High to Low)" },
-        { id: "rating", name: "Highest Rated" },
-        { id: "reviews", name: "Most Reviewed" },
-        { id: "newest", name: "Newest First" },
-    ],
-
     // Grid layout
     grid: {
         desktop: 3, // columns

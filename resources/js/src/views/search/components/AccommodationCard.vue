@@ -123,7 +123,7 @@
             <!-- Price -->
             <div class="mt-2">
                 <span class="font-semibold text-gray-900 dark:text-white">
-                    {{ formatPrice(accommodation.price) }}
+                    {{ formatPrice(accommodation.runded_price) }}
                 </span>
                 <span class="text-sm text-gray-600 dark:text-gray-400">
                     / night

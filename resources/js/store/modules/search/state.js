@@ -38,7 +38,7 @@ export default {
             pets: 0,
         },
         bounds: null,
-        sortBy: "recommended",
+        sortBy: "price_asc",
         flexibleDates: false,
     },
     page: 1,
