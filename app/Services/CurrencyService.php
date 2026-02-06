@@ -23,18 +23,19 @@ class CurrencyService
      * 2. Session currency (if set by user)
      * 3. Auto-detect from IP (first visit only)
      */
-    public static function getUserCurrency(): string
+    public static function getUserCurrency()
     {
         $user = Auth::user();
 
         //1 Authenticated user's preference
         if ($user && $user->preferred_currency) {
-            return $user->preferred_currency;
+            return Currency::where('code', $user->preferred_currency)->firstOrFail();
         }
 
         //2 Session currency
         if (session()->has('currency')) {
-            return session('currency');
+            $sessionCurrency = session()->get('currency');
+            return Currency::where('code', $sessionCurrency)->firstOrFail();
         }
 
         //3 Auto-detect (first visit)
@@ -43,7 +44,7 @@ class CurrencyService
         session()->put('currency', $detected);
         session()->put('currency_auto_detected', true);
 
-        return $detected;
+        return Currency::where('code', $detected)->firstOrFail();
     }
 
     /**
@@ -59,10 +60,12 @@ class CurrencyService
             $countryCode &&
             isset(config('constants.country_currency_map')[$countryCode])
         ) {
-            return config('constants.country_currency_map')[$countryCode];
+            return Currency::where('code', config('constants.country_currency_map')[$countryCode])
+                ->firstOrFail()
+                ->code;
         }
 
-        return config('currency.default', 'EUR');
+        return Currency::getDefault();
     }
 
     /**
@@ -192,24 +195,6 @@ class CurrencyService
     }
 
     /**
-     * Check if rates need update
-     */
-    public function needsUpdate(): bool
-    {
-        $currencies = Currency::where('is_active', true)
-            ->where('is_base', false)
-            ->get();
-
-        foreach ($currencies as $currency) {
-            if ($currency->needsRateUpdate()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Clear all currency cache
      */
     public function clearCache(): void
@@ -220,25 +205,5 @@ class CurrencyService
             Cache::forget(self::CACHE_KEY_PREFIX . '_active_today');
             Cache::forget(self::CACHE_KEY_PREFIX . '_active_' . now()->format('Y-m-d'));
         }
-    }
-
-    /**
-     * Get statistics for dashboard
-     */
-    public function getStatistics(): array
-    {
-        $baseCurrency = Currency::getBaseCurrency();
-        $activeCurrencies = Currency::where('is_active', true)->count();
-        $lastUpdate = ExchangeRate::where('is_active', true)
-            ->orderBy('date', 'desc')
-            ->first()?->date;
-
-        return [
-            'base_currency' => $baseCurrency->code,
-            'active_currencies' => $activeCurrencies,
-            'last_update' => $lastUpdate?->toISOString(),
-            'needs_update' => $this->needsUpdate(),
-            'total_rates' => ExchangeRate::where('is_active', true)->count()
-        ];
     }
 }

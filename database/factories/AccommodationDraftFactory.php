@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\Accommodation\AccommodationOccupation;
+use App\Enums\Accommodation\AccommodationType;
 use App\Models\User;
 use App\Models\Country;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,7 +20,7 @@ class AccommodationDraftFactory extends Factory
             'user_id' => User::factory(),
             'status' => $this->faker->randomElement(['draft', 'waiting_for_approval', 'published']),
             'data' => json_encode([
-                'accommodation_type'       => $this->faker->numberBetween(1, 5),
+                'accommodation_type'       => AccommodationType::cases()[array_rand(AccommodationType::cases())]->value,
                 'accommodation_occupation' => AccommodationOccupation::cases()[array_rand(AccommodationOccupation::cases())]->value,
 
                 'address' => [
@@ -31,8 +32,8 @@ class AccommodationDraftFactory extends Factory
                 ],
 
                 'coordinates' => [
-                    'latitude'  => $this->faker->latitude(44.7, 44.9),
-                    'longitude' => $this->faker->longitude(20.3, 20.6),
+                    'latitude'  => $this->faker->latitude(19, 22),
+                    'longitude' => $this->faker->longitude(42, 44),
                 ],
 
                 'floor_plan' => [
@@ -53,7 +54,7 @@ class AccommodationDraftFactory extends Factory
                     // 'weekendPrice'         => 0,
                     // 'weeklyDiscount'       => 0,
                     // 'monthlyDiscount'      => 0,
-                    'bookingType'          => $this->faker->randomElement(['instant-booking', 'request-to-book']),
+                    'bookingType'          => $this->faker->randomElement(['instant_booking', 'request_to_book']),
                     'minStay'              => 1,
                     // 'hasDaySpecificMinStay'=> false,
                     // 'daySpecificMinStay'   => [
@@ -111,7 +112,6 @@ class AccommodationDraftFactory extends Factory
                     'hasQuietHours'   => false,
                     'quietHoursFrom'  => '22:00',
                     'quietHoursUntil' => '08:00',
-                    'additionalRules' => null,
                     'cancellationPolicy' => 'moderate',
                 ],
             ]),

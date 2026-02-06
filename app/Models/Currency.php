@@ -54,27 +54,19 @@ class Currency extends Model
     }
 
     /**
-     * Get exchange rates where this is the from currency
-     */
-    public function exchangeRatesFrom(): HasMany
-    {
-        return $this->hasMany(ExchangeRate::class, 'from_currency', 'code');
-    }
-
-    /**
-     * Get exchange rates where this is the to currency
-     */
-    public function exchangeRatesTo(): HasMany
-    {
-        return $this->hasMany(ExchangeRate::class, 'to_currency', 'code');
-    }
-
-    /**
      * Get users with this preferred currency
      */
     public function users(): HasMany
     {
         return $this->hasMany(User::class, 'preferred_currency', 'code');
+    }
+
+    /**
+     * Get exchange rates to other currencies
+     */
+    public function exchangeRates(): HasMany
+    {
+        return $this->hasMany(ExchangeRate::class, 'to_currency', 'code');
     }
 
     /**
@@ -195,36 +187,5 @@ class Currency extends Model
         return static::where('code', strtoupper($code))
             ->where('is_active', true)
             ->first();
-    }
-
-    /**
-     * Check if currency needs rate update
-     */
-    public function needsRateUpdate(): bool
-    {
-        if ($this->is_base) {
-            return false;
-        }
-
-        $lastUpdate = ExchangeRate::getLastUpdateDate($this->code);
-
-        if (!$lastUpdate) {
-            return true;
-        }
-
-        // Need update if last update is not today
-        return !$lastUpdate->isToday();
-    }
-
-    /**
-     * Get currency with latest rate
-     */
-    public function toArrayWithRate(?Carbon $date = null): array
-    {
-        $data = $this->toArray();
-        $data['current_rate'] = $this->getLatestRate($date);
-        $data['last_update'] = ExchangeRate::getLastUpdateDate($this->code)?->toISOString();
-
-        return $data;
     }
 }

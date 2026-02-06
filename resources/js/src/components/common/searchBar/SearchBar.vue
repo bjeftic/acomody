@@ -4,18 +4,18 @@
             <div
                 class="flex items-center gap-0 border border-gray-300 rounded-full p-1 shadow-lg"
             >
-                <!-- Destination Autocomplete -->
+                <!-- Location Autocomplete -->
                 <div
                     ref="autocompleteField"
                     class="flex-1 min-w-[200px] px-4 border-r border-gray-200 relative"
                 >
                     <input
-                        v-model="destinationSearch"
-                        @input="handleDestinationInput"
-                        @focus="showDestinationDropdown = true"
-                        @keydown.down="navigateDown"
-                        @keydown.up="navigateUp"
-                        @keydown.enter="selectHighlighted"
+                        v-model="locationSearchName"
+                        @input="handleLocationInput"
+                        @focus="showLocationDropdown = true"
+                        @keydown.down.prevent="navigateDown"
+                        @keydown.up.prevent="navigateUp"
+                        @keydown.enter.prevent="selectHighlighted"
                         type="text"
                         placeholder="Where to?"
                         class="w-full py-1 bg-transparent text-gray-700 placeholder-gray-400 custom-input"
@@ -23,21 +23,23 @@
 
                     <!-- Dropdown -->
                     <div
-                        v-if="showDestinationDropdown && filteredDestinations.length > 0"
-                        ref="destinationDropdown"
-                        class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 max-h-60 overflow-y-auto"
+                        v-if="showLocationDropdown && localSearchResults.length > 0"
+                        ref="locationDropdown"
+                        class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 max-h-60 overflow-y-auto z-20"
                     >
                         <div
-                            v-for="(option, index) in filteredDestinations"
-                            :key="option.id"
+                            v-for="(option, index) in localSearchResults"
+                            :key="option.data.id"
                             :class="[
                                 'px-4 py-3 cursor-pointer transition',
-                                highlightedIndex === index ? 'bg-gray-100' : 'hover:bg-gray-50'
+                                highlightedIndex === index
+                                    ? 'bg-gray-100'
+                                    : 'hover:bg-gray-50',
                             ]"
-                            @click="selectDestination(option)"
+                            @click="selectLocation(option)"
                             @mouseenter="highlightedIndex = index"
                         >
-                            {{ option.label }}
+                            {{ option.data.name }}
                         </div>
                     </div>
                 </div>
@@ -61,7 +63,7 @@
                     <div
                         v-if="showCalendar"
                         ref="calendarDropdown"
-                        class="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-6"
+                        class="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-6 z-20"
                         style="width: 660px"
                         @click.stop
                     >
@@ -118,9 +120,7 @@
                                 </div>
                                 <div class="grid grid-cols-7 gap-1">
                                     <div
-                                        v-for="day in getMonthDays(
-                                            currentMonth
-                                        )"
+                                        v-for="day in getMonthDays(currentMonth)"
                                         :key="`current-${day.timestamp}`"
                                         :class="getDayClasses(day)"
                                         @click="selectDate(day)"
@@ -199,7 +199,7 @@
                     <div
                         v-if="showGuestsDropdown"
                         ref="guestsDropdown"
-                        class="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4"
+                        class="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-20"
                         style="width: 320px"
                         @click.stop
                     >
@@ -335,15 +335,52 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+import moment from "moment";
+
 export default {
     name: "SearchBar",
+    props: {
+        initialLocationId: {
+            type: [Number, String],
+            default: null,
+        },
+        initialLocationName: {
+            type: String,
+            default: '',
+        },
+        initialCheckIn: {
+            type: String,
+            default: null,
+        },
+        initialCheckOut: {
+            type: String,
+            default: null,
+        },
+        initialAdults: {
+            type: Number,
+            default: 2,
+        },
+        initialChildren: {
+            type: Number,
+            default: 0,
+        },
+        initialInfants: {
+            type: Number,
+            default: 0,
+        },
+        initialMapBounds: {
+            type: Object,
+            default: {}
+        },
+    },
     data() {
         return {
             validationMessage: "",
             showGuestsDropdown: false,
             showCalendar: false,
-            showDestinationDropdown: false,
-            destinationSearch: "",
+            showLocationDropdown: false,
+            locationSearchName: "",
             highlightedIndex: -1,
             currentMonth: new Date(),
             nextMonth: new Date(
@@ -353,24 +390,17 @@ export default {
             ),
             selectionMode: "checkin",
             searchForm: {
-                destination: null,
+                locationId: null,
+                location: null,
                 checkIn: null,
                 checkOut: null,
                 adults: 2,
                 children: 0,
                 infants: 0,
+                bounds: null,
             },
-            destinationOptions: [
-                { id: 1, label: "Belgrade", value: "beograd" },
-                { id: 2, label: "Novi Sad", value: "novi-sad" },
-                { id: 3, label: "Niš", value: "nis" },
-                { id: 4, label: "Kopaonik", value: "kopaonik" },
-                { id: 5, label: "Zlatibor", value: "zlatibor" },
-                { id: 6, label: "Tara", value: "tara" },
-                { id: 7, label: "Vrnjačka Banja", value: "vrnjacka-banja" },
-                { id: 8, label: "Sokobanja", value: "sokobanja" },
-                { id: 9, label: "Bukovička Banja", value: "bukovicka-banja" },
-            ],
+            localSearchResults: [],
+            debounceTimer: null,
             weekDays: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
             months: [
                 "January",
@@ -389,15 +419,6 @@ export default {
         };
     },
     computed: {
-        filteredDestinations() {
-            if (!this.destinationSearch) {
-                return this.destinationOptions;
-            }
-            const search = this.destinationSearch.toLowerCase();
-            return this.destinationOptions.filter(option =>
-                option.label.toLowerCase().includes(search)
-            );
-        },
         guestsDisplayText() {
             const totalGuests =
                 this.searchForm.adults + this.searchForm.children;
@@ -413,7 +434,7 @@ export default {
         },
         isFormValid() {
             return (
-                this.searchForm.destination &&
+                this.searchForm.location &&
                 this.searchForm.checkIn &&
                 this.searchForm.checkOut &&
                 this.searchForm.adults > 0 &&
@@ -424,36 +445,97 @@ export default {
     mounted() {
         document.addEventListener("click", this.handleClickOutside);
         this.updateNextMonth();
+        this.initializeFromProps();
     },
     beforeDestroy() {
         document.removeEventListener("click", this.handleClickOutside);
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+        }
     },
     methods: {
-        handleDestinationInput() {
-            this.showDestinationDropdown = true;
+        ...mapActions("search", ["searchLocations"]),
+
+        initializeFromProps() {
+            if (this.initialLocationId || this.initialLocationName) {
+                this.searchForm.location = {
+                    id: this.initialLocationId,
+                    name: this.initialLocationName,
+                };
+                this.searchForm.locationId = this.initialLocationId;
+                this.locationSearchName = this.initialLocationName;
+            }
+
+            if (this.initialCheckIn) {
+                this.searchForm.checkIn = moment(this.initialCheckIn, 'YYYY-MM-DD').valueOf();
+            }
+
+            if (this.initialCheckOut) {
+                this.searchForm.checkOut = moment(this.initialCheckOut, 'YYYY-MM-DD').valueOf();
+            }
+
+            this.searchForm.adults = this.initialAdults || 2;
+            this.searchForm.children = this.initialChildren || 0;
+            this.searchForm.infants = this.initialInfants || 0;
+            this.searchForm.bounds = this.initialMapBounds;
+        },
+
+        async findLocations(query) {
+            try {
+                const response = await this.searchLocations(query);
+                this.localSearchResults = response || [];
+            } catch (error) {
+                console.error("Failed to search locations:", error);
+                this.localSearchResults = [];
+            }
+        },
+
+        handleLocationInput() {
+            this.showLocationDropdown = true;
+            this.highlightedIndex = -1;
+
+            if (this.debounceTimer) {
+                clearTimeout(this.debounceTimer);
+            }
+
+            if (this.locationSearchName.length > 0) {
+                this.debounceTimer = setTimeout(() => {
+                    this.findLocations(this.locationSearchName);
+                }, 300);
+            } else {
+                this.localSearchResults = [];
+            }
+        },
+
+        selectLocation(option) {
+            this.searchForm.locationId = option.data.id;
+            this.searchForm.location = option.data;
+            this.locationSearchName = option.data.name;
+            this.showLocationDropdown = false;
             this.highlightedIndex = -1;
         },
-        selectDestination(option) {
-            this.searchForm.destination = option.value;
-            this.destinationSearch = option.label;
-            this.showDestinationDropdown = false;
-            this.highlightedIndex = -1;
-        },
+
         navigateDown() {
-            if (this.highlightedIndex < this.filteredDestinations.length - 1) {
+            if (this.highlightedIndex < this.localSearchResults.length - 1) {
                 this.highlightedIndex++;
             }
         },
+
         navigateUp() {
             if (this.highlightedIndex > 0) {
                 this.highlightedIndex--;
             }
         },
+
         selectHighlighted() {
-            if (this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredDestinations.length) {
-                this.selectDestination(this.filteredDestinations[this.highlightedIndex]);
+            if (
+                this.highlightedIndex >= 0 &&
+                this.highlightedIndex < this.localSearchResults.length
+            ) {
+                this.selectLocation(this.localSearchResults[this.highlightedIndex]);
             }
         },
+
         updateNextMonth() {
             this.nextMonth = new Date(
                 this.currentMonth.getFullYear(),
@@ -461,6 +543,7 @@ export default {
                 1
             );
         },
+
         previousMonth() {
             this.currentMonth = new Date(
                 this.currentMonth.getFullYear(),
@@ -469,6 +552,7 @@ export default {
             );
             this.updateNextMonth();
         },
+
         nextMonthNav() {
             this.currentMonth = new Date(
                 this.currentMonth.getFullYear(),
@@ -477,38 +561,39 @@ export default {
             );
             this.updateNextMonth();
         },
+
         getMonthYear(date) {
-            return `${this.months[date.getMonth()]} ${date.getFullYear()}`;
+            return moment(date).format('MMMM YYYY');
         },
+
         getMonthDays(month) {
             const year = month.getFullYear();
             const monthIndex = month.getMonth();
-            const firstDay = new Date(year, monthIndex, 1);
-            const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            const firstDay = moment([year, monthIndex, 1]);
+            const startDate = firstDay.clone().startOf('week'); // Početak nedelje
 
             const days = [];
-            const current = new Date(startDate);
+            const current = startDate.clone();
 
             for (let i = 0; i < 42; i++) {
-                const isCurrentMonth = current.getMonth() === monthIndex;
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const isPast = current < today;
+                const isCurrentMonth = current.month() === monthIndex;
+                const today = moment().startOf('day');
+                const isPast = current.isBefore(today);
 
                 days.push({
-                    date: current.getDate(),
-                    fullDate: new Date(current),
+                    date: current.date(),
+                    fullDate: current.toDate(),
                     isCurrentMonth,
                     isPast,
-                    timestamp: current.getTime(),
+                    timestamp: current.valueOf(),
                 });
 
-                current.setDate(current.getDate() + 1);
+                current.add(1, 'day');
             }
 
             return days;
         },
+
         getDayClasses(day) {
             const classes = [
                 "flex",
@@ -517,18 +602,20 @@ export default {
                 "w-10",
                 "h-10",
                 "text-sm",
-                "rounded-full",
                 "transition",
-                "cursor-pointer",
             ];
 
             if (!day.isCurrentMonth) {
                 classes.push("text-gray-300", "cursor-not-allowed");
+                return classes.join(" ");
             }
 
             if (day.isPast) {
                 classes.push("text-gray-300", "cursor-not-allowed");
+                return classes.join(" ");
             }
+
+            classes.push("cursor-pointer");
 
             const dayTime = day.timestamp;
             const checkInTime = this.searchForm.checkIn;
@@ -536,32 +623,22 @@ export default {
 
             if (checkInTime && dayTime === checkInTime) {
                 classes.push("bg-gray-900", "text-white", "rounded-l-full");
-            }
-
-            if (checkOutTime && dayTime === checkOutTime) {
+            } else if (checkOutTime && dayTime === checkOutTime) {
                 classes.push("bg-gray-900", "text-white", "rounded-r-full");
-            }
-
-            if (
+            } else if (
                 checkInTime &&
                 checkOutTime &&
                 dayTime > checkInTime &&
                 dayTime < checkOutTime
             ) {
-                classes.push("bg-gray-100", "rounded-none");
-            }
-
-            if (
-                !day.isPast &&
-                day.isCurrentMonth &&
-                !checkInTime &&
-                !checkOutTime
-            ) {
-                classes.push("hover:bg-gray-100");
+                classes.push("bg-gray-100");
+            } else {
+                classes.push("hover:bg-gray-100", "hover:rounded-full");
             }
 
             return classes.join(" ");
         },
+
         selectDate(day) {
             if (day.isPast || !day.isCurrentMonth) return;
 
@@ -586,6 +663,7 @@ export default {
                 }
             }
         },
+
         toggleCalendar() {
             this.showCalendar = !this.showCalendar;
             if (this.showCalendar) {
@@ -593,61 +671,86 @@ export default {
                 this.updateNextMonth();
             }
         },
+
         closeCalendar() {
             this.showCalendar = false;
         },
+
         clearDates() {
             this.searchForm.checkIn = null;
             this.searchForm.checkOut = null;
             this.selectionMode = "checkin";
         },
+
         incrementAdults() {
             if (this.searchForm.adults < 10) this.searchForm.adults++;
         },
+
         decrementAdults() {
             if (this.searchForm.adults > 1) this.searchForm.adults--;
         },
+
         incrementChildren() {
             if (this.searchForm.children < 10) this.searchForm.children++;
         },
+
         decrementChildren() {
             if (this.searchForm.children > 0) this.searchForm.children--;
         },
+
         incrementInfants() {
             if (this.searchForm.infants < 5) this.searchForm.infants++;
         },
+
         decrementInfants() {
             if (this.searchForm.infants > 0) this.searchForm.infants--;
         },
+
         toggleGuestsDropdown() {
             this.showGuestsDropdown = !this.showGuestsDropdown;
         },
+
         formatDate(timestamp) {
             if (!timestamp) return "";
-            return new Date(timestamp).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
+            return moment(timestamp).format('MMM D');
+        },
+
+        handleSearch() {
+            if (!this.isFormValid) {
+                this.validationMessage = "Please fill in all required fields";
+                return;
+            }
+
+            this.validationMessage = "";
+            this.$emit("search", {
+                location: {
+                    id: this.searchForm.location.id,
+                    name: this.searchForm.location.name,
+                },
+                checkIn: moment(this.searchForm.checkIn).format('YYYY-MM-DD'),
+                checkOut: moment(this.searchForm.checkOut).format('YYYY-MM-DD'),
+                guests: {
+                    adults: this.searchForm.adults,
+                    children: this.searchForm.children,
+                    infants: this.searchForm.infants,
+                },
             });
         },
-        handleSearch() {
-            console.log("Search with:", this.searchForm);
-        },
+
         handleClickOutside(event) {
-            // Check autocomplete
             if (
-                this.showDestinationDropdown &&
-                this.$refs.destinationDropdown &&
+                this.showLocationDropdown &&
+                this.$refs.locationDropdown &&
                 this.$refs.autocompleteField
             ) {
                 if (
-                    !this.$refs.destinationDropdown.contains(event.target) &&
+                    !this.$refs.locationDropdown.contains(event.target) &&
                     !this.$refs.autocompleteField.contains(event.target)
                 ) {
-                    this.showDestinationDropdown = false;
+                    this.showLocationDropdown = false;
                 }
             }
 
-            // Check calendar
             if (
                 this.showCalendar &&
                 this.$refs.calendarDropdown &&
@@ -661,7 +764,6 @@ export default {
                 }
             }
 
-            // Check guests dropdown
             if (
                 this.showGuestsDropdown &&
                 this.$refs.guestsDropdown &&

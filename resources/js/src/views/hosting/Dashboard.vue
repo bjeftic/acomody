@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-4xl mx-auto pb-12">
+    <div class="max-w-4xl mx-auto py-12">
         <template v-if="hostingLoading">
             <form-skeleton />
         </template>

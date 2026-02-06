@@ -1,14 +1,24 @@
 <?php
 
 return [
-    'days_of_week' => [
-        [ 'id' => "monday", 'name' => "Monday" ],
-        [ 'id' => "tuesday", 'name' => "Tuesday" ],
-        [ 'id' => "wednesday", 'name' => "Wednesday" ],
-        [ 'id' => "thursday", 'name' => "Thursday" ],
-        [ 'id' => "friday", 'name' => "Friday" ],
-        [ 'id' => "saturday", 'name' => "Saturday" ],
-        [ 'id' => "sunday", 'name' => "Sunday" ],
+
+    'ui_constants' => [
+        'sort_options' => [
+            ['id' => "price_asc", 'name' => 'ui.price_asc'],
+            ['id' => "price_desc", 'name' => 'ui.price_desc'],
+            ['id' => "newest", 'name' => 'ui.newest'],
+            // ['id' => "rating", 'name' => 'ui.rating'],
+            // ['id' => "reviews", 'name' => 'ui.reviews'],
+        ],
+        'days_of_week' => [
+            ['id' => "monday", 'name' => 'ui.monday'],
+            ['id' => "tuesday", 'name' => 'ui.tuesday'],
+            ['id' => "wednesday", 'name' => 'ui.wednesday'],
+            ['id' => "thursday", 'name' => 'ui.thursday'],
+            ['id' => "friday", 'name' => 'ui.friday'],
+            ['id' => "saturday", 'name' => 'ui.saturday'],
+            ['id' => "sunday", 'name' => 'ui.sunday'],
+        ],
     ],
     'country_currency_map' => [
         'RS' => 'RSD',

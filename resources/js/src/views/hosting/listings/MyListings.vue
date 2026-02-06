@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-4xl mx-auto pb-12">
+    <div class="max-w-4xl mx-auto py-12">
         <template v-if="myListingsLoading">
             <form-skeleton />
         </template>
@@ -45,12 +45,12 @@
                 <div class="space-y-3">
                     <!-- My Listings Link -->
                     <action-card
-                        v-for="listing in myListings"
-                        :key="listing.id"
+                        v-for="accommodation in accommodations"
+                        :key="accommodation.id"
                         :title="
-                            listing.listable.title || 'Untitled Listing'
+                            accommodation.title || 'Untitled Listing'
                         "
-                        @click="$router.push({ name: 'page-listings-show', params: { listingId: listing.id } })"
+                        @click="$router.push({ name: 'page-listings-show', params: { accommodationId: accommodation.id } })"
                     >
                         <template #icon>
                             <HouseIcon />
@@ -67,7 +67,7 @@ import { mapState, mapActions } from "vuex";
 export default {
     name: "MyListings",
     computed: {
-        ...mapState("hosting/listings", ["myAccommodationDrafts", "myListings"]),
+        ...mapState("hosting/listings", ["myAccommodationDrafts", "accommodations"]),
     },
     methods: {
         ...mapActions("hosting/listings", ["loadInitialMyListingsData"]),

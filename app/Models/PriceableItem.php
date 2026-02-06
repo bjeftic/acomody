@@ -17,6 +17,7 @@ class PriceableItem extends Model
         'pricing_type',
         'base_price',
         'currency',
+        'base_price_eur',
         'has_weekend_pricing',
         'weekend_price',
         'weekend_days',
@@ -25,7 +26,6 @@ class PriceableItem extends Model
         'min_quantity',
         'max_quantity',
         'time_constraints',
-        'price_display_mode',
         'is_active',
     ];
 

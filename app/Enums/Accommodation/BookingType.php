@@ -4,8 +4,8 @@ namespace App\Enums\Accommodation;
 
 enum BookingType: string
 {
-    case INSTANT_BOOKING = 'instant-booking';
-    case REQUEST_TO_BOOK = 'request-to-book';
+    case INSTANT_BOOKING = 'instant_booking';
+    case REQUEST_TO_BOOK = 'request_to_book';
 
     public function label(): string
     {

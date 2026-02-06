@@ -2,19 +2,21 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Public\FilterController as PublicFilterController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\AccommodationTypeController;
 use App\Http\Controllers\AccommodationDraftController;
 use App\Http\Controllers\AccommodationDraftPhotoController;
 use App\Http\Controllers\AmenityController;
 use App\Http\Controllers\FeeController;
 use App\Http\Controllers\CurrencyController;
-use App\Http\Controllers\ListingController;
+use App\Http\Controllers\SearchController;
 
 // ============================================
 // PUBLIC ROUTES
@@ -33,6 +35,18 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])
 
 Route::post('/currency/set', [CurrencyController::class, 'set'])
         ->name('api.currency.set');
+
+Route::prefix('public')->name('api.public')->group(function () {
+    Route::get('/filters', [PublicFilterController::class, 'index'])
+        ->name('api.filters');
+});
+
+Route::prefix('search')->name('api.search.')->group(function () {
+    Route::get('locations', [SearchController::class, 'searchLocations'])
+        ->name('search.locations.query');
+    Route::get('accommodations', [SearchController::class, 'searchAccommodations'])
+        ->name('search.accommodations.query');
+});
 
 // ============================================
 // PROTECTED ROUTES (auth:sanctum)
@@ -101,10 +115,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
     });
 
-    Route::prefix('listings')->name('api.listings')->group(function () {
-        Route::get('', [ListingController::class, 'index'])
-            ->name('index');
-        Route::get('{listing}', [ListingController::class, 'show'])
-            ->name('show');
+    Route::prefix('accommodations')->name('api.accommodations.')->group(function () {
+        Route::get('', [AccommodationController::class, 'index'])
+            ->name('accommodations.index');
+        Route::get('{accommodation}', [AccommodationController::class, 'show'])
+            ->name('accommodations.show');
     });
 });

@@ -10,83 +10,20 @@
         <hr />
 
         <div class="space-y-8 mx-auto overflow-auto h-[60vh] py-4 pr-4">
-            <!-- General Amenities -->
-            <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-                General Amenities
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <amenity-checkbox
-                    v-for="amenity in amenitiesSorted.general"
-                    :key="amenity.id"
-                    :amenity="amenity"
-                    :selected="formData.amenities.includes(amenity.id)"
-                    @toggle="toggleAmenity(amenity.id)"
-                />
-            </div>
-
-            <!-- Bathroom -->
-            <!-- <amenity-checkbox
-                title="Bathroom"
-                :amenities="amenitiesSorted.bathroom"
-                :selected-amenities="formData.amenities"
-                @toggle="toggleAmenity"
-            /> -->
-
-            <!-- Kitchen & Dining -->
-            <!-- <amenity-checkbox
-                title="Kitchen and dining"
-                :amenities="amenitiesSorted.kitchen"
-                :selected-amenities="formData.amenities"
-                @toggle="toggleAmenity"
-            /> -->
-
-            <!-- Heating & Cooling -->
-            <!-- <amenity-checkbox
-                title="Heating and cooling"
-                :amenities="amenitiesSorted.heatingCooling"
-                :selected-amenities="formData.amenities"
-                @toggle="toggleAmenity"
-            /> -->
-
-            <!-- Entertainment -->
-            <!-- <amenity-checkbox
-                title="Entertainment"
-                :amenities="amenitiesSorted.entertainment"
-                :selected-amenities="formData.amenities"
-                @toggle="toggleAmenity"
-            /> -->
-
-            <!-- Internet & Office -->
-            <!-- <amenity-checkbox
-                title="Internet and office"
-                :amenities="amenitiesSorted.internetOffice"
-                :selected-amenities="formData.amenities"
-                @toggle="toggleAmenity"
-            /> -->
-
-            <!-- Parking & Facilities -->
-            <!-- <amenity-checkbox
-                title="Parking and facilities"
-                :amenities="amenitiesSorted.parkingFacilities"
-                :selected-amenities="formData.amenities"
-                @toggle="toggleAmenity"
-            /> -->
-
-            <!-- Outdoor -->
-            <!-- <amenity-checkbox
-                title="Outdoor"
-                :amenities="amenitiesSorted.outdoor"
-                :selected-amenities="formData.amenities"
-                @toggle="toggleAmenity"
-            /> -->
-
-            <!-- Safety -->
-            <!-- <amenity-checkbox
-                title="Safety items"
-                :amenities="amenitiesSorted.safety"
-                :selected-amenities="formData.amenities"
-                @toggle="toggleAmenity"
-            /> -->
+            <template v-for="amenityCategory in amenityCategories" :key="amenityCategory.key">
+                <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
+                    {{ amenityCategory.title }}
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <amenity-checkbox
+                        v-for="amenity in amenitiesSorted[amenityCategory.key]"
+                        :key="amenity.id"
+                        :amenity="amenity"
+                        :selected="formData.amenities.includes(amenity.id)"
+                        @toggle="toggleAmenity(amenity.id)"
+                    />
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -117,17 +54,32 @@ export default {
             const sorted = {};
 
             this.amenities.forEach((amenity) => {
-                const typeKey = amenity.type.replace(/_/g, "");
+                const categoryKey = amenity.category.replace(/[-_]/g, "");
 
-                if (!sorted[typeKey]) {
-                    sorted[typeKey] = [];
+                if (!sorted[categoryKey]) {
+                    sorted[categoryKey] = [];
                 }
 
-                sorted[typeKey].push(amenity);
+                sorted[categoryKey].push(amenity);
             });
 
             return sorted;
         },
+        amenityCategories() {
+            const categories = new Set();
+
+            this.amenities.forEach((amenity) => {
+                categories.add(amenity.category);
+            });
+
+            return Array.from(categories).map(category => ({
+                title: category
+                    .split('-')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' '),
+                key: category.replace(/[-_]/g, "")
+            }));
+        }
     },
     methods: {
         toggleAmenity(amenityId) {

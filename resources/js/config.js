@@ -5,6 +5,7 @@ export default {
         logInModal: "log-in-modal",
         signUpModal: "sign-up-modal",
         forgotPasswordModal: "forgot-password-modal",
+        filtersModal: "filters-modal",
     },
     ui: {
         countries: runtimeConstants.countries,
@@ -12,14 +13,7 @@ export default {
         selectedCurrency: runtimeConstants.selectedCurrency,
 
         countryCurrencyMap: runtimeConstants.countryCurrencyMap,
-        daysOfWeek: [
-            { id: "monday", name: "Monday" },
-            { id: "tuesday", name: "Tuesday" },
-            { id: "wednesday", name: "Wednesday" },
-            { id: "thursday", name: "Thursday" },
-            { id: "friday", name: "Friday" },
-            { id: "saturday", name: "Saturday" },
-            { id: "sunday", name: "Sunday" }
-        ],
+        sortOptions: runtimeConstants.sortOptions,
+        daysOfWeek: runtimeConstants.daysOfWeek,
     }
 }

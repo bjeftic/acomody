@@ -129,7 +129,7 @@
                 </ul>
             </div>
 
-            <!-- Examples based on property type -->
+            <!-- Examples based on accommodation type -->
             <div
                 class="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800"
             >

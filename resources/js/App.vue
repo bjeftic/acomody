@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="min-h-screen">
-            <navbar class="mb-12"></navbar>
+            <navbar></navbar>
             <template v-if="mainLoading">
                 <main-skeleton />
             </template>

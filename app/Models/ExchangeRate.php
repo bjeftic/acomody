@@ -64,8 +64,18 @@ class ExchangeRate extends Model
      */
     public static function getLatestRate(string $fromCurrency, string $toCurrency, ?Carbon $date = null): ?float
     {
+        if ($fromCurrency === $toCurrency) {
+            return 1.0;
+        }
+
         $date = $date ?? now();
 
+        // First check if exchange rates table is empty
+        if (static::count() === 0) {
+            throw new \Exception('Exchange rates table is empty.');
+        }
+
+        // First try to get direct rate (e.g., EUR -> RSD)
         $rate = static::where('from_currency', $fromCurrency)
             ->where('to_currency', $toCurrency)
             ->where('date', '<=', $date)
@@ -73,7 +83,23 @@ class ExchangeRate extends Model
             ->orderBy('date', 'desc')
             ->first();
 
-        return $rate ? (float) $rate->rate : null;
+        if ($rate) {
+            return (float) $rate->rate;
+        }
+
+        // If not found, try to get inverse rate (e.g., RSD -> EUR)
+        $inverseRate = static::where('from_currency', $toCurrency)
+            ->where('to_currency', $fromCurrency)
+            ->where('date', '<=', $date)
+            ->where('is_active', true)
+            ->orderBy('date', 'desc')
+            ->first();
+
+        if ($inverseRate) {
+            return 1 / (float) $inverseRate->rate;
+        }
+
+        return null;
     }
 
     /**
