@@ -7,6 +7,14 @@ use Laravel\Scout\Builder;
 
 class SearchService
 {
+    protected array $sortingOptions = [
+        'price_asc' => 'base_price_eur:asc',
+        'price_desc' => 'base_price_eur:desc',
+        'rating' => 'rating:desc',
+        'reviews' => 'reviews_count:desc',
+        'newest' => 'created_at:desc',
+    ];
+
     /**
      * Collection to Model mapping
      */
@@ -208,5 +216,10 @@ class SearchService
         $options['max_facet_values'] = $options['max_facet_values'] ?? 100;
 
         return $this->searchCollection($collection, $query, $options);
+    }
+
+    public function getSortByFilter(String $sortBy)
+    {
+        return $sortBy ? $this->sortingOptions[$sortBy] : $this->sortingOptions['price_asc'];
     }
 }

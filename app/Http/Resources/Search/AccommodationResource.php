@@ -23,10 +23,23 @@ class AccommodationResource extends JsonResource
                 'longitude' => $document['location']['1'] ?? null,
             ],
             'is_featured' => $document['is_featured'] ?? false,
-            'price' => $userSettedCurrency === $document['currency'] ? $document['regular_price'] : calculatePriceInSettedCurrency($document['regular_price'], $document['currency'], $userSettedCurrency),
+            'base_price_eur' => $document['base_price_eur'] ?? null,
+            'price' => $userSettedCurrency === 'EUR'
+                ? round($document['base_price_eur'], 2)
+                : round(calculatePriceInSettedCurrency(
+                    $document['base_price_eur'],
+                    'EUR',
+                    $userSettedCurrency
+                ), 2),
+            'runded_price' => ceil($userSettedCurrency === 'EUR'
+                ? round($document['base_price_eur'], 2)
+                : round(calculatePriceInSettedCurrency(
+                    $document['base_price_eur'],
+                    'EUR',
+                    $userSettedCurrency
+                ), 2)),
             'rating' => $document['rating'] ?? null,
             'images' => $document['images'] ?? [],
-            'location_id' => $document['location_id'] ?? null,
             'accommodation_type' => $document['accommodation_type'] ?? null,
             'accommodation_occupation' => $document['accommodation_occupation'] ?? null,
             'max_guests' => $document['max_guests'] ?? null,

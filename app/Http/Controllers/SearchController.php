@@ -7,6 +7,7 @@ use App\Http\Requests\Search\SearchLocationRequest;
 use App\Http\Requests\Search\SearchAccommodationRequest;
 use App\Http\Resources\Search\AccommodationResource;
 use App\Http\Resources\Search\AccommodationFacetResource;
+use App\Models\Location;
 use App\Services\CurrencyService;
 use App\Services\SearchService;
 
@@ -40,6 +41,10 @@ class SearchController extends Controller
         $validated = $request->validated();
 
         $filters = [];
+        $sortBy = null;
+
+        // sort by except location sort
+        $sortBy = $this->searchService->getSortByFilter($validated['sortBy'] ?? null);
 
         if (!empty($validated['bounds'])) {
             // Coordinate-based search
@@ -53,7 +58,9 @@ class SearchController extends Controller
             // Note: Typesense uses geopoint format: [lat, lng]
             $filters[] = "location:({$neLat}, {$swLng}, {$neLat}, {$neLng}, {$swLat}, {$neLng}, {$swLat}, {$swLng})";
         } elseif (!empty($validated['location']['id'])) {
+            $location = Location::findOrFail($validated['location']['id']);
             $filters[] = "location_id:={$validated['location']['id']}";
+            // $sortBy .= ",location($location->longitude, $location->latitude):asc";
         }
 
         if (!empty($validated['accommodation_categories'])) {
@@ -94,6 +101,7 @@ class SearchController extends Controller
         $firstResults = $this->searchService->searchCollection('accommodations', '*',  [
             // 'query_by' => 'name,description,address',  // Text fields!
             'filter_by' => $filterBy,
+            'sort_by' => $sortBy,
             'facet_by' => 'base_price_eur',
             'page' => $validated['page'] ?? 1,
             'per_page' => $validated['perPage'] ?? 10,
@@ -134,7 +142,7 @@ class SearchController extends Controller
                 if ($currency === 'EUR') {
                     $convertedMin = $min;
                 } else {
-                    $convertedMin = floor(calculatePriceInSettedCurrency($min, $currency, 'EUR'));
+                    $convertedMin = ceil(calculatePriceInSettedCurrency($min, $currency, 'EUR'));
                 }
                 $priceQuery .= "base_price_eur:>={$convertedMin}";
             }
@@ -166,6 +174,7 @@ class SearchController extends Controller
         $secondResults = $this->searchService->searchCollection('accommodations', '*',  [
             // 'query_by' => 'name,description,address',  // Text fields!
             'filter_by' => $filterBy,
+            'sort_by' => $sortBy,
             'max_facet_values' => 100,
             'page' => $validated['page'] ?? 1,
             'per_page' => $validated['perPage'] ?? 10,
@@ -186,7 +195,7 @@ class SearchController extends Controller
                 $facet['stats'] = [
                     'filter_max' => $maxInUserCurrency ?? null,
                     'filter_min' => $minInUserCurrency ?? null,
-                    'min' => floor(calculatePriceInSettedCurrency($facet['stats']['min'], 'EUR', $settedCurrencyCode)),
+                    'min' => ceil(calculatePriceInSettedCurrency($facet['stats']['min'], 'EUR', $settedCurrencyCode)),
                     'max' => ceil(calculatePriceInSettedCurrency($facet['stats']['max'], 'EUR', $settedCurrencyCode)),
                     'avg' => calculatePriceInSettedCurrency((float)$facet['stats']['avg'], 'EUR', $settedCurrencyCode),
                     'sum' => calculatePriceInSettedCurrency((float)$facet['stats']['sum'], 'EUR', $settedCurrencyCode),

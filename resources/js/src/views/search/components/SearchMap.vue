@@ -3,7 +3,7 @@
         <div ref="mapContainer" class="map-wrapper"></div>
 
         <!-- Loading Indicator -->
-        <div v-if="loading" class="map-loading">
+        <div v-if="searchLoading" class="map-loading">
             <div class="spinner"></div>
             <p>Loading properties...</p>
         </div>
@@ -139,12 +139,15 @@ export default {
     },
     computed: {
         ...mapState("ui", ["selectedCurrency"]),
+        ...mapState("search", {
+            searchLoading: (state) => state.loading,
+        }),
     },
     data() {
         return {
             map: null,
             markers: {},
-            loading: false,
+            markersLayer: null,
             boundsChangeTimeout: null,
             userInteracted: false, // Flag to track if user interacted in current movement
             isInitialLoad: true, // Flag to skip first automatic moveend event
@@ -187,7 +190,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("search", ["searchListings"]),
+        ...mapActions("search", ["searchListings", "setLoading"]),
 
         initializeMap() {
             // Initialize Leaflet map
@@ -245,58 +248,87 @@ export default {
                 }
             });
         },
-
         updateMarkers(results) {
-            // Clear existing markers i unmount Vue instances
-            this.clearMarkers();
+    // Early return if no results
+    if (!results || results.length === 0) {
+        this.clearMarkers();
+        return;
+    }
 
-            // Early return if no results
-            if (!results || results.length === 0) return;
+    // Konvertuj sve ID-jeve u stringove za konzistentnost
+    const newIds = new Set(results.map((r) => String(r.id)));
+    const existingIds = Object.keys(this.markers);
 
-            // Add new markers to the map
-            let validMarkerCount = 0;
-
-            results.forEach((accommodation) => {
-                const { coordinates, id } = accommodation;
-
-                if (!coordinates?.latitude || !coordinates?.longitude) {
-                    return;
+    // Obriši markere koji više ne postoje u results
+    existingIds.forEach((id) => {
+        if (!newIds.has(String(id))) {
+            const marker = this.markers[id];
+            if (marker) {
+                // Unmount Vue instances
+                if (marker._markerApp) {
+                    marker._markerApp.unmount();
                 }
-
-                try {
-                    const marker = this.createMarker(accommodation);
-                    this.markers[id] = marker;
-                    this.markersLayer.addLayer(marker);
-                    validMarkerCount++;
-                } catch (error) {
-                    console.error(
-                        `Error creating marker for accommodation ${id}:`,
-                        error,
-                    );
+                if (marker._popupApp) {
+                    marker._popupApp.unmount();
                 }
-            });
-
-            // Auto-fit bounds
-            if (
-                !this.hasUserEverInteracted &&
-                !this.bounds &&
-                validMarkerCount > 0
-            ) {
-                try {
-                    const bounds = this.markersLayer.getBounds();
-
-                    if (bounds && bounds.isValid()) {
-                        this.isProgrammaticMove = true;
-                        this.map.fitBounds(bounds, {
-                            padding: [50, 50],
-                            maxZoom: 15,
-                        });
-                    }
-                } catch (error) {
-                    console.error("Error fitting bounds:", error);
-                }
+                // Remove from layer
+                this.markersLayer.removeLayer(marker);
+                // Delete from markers object
+                delete this.markers[id];
             }
-        },
+        }
+    });
+
+    // Dodaj nove markere
+    let validMarkerCount = 0;
+
+    results.forEach((accommodation) => {
+        const { coordinates, id } = accommodation;
+
+        if (!coordinates?.latitude || !coordinates?.longitude) {
+            return;
+        }
+
+        // Ako marker već postoji, preskoči
+        if (this.markers[id]) {
+            validMarkerCount++;
+            return;
+        }
+
+        try {
+            const marker = this.createMarker(accommodation);
+            this.markers[id] = marker;
+            this.markersLayer.addLayer(marker);
+            validMarkerCount++;
+        } catch (error) {
+            console.error(
+                `Error creating marker for accommodation ${id}:`,
+                error,
+            );
+        }
+    });
+
+    // Auto-fit bounds samo na prvom učitavanju
+    if (
+        !this.hasUserEverInteracted &&
+        !this.bounds &&
+        validMarkerCount > 0
+    ) {
+        try {
+            const bounds = this.markersLayer.getBounds();
+
+            if (bounds && bounds.isValid()) {
+                this.isProgrammaticMove = true;
+                this.map.fitBounds(bounds, {
+                    padding: [50, 50],
+                    maxZoom: 15,
+                });
+            }
+        } catch (error) {
+            console.error("Error fitting bounds:", error);
+        }
+    }
+},
 
         createMarker(accommodation) {
             // Create component for marker
@@ -356,7 +388,7 @@ export default {
             });
 
             marker.on("click", () => {
-                this.$emit("marker-click", accommodation.id);
+                marker.openPopup();
             });
 
             // Save reverence instance for cleanup
@@ -444,13 +476,13 @@ export default {
 
         zoomIn() {
             // Zoom in - user interaction will be tracked by zoomstart event
-            this.clearMarkers();
+            // this.clearMarkers();
             this.map.zoomIn();
         },
 
         zoomOut() {
             // Zoom out - user interaction will be tracked by zoomstart event
-            this.clearMarkers();
+            // this.clearMarkers();
             this.map.zoomOut();
         },
 
@@ -544,7 +576,7 @@ export default {
 
         debouncedEmitBounds() {
             // Debounce bounds emission to avoid too many API calls
-            this.loading = true;
+            this.setLoading(true);
 
             if (this.boundsChangeTimeout) {
                 clearTimeout(this.boundsChangeTimeout);
@@ -553,7 +585,6 @@ export default {
             // Set new timeout to emit bounds after 500ms of no movement
             this.boundsChangeTimeout = setTimeout(() => {
                 this.emitMapBounds();
-                this.loading = false;
             }, 500);
         },
     },

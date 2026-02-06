@@ -469,3 +469,7 @@ export const handleSortChange = (
     dispatch("updateSearchParamsInURL", { route, router });
     dispatch("performSearch");
 };
+
+export const setLoading = ({ commit }, loading) => {
+    commit("SET_SEARCH_LOADING", loading);
+}

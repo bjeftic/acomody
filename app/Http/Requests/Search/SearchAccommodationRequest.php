@@ -31,6 +31,15 @@ class SearchAccommodationRequest extends FormRequest
             $currenciesValidation["priceRange_{$code}.max"] = "numeric|gte:priceRange_{$code}.min";
         }
 
+        $sortOptionsList = config('constants.ui_constants.sort_options');
+        $sortOptions = 'string|in:';
+        foreach ($sortOptionsList as $index => $option) {
+            if ($index > 0) {
+                $sortOptions .= ',';
+            }
+            $sortOptions .= $option['id'];
+        }
+
         return [
             // Location search option 1
             'location.id' => 'required_without:bounds|integer',
@@ -57,6 +66,7 @@ class SearchAccommodationRequest extends FormRequest
 
             'page' => 'integer|min:1',
             'perPage' => 'integer|min:1|max:100',
+            'sortBy' => $sortOptions
 
         ] + $currenciesValidation;
     }

@@ -61,7 +61,7 @@ function calculatePriceInSettedCurrency(?float $priceInDefaultCurrency, string $
         return null;
     }
 
-    if (is_null($settedCurrencyCode)){
+    if (empty($settedCurrencyCode)) {
         $settedCurrencyCode = CurrencyService::getUserCurrency()->code;
     }
 
@@ -69,9 +69,11 @@ function calculatePriceInSettedCurrency(?float $priceInDefaultCurrency, string $
         return round($priceInDefaultCurrency, 2);
     }
 
-    return ExchangeRate::convert(
+    $result = ExchangeRate::convert(
         $priceInDefaultCurrency,
         $documentCurrency,
         $settedCurrencyCode
     );
+
+    return $result;
 }
