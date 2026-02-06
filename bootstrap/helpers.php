@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\File;
 use Illuminate\Auth\AuthenticationException;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Services\CurrencyService;
+use App\Models\ExchangeRate;
 
 function get_model_for_table(string $table): ?string
 {
@@ -52,4 +53,27 @@ function userOrFail(): User
 function id(): ?int
 {
     return auth()->guard()->user()?->id;
+}
+
+function calculatePriceInSettedCurrency(?float $priceInDefaultCurrency, string $documentCurrency, string $settedCurrencyCode): ?float
+{
+    if (is_null($priceInDefaultCurrency)) {
+        return null;
+    }
+
+    if (empty($settedCurrencyCode)) {
+        $settedCurrencyCode = CurrencyService::getUserCurrency()->code;
+    }
+
+    if ($settedCurrencyCode === $documentCurrency) {
+        return round($priceInDefaultCurrency, 2);
+    }
+
+    $result = ExchangeRate::convert(
+        $priceInDefaultCurrency,
+        $documentCurrency,
+        $settedCurrencyCode
+    );
+
+    return $result;
 }

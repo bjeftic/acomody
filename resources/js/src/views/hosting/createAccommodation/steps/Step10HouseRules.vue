@@ -103,27 +103,6 @@
                 </div>
             </div>
 
-            <!-- Additional Rules -->
-            <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    Additional rules (optional)
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    Add any other rules or important information for guests
-                </p>
-                <fwb-textarea
-                    v-model="localHouseRules.additionalRules"
-                    @update:model-value="emitUpdate"
-                    :rows="6"
-                    :maxlength="500"
-                    placeholder="Example: Please remove shoes at the entrance, No loud music after 10 PM, Keep the garden gate closed..."
-                    class="resize-none"
-                />
-                <p v-if="localHouseRules.additionalRules" class="text-sm text-gray-500 dark:text-gray-400 text-right mt-2">
-                    {{ localHouseRules.additionalRules.length }}/500
-                </p>
-            </div>
-
             <!-- Cancellation Policy -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">

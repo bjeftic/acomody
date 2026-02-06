@@ -6,7 +6,6 @@ use App\Http\Resources\CountryResource;
 use App\Http\Resources\CurrencyResource;
 use App\Services\CountryService;
 use App\Services\CurrencyService;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 
 class RuntimeConstants
@@ -26,10 +25,11 @@ class RuntimeConstants
     const CURRENCIES = 'currencies';
     const SELECTED_CURRENCY = 'selectedCurrency';
     const LANGUAGES = 'languages';
+    const SORT_OPTIONS = 'sortOptions';
+    const DAYS_OF_WEEK = 'DAYS_OF_WEEK';
     // const ANNOUNCEMENTS = 'announcements';
     // const SCOUT_DRIVER = 'scoutDriver';
     // const FEATURES = 'features';
-    // const SELECTED_CURRENCY = 'selectedCurrency';
     // const RESOURCE_ROOT = 'resourceRoot';
     // const DATA_FORMATS = 'dataFormats';
     // const DATE_FORMATS = 'dateFormats';
@@ -57,6 +57,8 @@ class RuntimeConstants
                     self::COUNTRY_CURRENCY_MAP => self::getCountryCurrencyMap(),
                     self::CURRENCIES => self::getAvailableCurrencies(),
                     self::SELECTED_CURRENCY => self::getSelectedCurrency(),
+                    self::SORT_OPTIONS => self::getUIConstants('sort_options'),
+                    self::DAYS_OF_WEEK => self::getUIConstants('daysOfWeek'),
                     // Name of route should match name of index route in shared routing group
                     // self::ANNOUNCEMENTS => self::getAnnouncements($appIsShared),
                     // self::SCOUT_DRIVER => config('scout.driver'),
@@ -90,7 +92,7 @@ class RuntimeConstants
 
     protected static function getSelectedCurrency()
     {
-        return CurrencyService::getUserCurrency();
+        return new CurrencyResource(CurrencyService::getUserCurrency());
     }
 
     protected static function getCountryCurrencyMap()
@@ -106,5 +108,14 @@ class RuntimeConstants
             }
         }
         return $filteredMap;
+    }
+
+    protected static function getUIConstants($constant)
+    {
+        return collect(config('constants.ui_constants.' . $constant))
+            ->map(fn($opt) => [
+                'id' => $opt['id'],
+                'name' => __($opt['name'])
+            ]);
     }
 }

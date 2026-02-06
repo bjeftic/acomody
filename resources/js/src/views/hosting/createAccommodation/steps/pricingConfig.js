@@ -19,14 +19,14 @@ export const pricingConfig = {
     // Booking types
     bookingTypes: [
         {
-            id: "instant-booking",
+            id: "instant_booking",
             name: "Instant Booking",
             icon: "⚡",
             description:
                 "Guests can book immediately without waiting for your approval. Get more bookings faster!",
         },
         {
-            id: "request",
+            id: "request_to_book",
             name: "Request to Book",
             icon: "💬",
             description:

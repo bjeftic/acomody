@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('priceable_items', function (Blueprint $table) {
             $table->ulid('id');
 
-            // Polymorphic relationship - works for ANY model
             $table->ulidMorphs('priceable'); // Creates priceable_id and priceable_type
 
             // Pricing Type - defines how this item is priced
@@ -32,6 +31,9 @@ return new class extends Migration
             // Base Pricing
             $table->decimal('base_price', 10, 2);
             $table->string('currency', 3)->default('EUR');
+
+            // Base price in EUR for easier global comparisons and searches
+            $table->decimal('base_price_eur', 10, 2)->nullable();
 
             // Weekend/Peak Pricing (optional)
             // $table->boolean('has_weekend_pricing')->default(false);
@@ -74,13 +76,6 @@ return new class extends Migration
                 }
             }
             */
-
-            // Price Display
-            $table->enum('price_display_mode', [
-                'base_only',          // Show only base price
-                'with_fees',          // Show price + mandatory fees
-                'all_inclusive'       // Show total with taxes
-            ])->default('base_only');
 
             // Active/Inactive
             $table->boolean('is_active')->default(true);

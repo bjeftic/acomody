@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-4xl mx-auto pb-12">
+    <div class="max-w-4xl mx-auto py-12">
         <!-- Main Content -->
         <div class="mx-auto">
             <template v-if="createAccommodationLoading">
@@ -122,7 +122,6 @@ export default {
                     hasQuietHours: false,
                     quietHoursFrom: "22:00",
                     quietHoursUntil: "08:00",
-                    additionalRules: "",
                     cancellationPolicy: "moderate",
                 },
             },
@@ -357,7 +356,6 @@ export default {
                     hasQuietHours: false,
                     quietHoursFrom: "22:00",
                     quietHoursUntil: "08:00",
-                    additionalRules: "",
                     cancellationPolicy: "moderate",
                 },
             };

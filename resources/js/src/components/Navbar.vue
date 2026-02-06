@@ -12,7 +12,7 @@
                 <div class="flex items-center gap-2">
                     <!-- Become a host button -->
                     <fwb-dropdown
-                        :text="currentCurrency || selectedCurrency"
+                        :text="currentCurrency || selectedCurrency.code"
                         size="lg"
                         color="alternative"
                         align-to-end

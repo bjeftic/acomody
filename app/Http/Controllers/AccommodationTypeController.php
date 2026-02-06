@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AccommodationType;
+use App\Enums\Accommodation\AccommodationType;
 use App\Http\Resources\AccommodationTypeResource;
 use App\Http\Support\ApiResponse;
 
@@ -46,7 +46,7 @@ class AccommodationTypeController extends Controller
      */
     public function index()
     {
-        $accommodationTypes = AccommodationType::all()->sortBy('order');
+        $accommodationTypes = collect(AccommodationType::cases());
 
         $meta = [
             'total' => $accommodationTypes->count(),

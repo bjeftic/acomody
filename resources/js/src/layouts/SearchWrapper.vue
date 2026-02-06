@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="sticky top-0">
-            <searchbar></searchbar>
+            <search-bar class="mt-12" @search="handleSearch"></search-bar>
         </div>
         <div class="max-w-[1280px] mx-auto">
             <slot name="content"></slot>
@@ -10,11 +10,28 @@
 </template>
 
 <script>
-import Searchbar from "@/src/components/Searchbar.vue";
+import SearchBar from "@/src/components/common/searchBar/SearchBar.vue";
 
 export default {
     components: {
-        Searchbar
+        SearchBar
+    },
+    methods: {
+        handleSearch(searchParams) {
+            this.$router.push({
+                name: "page-search",
+                query: {
+                    locationId: searchParams.location.id,
+                    locationName: searchParams.location.name,
+                    checkIn: searchParams.checkIn,
+                    checkOut: searchParams.checkOut,
+                    adults: searchParams.guests.adults,
+                    children: searchParams.guests.children,
+                    infants: searchParams.guests.infants,
+                    page: 1
+                },
+            });
+        }
     }
 };
 </script>

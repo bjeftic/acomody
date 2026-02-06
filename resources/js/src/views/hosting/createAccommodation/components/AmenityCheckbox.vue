@@ -15,11 +15,7 @@
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <!-- Icon -->
-        <component
-          v-if="amenity.icon"
-          :is="`${amenity.icon}Icon`"
-          class="w-6 h-6 text-gray-700 dark:text-gray-200"
-        />
+        <IconLoader :name="amenity.icon" :size="24" />
         <!-- Text -->
         <h4 class="text-base font-medium text-gray-900 dark:text-white">
           {{ amenity.name }}

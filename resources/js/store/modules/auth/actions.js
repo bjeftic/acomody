@@ -126,7 +126,7 @@ export const resendVerificationEmail = async ({}) => {
         });
 };
 
-export const logOut = async ({ commit, rootState }) => {
+export const logOut = async ({ commit }) => {
     try {
         const response = await apiClient.logOut.post();
 

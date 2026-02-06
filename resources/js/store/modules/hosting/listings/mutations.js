@@ -7,10 +7,10 @@ export default {
     [types.SET_ACCOMMODATION_DRAFTS](state, drafts) {
         state.myAccommodationDrafts = drafts.data;
     },
-    [types.SET_MY_LISTINGS](state, listings) {
-        state.myListings = listings.data;
+    [types.SET_ACCOMMODATIONS](state, accommodations) {
+        state.accommodations = accommodations.data;
     },
-    [types.SET_CURRENT_LISTING](state, listing) {
-        state.currentListing = listing.data;
+    [types.SET_ACCOMMODATION](state, accommodation) {
+        state.accommodation = accommodation.data;
     },
 };

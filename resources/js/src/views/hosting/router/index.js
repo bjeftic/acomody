@@ -1,5 +1,3 @@
-import auth from '@/middleware/auth';
-
 const routes = [
     {
         path: 'dashboard',
@@ -26,7 +24,7 @@ const routes = [
         component: () => import('@/src/views/hosting/listings/MyListings.vue'),
     },
     {
-        path: 'listings/:listingId',
+        path: 'listings/:accommodationId',
         name: 'page-listings-show',
         meta: {
             requiresAuth: true,

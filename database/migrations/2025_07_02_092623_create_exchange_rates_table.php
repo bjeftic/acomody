@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('to_currency', 3); // Target currency
             $table->decimal('rate', 16, 6); // Exchange rate
             $table->date('date'); // Date of the rate
-            $table->string('source', 50)->nullable(); // API source (exchangerate-api, fixer, etc.)
+            $table->enum('source', ['exchangerate-api', 'fixer', 'other'])->nullable(); // API source (exchangerate-api, fixer, etc.)
             $table->boolean('is_active')->default(true); // Is this rate currently active
             $table->timestamps();
 
