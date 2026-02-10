@@ -58,7 +58,8 @@ class SearchController extends Controller
             // Note: Typesense uses geopoint format: [lat, lng]
             $filters[] = "location:({$neLat}, {$swLng}, {$neLat}, {$neLng}, {$swLat}, {$neLng}, {$swLat}, {$swLng})";
         } elseif (!empty($validated['location']['id'])) {
-            $location = Location::findOrFail($validated['location']['id']);
+            // need to fix this
+            $location = Location::find($validated['location']['id']);
             $filters[] = "location_id:={$validated['location']['id']}";
             // $sortBy .= ",location($location->longitude, $location->latitude):asc";
         }

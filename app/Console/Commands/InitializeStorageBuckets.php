@@ -52,7 +52,7 @@ class InitializeStorageBuckets extends Command
     public function handle()
     {
         try {
-            $driver = $this->option('driver') ?? config('filesystems.driver', 'local');
+            $driver = $this->option('driver') ?? config('filesystems.default', 'local');
             $dryRun = $this->option('dry-run');
             $force = $this->option('force');
 
@@ -89,7 +89,6 @@ class InitializeStorageBuckets extends Command
             $this->displaySummary($dryRun);
 
             return $this->stats['errors'] > 0 ? Command::FAILURE : Command::SUCCESS;
-
         } catch (Exception $e) {
             $this->error('❌ Failed to initialize buckets: ' . $e->getMessage());
             Log::error('Storage initialization failed', [
@@ -119,13 +118,15 @@ class InitializeStorageBuckets extends Command
 
     private function displayStrategyInfo(string $driver): void
     {
-        $strategy = match($driver) {
+        $strategy = match ($driver) {
             'local' => 'Individual directories in storage/app',
-            'minio' => 'Individual buckets with "files-" prefix',
-            's3' => config('filesystems.disks.s3.bucket') && env('AWS_USE_SINGLE_BUCKET', false)
+            'minio' => config('filesystems.disks.minio.use_single_bucket', false)
+                ? 'Single bucket with prefixes'
+                : 'Individual buckets with "files-" prefix',
+            's3' => config('filesystems.disks.s3.use_single_bucket', false)
                 ? 'Single bucket with prefixes'
                 : 'Individual buckets',
-            'digitalocean' => env('DO_USE_SINGLE_BUCKET', false)
+            'digitalocean' => config('filesystems.disks.digitalocean.use_single_bucket', false)
                 ? 'Single Space with prefixes'
                 : 'Individual Spaces',
             default => 'Unknown strategy',
@@ -167,24 +168,25 @@ class InitializeStorageBuckets extends Command
             $this->newLine();
             $this->warn('💡 Required environment variables:');
 
-            match($driver) {
+            match ($driver) {
                 'minio' => [
                     $this->line('MINIO_ACCESS_KEY=your_access_key'),
                     $this->line('MINIO_SECRET_KEY=your_secret_key'),
                     $this->line('MINIO_ENDPOINT=http://127.0.0.1:9000'),
                     $this->line('MINIO_REGION=us-east-1'),
+                    $this->line('MINIO_BUCKET=files (for single bucket strategy)'),
                 ],
                 's3' => [
                     $this->line('AWS_ACCESS_KEY_ID=your_access_key'),
                     $this->line('AWS_SECRET_ACCESS_KEY=your_secret_key'),
                     $this->line('AWS_DEFAULT_REGION=us-east-1'),
-                    $this->line('AWS_BUCKET=your-bucket-name'),
+                    $this->line('AWS_BUCKET=your-bucket-name (for single bucket strategy)'),
                 ],
                 'digitalocean' => [
                     $this->line('DO_SPACES_KEY=your_access_key'),
                     $this->line('DO_SPACES_SECRET=your_secret_key'),
                     $this->line('DO_SPACES_REGION=nyc3'),
-                    $this->line('DO_SPACES_BUCKET=your-space-name'),
+                    $this->line('DO_SPACES_BUCKET=your-space-name (for single bucket strategy)'),
                 ],
             };
 
@@ -196,32 +198,21 @@ class InitializeStorageBuckets extends Command
 
     private function getDriverConfig(string $driver): ?array
     {
-        return match($driver) {
-            'minio' => [
-                'key' => config('filesystems.disks.minio.key'),
-                'secret' => config('filesystems.disks.minio.secret'),
-                'region' => config('filesystems.disks.minio.region'),
-                'endpoint' => config('filesystems.disks.minio.endpoint'),
-                'use_path_style_endpoint' => true,
-            ],
-            's3' => [
-                'key' => config('filesystems.disks.s3.key'),
-                'secret' => config('filesystems.disks.s3.secret'),
-                'region' => config('filesystems.disks.s3.region'),
-                'endpoint' => config('filesystems.disks.s3.endpoint'),
-                'bucket' => config('filesystems.disks.s3.bucket'),
-                'use_single_bucket' => env('AWS_USE_SINGLE_BUCKET', false),
-            ],
-            'digitalocean' => [
-                'key' => config('filesystems.disks.digitalocean.key'),
-                'secret' => config('filesystems.disks.digitalocean.secret'),
-                'region' => config('filesystems.disks.digitalocean.region'),
-                'endpoint' => config('filesystems.disks.digitalocean.endpoint'),
-                'bucket' => config('filesystems.disks.digitalocean.bucket'),
-                'use_single_bucket' => env('DO_USE_SINGLE_BUCKET', false),
-            ],
-            default => null,
-        };
+        $diskConfig = config("filesystems.disks.{$driver}");
+
+        if (!$diskConfig) {
+            return null;
+        }
+
+        return [
+            'key' => $diskConfig['key'] ?? null,
+            'secret' => $diskConfig['secret'] ?? null,
+            'region' => $diskConfig['region'] ?? 'us-east-1',
+            'endpoint' => $diskConfig['endpoint'] ?? null,
+            'bucket' => $diskConfig['bucket'] ?? null,
+            'use_single_bucket' => $diskConfig['use_single_bucket'] ?? false,
+            'use_path_style_endpoint' => $diskConfig['use_path_style_endpoint'] ?? false,
+        ];
     }
 
     private function processBuckets(array $buckets, string $driver, bool $dryRun, bool $force): void
@@ -273,16 +264,20 @@ class InitializeStorageBuckets extends Command
     {
         $actualBucketName = $this->getActualBucketName($bucketName, $driver);
         $visibility = $isPublic ? 'PUBLIC' : 'PRIVATE';
+        $config = $this->getDriverConfig($driver);
+        $useSingleBucket = $config['use_single_bucket'] ?? false;
 
-        $this->line("  🪣 Bucket: {$actualBucketName}");
+        if ($useSingleBucket) {
+            $this->line("  🪣 Main Bucket: {$actualBucketName}");
+            $this->line("  📁 Prefix: {$bucketName}/");
+        } else {
+            $this->line("  🪣 Bucket: {$actualBucketName}");
+        }
+
         $this->line("  👁️  Visibility: {$visibility}");
 
         if ($retention) {
             $this->line("  ⏰ Retention: {$retention} days");
-        }
-
-        if ($driver === 'minio') {
-            $this->line("  🔧 Prefix: files-");
         }
     }
 
@@ -293,7 +288,7 @@ class InitializeStorageBuckets extends Command
         bool $force,
         ?int $retention = null
     ): string {
-        return match($driver) {
+        return match ($driver) {
             'local' => $this->createLocalDirectory($bucketName, $isPublic),
             'minio', 's3', 'digitalocean' => $this->createS3Bucket($bucketName, $driver, $isPublic, $force, $retention),
             default => throw new Exception("Unsupported driver: {$driver}"),
@@ -333,22 +328,34 @@ class InitializeStorageBuckets extends Command
             throw new Exception("Failed to initialize S3 client for driver: {$driver}");
         }
 
-        $actualBucketName = $this->getActualBucketName($bucketName, $driver);
         $config = $this->getDriverConfig($driver);
         $useSingleBucket = $config['use_single_bucket'] ?? false;
+        $actualBucketName = $this->getActualBucketName($bucketName, $driver);
 
         $this->line("  🪣 Target: {$actualBucketName}");
 
-        // For single bucket strategy, we don't create individual buckets
+        // For single bucket strategy, ensure main bucket exists and configure prefix access
         if ($useSingleBucket) {
-            // Just ensure the main bucket exists
-            if (!$this->bucketExists($client, $actualBucketName)) {
-                $this->createS3BucketPhysical($client, $actualBucketName, $isPublic);
-                return 'created';
+            $mainBucket = $config['bucket'];
+
+            if (!$mainBucket) {
+                throw new Exception("Main bucket not configured for single bucket strategy");
             }
 
-            // Update configuration for the prefix
-            $this->updateBucketConfiguration($client, $actualBucketName, $isPublic, $retention);
+            // Ensure main bucket exists
+            if (!$this->bucketExists($client, $mainBucket)) {
+                $this->createS3BucketPhysical($client, $mainBucket, $isPublic);
+                $this->line("  ✅ Main bucket created: {$mainBucket}");
+            }
+
+            // Update configuration for the main bucket (only once, not per prefix)
+            static $mainBucketConfigured = [];
+            if (!isset($mainBucketConfigured[$mainBucket])) {
+                $this->updateBucketConfiguration($client, $mainBucket, $isPublic, $retention);
+                $mainBucketConfigured[$mainBucket] = true;
+            }
+
+            $this->line("  📁 Prefix configured: {$bucketName}/");
             return 'configured';
         }
 
@@ -376,9 +383,8 @@ class InitializeStorageBuckets extends Command
         try {
             $params = ['Bucket' => $bucketName];
 
-            // Only set ACL for non-AWS providers (MinIO supports it)
-            if (!str_contains(config('filesystems.driver'), 's3') ||
-                config('filesystems.driver') === 'minio') {
+            // Only set ACL for MinIO (AWS S3 has different ACL handling)
+            if (config('filesystems.default') === 'minio') {
                 $params['ACL'] = $isPublic ? 'public-read' : 'private';
             }
 
@@ -402,8 +408,8 @@ class InitializeStorageBuckets extends Command
             return $config['bucket'];
         }
 
-        // For multiple buckets, generate proper name
-        return match($driver) {
+        // For multiple buckets, generate proper name based on driver
+        return match ($driver) {
             'minio' => 'files-' . Str::replace('_', '-', $bucketName),
             's3', 'digitalocean' => Str::replace('_', '-', $bucketName),
             default => $bucketName,
@@ -429,8 +435,13 @@ class InitializeStorageBuckets extends Command
                 $this->warn("  ⚠️  Could not set public policy: " . $e->getMessage());
             }
 
-            // Configure CORS
-            $this->configureCORS($client, $bucketName);
+            // Configure CORS - Skip for MinIO as it doesn't support S3 CORS API
+            $driver = config('filesystems.default');
+            if ($driver !== 'minio') {
+                $this->configureCORS($client, $bucketName);
+            } else {
+                $this->line("  ℹ️  CORS skipped (use MinIO console for CORS configuration)");
+            }
         }
 
         // Set lifecycle rules for retention
@@ -523,15 +534,14 @@ class InitializeStorageBuckets extends Command
                 $clientConfig['endpoint'] = $config['endpoint'];
             }
 
-            if (isset($config['use_path_style_endpoint'])) {
-                $clientConfig['use_path_style_endpoint'] = $config['use_path_style_endpoint'];
+            if ($config['use_path_style_endpoint']) {
+                $clientConfig['use_path_style_endpoint'] = true;
             }
 
             $this->s3Client = new S3Client($clientConfig);
             $this->line("  ✅ S3 client initialized");
 
             return $this->s3Client;
-
         } catch (Exception $e) {
             $this->error("  ❌ Failed to create S3 client: " . $e->getMessage());
             Log::error('S3 client initialization failed', [

@@ -6,9 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\Accommodation\IndexRequest;
 use App\Http\Resources\AccommodationResource;
+use App\Http\Resources\PhotoResource;
 use App\Services\AccommodationService;
 use App\Http\Support\ApiResponse;
 use App\Models\Accommodation;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class AccommodationController extends Controller
 {
@@ -18,7 +21,7 @@ class AccommodationController extends Controller
     {
         $this->accommodationService = $accommodationService;
     }
-    
+
     /**
      * Get accommodations
      * @OA\Get(
@@ -46,7 +49,7 @@ class AccommodationController extends Controller
      *         response=200,
      *         description="Accommodations retrieved successfully",
      *         @OA\JsonContent(
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/AccommodationResource")),
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Accommodation")),
      *             @OA\Property(property="current_page", type="integer"),
      *             @OA\Property(property="last_page", type="integer"),
      *             @OA\Property(property="per_page", type="integer"),
@@ -98,7 +101,7 @@ class AccommodationController extends Controller
      *         response=200,
      *         description="Accommodation retrieved successfully",
      *         @OA\JsonContent(
-     *             @OA\Property(property="data", ref="#/components/schemas/AccommodationResource")
+     *             @OA\Property(property="data", ref="#/components/schemas/Accommodation")
      *         )
      *     ),
      *     @OA\Response(
@@ -126,5 +129,26 @@ class AccommodationController extends Controller
             'Accommodation retrieved successfully',
             new AccommodationResource($accommodation)
         );
+    }
+
+    public function indexPhotos(Accommodation $accommodation): JsonResponse
+    {
+        try {
+            $photos = $accommodation->photos()
+                ->ordered()
+                ->get();
+
+            return ApiResponse::success(
+                'Accommodation photos retrieved successfully.',
+                PhotoResource::collection($photos)
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to retrieve photos', [
+                'draft_id' => $accommodation->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return ApiResponse::error('Failed to retrieve photos.', null, null, 500);
+        }
     }
 }

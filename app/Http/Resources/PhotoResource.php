@@ -50,10 +50,10 @@ class PhotoResource extends JsonResource
 
             // URLs for different sizes
             'urls' => [
-                'original' => $this->path,
-                'large' => $this->large_path,
-                'medium' => $this->medium_path,
-                'thumbnail' => $this->thumbnail_path,
+                'original' => $this->url,
+                'large' => $this->large_url,
+                'medium' => $this->medium_url,
+                'thumbnail' => $this->thumbnail_url,
             ],
 
             // File information

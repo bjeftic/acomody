@@ -271,6 +271,18 @@ class Accommodation extends Model
         return $this->belongsToMany(Amenity::class, 'accommodation_amenity');
     }
 
+    public function photos(): MorphMany
+    {
+        return $this->morphMany(Photo::class, 'photoable')
+                    ->orderBy('order');
+    }
+
+    public function primaryPhoto(): MorphOne
+    {
+        return $this->morphOne(Photo::class, 'photoable')
+                    ->where('is_primary', true);
+    }
+
     /**
      * Get pricing configuration for this accommodation
      */
