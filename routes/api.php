@@ -12,7 +12,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\AccommodationTypeController;
 use App\Http\Controllers\AccommodationDraftController;
-use App\Http\Controllers\AccommodationDraftPhotoController;
 use App\Http\Controllers\AmenityController;
 use App\Http\Controllers\FeeController;
 use App\Http\Controllers\CurrencyController;
@@ -37,15 +36,15 @@ Route::post('/currency/set', [CurrencyController::class, 'set'])
         ->name('api.currency.set');
 
 Route::prefix('public')->name('api.public')->group(function () {
-    Route::get('/filters', [PublicFilterController::class, 'index'])
+    Route::get('filters', [PublicFilterController::class, 'index'])
         ->name('api.filters');
 });
 
-Route::prefix('search')->name('api.search.')->group(function () {
+Route::prefix('search')->name('api.search')->group(function () {
     Route::get('locations', [SearchController::class, 'searchLocations'])
-        ->name('search.locations.query');
+        ->name('locations.query');
     Route::get('accommodations', [SearchController::class, 'searchAccommodations'])
-        ->name('search.accommodations.query');
+        ->name('accommodations.query');
 });
 
 // ============================================
@@ -93,23 +92,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ->name('accommodation-draft.stats');
 
         Route::prefix('{accommodationDraft}')->group(function () {
-            Route::get('photos', [AccommodationDraftPhotoController::class, 'index'])
+            Route::get('photos', [AccommodationDraftController::class, 'indexPhotos'])
                 ->name('accommodation-draft.photos.index');
 
-            Route::post('photos', [AccommodationDraftPhotoController::class, 'store'])
+            Route::post('photos', [AccommodationDraftController::class, 'storePhotos'])
                 ->name('accommodation-draft.photos.store');
 
-            Route::put('photos/reorder', [AccommodationDraftPhotoController::class, 'reorder'])
+            Route::put('photos/reorder', [AccommodationDraftController::class, 'reorder'])
                 ->name('accommodation-draft.photos.reorder');
 
-            Route::delete('photos', [AccommodationDraftPhotoController::class, 'destroyAll'])
+            Route::delete('photos', [AccommodationDraftController::class, 'destroyAll'])
                 ->name('accommodation-draft.photos.destroy-all');
 
             Route::prefix('photos/{photo}')->name('accommodation-draft.photos.')->group(function () {
-                Route::put('/', [AccommodationDraftPhotoController::class, 'update'])
+                Route::put('/', [AccommodationDraftController::class, 'update'])
                     ->name('accommodation-draft.photos.update');
 
-                Route::delete('/', [AccommodationDraftPhotoController::class, 'destroy'])
+                Route::delete('/', [AccommodationDraftController::class, 'destroy'])
                     ->name('accommodation-draft.photos.destroy');
             });
         });

@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class AccommodationDraft extends Model
 {
@@ -38,8 +40,15 @@ class AccommodationDraft extends Model
         return $user && $user->id === $this->user_id;
     }
 
-    public function photos(): HasMany
+    public function photos(): MorphMany
     {
-        return $this->hasMany(AccommodationDraftPhoto::class);
+        return $this->morphMany(Photo::class, 'photoable')
+                    ->orderBy('order');
+    }
+
+    public function primaryPhoto(): MorphOne
+    {
+        return $this->morphOne(Photo::class, 'photoable')
+                    ->where('is_primary', true);
     }
 }

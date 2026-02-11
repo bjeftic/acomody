@@ -103,6 +103,11 @@ class Accommodation extends Model
             'bedrooms' => (int)  $this->bedrooms,
             'beds' => (int) $this->beds,
             'bathrooms' => (int) $this->bathrooms,
+            'photos' => $this->photos
+                ->take(5)
+                ->pluck('medium_url')
+                ->map(fn($url) => (string) $url)
+                ->toArray(),
             'created_at' => $this->created_at ? $this->created_at->timestamp : null,
         ];
 
@@ -262,6 +267,12 @@ class Accommodation extends Model
                     'optional' => false,
                     'facet' => true,
                 ],
+                [
+                    'name' => 'photos',
+                    'type' => 'string[]',
+                    'optional' => true,
+                    'facet' => false,
+                ]
             ]
         ];
     }
@@ -269,6 +280,18 @@ class Accommodation extends Model
     public function amenities(): BelongsToMany
     {
         return $this->belongsToMany(Amenity::class, 'accommodation_amenity');
+    }
+
+    public function photos(): MorphMany
+    {
+        return $this->morphMany(Photo::class, 'photoable')
+                    ->orderBy('order');
+    }
+
+    public function primaryPhoto(): MorphOne
+    {
+        return $this->morphOne(Photo::class, 'photoable')
+                    ->where('is_primary', true);
     }
 
     /**
