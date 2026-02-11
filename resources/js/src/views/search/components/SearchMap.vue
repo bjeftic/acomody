@@ -742,7 +742,6 @@ export default {
     padding: 0;
     overflow: hidden;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    /* ONEMOGUĆI SVE ANIMACIJE */
     animation: none !important;
     transition: none !important;
 }
@@ -760,13 +759,11 @@ export default {
     display: none;
 }
 
-/* KRITIČNO: Sakrij popup tokom zoom animacije */
 .leaflet-zoom-anim .custom-popup {
     opacity: 0 !important;
     pointer-events: none !important;
 }
 
-/* Prevent any transitions on popup */
 .custom-popup,
 .custom-popup * {
     transition: none !important;
