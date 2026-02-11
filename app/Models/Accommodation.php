@@ -103,6 +103,11 @@ class Accommodation extends Model
             'bedrooms' => (int)  $this->bedrooms,
             'beds' => (int) $this->beds,
             'bathrooms' => (int) $this->bathrooms,
+            'photos' => $this->photos
+                ->take(5)
+                ->pluck('medium_url')
+                ->map(fn($url) => (string) $url)
+                ->toArray(),
             'created_at' => $this->created_at ? $this->created_at->timestamp : null,
         ];
 
@@ -262,6 +267,12 @@ class Accommodation extends Model
                     'optional' => false,
                     'facet' => true,
                 ],
+                [
+                    'name' => 'photos',
+                    'type' => 'string[]',
+                    'optional' => true,
+                    'facet' => false,
+                ]
             ]
         ];
     }

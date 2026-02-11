@@ -149,6 +149,10 @@ class Photo extends Model
      */
     protected function getSmartUrl(string $path): string
     {
+        if (str_starts_with($path, 'seed/')) {
+            return "https://picsum.photos/{$path}";
+        }
+        
         $storage = Storage::disk($this->disk);
 
         // Check if bucket is configured as public
