@@ -292,7 +292,7 @@ export default {
 
 /* Disable swiper button default styles */
 :deep(.swiper-button-disabled) {
-    opacity: 0.35;
+    opacity: 0;
     cursor: not-allowed;
     pointer-events: none;
 }

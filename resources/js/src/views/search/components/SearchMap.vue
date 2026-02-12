@@ -202,18 +202,18 @@ export default {
 
             this.markersLayer = L.featureGroup().addTo(this.map);
 
-            this.map.on('zoomanim', () => {
+            this.map.on("zoomanim", () => {
                 this.map.eachLayer((layer) => {
                     if (layer instanceof L.Popup) {
                         const popupElement = layer._container;
                         if (popupElement) {
-                            popupElement.style.display = 'none';
+                            popupElement.style.display = "none";
                         }
                     }
                 });
             });
 
-            this.map.on('zoomstart', () => {
+            this.map.on("zoomstart", () => {
                 this.map.closePopup();
 
                 if (this.markersLayer) {
@@ -383,32 +383,98 @@ export default {
                         currency: this.selectedCurrency,
                         onClosePopup: () => {
                             marker.closePopup();
-                        }
+                        },
                     }),
             });
             popupApp.mount(popupContainer);
 
+            // POPUP OPTIONS - Keep inside map
             const popup = L.popup({
                 maxWidth: 280,
-                className: 'custom-popup',
+                minWidth: 280,
+                className: "custom-popup",
                 closeButton: false,
                 autoClose: true,
                 closeOnClick: false,
-                autoPan: true,
-                keepInView: true,
+                autoPan: true, // Pan mapa kad popup izlazi van
+                autoPanPadding: [10, 10], // Padding od ivice mape
+                keepInView: true, // Drži popup unutar view-a
                 closeOnEscapeKey: true,
                 animate: false,
                 zoomAnimation: false,
+                // KRITIČNO: Offset popup tako da ne izlazi
+                offset: [0, -10], // [x, y] offset od markera
             }).setContent(popupContainer);
 
             marker.bindPopup(popup);
 
-            popup._animateZoom = function() {
+            // OVERRIDE popup _updatePosition da FORSIRAM da ostane u bounds
+            const originalUpdatePosition = popup._updatePosition;
+            popup._updatePosition = function () {
+                if (!this._map) {
+                    return;
+                }
+
+                originalUpdatePosition.call(this);
+
+                // Proveri da li popup izlazi van mape
+                if (this._container) {
+                    const mapSize = this._map.getSize();
+                    const popupPoint = this._map.latLngToContainerPoint(
+                        this._latlng,
+                    );
+                    const popupSize = {
+                        x: this._container.offsetWidth,
+                        y: this._container.offsetHeight,
+                    };
+
+                    // Adjust position ako izlazi
+                    let adjustX = 0;
+                    let adjustY = 0;
+
+                    // Check right edge
+                    if (popupPoint.x + popupSize.x / 2 > mapSize.x - 10) {
+                        adjustX =
+                            mapSize.x - 10 - (popupPoint.x + popupSize.x / 2);
+                    }
+
+                    // Check left edge
+                    if (popupPoint.x - popupSize.x / 2 < 10) {
+                        adjustX = 10 - (popupPoint.x - popupSize.x / 2);
+                    }
+
+                    // Check top edge
+                    if (popupPoint.y - popupSize.y < 10) {
+                        adjustY = 10 - (popupPoint.y - popupSize.y);
+                    }
+
+                    // Check bottom edge
+                    if (popupPoint.y > mapSize.y - 10) {
+                        adjustY = mapSize.y - 10 - popupPoint.y;
+                    }
+
+                    // Apply adjustments
+                    if (adjustX !== 0 || adjustY !== 0) {
+                        const currentPos = L.DomUtil.getPosition(
+                            this._container,
+                        );
+                        L.DomUtil.setPosition(
+                            this._container,
+                            L.point(
+                                currentPos.x + adjustX,
+                                currentPos.y + adjustY,
+                            ),
+                        );
+                    }
+                }
+            };
+
+            popup._animateZoom = function () {
                 return;
             };
 
             const originalAdjustPan = popup._adjustPan;
-            popup._adjustPan = function() {
+            popup._adjustPan = function () {
                 if (this._map && this._map._panAnim) {
                     originalAdjustPan.call(this);
                 }
@@ -573,7 +639,7 @@ export default {
                 this.map.setView(
                     [this.center.lat, this.center.lng],
                     this.zoom,
-                    { animate: false }
+                    { animate: false },
                 );
             }
         },
@@ -619,10 +685,14 @@ export default {
             const threshold = 0.001;
 
             return (
-                Math.abs(bounds1.northEast.lat - bounds2.northEast.lat) < threshold &&
-                Math.abs(bounds1.northEast.lng - bounds2.northEast.lng) < threshold &&
-                Math.abs(bounds1.southWest.lat - bounds2.southWest.lat) < threshold &&
-                Math.abs(bounds1.southWest.lng - bounds2.southWest.lng) < threshold
+                Math.abs(bounds1.northEast.lat - bounds2.northEast.lat) <
+                    threshold &&
+                Math.abs(bounds1.northEast.lng - bounds2.northEast.lng) <
+                    threshold &&
+                Math.abs(bounds1.southWest.lat - bounds2.southWest.lat) <
+                    threshold &&
+                Math.abs(bounds1.southWest.lng - bounds2.southWest.lng) <
+                    threshold
             );
         },
 
@@ -697,6 +767,11 @@ export default {
     width: 100%;
     height: 100%;
     z-index: 0;
+    overflow: hidden !important;
+}
+
+.map-wrapper .leaflet-popup-pane {
+    overflow: hidden !important;
 }
 
 .map-loading {
@@ -749,6 +824,7 @@ export default {
 .custom-popup .leaflet-popup-content {
     margin: 0;
     width: 280px !important;
+    max-width: 280px !important;
 }
 
 .custom-popup .leaflet-popup-tip-container {
