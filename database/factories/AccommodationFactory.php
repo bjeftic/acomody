@@ -13,6 +13,7 @@ use App\Enums\Accommodation\AccommodationOccupation;
 use App\Enums\Accommodation\BookingType;
 use App\Models\PriceableItem;
 use App\Enums\PriceableItem\PricingType;
+use App\Models\Photo;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Accommodation>
@@ -102,6 +103,22 @@ class AccommodationFactory extends Factory
                 );
 
             $accommodation->amenities()->attach($amenityIds);
+
+            // Create photos (5-12 photos per accommodation)
+            $photoCount = fake()->numberBetween(5, 12);
+
+            Photo::factory()
+                ->count($photoCount)
+                ->forAccommodation() // Use accommodation photos disk
+                ->withPicsumPaths()
+                ->sequence(fn ($sequence) => [
+                    'order' => $sequence->index,
+                    'is_primary' => $sequence->index === 0, // First photo is primary
+                ])
+                ->create([
+                    'photoable_type' => Accommodation::class,
+                    'photoable_id' => $accommodation->id,
+                ]);
         });
     }
 }

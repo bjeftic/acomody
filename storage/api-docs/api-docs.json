@@ -15,6 +15,141 @@
         }
     ],
     "paths": {
+        "/accommodations": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get accommodations",
+                "description": "Retrieves a paginated list of accommodations for the authenticated user",
+                "operationId": "getAccommodations",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15,
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Accommodations retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Accommodation"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer"
+                                        },
+                                        "last_page": {
+                                            "type": "integer"
+                                        },
+                                        "per_page": {
+                                            "type": "integer"
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        },
+                                        "next_page_url": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "prev_page_url": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/accommodations/{accommodation}": {
+            "get": {
+                "tags": [
+                    "Accommodation"
+                ],
+                "summary": "Get a specific accommodation by ID",
+                "description": "Retrieves a specific accommodation for the authenticated user by its ID",
+                "operationId": "getAccommodationById",
+                "parameters": [
+                    {
+                        "name": "accommodation",
+                        "in": "path",
+                        "description": "ID of the accommodation to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Accommodation retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Accommodation"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Accommodation not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/accommodation-draft": {
             "get": {
                 "tags": [
@@ -136,7 +271,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "uuid",
+                            "format": "ulid",
                             "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
                         }
                     }
@@ -286,28 +421,40 @@
                     "Accommodation"
                 ],
                 "summary": "Get all photos for accommodation draft",
-                "description": "Get all photos for a draft",
+                "description": "Get all photos for accommodation draft",
                 "operationId": "getAccommodationDraftPhotos",
                 "parameters": [
                     {
-                        "name": "accommodationDraft",
+                        "name": "accommodationDraftId",
                         "in": "path",
                         "description": "Accommodation draft ID",
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "uuid",
+                            "format": "ulid",
                             "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Accommodation draft photos retrieved successfully",
+                        "description": "Photos retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/AccommodationDraftPhoto"
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Photos retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Photo"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -316,7 +463,7 @@
                         "description": "Unauthorized"
                     },
                     "404": {
-                        "description": "Accommodation draft photos not found"
+                        "description": "Accommodation draft not found"
                     }
                 },
                 "security": [
@@ -334,13 +481,13 @@
                 "operationId": "uploadAccommodationDraftPhotos",
                 "parameters": [
                     {
-                        "name": "accommodationDraft",
+                        "name": "accommodationDraftId",
                         "in": "path",
                         "description": "Accommodation draft ID",
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "uuid",
+                            "format": "ulid",
                             "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
                         }
                     }
@@ -350,8 +497,12 @@
                     "content": {
                         "multipart/form-data": {
                             "schema": {
+                                "required": [
+                                    "photos"
+                                ],
                                 "properties": {
                                     "photos[]": {
+                                        "description": "Array of photo files (max 10 files, 10MB each)",
                                         "type": "array",
                                         "items": {
                                             "type": "string",
@@ -366,7 +517,43 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Photos uploaded successfully"
+                        "description": "Photos uploaded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Photos uploaded successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Photo"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "uploaded_count": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "failed_count": {
+                                                    "type": "integer",
+                                                    "example": 0
+                                                },
+                                                "total_photos": {
+                                                    "type": "integer",
+                                                    "example": 8
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Validation error"
@@ -384,29 +571,18 @@
                 "tags": [
                     "Accommodation"
                 ],
-                "summary": "Reorder photos",
+                "summary": "Reorder photos for accommodation draft",
                 "description": "Reorder photos",
                 "operationId": "reorderAccommodationDraftPhotos",
                 "parameters": [
                     {
-                        "name": "accommodationDraft",
+                        "name": "accommodationDraftId",
                         "in": "path",
                         "description": "Accommodation draft ID",
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "uuid",
-                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
-                        }
-                    },
-                    {
-                        "name": "accommodationDraft",
-                        "in": "path",
-                        "description": "Accommodation draft ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid",
+                            "format": "ulid",
                             "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
                         }
                     }
@@ -416,17 +592,20 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "photo_ids"
+                                ],
                                 "properties": {
                                     "photo_ids": {
+                                        "description": "Array of photo IDs in desired order",
                                         "type": "array",
                                         "items": {
-                                            "type": "integer"
+                                            "type": "string",
+                                            "format": "ulid"
                                         },
                                         "example": [
-                                            1,
-                                            3,
-                                            2,
-                                            4
+                                            "019a4b7b-3481-738a-a2ff-d93fc45bac01",
+                                            "019a4b7b-3481-738a-a2ff-d93fc45bac02"
                                         ]
                                     }
                                 },
@@ -437,7 +616,32 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Photos reordered successfully"
+                        "description": "Photos reordered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Photos reordered successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Photo"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "500": {
+                        "description": "Failed to reorder photos"
                     }
                 },
                 "security": [
@@ -452,25 +656,64 @@
                 "tags": [
                     "Accommodation"
                 ],
-                "summary": "Delete a photo",
+                "summary": "Delete a photo from accommodation draft",
                 "description": "Delete a photo",
                 "operationId": "deleteAccommodationDraftPhoto",
                 "parameters": [
                     {
-                        "name": "accommodationDraft",
+                        "name": "accommodationDraftId",
                         "in": "path",
                         "description": "Accommodation draft ID",
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "uuid",
+                            "format": "ulid",
+                            "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
+                        }
+                    },
+                    {
+                        "name": "photoId",
+                        "in": "path",
+                        "description": "Photo ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "ulid",
                             "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Photo deleted successfully"
+                        "description": "Photo deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Photo deleted successfully."
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total_photos": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Photo not found"
+                    },
+                    "500": {
+                        "description": "Failed to delete photo"
                     }
                 },
                 "security": [
@@ -485,25 +728,74 @@
                 "tags": [
                     "Accommodation"
                 ],
-                "summary": "Get photo statistics",
+                "summary": "Get photo statistics for accommodation draft",
                 "description": "Get photo statistics",
                 "operationId": "getAccommodationDraftPhotoStats",
                 "parameters": [
                     {
-                        "name": "accommodationDraft",
+                        "name": "accommodationDraftId",
                         "in": "path",
                         "description": "Accommodation draft ID",
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "format": "uuid",
+                            "format": "ulid",
                             "example": "019a4b7b-3481-738a-a2ff-d93fc45bac01"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Statistics retrieved successfully"
+                        "description": "Statistics retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Photo statistics retrieved successfully."
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "completed": {
+                                                    "type": "integer",
+                                                    "example": 8
+                                                },
+                                                "pending": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "failed": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "has_primary": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "total_size": {
+                                                    "type": "integer",
+                                                    "example": 5242880
+                                                },
+                                                "total_size_formatted": {
+                                                    "type": "string",
+                                                    "example": "5.00 MB"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to get statistics"
                     }
                 },
                 "security": [
@@ -933,6 +1225,58 @@
                 ]
             }
         },
+        "/fees/charge-types": {
+            "get": {
+                "tags": [
+                    "Fee"
+                ],
+                "summary": "Get fee charge types list",
+                "description": "Returns a list of all fee charge types",
+                "operationId": "getFeeChargeTypes",
+                "responses": {
+                    "200": {
+                        "description": "Fee charge types retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Fee charge types retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/FeeChargeType"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 7
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/users": {
             "get": {
                 "tags": [
@@ -998,13 +1342,189 @@
     },
     "components": {
         "schemas": {
-            "AccommodationDraftPhoto": {
+            "AccommodationDraft": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    },
+                    "current_step": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "draft"
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": {
+                            "title": "Cozy Apartment",
+                            "description": "A nice place to stay"
+                        }
+                    },
+                    "last_saved_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-28T12:34:56Z"
+                    }
+                },
+                "type": "object"
+            },
+            "Accommodation": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "ulid",
+                        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    },
+                    "current_step": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "draft"
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": {
+                            "title": "Cozy Apartment",
+                            "description": "A nice place to stay"
+                        }
+                    },
+                    "last_saved_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-10-28T12:34:56Z"
+                    }
+                },
+                "type": "object"
+            },
+            "AccommodationType": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "apartment"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Apartment"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "A private, self-contained unit within a building, featuring its own kitchen, bathroom, and living area—ideal for independent stays."
+                    },
+                    "icon": {
+                        "type": "string",
+                        "example": "Apartment"
+                    },
+                    "category": {
+                        "type": "string",
+                        "example": "apartment"
+                    },
+                    "available_occupations": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "example": "entire_place"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "example": "An entire place"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "example": "Guests have the whole place to themselves."
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Amenity": {
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
                     },
-                    "accommodation_draft_id": {
+                    "slug": {
+                        "type": "string",
+                        "example": "wifi"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "WiFi"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "example": "wifi"
+                    },
+                    "category": {
+                        "type": "string",
+                        "example": "internet"
+                    },
+                    "is_feeable": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "FeeChargeType": {
+                "properties": {
+                    "value": {
+                        "type": "string",
+                        "example": "per_unit"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "PER_UNIT"
+                    },
+                    "label": {
+                        "type": "string",
+                        "example": "Per Unit"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Charge applied per unit, such as per night, per hour, or per item."
+                    }
+                },
+                "type": "object"
+            },
+            "FeeType": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "CLEANING"
+                    },
+                    "label": {
+                        "type": "string",
+                        "example": "Cleaning Fee"
+                    },
+                    "listing": {
+                        "type": "string",
+                        "example": "accommodation"
+                    },
+                    "value": {
+                        "type": "string",
+                        "example": "cleaning"
+                    }
+                },
+                "type": "object"
+            },
+            "Photo": {
+                "properties": {
+                    "id": {
                         "type": "integer",
                         "example": 1
                     },
@@ -1108,127 +1628,6 @@
                         "type": "string",
                         "format": "date-time",
                         "example": "2025-10-28T12:50:00Z"
-                    }
-                },
-                "type": "object"
-            },
-            "AccommodationDraft": {
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-                    },
-                    "current_step": {
-                        "type": "integer",
-                        "example": 2
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "draft"
-                    },
-                    "data": {
-                        "type": "object",
-                        "example": {
-                            "title": "Cozy Apartment",
-                            "description": "A nice place to stay"
-                        }
-                    },
-                    "last_saved_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-10-28T12:34:56Z"
-                    }
-                },
-                "type": "object"
-            },
-            "AccommodationType": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Apartment"
-                    },
-                    "icon": {
-                        "type": "string",
-                        "example": "Apartment"
-                    },
-                    "description": {
-                        "type": "string",
-                        "example": "A private, self-contained unit within a building, featuring its own kitchen, bathroom, and living area—ideal for independent stays."
-                    },
-                    "available_occupations": {
-                        "type": "array",
-                        "items": {
-                            "properties": {
-                                "id": {
-                                    "type": "integer",
-                                    "example": 1
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "example": "An entire place"
-                                },
-                                "description": {
-                                    "type": "string",
-                                    "example": "Guests have the whole place to themselves."
-                                }
-                            },
-                            "type": "object"
-                        }
-                    }
-                },
-                "type": "object"
-            },
-            "Amenity": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "slug": {
-                        "type": "string",
-                        "example": "wifi"
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "WiFi"
-                    },
-                    "icon": {
-                        "type": "string",
-                        "example": "wifi"
-                    },
-                    "category": {
-                        "type": "string",
-                        "example": "internet"
-                    },
-                    "type": {
-                        "type": "string",
-                        "example": "boolean"
-                    },
-                    "is_active": {
-                        "type": "boolean",
-                        "example": true
-                    }
-                },
-                "type": "object"
-            },
-            "FeeType": {
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "example": "cleaning"
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Cleaning Fee"
-                    },
-                    "description": {
-                        "type": "string",
-                        "example": "A one-time fee for cleaning the accommodation after your stay."
                     }
                 },
                 "type": "object"

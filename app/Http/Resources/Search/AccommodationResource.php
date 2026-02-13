@@ -39,7 +39,7 @@ class AccommodationResource extends JsonResource
                     $userSettedCurrency
                 ), 2)),
             'rating' => $document['rating'] ?? null,
-            'images' => $document['images'] ?? [],
+            'photos' => $document['photos'] ?? [],
             'accommodation_type' => $document['accommodation_type'] ?? null,
             'accommodation_occupation' => $document['accommodation_occupation'] ?? null,
             'max_guests' => $document['max_guests'] ?? null,

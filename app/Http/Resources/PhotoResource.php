@@ -5,14 +5,13 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AccommodationDraftPhotoResource extends JsonResource
+class PhotoResource extends JsonResource
 {
     /**
      * @OA\Schema(
-     *    schema="AccommodationDraftPhoto",
+     *    schema="Photo",
      *   type="object",
      *   @OA\Property(property="id", type="integer", example=1),
-     *  @OA\Property(property="accommodation_draft_id", type="integer", example=1),
      *  @OA\Property(
      *    property="urls",
      *   type="object",
@@ -48,7 +47,6 @@ class AccommodationDraftPhotoResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'accommodation_draft_id' => $this->accommodation_draft_id,
 
             // URLs for different sizes
             'urls' => [

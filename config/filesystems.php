@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 |
 | Bucket Strategy:
 | - Local: Individual directories
-| - MinIO: Individual buckets with 'files-' prefix
+| - MinIO: Single bucket with prefixes OR individual buckets
 | - S3/DO: Single bucket with prefixes OR individual buckets
 |
 */
@@ -26,6 +26,10 @@ $appVersion = env('APP_VERSION', '1.0.0');
 $storageKey = env('STORAGE_KEY', env('MINIO_ACCESS_KEY', 'minioadmin'));
 $storageSecret = env('STORAGE_SECRET', env('MINIO_SECRET_KEY', 'minioadmin'));
 
+// MinIO Configuration
+$minioUseSingleBucket = env('MINIO_USE_SINGLE_BUCKET', false);
+$minioMainBucket = env('MINIO_BUCKET', 'files');
+
 // AWS S3 Configuration
 $awsKey = env('AWS_ACCESS_KEY_ID');
 $awsSecret = env('AWS_SECRET_ACCESS_KEY');
@@ -33,11 +37,17 @@ $awsRegion = env('AWS_DEFAULT_REGION', 'us-east-1');
 $awsBucket = env('AWS_BUCKET', 'booking-platform');
 $awsUrl = env('AWS_URL');
 $awsEndpoint = env('AWS_ENDPOINT');
+$awsUseSingleBucket = env('AWS_USE_SINGLE_BUCKET', false);
 
 // AWS S3 Assets Configuration (separate bucket for static assets)
 $awsKeyAssets = env('AWS_KEY_ASSETS', $awsKey);
 $awsSecretAssets = env('AWS_SECRET_ASSETS', $awsSecret);
 $awsBucketAssets = env('AWS_BUCKET_ASSETS', 'booking-platform-assets');
+
+// DigitalOcean Spaces Configuration
+$doUseSingleBucket = env('DO_USE_SINGLE_BUCKET', false);
+$doRegion = env('DO_SPACES_REGION', 'nyc3');
+$doBucket = env('DO_SPACES_BUCKET', 'booking-platform');
 
 /*
 |--------------------------------------------------------------------------
@@ -76,17 +86,6 @@ if ($appVersion) {
 |--------------------------------------------------------------------------
 | Buckets Configuration for Booking Platform
 |--------------------------------------------------------------------------
-|
-| Define all buckets needed for accommodation booking platform
-|
-| Structure:
-|   'bucket_name' => [
-|       'public' => true/false,           // Public or private access
-|       'description' => 'Description',   // Human-readable description
-|       'retention' => 30,                // Auto-delete after X days (optional)
-|   ]
-|
-| Or simply: 'bucket_name' => true/false for public/private
 */
 
 $buckets = [
@@ -150,7 +149,7 @@ $buckets = [
     'user_verification_documents' => [
         'public' => false,
         'description' => 'Identity verification documents (passport, ID, etc.)',
-        'retention' => 90, // Keep for 90 days after verification
+        'retention' => 90,
         'visibility' => 'private',
     ],
 
@@ -228,7 +227,7 @@ $buckets = [
     'message_attachments' => [
         'public' => false,
         'description' => 'Files attached to messages between guests and hosts',
-        'retention' => 365, // Keep for 1 year
+        'retention' => 365,
         'visibility' => 'private',
     ],
 
@@ -255,7 +254,7 @@ $buckets = [
     'temp' => [
         'public' => false,
         'description' => 'Temporary files (processing, uploads, etc.)',
-        'retention' => 1, // Auto-delete after 1 day
+        'retention' => 1,
         'visibility' => 'private',
     ],
 
@@ -268,7 +267,7 @@ $buckets = [
     'exports' => [
         'public' => false,
         'description' => 'Data exports and reports',
-        'retention' => 30, // Keep exports for 30 days
+        'retention' => 30,
         'visibility' => 'private',
     ],
 
@@ -326,14 +325,6 @@ foreach ($buckets as $bucketName => $config) {
         $disk['retention_days'] = $retention;
     }
 
-    // Generate bucket name based on driver
-    $actualBucketName = match($driver) {
-        'minio' => 'files-' . Str::replace('_', '-', $bucketName),
-        'local' => $bucketName,
-        's3', 'digitalocean' => $bucketName, // Will use prefix or separate buckets based on config
-        default => $bucketName,
-    };
-
     // Configure based on driver
     if ($driver === 'local') {
         $disk += [
@@ -345,24 +336,42 @@ foreach ($buckets as $bucketName => $config) {
         ];
     }
     elseif ($driver === 'minio') {
-        $disk += [
-            'driver' => 's3',
-            'key' => $storageKey,
-            'secret' => $storageSecret,
-            'region' => env('MINIO_REGION', 'us-east-1'),
-            'bucket' => $actualBucketName,
-            'url' => env('MINIO_URL', $appUrl . ':9000') . "/$actualBucketName",
-            'endpoint' => env('MINIO_ENDPOINT', 'http://minio:9000'),
-            'use_path_style_endpoint' => true,
-            'visibility' => $isPublic ? 'public' : 'private',
-            'throw' => false,
-        ];
+        if ($minioUseSingleBucket) {
+            // Single bucket strategy with prefixes
+            $disk += [
+                'driver' => 's3',
+                'key' => $storageKey,
+                'secret' => $storageSecret,
+                'region' => env('MINIO_REGION', 'us-east-1'),
+                'bucket' => $minioMainBucket,
+                'prefix' => $bucketName,
+                'url' => env('MINIO_URL', $appUrl . ':9000') . "/$minioMainBucket/$bucketName",
+                'endpoint' => env('MINIO_ENDPOINT', 'http://minio:9000'),
+                'use_path_style_endpoint' => true,
+                'use_single_bucket' => true,
+                'visibility' => $isPublic ? 'public' : 'private',
+                'throw' => false,
+            ];
+        } else {
+            // Multiple buckets strategy
+            $actualBucketName = 'files-' . Str::replace('_', '-', $bucketName);
+            $disk += [
+                'driver' => 's3',
+                'key' => $storageKey,
+                'secret' => $storageSecret,
+                'region' => env('MINIO_REGION', 'us-east-1'),
+                'bucket' => $actualBucketName,
+                'url' => env('MINIO_URL', $appUrl . ':9000') . "/$actualBucketName",
+                'endpoint' => env('MINIO_ENDPOINT', 'http://minio:9000'),
+                'use_path_style_endpoint' => true,
+                'use_single_bucket' => false,
+                'visibility' => $isPublic ? 'public' : 'private',
+                'throw' => false,
+            ];
+        }
     }
     elseif ($driver === 's3') {
-        // Check if we're using single bucket with prefixes or multiple buckets
-        $useSingleBucket = env('AWS_USE_SINGLE_BUCKET', false);
-
-        if ($useSingleBucket) {
+        if ($awsUseSingleBucket) {
             // Single bucket strategy with prefixes
             $disk += [
                 'driver' => 's3',
@@ -374,6 +383,7 @@ foreach ($buckets as $bucketName => $config) {
                 'url' => $awsUrl ? "$awsUrl/$bucketName" : null,
                 'endpoint' => $awsEndpoint,
                 'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+                'use_single_bucket' => true,
                 'visibility' => $isPublic ? 'public' : 'private',
                 'throw' => false,
             ];
@@ -384,21 +394,18 @@ foreach ($buckets as $bucketName => $config) {
                 'key' => $awsKey,
                 'secret' => $awsSecret,
                 'region' => $awsRegion,
-                'bucket' => $actualBucketName,
-                'url' => $awsUrl ? str_replace($awsBucket, $actualBucketName, $awsUrl) : null,
+                'bucket' => $bucketName,
+                'url' => $awsUrl ? str_replace($awsBucket, $bucketName, $awsUrl) : null,
                 'endpoint' => $awsEndpoint,
                 'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+                'use_single_bucket' => false,
                 'visibility' => $isPublic ? 'public' : 'private',
                 'throw' => false,
             ];
         }
     }
     elseif ($driver === 'digitalocean') {
-        $useSingleBucket = env('DO_USE_SINGLE_BUCKET', false);
-        $doRegion = env('DO_SPACES_REGION', 'nyc3');
-        $doBucket = env('DO_SPACES_BUCKET', 'booking-platform');
-
-        if ($useSingleBucket) {
+        if ($doUseSingleBucket) {
             $disk += [
                 'driver' => 's3',
                 'key' => env('DO_SPACES_KEY'),
@@ -409,6 +416,7 @@ foreach ($buckets as $bucketName => $config) {
                 'endpoint' => "https://$doRegion.digitaloceanspaces.com",
                 'url' => "https://$doBucket.$doRegion.digitaloceanspaces.com/$bucketName",
                 'use_path_style_endpoint' => false,
+                'use_single_bucket' => true,
                 'visibility' => $isPublic ? 'public' : 'private',
                 'throw' => false,
             ];
@@ -418,10 +426,11 @@ foreach ($buckets as $bucketName => $config) {
                 'key' => env('DO_SPACES_KEY'),
                 'secret' => env('DO_SPACES_SECRET'),
                 'region' => $doRegion,
-                'bucket' => $actualBucketName,
+                'bucket' => $bucketName,
                 'endpoint' => "https://$doRegion.digitaloceanspaces.com",
-                'url' => "https://$actualBucketName.$doRegion.digitaloceanspaces.com",
+                'url' => "https://$bucketName.$doRegion.digitaloceanspaces.com",
                 'use_path_style_endpoint' => false,
+                'use_single_bucket' => false,
                 'visibility' => $isPublic ? 'public' : 'private',
                 'throw' => false,
             ];
@@ -508,10 +517,11 @@ return [
                 'key' => env('MINIO_ACCESS_KEY', 'minioadmin'),
                 'secret' => env('MINIO_SECRET_KEY', 'minioadmin'),
                 'region' => env('MINIO_REGION', 'us-east-1'),
-                'bucket' => env('MINIO_BUCKET', 'files-accommodation-photos'),
+                'bucket' => $minioMainBucket,
                 'url' => env('MINIO_URL', $appUrl . ':9000'),
                 'endpoint' => env('MINIO_ENDPOINT', 'http://minio:9000'),
                 'use_path_style_endpoint' => true,
+                'use_single_bucket' => $minioUseSingleBucket,
                 'throw' => false,
                 'visibility' => 'public',
             ],
@@ -530,6 +540,7 @@ return [
                 'url' => $awsUrl,
                 'endpoint' => $awsEndpoint,
                 'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+                'use_single_bucket' => $awsUseSingleBucket,
                 'throw' => false,
                 'report' => false,
             ],
@@ -543,10 +554,11 @@ return [
                 'driver' => 's3',
                 'key' => env('DO_SPACES_KEY'),
                 'secret' => env('DO_SPACES_SECRET'),
-                'region' => env('DO_SPACES_REGION', 'nyc3'),
-                'bucket' => env('DO_SPACES_BUCKET', 'booking-platform'),
-                'endpoint' => 'https://' . env('DO_SPACES_REGION', 'nyc3') . '.digitaloceanspaces.com',
+                'region' => $doRegion,
+                'bucket' => $doBucket,
+                'endpoint' => "https://$doRegion.digitaloceanspaces.com",
                 'use_path_style_endpoint' => false,
+                'use_single_bucket' => $doUseSingleBucket,
                 'throw' => false,
             ],
         ],

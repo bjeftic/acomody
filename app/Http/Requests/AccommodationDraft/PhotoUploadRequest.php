@@ -11,10 +11,7 @@ class PhotoUploadRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Check if user owns the accommodation draft
-        $draft = $this->route('accommodationDraft');
-
-        return $draft && $this->user()->id === $draft->user_id;
+        return true;
     }
 
     /**
