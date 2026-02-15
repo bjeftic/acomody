@@ -111,18 +111,51 @@ export const goToStep = ({ commit }, step) => {
  * Photos
  */
 
-export const uploadPhotos = async (
-    {},
+/**
+ * Upload photos as a batch (queued processing)
+ */
+export const uploadPhotosBatch = async (
+    { dispatch },
     { draftId, files, onProgress = null }
 ) => {
     try {
-        const response = await apiClient.accommodationDrafts[
-            draftId
-        ].photos.upload(files, "photos", onProgress);
+        const formData = new FormData();
+        files.forEach((file) => {
+            formData.append("photos[]", file);
+        });
+
+        const response = await apiClient.accommodationDrafts[draftId].photos.upload(
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                onUploadProgress: onProgress,
+            }
+        );
 
         return response.data;
     } catch (error) {
-        console.error("Failed to upload photos:", error);
+        console.error("Failed to upload photos batch:", error);
+        throw error;
+    }
+};
+
+/**
+ * Get batch progress
+ */
+export const getBatchProgress = async (
+    { },
+    { draftId, batchId }
+) => {
+    try {
+        const response = await apiClient.accommodationDrafts[draftId].photos.batch[
+            batchId
+        ].get();
+
+        return response.data;
+    } catch (error) {
+        console.error("Failed to get batch progress:", error);
         throw error;
     }
 };
@@ -134,7 +167,35 @@ export const uploadPhoto = async (
     { dispatch },
     { draftId, file, onProgress = null }
 ) => {
-    return dispatch("uploadPhotos", { draftId, files: [file], onProgress });
+    return dispatch("uploadPhotos", {
+        draftId,
+        files: [file],
+        onProgress,
+    });
+};
+
+/**
+ * Upload multiple photos
+ */
+export const uploadPhotos = async (
+    {},
+    { draftId, files, onProgress = null }
+) => {
+    try {
+        const response = await apiClient
+            .accommodationDrafts[draftId]
+            .photos
+            .upload(
+                Array.isArray(files) ? files : [files],
+                "photos",
+                onProgress
+            );
+
+        return response.data;
+    } catch (error) {
+        console.error("Failed to upload photos:", error);
+        throw error;
+    }
 };
 
 /**
@@ -157,11 +218,9 @@ export const fetchPhotos = async ({ commit }, draftId) => {
 /**
  * Reorder photos
  */
-export const reorderPhotos = async ({}, { draftId, photoIds }) => {
+export const reorderPhotos = async ({ }, { draftId, photoIds }) => {
     try {
-        const response = await apiClient.accommodationDrafts[
-            draftId
-        ].photos.reorder.put({
+        const response = await apiClient.accommodationDrafts[draftId].photos.reorder.put({
             photo_ids: photoIds,
         });
 

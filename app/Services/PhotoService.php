@@ -2,17 +2,21 @@
 
 namespace App\Services;
 
+use App\Jobs\ProcessPhotoUpload;
 use App\Models\Photo;
 use Exception;
+use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * Universal Photo Service for handling polymorphic photo relationships
- * Supports both draft and permanent photos through single Photo model
+ * Supports both sync and async (queued) uploads
  */
 class PhotoService
 {
@@ -24,7 +28,7 @@ class PhotoService
     }
 
     /**
-     * Upload and process a photo for any model
+     * Upload and process a photo synchronously (old method - kept for backwards compatibility)
      */
     public function uploadPhoto(
         Model $model,
@@ -55,15 +59,12 @@ class PhotoService
             ]);
 
             // Upload using image service
-            // Folder structure: {prefix}-{id}/ (e.g., draft-123/ or property-456/)
             $folderName = $this->getFolderName($model);
 
             $uploadResult = $this->imageService->upload(
                 $file,
                 $folderName,
-                [
-                    'extract_metadata' => true,
-                ]
+                ['extract_metadata' => true]
             );
 
             // Update photo record with paths and metadata
@@ -81,19 +82,16 @@ class PhotoService
 
             DB::commit();
 
-            Log::info('Photo uploaded successfully', [
+            Log::info('Photo uploaded successfully (sync)', [
                 'photo_id' => $photo->id,
                 'model_type' => get_class($model),
                 'model_id' => $model->id,
-                'filename' => $file->getClientOriginalName(),
-                'disk' => $disk,
             ]);
 
             return $photo->fresh();
         } catch (Exception $e) {
             DB::rollBack();
 
-            // Update photo status if record was created
             if (isset($photo) && $photo->exists) {
                 $photo->update([
                     'status' => 'failed',
@@ -101,12 +99,10 @@ class PhotoService
                 ]);
             }
 
-            Log::error('Photo upload failed', [
+            Log::error('Photo upload failed (sync)', [
                 'model_type' => get_class($model),
                 'model_id' => $model->id,
-                'filename' => $file->getClientOriginalName(),
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
 
             throw $e;
@@ -114,7 +110,131 @@ class PhotoService
     }
 
     /**
-     * Upload multiple photos in batch
+     * Queue multiple photo uploads as a batch (RECOMMENDED METHOD)
+     *
+     * @param Model $model
+     * @param array $files Array of UploadedFile instances
+     * @param int $startOrder Starting order number
+     * @return array ['batch_id' => string, 'photos' => Photo[], 'total' => int]
+     */
+    public function queuePhotoUploads(
+        Model $model,
+        array $files,
+        int $startOrder = 0
+    ): array {
+        $photos = [];
+        $jobs = [];
+        $order = $startOrder;
+
+        // Determine if first photo should be primary
+        $hasPrimaryPhoto = $model->photos()->where('is_primary', true)->exists();
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($files as $file) {
+                // Validate file before queueing
+                $this->validateFile($file);
+
+                $isPrimary = !$hasPrimaryPhoto && empty($photos);
+
+                // Create Photo record with 'pending' status
+                $photo = Photo::create([
+                    'photoable_type' => get_class($model),
+                    'photoable_id' => $model->id,
+                    'disk' => $this->getDiskForModel($model),
+                    'original_filename' => $file->getClientOriginalName(),
+                    'path' => '', // Will be filled by job
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'order' => $order,
+                    'is_primary' => $isPrimary,
+                    'status' => 'pending',
+                    'uploaded_at' => now(),
+                ]);
+
+                // Store file temporarily
+                $tempPath = $this->storeTemporaryFile($file);
+
+                // Create job for this photo
+                $jobs[] = new ProcessPhotoUpload(
+                    photoId: $photo->id,
+                    tempFilePath: $tempPath,
+                    originalFilename: $file->getClientOriginalName(),
+                    mimeType: $file->getMimeType(),
+                    fileSize: $file->getSize(),
+                    modelType: get_class($model),
+                    modelId: $model->id,
+                    order: $order,
+                    isPrimary: $isPrimary
+                );
+
+                $photos[] = $photo;
+                $order++;
+            }
+
+            DB::commit();
+
+            // Dispatch batch
+            $batch = Bus::batch($jobs)
+                ->name("photo-upload-{$model->id}")
+                ->allowFailures() // Don't cancel entire batch if one photo fails
+                ->onQueue('photo-processing')
+                ->dispatch();
+
+            Log::info('Photo upload batch dispatched', [
+                'batch_id' => $batch->id,
+                'model_type' => get_class($model),
+                'model_id' => $model->id,
+                'photo_count' => count($photos),
+            ]);
+
+            return [
+                'batch_id' => $batch->id,
+                'photos' => $photos,
+                'total' => count($photos),
+            ];
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            Log::error('Failed to queue photo uploads', [
+                'model_type' => get_class($model),
+                'model_id' => $model->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Get batch progress information
+     */
+    public function getBatchProgress(string $batchId): ?array
+    {
+        $batch = Bus::findBatch($batchId);
+
+        if (!$batch) {
+            return null;
+        }
+
+        return [
+            'batch_id' => $batch->id,
+            'total_jobs' => $batch->totalJobs,
+            'pending_jobs' => $batch->pendingJobs,
+            'processed_jobs' => $batch->processedJobs(),
+            'failed_jobs' => $batch->failedJobs,
+            'progress' => $batch->progress(),
+            'finished' => $batch->finished(),
+            'cancelled' => $batch->cancelled(),
+            'created_at' => $batch->createdAt,
+            'finished_at' => $batch->finishedAt,
+        ];
+    }
+
+    /**
+     * Upload multiple photos synchronously (kept for backwards compatibility)
      */
     public function uploadMultiplePhotos(
         Model $model,
@@ -125,13 +245,11 @@ class PhotoService
         $failedPhotos = [];
         $order = $startOrder;
 
-        // Determine if first photo should be primary
         $hasPrimaryPhoto = $model->photos()->where('is_primary', true)->exists();
 
         foreach ($files as $file) {
             try {
                 $isPrimary = !$hasPrimaryPhoto && empty($uploadedPhotos);
-
                 $photo = $this->uploadPhoto($model, $file, $order, $isPrimary);
                 $uploadedPhotos[] = $photo;
                 $order++;
@@ -150,17 +268,6 @@ class PhotoService
             }
         }
 
-        if (!empty($failedPhotos)) {
-            Log::warning('Some photos failed to upload in batch', [
-                'model_type' => get_class($model),
-                'model_id' => $model->id,
-                'total_files' => count($files),
-                'uploaded' => count($uploadedPhotos),
-                'failed' => count($failedPhotos),
-                'failed_files' => $failedPhotos,
-            ]);
-        }
-
         return [
             'uploaded' => $uploadedPhotos,
             'failed' => $failedPhotos,
@@ -168,6 +275,62 @@ class PhotoService
             'success_count' => count($uploadedPhotos),
             'failed_count' => count($failedPhotos),
         ];
+    }
+
+    /**
+     * Store file temporarily for queue processing
+     */
+    protected function storeTemporaryFile(UploadedFile $file): string
+{
+    Log::info('TEMP FILE UPLOAD START', [
+        'filename' => $file->getClientOriginalName(),
+        'size' => $file->getSize(),
+    ]);
+
+    $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
+    $path = "uploads/{$filename}";
+
+    Log::info('TEMP FILE UPLOADING', [
+        'path' => $path,
+        'disk' => 'temp',
+    ]);
+
+    $result = Storage::disk('temp')->put($path, file_get_contents($file->getRealPath()));
+
+    Log::info('TEMP FILE UPLOADED', [
+        'path' => $path,
+        'result' => $result,
+        'exists' => Storage::disk('temp')->exists($path),
+    ]);
+
+    return $path;
+}
+
+    /**
+     * Validate uploaded file
+     */
+    protected function validateFile(UploadedFile $file): void
+    {
+        $maxFileSize = config('images.max_file_size', 10485760);
+        $allowedMimeTypes = config('images.allowed_mime_types', [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/webp',
+        ]);
+
+        if (!$file->isValid()) {
+            throw new Exception('Invalid file upload');
+        }
+
+        if ($file->getSize() > $maxFileSize) {
+            $maxSizeMB = round($maxFileSize / 1048576, 2);
+            throw new Exception("File size exceeds maximum allowed size of {$maxSizeMB}MB");
+        }
+
+        if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
+            throw new Exception('Invalid file type. Only JPEG, PNG, and WebP images are allowed');
+        }
     }
 
     /**
@@ -197,10 +360,7 @@ class PhotoService
     public function setPrimaryPhoto(Model $model, string $photoId): void
     {
         DB::transaction(function () use ($model, $photoId) {
-            // Remove primary flag from all photos
             $model->photos()->update(['is_primary' => false]);
-
-            // Set new primary photo
             $photo = $model->photos()->findOrFail($photoId);
             $photo->update(['is_primary' => true]);
 
@@ -218,191 +378,51 @@ class PhotoService
     public function deletePhoto(Photo $photo): void
     {
         DB::transaction(function () use ($photo) {
-            $modelId = $photo->photoable_id;
-            $modelType = $photo->photoable_type;
-            $wasPrimary = $photo->is_primary;
+            $disk = $photo->disk;
 
-            // Delete files from storage
-            $paths = array_filter([
+            // Delete all image files
+            $pathsToDelete = array_filter([
                 $photo->path,
                 $photo->thumbnail_path,
                 $photo->medium_path,
                 $photo->large_path,
             ]);
 
-            foreach ($paths as $path) {
-                Storage::disk($photo->disk)->delete($path);
-            }
-
-            // Delete database record
-            $photo->forceDelete();
-
-            // If primary photo was deleted, set next photo as primary
-            if ($wasPrimary) {
-                $nextPhoto = Photo::where('photoable_type', $modelType)
-                    ->where('photoable_id', $modelId)
-                    ->orderBy('order')
-                    ->first();
-
-                if ($nextPhoto) {
-                    $nextPhoto->update(['is_primary' => true]);
+            foreach ($pathsToDelete as $path) {
+                try {
+                    Storage::disk($disk)->delete($path);
+                } catch (Exception $e) {
+                    Log::warning('Failed to delete photo file', [
+                        'photo_id' => $photo->id,
+                        'path' => $path,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
             }
 
+            $photo->delete();
+
             Log::info('Photo deleted', [
                 'photo_id' => $photo->id,
-                'model_type' => $modelType,
-                'model_id' => $modelId,
+                'photoable_type' => $photo->photoable_type,
+                'photoable_id' => $photo->photoable_id,
             ]);
         });
     }
 
     /**
-     * Delete all photos for a model
-     */
-    public function deleteAllPhotos(Model $model): void
-    {
-        DB::transaction(function () use ($model) {
-            $photos = $model->photos()->get();
-
-            foreach ($photos as $photo) {
-                $this->deletePhoto($photo);
-            }
-
-            Log::info('All photos deleted', [
-                'model_type' => get_class($model),
-                'model_id' => $model->id,
-                'photo_count' => $photos->count(),
-            ]);
-        });
-    }
-
-    /**
-     * Migrate photos from one model to another (e.g., draft to permanent)
-     * Copies from source disk to target disk
-     */
-    public function migratePhotos(Model $sourceModel, Model $targetModel): void
-    {
-        DB::transaction(function () use ($sourceModel, $targetModel) {
-            $photos = $sourceModel->photos()
-                ->where('status', 'completed')
-                ->orderBy('order')
-                ->get();
-
-            if ($photos->isEmpty()) {
-                Log::warning('No photos to migrate', [
-                    'source_model_type' => get_class($sourceModel),
-                    'source_model_id' => $sourceModel->id,
-                ]);
-                return;
-            }
-
-            $sourceDisk = $this->getDiskForModel($sourceModel);
-            $targetDisk = $this->getDiskForModel($targetModel);
-            $sourceFolderName = $this->getFolderName($sourceModel);
-            $targetFolderName = $this->getFolderName($targetModel);
-
-            foreach ($photos as $photo) {
-                // Copy files from source disk to target disk
-                $newPaths = [
-                    'path' => $this->copyFileBetweenDisks(
-                        $photo->path,
-                        $sourceDisk,
-                        $targetDisk,
-                        $sourceFolderName,
-                        $targetFolderName
-                    ),
-                    'thumbnail_path' => $this->copyFileBetweenDisks(
-                        $photo->thumbnail_path,
-                        $sourceDisk,
-                        $targetDisk,
-                        $sourceFolderName,
-                        $targetFolderName
-                    ),
-                    'medium_path' => $this->copyFileBetweenDisks(
-                        $photo->medium_path,
-                        $sourceDisk,
-                        $targetDisk,
-                        $sourceFolderName,
-                        $targetFolderName
-                    ),
-                    'large_path' => $this->copyFileBetweenDisks(
-                        $photo->large_path,
-                        $sourceDisk,
-                        $targetDisk,
-                        $sourceFolderName,
-                        $targetFolderName
-                    ),
-                ];
-
-                // Create photo for target model
-                Photo::create([
-                    'photoable_type' => get_class($targetModel),
-                    'photoable_id' => $targetModel->id,
-                    'disk' => $targetDisk,
-                    'path' => $newPaths['path'],
-                    'thumbnail_path' => $newPaths['thumbnail_path'],
-                    'medium_path' => $newPaths['medium_path'],
-                    'large_path' => $newPaths['large_path'],
-                    'original_filename' => $photo->original_filename,
-                    'mime_type' => $photo->mime_type,
-                    'file_size' => $photo->file_size,
-                    'width' => $photo->width,
-                    'height' => $photo->height,
-                    'order' => $photo->order,
-                    'is_primary' => $photo->is_primary,
-                    'metadata' => $photo->metadata,
-                    'alt_text' => $photo->alt_text,
-                    'caption' => $photo->caption,
-                    'status' => 'completed',
-                    'uploaded_at' => $photo->uploaded_at,
-                    'processed_at' => $photo->processed_at,
-                ]);
-            }
-
-            Log::info('Photos migrated successfully', [
-                'source_model_type' => get_class($sourceModel),
-                'source_model_id' => $sourceModel->id,
-                'target_model_type' => get_class($targetModel),
-                'target_model_id' => $targetModel->id,
-                'photo_count' => $photos->count(),
-            ]);
-        });
-    }
-
-    /**
-     * Get photo statistics for a model
-     */
-    public function getPhotoStats(Model $model): array
-    {
-        $photos = $model->photos;
-
-        return [
-            'total' => $photos->count(),
-            'completed' => $photos->where('status', 'completed')->count(),
-            'pending' => $photos->where('status', 'pending')->count(),
-            'failed' => $photos->where('status', 'failed')->count(),
-            'has_primary' => $photos->where('is_primary', true)->count() > 0,
-            'total_size' => $photos->sum('file_size'),
-            'total_size_formatted' => $this->formatBytes($photos->sum('file_size')),
-        ];
-    }
-
-    /**
-     * Determine storage disk based on model type
+     * Get disk for model
      */
     protected function getDiskForModel(Model $model): string
     {
         $modelClass = get_class($model);
 
-        // Map model types to their storage disks
-        $diskMap = [
-            'App\Models\AccommodationDraft' => 'accommodation_draft_photos',
-            'App\Models\Accommodation' => 'accommodation_photos',
-            // Add more mappings as needed for future models
-        ];
-
-        return $diskMap[$modelClass] ?? 'minio';
+        return match($modelClass) {
+            'App\\Models\\AccommodationDraft' => config('images.presets.accommodation_draft.disk'),
+            'App\\Models\\Accommodation' => config('images.presets.accommodation.disk'),
+            'App\\Models\\User' => config('images.presets.user_profile.disk'),
+            default => 'accommodation_draft_photos',
+        };
     }
 
     /**
@@ -412,68 +432,11 @@ class PhotoService
     {
         $modelClass = get_class($model);
 
-        // Map model types to folder prefixes
-        $folderMap = [
-            'App\Models\AccommodationDraft' => 'draft',
-            'App\Models\Accommodation' => 'property',
-            // Add more mappings as needed
-        ];
-
-        $prefix = $folderMap[$modelClass] ?? 'model';
-
-        return "{$prefix}-{$model->id}";
-    }
-
-    /**
-     * Copy file between storage disks
-     */
-    protected function copyFileBetweenDisks(
-        ?string $sourcePath,
-        string $sourceDisk,
-        string $targetDisk,
-        string $sourceFolderName,
-        string $targetFolderName
-    ): ?string {
-        if (!$sourcePath) {
-            return null;
-        }
-
-        try {
-            // Replace source folder with target folder in path
-            $targetPath = str_replace($sourceFolderName, $targetFolderName, $sourcePath);
-
-            // Get file contents from source
-            $fileContents = Storage::disk($sourceDisk)->get($sourcePath);
-
-            // Put to target
-            Storage::disk($targetDisk)->put($targetPath, $fileContents);
-
-            return $targetPath;
-        } catch (Exception $e) {
-            Log::error('Failed to copy file between disks', [
-                'source_path' => $sourcePath,
-                'source_disk' => $sourceDisk,
-                'target_disk' => $targetDisk,
-                'error' => $e->getMessage(),
-            ]);
-
-            return null;
-        }
-    }
-
-    /**
-     * Format bytes to human-readable size
-     */
-    protected function formatBytes(int $bytes): string
-    {
-        if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
-        } elseif ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
-        } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
-        }
-
-        return $bytes . ' bytes';
+        return match($modelClass) {
+            'App\\Models\\AccommodationDraft' => "draft-{$model->id}",
+            'App\\Models\\Accommodation' => "property-{$model->id}",
+            'App\\Models\\User' => "user-{$model->id}",
+            default => "unknown-{$model->id}",
+        };
     }
 }

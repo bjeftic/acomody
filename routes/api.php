@@ -92,23 +92,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ->name('accommodation-draft.stats');
 
         Route::prefix('{accommodationDraft}')->group(function () {
-            Route::get('photos', [AccommodationDraftController::class, 'indexPhotos'])
+            Route::get('photos', [AccommodationDraftController::class, 'getPhotos'])
                 ->name('accommodation-draft.photos.index');
 
             Route::post('photos', [AccommodationDraftController::class, 'storePhotos'])
                 ->name('accommodation-draft.photos.store');
 
-            Route::put('photos/reorder', [AccommodationDraftController::class, 'reorder'])
+            Route::put('photos/reorder', [AccommodationDraftController::class, 'reorderPhotos'])
                 ->name('accommodation-draft.photos.reorder');
 
             Route::delete('photos', [AccommodationDraftController::class, 'destroyAll'])
                 ->name('accommodation-draft.photos.destroy-all');
 
             Route::prefix('photos/{photo}')->name('accommodation-draft.photos.')->group(function () {
-                Route::put('/', [AccommodationDraftController::class, 'update'])
-                    ->name('accommodation-draft.photos.update');
-
-                Route::delete('/', [AccommodationDraftController::class, 'destroy'])
+                Route::delete('/', [AccommodationDraftController::class, 'destroyPhoto'])
                     ->name('accommodation-draft.photos.destroy');
             });
         });

@@ -132,7 +132,7 @@ class AccommodationDraftController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized"
-     *     )
+     *     )re
      * )
      */
     public function updateDraft(UpdateRequest $request, AccommodationDraft $accommodationDraft): JsonResponse
@@ -293,6 +293,184 @@ class AccommodationDraftController extends Controller
     }
 
     /**
+     * Upload photos (ASYNC with Queue)
+     *
+     * @OA\Post(
+     *     path="/accommodation-drafts/{accommodationDraftId}/photos",
+     *     operationId="uploadAccommodationDraftPhotos",
+     *     tags={"Accommodation"},
+     *     summary="Upload photos for accommodation draft (queued processing)",
+     *     description="Initiates async photo upload. Returns immediately with batch_id for progress tracking.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="accommodationDraftId",
+     *         in="path",
+     *         required=true,
+     *         description="Accommodation draft ID",
+     *         @OA\Schema(type="string", format="ulid")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"photos"},
+     *                 @OA\Property(
+     *                     property="photos[]",
+     *                     type="array",
+     *                     description="Array of photo files (max 20 files, 10MB each)",
+     *                     @OA\Items(type="string", format="binary")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=202,
+     *         description="Photos queued for processing",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Photos queued for processing"),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(ref="#/components/schemas/Photo")
+     *             ),
+     *             @OA\Property(property="meta", type="object",
+     *                 @OA\Property(property="batch_id", type="string", example="9a5e89c0-1234-5678-9abc-123456789012"),
+     *                 @OA\Property(property="queued_count", type="integer", example=5),
+     *                 @OA\Property(property="total_photos", type="integer", example=8)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
+     */
+    public function storePhotos(
+        PhotoUploadRequest $request,
+        AccommodationDraft $accommodationDraft
+    ): JsonResponse {
+        try {
+            $files = $request->file('photos');
+
+            // Get current max order
+            $maxOrder = $accommodationDraft->photos()->max('order') ?? -1;
+            $startOrder = $maxOrder + 1;
+
+            // Queue photos for processing
+            $result = $this->photoService->queuePhotoUploads(
+                $accommodationDraft,
+                $files,
+                $startOrder
+            );
+
+            Log::info('Photos queued for upload', [
+                'accommodation_draft_id' => $accommodationDraft->id,
+                'batch_id' => $result['batch_id'],
+                'photo_count' => $result['total'],
+                'user_id' => userOrFail()->id,
+            ]);
+
+            return ApiResponse::success(
+                'Photos queued for processing',
+                PhotoResource::collection($result['photos']),
+                [
+                    'batch_id' => $result['batch_id'],
+                    'queued_count' => $result['total'],
+                    'total_photos' => $accommodationDraft->photos()->count(),
+                ],
+                202 // Accepted status
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to queue photos', [
+                'accommodation_draft_id' => $accommodationDraft->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return ApiResponse::error(
+                'Failed to queue photos for upload.',
+                null,
+                null,
+                500
+            );
+        }
+    }
+
+    /**
+     * Get upload batch progress
+     *
+     * @OA\Get(
+     *     path="/accommodation-drafts/{accommodationDraftId}/photos/batch/{batchId}",
+     *     operationId="getPhotoUploadBatchProgress",
+     *     tags={"Accommodation"},
+     *     summary="Get photo upload batch progress",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="accommodationDraftId",
+     *         in="path",
+     *         required=true,
+     *         description="Accommodation draft ID",
+     *         @OA\Schema(type="string", format="ulid")
+     *     ),
+     *     @OA\Parameter(
+     *         name="batchId",
+     *         in="path",
+     *         required=true,
+     *         description="Batch ID returned from upload endpoint",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Batch progress information",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Batch progress retrieved"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="batch_id", type="string"),
+     *                 @OA\Property(property="total_jobs", type="integer", example=5),
+     *                 @OA\Property(property="pending_jobs", type="integer", example=2),
+     *                 @OA\Property(property="processed_jobs", type="integer", example=3),
+     *                 @OA\Property(property="failed_jobs", type="integer", example=0),
+     *                 @OA\Property(property="progress", type="integer", example=60),
+     *                 @OA\Property(property="finished", type="boolean", example=false)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Batch not found")
+     * )
+     */
+    public function getBatchProgress(
+        AccommodationDraft $accommodationDraft,
+        string $batchId
+    ): JsonResponse {
+        try {
+            $progress = $this->photoService->getBatchProgress($batchId);
+
+            if (!$progress) {
+                return ApiResponse::notFound('Batch not found');
+            }
+
+            return ApiResponse::success(
+                'Batch progress retrieved',
+                null,
+                $progress
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to get batch progress', [
+                'accommodation_draft_id' => $accommodationDraft->id,
+                'batch_id' => $batchId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return ApiResponse::error(
+                'Failed to get batch progress.',
+                null,
+                null,
+                500
+            );
+        }
+    }
+
+    /**
      * Get all photos for accommodation draft
      *
      * @OA\Get(
@@ -306,21 +484,22 @@ class AccommodationDraftController extends Controller
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *         @OA\Schema(type="string", format="ulid")
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Photos retrieved successfully",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Photos retrieved successfully."),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Photo"))
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Photos retrieved successfully"),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(ref="#/components/schemas/Photo")
+     *             )
      *         )
-     *     ),
-     *     @OA\Response(response=401, description="Unauthorized"),
-     *     @OA\Response(response=404, description="Accommodation draft not found")
+     *     )
      * )
      */
-    public function indexPhotos(AccommodationDraft $accommodationDraft): JsonResponse
+    public function getPhotos(AccommodationDraft $accommodationDraft): JsonResponse
     {
         try {
             $photos = $accommodationDraft->photos()
@@ -335,7 +514,6 @@ class AccommodationDraftController extends Controller
             Log::error('Failed to retrieve photos', [
                 'accommodation_draft_id' => $accommodationDraft->id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
 
             return ApiResponse::error('Failed to retrieve photos.', null, null, 500);
@@ -343,115 +521,65 @@ class AccommodationDraftController extends Controller
     }
 
     /**
-     * Upload photos
+     * Delete a photo
      *
-     * @OA\Post(
-     *     path="/accommodation-drafts/{accommodationDraftId}/photos",
-     *     operationId="uploadAccommodationDraftPhotos",
+     * @OA\Delete(
+     *     path="/accommodation-drafts/{accommodationDraftId}/photos/{photoId}",
+     *     operationId="deleteAccommodationDraftPhoto",
      *     tags={"Accommodation"},
-     *     summary="Upload photos for accommodation draft",
+     *     summary="Delete a photo from accommodation draft",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="accommodationDraftId",
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
+     *         @OA\Schema(type="string", format="ulid")
      *     ),
-     *     @OA\RequestBody(
+     *     @OA\Parameter(
+     *         name="photoId",
+     *         in="path",
      *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 required={"photos"},
-     *                 @OA\Property(
-     *                     property="photos[]",
-     *                     type="array",
-     *                     description="Array of photo files (max 10 files, 10MB each)",
-     *                     @OA\Items(type="string", format="binary")
-     *                 )
-     *             )
-     *         )
+     *         description="Photo ID",
+     *         @OA\Schema(type="string", format="ulid")
      *     ),
      *     @OA\Response(
-     *         response=201,
-     *         description="Photos uploaded successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Photos uploaded successfully."),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Photo")),
-     *             @OA\Property(property="meta", type="object",
-     *                 @OA\Property(property="uploaded_count", type="integer", example=3),
-     *                 @OA\Property(property="failed_count", type="integer", example=0),
-     *                 @OA\Property(property="total_photos", type="integer", example=8)
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=422, description="Validation error")
+     *         response=200,
+     *         description="Photo deleted successfully"
+     *     )
      * )
      */
-    public function storePhotos(
-        PhotoUploadRequest $request,
-        AccommodationDraft $accommodationDraft
+    public function destroyPhoto(
+        AccommodationDraft $accommodationDraft,
+        Photo $photo
     ): JsonResponse {
         try {
-            $files = $request->file('photos');
-
-            // Get current max order
-            $maxOrder = $accommodationDraft->photos()->max('order') ?? -1;
-            $startOrder = $maxOrder + 1;
-
-            // Upload photos
-            $result = $this->photoService->uploadMultiplePhotos(
-                $accommodationDraft,
-                $files,
-                $startOrder
-            );
-
-            // If no photos were uploaded successfully
-            if ($result['success_count'] === 0) {
-                return ApiResponse::error(
-                    'All photo uploads failed.',
-                    null,
-                    [
-                        'failed_photos' => $result['failed'],
-                    ],
-                    422
-                );
+            // Verify photo belongs to the accommodation draft
+            if (
+                $photo->photoable_type !== AccommodationDraft::class ||
+                $photo->photoable_id !== $accommodationDraft->id
+            ) {
+                return ApiResponse::error('Photo not found.', null, null, 404);
             }
 
-            Log::info('Photos uploaded', [
-                'accommodation_draft_id' => $accommodationDraft->id,
-                'success_count' => $result['success_count'],
-                'failed_count' => $result['failed_count'],
-                'user_id' => userOrFail()->id,
-            ]);
-
-            // Prepare response message
-            $message = 'Photos uploaded successfully.';
-            if ($result['failed_count'] > 0) {
-                $message = "{$result['success_count']} photo(s) uploaded successfully, {$result['failed_count']} failed.";
-            }
+            $this->photoService->deletePhoto($photo);
 
             return ApiResponse::success(
-                $message,
-                PhotoResource::collection($result['uploaded']),
+                'Photo deleted successfully.',
+                null,
                 [
-                    'uploaded_count' => $result['success_count'],
-                    'failed_count' => $result['failed_count'],
                     'total_photos' => $accommodationDraft->photos()->count(),
-                    'failed_photos' => $result['failed'],
-                ],
-                201
+                ]
             );
         } catch (Exception $e) {
-            Log::error('Photo upload failed', [
+            Log::error('Failed to delete photo', [
                 'accommodation_draft_id' => $accommodationDraft->id,
+                'photo_id' => $photo->id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
 
             return ApiResponse::error(
-                'Failed to upload photos.',
+                'Failed to delete photo.',
                 null,
                 null,
                 500
@@ -500,7 +628,7 @@ class AccommodationDraftController extends Controller
      *     @OA\Response(response=500, description="Failed to reorder photos")
      * )
      */
-    public function reorder(
+    public function reorderPhotos(
         Request $request,
         AccommodationDraft $accommodationDraft
     ): JsonResponse {
@@ -541,8 +669,8 @@ class AccommodationDraftController extends Controller
         } catch (ValidationException $e) {
             return ApiResponse::error(
                 'Validation failed.',
-                $e->errors(),
                 null,
+                $e->errors(),
                 422
             );
         } catch (Exception $e) {
@@ -559,138 +687,6 @@ class AccommodationDraftController extends Controller
                 null,
                 500
             );
-        }
-    }
-
-    /**
-     * Delete a photo
-     *
-     * @OA\Delete(
-     *     path="/accommodation-drafts/{accommodationDraftId}/photos/{photoId}",
-     *     operationId="deleteAccommodationDraftPhoto",
-     *     tags={"Accommodation"},
-     *     summary="Delete a photo from accommodation draft",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="accommodationDraftId",
-     *         in="path",
-     *         required=true,
-     *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
-     *     ),
-     *     @OA\Parameter(
-     *         name="photoId",
-     *         in="path",
-     *         required=true,
-     *         description="Photo ID",
-     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Photo deleted successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Photo deleted successfully."),
-     *             @OA\Property(property="meta", type="object",
-     *                 @OA\Property(property="total_photos", type="integer", example=5)
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=404, description="Photo not found"),
-     *     @OA\Response(response=500, description="Failed to delete photo")
-     * )
-     */
-    public function destroy(
-        AccommodationDraft $accommodationDraft,
-        Photo $photo
-    ): JsonResponse {
-        try {
-            // Verify photo belongs to the accommodation draft
-            if (
-                $photo->photoable_type !== AccommodationDraft::class ||
-                $photo->photoable_id !== $accommodationDraft->id
-            ) {
-                return ApiResponse::error('Photo not found.', null, null, 404);
-            }
-
-            $this->photoService->deletePhoto($photo);
-
-            return ApiResponse::success(
-                'Photo deleted successfully.',
-                null,
-                [
-                    'total_photos' => $accommodationDraft->photos()->count(),
-                ]
-            );
-        } catch (Exception $e) {
-            Log::error('Failed to delete photo', [
-                'accommodation_draft_id' => $accommodationDraft->id,
-                'photo_id' => $photo->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return ApiResponse::error(
-                'Failed to delete photo.',
-                null,
-                null,
-                500
-            );
-        }
-    }
-
-    /**
-     * Get photo statistics
-     *
-     * @OA\Get(
-     *     path="/accommodation-drafts/{accommodationDraftId}/photos/stats",
-     *     operationId="getAccommodationDraftPhotoStats",
-     *     tags={"Accommodation"},
-     *     summary="Get photo statistics for accommodation draft",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="accommodationDraftId",
-     *         in="path",
-     *         required=true,
-     *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Statistics retrieved successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Photo statistics retrieved successfully."),
-     *             @OA\Property(property="meta", type="object",
-     *                 @OA\Property(property="total", type="integer", example=10),
-     *                 @OA\Property(property="completed", type="integer", example=8),
-     *                 @OA\Property(property="pending", type="integer", example=1),
-     *                 @OA\Property(property="failed", type="integer", example=1),
-     *                 @OA\Property(property="has_primary", type="boolean", example=true),
-     *                 @OA\Property(property="total_size", type="integer", example=5242880),
-     *                 @OA\Property(property="total_size_formatted", type="string", example="5.00 MB")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=500, description="Failed to get statistics")
-     * )
-     */
-    public function stats(AccommodationDraft $accommodationDraft): JsonResponse
-    {
-        try {
-            $stats = $this->photoService->getPhotoStats($accommodationDraft);
-
-            return ApiResponse::success(
-                'Photo statistics retrieved successfully.',
-                null,
-                $stats
-            );
-        } catch (Exception $e) {
-            Log::error('Failed to get photo stats', [
-                'accommodation_draft_id' => $accommodationDraft->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return ApiResponse::error('Failed to get statistics.', null, null, 500);
         }
     }
 }
