@@ -28,7 +28,7 @@ class PhotoService
     }
 
     /**
-     * Upload and process a photo synchronously (old method - kept for backwards compatibility)
+     * Upload and process a photo synchronously
      */
     public function uploadPhoto(
         Model $model,
@@ -194,7 +194,6 @@ class PhotoService
                 'photos' => $photos,
                 'total' => count($photos),
             ];
-
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -209,7 +208,7 @@ class PhotoService
     }
 
     /**
-     * Upload multiple photos synchronously (kept for backwards compatibility)
+     * Upload multiple photos synchronously
      */
     public function uploadMultiplePhotos(
         Model $model,
@@ -256,30 +255,22 @@ class PhotoService
      * Store file temporarily for queue processing
      */
     protected function storeTemporaryFile(UploadedFile $file): string
-{
-    Log::info('TEMP FILE UPLOAD START', [
-        'filename' => $file->getClientOriginalName(),
-        'size' => $file->getSize(),
-    ]);
+    {
 
-    $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
-    $path = "uploads/{$filename}";
+        $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
+        $path = "uploads/{$filename}";
 
-    Log::info('TEMP FILE UPLOADING', [
-        'path' => $path,
-        'disk' => 'temp',
-    ]);
 
-    $result = Storage::disk('temp')->put($path, file_get_contents($file->getRealPath()));
+        $result = Storage::disk('temp')->put($path, file_get_contents($file->getRealPath()));
 
-    Log::info('TEMP FILE UPLOADED', [
-        'path' => $path,
-        'result' => $result,
-        'exists' => Storage::disk('temp')->exists($path),
-    ]);
+        Log::info('File uploaded', [
+            'path' => $path,
+            'result' => $result,
+            'exists' => Storage::disk('temp')->exists($path),
+        ]);
 
-    return $path;
-}
+        return $path;
+    }
 
     /**
      * Validate uploaded file
@@ -392,7 +383,7 @@ class PhotoService
     {
         $modelClass = get_class($model);
 
-        return match($modelClass) {
+        return match ($modelClass) {
             'App\\Models\\AccommodationDraft' => config('images.presets.accommodation_draft.disk'),
             'App\\Models\\Accommodation' => config('images.presets.accommodation.disk'),
             'App\\Models\\User' => config('images.presets.user_profile.disk'),
@@ -407,7 +398,7 @@ class PhotoService
     {
         $modelClass = get_class($model);
 
-        return match($modelClass) {
+        return match ($modelClass) {
             'App\\Models\\AccommodationDraft' => "draft-{$model->id}",
             'App\\Models\\Accommodation' => "property-{$model->id}",
             'App\\Models\\User' => "user-{$model->id}",
