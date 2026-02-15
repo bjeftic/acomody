@@ -132,7 +132,7 @@ class AccommodationDraftController extends Controller
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized"
-     *     )re
+     *     )
      * )
      */
     public function updateDraft(UpdateRequest $request, AccommodationDraft $accommodationDraft): JsonResponse
@@ -388,81 +388,6 @@ class AccommodationDraftController extends Controller
 
             return ApiResponse::error(
                 'Failed to queue photos for upload.',
-                null,
-                null,
-                500
-            );
-        }
-    }
-
-    /**
-     * Get upload batch progress
-     *
-     * @OA\Get(
-     *     path="/accommodation-drafts/{accommodationDraftId}/photos/batch/{batchId}",
-     *     operationId="getPhotoUploadBatchProgress",
-     *     tags={"Accommodation"},
-     *     summary="Get photo upload batch progress",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="accommodationDraftId",
-     *         in="path",
-     *         required=true,
-     *         description="Accommodation draft ID",
-     *         @OA\Schema(type="string", format="ulid")
-     *     ),
-     *     @OA\Parameter(
-     *         name="batchId",
-     *         in="path",
-     *         required=true,
-     *         description="Batch ID returned from upload endpoint",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Batch progress information",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Batch progress retrieved"),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="batch_id", type="string"),
-     *                 @OA\Property(property="total_jobs", type="integer", example=5),
-     *                 @OA\Property(property="pending_jobs", type="integer", example=2),
-     *                 @OA\Property(property="processed_jobs", type="integer", example=3),
-     *                 @OA\Property(property="failed_jobs", type="integer", example=0),
-     *                 @OA\Property(property="progress", type="integer", example=60),
-     *                 @OA\Property(property="finished", type="boolean", example=false)
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=404, description="Batch not found")
-     * )
-     */
-    public function getBatchProgress(
-        AccommodationDraft $accommodationDraft,
-        string $batchId
-    ): JsonResponse {
-        try {
-            $progress = $this->photoService->getBatchProgress($batchId);
-
-            if (!$progress) {
-                return ApiResponse::notFound('Batch not found');
-            }
-
-            return ApiResponse::success(
-                'Batch progress retrieved',
-                null,
-                $progress
-            );
-        } catch (Exception $e) {
-            Log::error('Failed to get batch progress', [
-                'accommodation_draft_id' => $accommodationDraft->id,
-                'batch_id' => $batchId,
-                'error' => $e->getMessage(),
-            ]);
-
-            return ApiResponse::error(
-                'Failed to get batch progress.',
                 null,
                 null,
                 500

@@ -209,31 +209,6 @@ class PhotoService
     }
 
     /**
-     * Get batch progress information
-     */
-    public function getBatchProgress(string $batchId): ?array
-    {
-        $batch = Bus::findBatch($batchId);
-
-        if (!$batch) {
-            return null;
-        }
-
-        return [
-            'batch_id' => $batch->id,
-            'total_jobs' => $batch->totalJobs,
-            'pending_jobs' => $batch->pendingJobs,
-            'processed_jobs' => $batch->processedJobs(),
-            'failed_jobs' => $batch->failedJobs,
-            'progress' => $batch->progress(),
-            'finished' => $batch->finished(),
-            'cancelled' => $batch->cancelled(),
-            'created_at' => $batch->createdAt,
-            'finished_at' => $batch->finishedAt,
-        ];
-    }
-
-    /**
      * Upload multiple photos synchronously (kept for backwards compatibility)
      */
     public function uploadMultiplePhotos(
