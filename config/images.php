@@ -48,34 +48,29 @@ return [
     |
     */
     'presets' => [
-        // Accommodation Draft Photos
         'accommodation_draft' => [
-            'disk' => env('APP_ENV') === 'production' ? 's3' : 'minio',
-            'base_path' => 'drafts',
-            'max_file_size' => 10485760, // 10MB
-            'sizes' => [
-                'thumbnail' => ['width' => 300, 'height' => 300, 'quality' => 80, 'crop' => true],
-                'medium' => ['width' => 800, 'height' => 600, 'quality' => 85],
-                'large' => ['width' => 1920, 'height' => 1440, 'quality' => 90],
-            ],
-        ],
-
-        // Accommodation Photos (approved)
-        'accommodation' => [
-            'disk' => env('APP_ENV') === 'production' ? 's3' : 'minio',
-            'base_path' => 'accommodations',
+            'disk' => 'accommodation_draft_photos',
             'max_file_size' => 10485760,
             'sizes' => [
                 'thumbnail' => ['width' => 300, 'height' => 300, 'quality' => 80, 'crop' => true],
                 'medium' => ['width' => 800, 'height' => 600, 'quality' => 85],
                 'large' => ['width' => 1920, 'height' => 1440, 'quality' => 90],
-                'xl' => ['width' => 2560, 'height' => 1440, 'quality' => 95], // Extra large for hero images
+            ],
+        ],
+
+        'accommodation' => [
+            'disk' => 'accommodation_photos',
+            'max_file_size' => 10485760,
+            'sizes' => [
+                'thumbnail' => ['width' => 300, 'height' => 300, 'quality' => 80, 'crop' => true],
+                'medium' => ['width' => 800, 'height' => 600, 'quality' => 85],
+                'large' => ['width' => 1920, 'height' => 1440, 'quality' => 90],
             ],
         ],
 
         // User Profile Photos
         'user_profile' => [
-            'disk' => env('APP_ENV') === 'production' ? 's3' : 'minio',
+            'disk' => 'user_profile_photos',
             'base_path' => 'users',
             'max_file_size' => 5242880, // 5MB
             'sizes' => [

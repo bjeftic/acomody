@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use App\Traits\HasStorageFiles;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model
 {
-    use HasFactory, SoftDeletes, HasUlids, HasStorageFiles;
+    use HasFactory, HasUlids;
 
     protected $fillable = [
         'photoable_type',
@@ -30,24 +28,25 @@ class Photo extends Model
         'order',
         'is_primary',
         'status',
-        'metadata',
         'alt_text',
         'caption',
+        'metadata',
+        'error_message',
         'uploaded_at',
         'processed_at',
-        'error_message',
     ];
 
     protected $casts = [
-        'metadata' => 'array',
         'is_primary' => 'boolean',
+        'metadata' => 'array',
         'uploaded_at' => 'datetime',
         'processed_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
+    protected $appends = ['url', 'urls'];
+
     /**
-     * Get the parent photoable model (AccommodationDraft, Accommodation, etc.)
+     * Polymorphic relationship
      */
     public function photoable(): MorphTo
     {
@@ -79,48 +78,61 @@ class Photo extends Model
     }
 
     /**
-     * Get main photo URL (original)
+     * Get main photo URL (original) - NULL SAFE
      */
     public function getUrlAttribute(): ?string
     {
-        if (!$this->path) {
+        if (!isset($this->attributes['path']) || empty($this->attributes['path'])) {
             return null;
         }
 
-        return $this->getSmartUrl($this->path);
+        return $this->getSmartUrl($this->attributes['path']);
     }
 
     /**
-     * Get thumbnail URL
+     * Get all URLs (for API response) - NULL SAFE
+     */
+    public function getUrlsAttribute(): array
+    {
+        return [
+            'original' => $this->url,
+            'large' => $this->large_url,
+            'medium' => $this->medium_url,
+            'thumbnail' => $this->thumbnail_url,
+        ];
+    }
+
+    /**
+     * Get thumbnail URL - NULL SAFE
      */
     public function getThumbnailUrlAttribute(): ?string
     {
-        if (!$this->attributes['thumbnail_path']) {
-            return $this->url;
+        if (!isset($this->attributes['thumbnail_path']) || empty($this->attributes['thumbnail_path'])) {
+            return $this->url; // Fallback to original
         }
 
         return $this->getSmartUrl($this->attributes['thumbnail_path']);
     }
 
     /**
-     * Get medium size URL
+     * Get medium size URL - NULL SAFE
      */
     public function getMediumUrlAttribute(): ?string
     {
-        if (!$this->attributes['medium_path']) {
-            return $this->url;
+        if (!isset($this->attributes['medium_path']) || empty($this->attributes['medium_path'])) {
+            return $this->url; // Fallback to original
         }
 
         return $this->getSmartUrl($this->attributes['medium_path']);
     }
 
     /**
-     * Get large size URL
+     * Get large size URL - NULL SAFE
      */
     public function getLargeUrlAttribute(): ?string
     {
-        if (!$this->attributes['large_path']) {
-            return $this->url;
+        if (!isset($this->attributes['large_path']) || empty($this->attributes['large_path'])) {
+            return $this->url; // Fallback to original
         }
 
         return $this->getSmartUrl($this->attributes['large_path']);
@@ -131,7 +143,7 @@ class Photo extends Model
      */
     public function getFormattedSizeAttribute(): string
     {
-        $bytes = $this->file_size;
+        $bytes = $this->file_size ?? 0;
 
         if ($bytes >= 1073741824) {
             return number_format($bytes / 1073741824, 2) . ' GB';
@@ -147,12 +159,17 @@ class Photo extends Model
     /**
      * Smart URL generation - returns direct URL for public buckets, signed URL for private
      */
-    protected function getSmartUrl(string $path): string
+    protected function getSmartUrl(string $path): ?string
     {
+        if (empty($path)) {
+            return null;
+        }
+
+        // Handle seed data
         if (str_starts_with($path, 'seed/')) {
             return "https://picsum.photos/{$path}";
         }
-        
+
         $storage = Storage::disk($this->disk);
 
         // Check if bucket is configured as public
@@ -171,7 +188,7 @@ class Photo extends Model
             }
         }
 
-        // Fix MinIO internal hostname
+        // Fix MinIO URL
         return $this->fixMinioUrl($url);
     }
 
@@ -229,17 +246,15 @@ class Photo extends Model
      */
     protected function fixMinioUrl(string $url): string
     {
-        $disk = $this->disk;
-
-        // Get MinIO configuration
-        $endpoint = config("filesystems.disks.{$disk}.endpoint");
-        $publicUrl = config("filesystems.disks.{$disk}.url");
+        // Get disk configuration
+        $endpoint = config("filesystems.disks.{$this->disk}.endpoint");
+        $publicUrl = config("filesystems.disks.{$this->disk}.url");
 
         if (!$endpoint || !$publicUrl) {
             return $url;
         }
 
-        // Extract internal hostname from endpoint
+        // Parse internal endpoint (e.g., http://minio:9000)
         $internalHost = parse_url($endpoint, PHP_URL_HOST);
         $internalPort = parse_url($endpoint, PHP_URL_PORT);
         $internalScheme = parse_url($endpoint, PHP_URL_SCHEME);
@@ -254,7 +269,7 @@ class Photo extends Model
             $internalUrl .= ':' . $internalPort;
         }
 
-        // Extract public hostname
+        // Parse public URL (e.g., http://localhost:9000)
         $publicHost = parse_url($publicUrl, PHP_URL_HOST);
         $publicPort = parse_url($publicUrl, PHP_URL_PORT);
         $publicScheme = parse_url($publicUrl, PHP_URL_SCHEME) ?? 'http';
@@ -263,14 +278,16 @@ class Photo extends Model
             return $url;
         }
 
-        // Build public URL
+        // Build public URL base
         $publicUrlBase = $publicScheme . '://' . $publicHost;
         if ($publicPort) {
             $publicUrlBase .= ':' . $publicPort;
         }
 
         // Replace internal URL with public URL
-        return str_replace($internalUrl, $publicUrlBase, $url);
+        $fixedUrl = str_replace($internalUrl, $publicUrlBase, $url);
+
+        return $fixedUrl;
     }
 
     /**
@@ -285,42 +302,33 @@ class Photo extends Model
             $this->attributes['large_path'] ?? null,
         ]);
 
-        if (empty($paths)) {
-            return true;
-        }
+        $storage = Storage::disk($this->disk);
+        $success = true;
 
-        try {
-            $storage = Storage::disk($this->disk);
-
-            foreach ($paths as $path) {
+        foreach ($paths as $path) {
+            try {
                 if ($storage->exists($path)) {
                     $storage->delete($path);
                 }
+            } catch (\Exception $e) {
+                $success = false;
+                \Log::warning('Failed to delete photo file', [
+                    'photo_id' => $this->id,
+                    'path' => $path,
+                    'error' => $e->getMessage(),
+                ]);
             }
-
-            return true;
-        } catch (\Exception $e) {
-            \Log::error('Failed to delete photo files', [
-                'photo_id' => $this->id,
-                'error' => $e->getMessage(),
-            ]);
-            return false;
         }
+
+        return $success;
     }
 
     /**
-     * Boot method - Auto-delete files on force delete
+     * Boot method - auto delete files when model is deleted
      */
-    protected static function boot()
+    protected static function booted(): void
     {
-        parent::boot();
-
-        static::deleting(function ($photo) {
-            // Only delete files on force delete (permanent deletion)
-            if (!$photo->isForceDeleting()) {
-                return;
-            }
-
+        static::deleting(function (Photo $photo) {
             $photo->deleteAllFiles();
         });
     }

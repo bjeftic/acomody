@@ -49,129 +49,98 @@ $doUseSingleBucket = env('DO_USE_SINGLE_BUCKET', false);
 $doRegion = env('DO_SPACES_REGION', 'nyc3');
 $doBucket = env('DO_SPACES_BUCKET', 'booking-platform');
 
-/*
-|--------------------------------------------------------------------------
-| Assets and CDN Configuration
-|--------------------------------------------------------------------------
-*/
+// Optional: CDN Configuration
+$cdnUrl = env('CDN_URL');
 
-$assets = [];
-$cdn = [];
+// Asset disk configuration (for static assets like images, CSS, JS)
+$assets = null;
+if ($awsKeyAssets && $awsSecretAssets) {
+    $assets = [
+        'driver' => 's3',
+        'key' => $awsKeyAssets,
+        'secret' => $awsSecretAssets,
+        'region' => $awsRegion,
+        'bucket' => $awsBucketAssets,
+        'url' => env('AWS_ASSETS_URL'),
+        'visibility' => 'public',
+        'throw' => false,
+    ];
+}
 
-if ($appVersion) {
-    if ($awsBucketAssets) {
-        $assets = [
-            'driver' => 's3',
-            'root' => "/assets/$appVersion",
-            'key' => $awsKeyAssets,
-            'secret' => $awsSecretAssets,
-            'region' => $awsRegion,
-            'bucket' => $awsBucketAssets,
-            'url' => env('AWS_ASSETS_URL'),
-            'visibility' => 'public',
-            'throw' => false,
-        ];
-    }
-
-    if (env('AWS_CLOUDFRONT_URL')) {
-        $cdn = [
-            'driver' => 'cdn',
-            'path' => "/assets/$appVersion",
-            'base' => env('AWS_CLOUDFRONT_URL'),
-        ];
-    }
+// CDN disk configuration
+$cdn = null;
+if ($cdnUrl) {
+    $cdn = [
+        'driver' => 's3',
+        'key' => $awsKey,
+        'secret' => $awsSecret,
+        'region' => $awsRegion,
+        'bucket' => $awsBucket,
+        'url' => $cdnUrl,
+        'visibility' => 'public',
+        'throw' => false,
+    ];
 }
 
 /*
 |--------------------------------------------------------------------------
-| Buckets Configuration for Booking Platform
+| Bucket Definitions
 |--------------------------------------------------------------------------
+|
+| Define all storage buckets used in the application.
+| Format: 'bucket_name' => [config] or 'bucket_name' => true/false (public/private)
+|
 */
 
 $buckets = [
     // ==========================================
-    // ACCOMMODATION RELATED BUCKETS
+    // ACCOMMODATION PHOTOS
     // ==========================================
 
     'accommodation_draft_photos' => [
         'public' => true,
-        'description' => 'Temporary photos during accommodation creation (auto-deleted after 7 days)',
-        'retention' => 7,
+        'description' => 'Temporary photos for accommodation drafts (pending approval)',
+        'retention' => 30, // Auto-delete after 30 days
         'visibility' => 'public',
     ],
 
     'accommodation_photos' => [
         'public' => true,
-        'description' => 'Published accommodation photos (main listings)',
-        'visibility' => 'public',
-    ],
-
-    'accommodation_thumbnails' => [
-        'public' => true,
-        'description' => 'Optimized thumbnails for accommodation photos',
-        'visibility' => 'public',
-    ],
-
-    'accommodation_documents' => [
-        'public' => false,
-        'description' => 'Private documents (licenses, certificates, contracts)',
-        'visibility' => 'private',
-    ],
-
-    'accommodation_floor_plans' => [
-        'public' => true,
-        'description' => 'Floor plans and layout diagrams',
-        'visibility' => 'public',
-    ],
-
-    'accommodation_360_photos' => [
-        'public' => true,
-        'description' => '360-degree virtual tour photos',
+        'description' => 'Approved accommodation photos (public access)',
         'visibility' => 'public',
     ],
 
     // ==========================================
-    // USER RELATED BUCKETS
+    // USER CONTENT
     // ==========================================
 
-    'user_avatars' => [
+    'user_profile_photos' => [
         'public' => true,
-        'description' => 'User profile photos and avatars',
+        'description' => 'User profile pictures',
         'visibility' => 'public',
     ],
 
     'user_documents' => [
         'public' => false,
-        'description' => 'Private user documents',
-        'visibility' => 'private',
-    ],
-
-    'user_verification_documents' => [
-        'public' => false,
-        'description' => 'Identity verification documents (passport, ID, etc.)',
-        'retention' => 90,
+        'description' => 'User identity documents (KYC)',
         'visibility' => 'private',
     ],
 
     // ==========================================
-    // BOOKING RELATED BUCKETS
+    // BOOKING RELATED
     // ==========================================
 
     'booking_receipts' => [
         'public' => false,
-        'description' => 'Booking receipts and confirmations',
+        'description' => 'Booking receipts and invoices',
+        'retention' => 2555, // 7 years (legal requirement)
         'visibility' => 'private',
     ],
 
-    'booking_invoices' => [
-        'public' => false,
-        'description' => 'Payment invoices',
-        'visibility' => 'private',
-    ],
-
-    'booking_contracts' => [
+    'contracts' => [
         'public' => false,
         'description' => 'Rental agreements and contracts',
+        'retention' => 2555, // 7 years
         'visibility' => 'private',
     ],
 
@@ -181,80 +150,75 @@ $buckets = [
 
     'review_photos' => [
         'public' => true,
-        'description' => 'Guest review photos',
-        'visibility' => 'public',
-    ],
-
-    'review_thumbnails' => [
-        'public' => true,
-        'description' => 'Thumbnails for review photos',
+        'description' => 'Photos attached to guest reviews',
         'visibility' => 'public',
     ],
 
     // ==========================================
-    // HOST/COMPANY RELATED
-    // ==========================================
-
-    'host_documents' => [
-        'public' => false,
-        'description' => 'Host verification and business documents',
-        'visibility' => 'private',
-    ],
-
-    'company_documents' => [
-        'public' => false,
-        'description' => 'Company registration and legal documents',
-        'visibility' => 'private',
-    ],
-
-    'host_verification_documents' => [
-        'public' => false,
-        'description' => 'Host identity and business verification',
-        'retention' => 90,
-        'visibility' => 'private',
-    ],
-
-    'company_logos' => [
-        'public' => true,
-        'description' => 'Company and property manager logos',
-        'visibility' => 'public',
-    ],
-
-    // ==========================================
-    // MESSAGING AND COMMUNICATION
+    // MESSAGING
     // ==========================================
 
     'message_attachments' => [
         'public' => false,
-        'description' => 'Files attached to messages between guests and hosts',
-        'retention' => 365,
+        'description' => 'Files sent through messaging system',
+        'retention' => 365, // 1 year
         'visibility' => 'private',
     ],
 
     // ==========================================
-    // PAYMENT RELATED
+    // PAYMENTS
     // ==========================================
 
     'payment_receipts' => [
         'public' => false,
         'description' => 'Payment transaction receipts',
+        'retention' => 2555, // 7 years
         'visibility' => 'private',
     ],
 
-    'payment_disputes' => [
+    'payout_documents' => [
         'public' => false,
-        'description' => 'Payment dispute documentation',
+        'description' => 'Host payout documentation',
+        'retention' => 2555, // 7 years
         'visibility' => 'private',
     ],
 
     // ==========================================
-    // SYSTEM BUCKETS
+    // VERIFICATION
+    // ==========================================
+
+    'verification_documents' => [
+        'public' => false,
+        'description' => 'Host verification documents',
+        'visibility' => 'private',
+    ],
+
+    // ==========================================
+    // SUPPORT
+    // ==========================================
+
+    'support_attachments' => [
+        'public' => false,
+        'description' => 'Customer support ticket attachments',
+        'retention' => 365, // 1 year
+        'visibility' => 'private',
+    ],
+
+    'dispute_evidence' => [
+        'public' => false,
+        'description' => 'Evidence files for disputes',
+        'retention' => 730, // 2 years
+        'visibility' => 'private',
+    ],
+
+    // ==========================================
+    // SYSTEM
     // ==========================================
 
     'temp' => [
         'public' => false,
-        'description' => 'Temporary files (processing, uploads, etc.)',
-        'retention' => 1,
+        'description' => 'Temporary files for processing (e.g., queued uploads)',
+        'retention' => 1, // Auto-delete after 1 day
         'visibility' => 'private',
     ],
 
@@ -406,6 +370,7 @@ foreach ($buckets as $bucketName => $config) {
     }
     elseif ($driver === 'digitalocean') {
         if ($doUseSingleBucket) {
+            // Single Space strategy with prefixes
             $disk += [
                 'driver' => 's3',
                 'key' => env('DO_SPACES_KEY'),
@@ -414,13 +379,14 @@ foreach ($buckets as $bucketName => $config) {
                 'bucket' => $doBucket,
                 'prefix' => $bucketName,
                 'endpoint' => "https://$doRegion.digitaloceanspaces.com",
-                'url' => "https://$doBucket.$doRegion.digitaloceanspaces.com/$bucketName",
+                'url' => env('DO_SPACES_URL') ? env('DO_SPACES_URL') . "/$bucketName" : null,
                 'use_path_style_endpoint' => false,
                 'use_single_bucket' => true,
                 'visibility' => $isPublic ? 'public' : 'private',
                 'throw' => false,
             ];
         } else {
+            // Multiple Spaces strategy
             $disk += [
                 'driver' => 's3',
                 'key' => env('DO_SPACES_KEY'),
@@ -428,7 +394,7 @@ foreach ($buckets as $bucketName => $config) {
                 'region' => $doRegion,
                 'bucket' => $bucketName,
                 'endpoint' => "https://$doRegion.digitaloceanspaces.com",
-                'url' => "https://$bucketName.$doRegion.digitaloceanspaces.com",
+                'url' => "https://{$bucketName}.{$doRegion}.digitaloceanspaces.com",
                 'use_path_style_endpoint' => false,
                 'use_single_bucket' => false,
                 'visibility' => $isPublic ? 'public' : 'private',

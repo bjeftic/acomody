@@ -11,11 +11,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Services\UserService;
+use Exception;
 
 class UserController extends Controller
 {
     protected UserService $userService;
-    
+
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;

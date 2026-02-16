@@ -215,7 +215,33 @@ return [
     'environments' => [
         'production' => [
             'supervisor-1' => [
+                'connection' => 'redis',
+                'queue' => ['default'],
+                'balance' => 'auto',
+                'autoScalingStrategy' => 'time',
                 'maxProcesses' => 10,
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 128,
+                'tries' => 3,
+                'timeout' => 90,
+                'nice' => 0,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            // Dedicated supervisor for photo processing
+            'supervisor-photos' => [
+                'connection' => 'redis',
+                'queue' => ['photo-processing'],
+                'balance' => 'auto',
+                'autoScalingStrategy' => 'time',
+                'maxProcesses' => 5, // Process multiple photos in parallel
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 256, // More memory for image processing
+                'tries' => 3,
+                'timeout' => 120, // Longer timeout for image processing
+                'nice' => 0,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -233,6 +259,20 @@ return [
                 'memory' => 128,
                 'tries' => 3,
                 'timeout' => 90,
+                'nice' => 0,
+            ],
+            // Dedicated supervisor for photo processing (local)
+            'supervisor-photos' => [
+                'connection' => 'redis',
+                'queue' => ['photo-processing'],
+                'balance' => 'auto',
+                'autoScalingStrategy' => 'time',
+                'maxProcesses' => 2, // Lower for local dev
+                'maxTime' => 0,
+                'maxJobs' => 0,
+                'memory' => 256,
+                'tries' => 3,
+                'timeout' => 120,
                 'nice' => 0,
             ],
         ],
