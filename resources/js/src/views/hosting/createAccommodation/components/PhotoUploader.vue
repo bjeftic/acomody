@@ -31,7 +31,9 @@
 
                 <!-- Text -->
                 <div>
-                    <p class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    <p
+                        class="text-lg font-medium text-gray-900 dark:text-white mb-2"
+                    >
                         Drag your photos here
                     </p>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -57,7 +59,8 @@
 
                 <!-- Info Text -->
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Maximum {{ maxPhotos }} photos • JPG, PNG or WebP • Max {{ formatFileSize(maxFileSize) }} each
+                    Maximum {{ maxPhotos }} photos • JPG, PNG or WebP • Max
+                    {{ formatFileSize(maxFileSize) }} each
                 </p>
             </div>
         </div>
@@ -89,8 +92,12 @@
                         >
                             <!-- Photo -->
                             <img
-                                v-if="element.urls?.thumbnail || element.preview"
-                                :src="element.urls?.thumbnail || element.preview"
+                                v-if="
+                                    element.urls?.thumbnail || element.preview
+                                "
+                                :src="
+                                    element.urls?.thumbnail || element.preview
+                                "
                                 :alt="`Photo ${index + 1}`"
                                 class="w-full h-full object-cover"
                                 @error="handleImageError"
@@ -101,8 +108,18 @@
                                 v-else
                                 class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700"
                             >
-                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                <svg
+                                    class="w-12 h-12 text-gray-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    />
                                 </svg>
                             </div>
 
@@ -253,7 +270,10 @@ export default {
             deep: true,
             handler(newPhotos) {
                 // Only update if different to avoid infinite loops
-                if (JSON.stringify(newPhotos) !== JSON.stringify(this.localPhotos)) {
+                if (
+                    JSON.stringify(newPhotos) !==
+                    JSON.stringify(this.localPhotos)
+                ) {
                     this.localPhotos = [...newPhotos];
                 }
             },
@@ -273,7 +293,7 @@ export default {
 
         async loadPhotos() {
             if (!this.accommodationDraftId) {
-                console.warn('No accommodationDraftId provided');
+                console.warn("No accommodationDraftId provided");
                 return;
             }
 
@@ -281,8 +301,8 @@ export default {
             try {
                 await this.fetchPhotos(this.accommodationDraftId);
             } catch (error) {
-                console.error('Failed to load photos:', error);
-                this.$emit('error', 'Failed to load existing photos.');
+                console.error("Failed to load photos:", error);
+                this.$emit("error", "Failed to load existing photos.");
             } finally {
                 this.isLoading = false;
             }
@@ -304,7 +324,7 @@ export default {
             if (this.localPhotos.length + files.length > this.maxPhotos) {
                 this.$emit(
                     "error",
-                    `You can only upload a maximum of ${this.maxPhotos} photos.`
+                    `You can only upload a maximum of ${this.maxPhotos} photos.`,
                 );
                 return;
             }
@@ -313,7 +333,7 @@ export default {
                 if (!file.type.match("image/(jpeg|jpg|png|webp)")) {
                     this.$emit(
                         "error",
-                        `${file.name} is not a valid image format. Please use JPG, PNG or WebP.`
+                        `${file.name} is not a valid image format. Please use JPG, PNG or WebP.`,
                     );
                     return;
                 }
@@ -322,8 +342,8 @@ export default {
                     this.$emit(
                         "error",
                         `${file.name} is too large. Maximum size is ${this.formatFileSize(
-                            this.maxFileSize
-                        )}.`
+                            this.maxFileSize,
+                        )}.`,
                     );
                     return;
                 }
@@ -355,7 +375,9 @@ export default {
                 this.uploadPhoto({ draftId: this.accommodationDraftId, file })
                     .then((response) => {
                         // Find the photo by tmpId and update it
-                        const photoIndex = this.localPhotos.findIndex(p => p.tmpId === photo.tmpId);
+                        const photoIndex = this.localPhotos.findIndex(
+                            (p) => p.tmpId === photo.tmpId,
+                        );
                         if (photoIndex !== -1) {
                             this.localPhotos[photoIndex] = {
                                 ...this.localPhotos[photoIndex],
@@ -370,21 +392,22 @@ export default {
                             this.$emit("update:photos", [...this.localPhotos]);
                         }
                     })
-                    .catch((error) => {
-                        console.error('Upload failed:', error);
-
-                        // Remove failed photo from list
-                        const photoIndex = this.localPhotos.findIndex(p => p.tmpId === photo.tmpId);
-                        if (photoIndex !== -1) {
-                            this.localPhotos.splice(photoIndex, 1);
-                            this.$emit("update:photos", [...this.localPhotos]);
+                    .catch((response) => {
+                        let errorMessage = `Failed to upload ${file.name}.`;
+                        if (
+                            response.error?.validation_errors?.length > 0
+                        ) {
+                            errorMessage =
+                                response.error?.validation_errors[0]
+                                    .message;
                         }
 
-                        // Show error
-                        const errorMessage = error?.response?.data?.message
-                            || error?.message
-                            || `Failed to upload ${file.name}`;
                         this.$emit("error", errorMessage);
+
+                        const filteredPhotos = this.photos.filter(
+                            (p) => p.tmpId !== photo.tmpId,
+                        );
+                        this.$emit("update:photos", filteredPhotos);
                     });
             };
 
@@ -411,16 +434,19 @@ export default {
                 this.localPhotos.splice(index, 1);
                 this.$emit("update:photos", [...this.localPhotos]);
             } catch (error) {
-                console.error('Delete failed:', error);
-                this.$emit("error", `Failed to delete photo: ${error.message || 'Unknown error'}`);
+                console.error("Delete failed:", error);
+                this.$emit(
+                    "error",
+                    `Failed to delete photo: ${error.message || "Unknown error"}`,
+                );
             }
         },
 
         async handleReorder() {
             // Filter out photos that don't have IDs yet (still uploading)
             const photoIds = this.localPhotos
-                .filter(photo => photo.id)
-                .map(photo => photo.id);
+                .filter((photo) => photo.id)
+                .map((photo) => photo.id);
 
             if (photoIds.length === 0) {
                 return;
@@ -435,8 +461,11 @@ export default {
                 // Update parent
                 this.$emit("update:photos", [...this.localPhotos]);
             } catch (error) {
-                console.error('Reorder failed:', error);
-                this.$emit("error", `Failed to reorder photos: ${error.message || 'Unknown error'}`);
+                console.error("Reorder failed:", error);
+                this.$emit(
+                    "error",
+                    `Failed to reorder photos: ${error.message || "Unknown error"}`,
+                );
 
                 // Reload photos to get correct order
                 await this.loadPhotos();
@@ -444,7 +473,7 @@ export default {
         },
 
         handleImageError(event) {
-            console.error('Image failed to load:', event.target.src);
+            console.error("Image failed to load:", event.target.src);
             // You could set a fallback image here
         },
 
