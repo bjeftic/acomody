@@ -37,7 +37,8 @@ class AccommodationResource extends JsonResource
             'max_guests' => $this->max_guests,
             'title' => $this->title,
             'description' => $this->description,
-            'amenities' => json_decode($this->amenities, true) ?? [],
+            'amenities' => AmenityResource::collection($this->whenLoaded('amenities')),
+            'photos' => PhotoResource::collection($this->whenLoaded('photos')),
             'views_count' => $this->views_count,
             'favorites_count' => $this->favorites_count,
         ];

@@ -179,13 +179,15 @@ export default {
             "updatePageInURL",
             "getFilters",
         ]),
+        ...mapActions("accommodation", ["clearAccommodation"]),
 
         handleCardHover(cardId) {
             this.hoveredCardId = cardId;
         },
 
         handleCardClick(accommodation) {
-            this.$router.push(`/accommodation/${accommodation.id}`);
+            this.clearAccommodation();
+            this.$router.push(`/accommodations/${accommodation.id}`);
         },
 
         handleResize() {

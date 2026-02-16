@@ -51,7 +51,23 @@ class Accommodation extends Model
 
     public function canBeReadBy($user): bool
     {
-        return true;
+        // Public accommodations: approved and active - accessible to everyone (including guests)
+        if (!is_null($this->approved_by) && $this->is_active) {
+            return true;
+        }
+
+        // Owner can always view their own accommodation (even if not approved/active)
+        if ($user && $user->id === $this->user_id) {
+            return true;
+        }
+
+        // Admin who approved it can view
+        if ($user && $this->approved_by && $user->id === $this->approved_by) {
+            return true;
+        }
+
+        // Otherwise, not readable
+        return false;
     }
 
     public function canBeCreatedBy($user): bool
@@ -285,13 +301,13 @@ class Accommodation extends Model
     public function photos(): MorphMany
     {
         return $this->morphMany(Photo::class, 'photoable')
-                    ->orderBy('order');
+            ->orderBy('order');
     }
 
     public function primaryPhoto(): MorphOne
     {
         return $this->morphOne(Photo::class, 'photoable')
-                    ->where('is_primary', true);
+            ->where('is_primary', true);
     }
 
     /**

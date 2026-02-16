@@ -26,14 +26,37 @@ trait Authorizable
      */
     protected static function registerAuthorizationEvents(): void
     {
-        $user = auth()->user();
+        // Before retrieving (for single model retrieval)
+        static::retrieved(function ($model) {
+            $user = Auth::user();
 
-        if (is_null($user) || !$user->is_superadmin) {
-            return;
-        }
+            // Special case: User model when not authenticated
+            if ($model instanceof User && !Auth::check()) {
+                return;
+            }
+
+            // Superadmin bypasses all checks
+            if ($user && $user->is_superadmin) {
+                return;
+            }
+
+            // Check authorization
+            if (!$model->canBeReadBy($user)) {
+                throw new AccessDeniedHttpException(
+                    'You are not authorized to view this ' . class_basename(static::class) . '.'
+                );
+            }
+        });
 
         // Before creating
-        static::creating(function ($model) use ($user) {
+        static::creating(function ($model) {
+            $user = Auth::user();
+
+            // Superadmin bypasses all checks
+            if ($user && $user->is_superadmin) {
+                return;
+            }
+
             if (!$model->canBeCreatedBy($user)) {
                 throw new AccessDeniedHttpException(
                     'You are not authorized to create ' . class_basename(static::class) . '.'
@@ -42,17 +65,16 @@ trait Authorizable
         });
 
         // Before updating
-        static::updating(function ($model) use ($user) {
+        static::updating(function ($model) {
             $user = Auth::user();
 
-            if ($model instanceof User) {
-                // If the model is a User, allow users to update their own record
-                if ($user && $user->id === $model->id) {
-                    return;
-                }
+            // Special case: User model - allow users to update their own record
+            if ($model instanceof User && $user && $user->id === $model->id) {
+                return;
             }
 
-            if (Auth::user()->is_superadmin) {
+            // Superadmin bypasses all checks
+            if ($user && $user->is_superadmin) {
                 return;
             }
 
@@ -64,43 +86,17 @@ trait Authorizable
         });
 
         // Before deleting
-        static::deleting(function ($model) use ($user) {
-            if (Auth::user()->is_superadmin) {
+        static::deleting(function ($model) {
+            $user = Auth::user();
+
+            // Superadmin bypasses all checks
+            if ($user && $user->is_superadmin) {
                 return;
             }
+
             if (!$model->canBeDeletedBy($user)) {
                 throw new AccessDeniedHttpException(
                     'You are not authorized to delete this ' . class_basename(static::class) . '.'
-                );
-            }
-        });
-
-        // Before retrieving (for single model retrieval)
-        static::retrieved(function ($model) use ($user) {
-
-            if ($model instanceof User && !Auth::check()) {
-                return;
-            }
-
-            if (Auth::user()->is_superadmin) {
-                return;
-            }
-
-            // Check if this was a single model retrieval (not from query)
-            // Only check if explicitly loaded via find(), first(), etc.
-            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 15);
-
-            // Check if called from route model binding or direct retrieval
-            $isDirectRetrieval = collect($backtrace)->contains(function ($trace) {
-                return isset($trace['class']) &&
-                    (str_contains($trace['class'], 'Router') ||
-                        str_contains($trace['class'], 'Controller') ||
-                        isset($trace['function']) && in_array($trace['function'], ['find', 'findOrFail', 'first', 'firstOrFail']));
-            });
-
-            if ($isDirectRetrieval && !$model->canBeReadBy($user)) {
-                throw new AccessDeniedHttpException(
-                    'You are not authorized to view this ' . class_basename(static::class) . '.'
                 );
             }
         });
@@ -170,14 +166,23 @@ trait Authorizable
 
     /**
      * Scope to automatically filter models by read authorization
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \App\Models\User|null $user
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeAuthorized($query, $user = null)
     {
-        $user = $user ?? auth()->user();
+        $user = $user ?? Auth::user();
 
-        // If it's a simple query, we can't easily filter by canBeReadBy
-        // So we'll just return the query and rely on retrieved event
+        // If user is superadmin, return all records
+        if ($user && $user->is_superadmin) {
+            return $query;
+        }
+
         // For complex filtering, implement custom scopeAuthorized in your model
+        // This is just a basic implementation that returns the query
+        // Individual models should override this for specific authorization logic
 
         return $query;
     }
