@@ -18,6 +18,7 @@ class AmenityResource extends JsonResource
      *     @OA\Property(property="icon", type="string", example="wifi"),
      *     @OA\Property(property="category", type="string", example="internet"),
      *     @OA\Property(property="is_feeable", type="boolean", example=false),
+     *     @OA\Property(property="is_highlighted", type="boolean", example=true),
      *     @OA\Property(property="is_active", type="boolean", example=true)
      * )
      */
@@ -30,6 +31,7 @@ class AmenityResource extends JsonResource
             'icon' => $this->icon,
             'category' => $this->category,
             'is_feeable' => $this->is_feeable,
+            'is_highlighted' => $this->is_highlighted,
             'is_active' => $this->is_active,
         ];
     }
