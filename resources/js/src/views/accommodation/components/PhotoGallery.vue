@@ -77,21 +77,9 @@
             <button
                 v-if="photos && photos.length > 0"
                 @click="openGallery(0)"
-                class="mt-4 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                class="flex mt-4 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-                <svg
-                    class="w-4 h-4 inline-block mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                </svg>
+                <IconLoader :name="'Image'" :size="20" class="mr-2 text-gray-700 dark:text-gray-300"/>
                 View all {{ photos.length }} photos
             </button>
         </div>
@@ -149,50 +137,11 @@
                 <p class="text-sm">No photos available</p>
             </div>
         </div>
-
-        <!-- Fullscreen Gallery Modal -->
-        <fwb-modal
-            v-if="showGalleryModal"
-            @close="closeGallery"
-            size="7xl"
-            :persistent="false"
-        >
-            <template #header>
-                <div class="flex items-center justify-between w-full">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        Photo {{ currentGalleryIndex + 1 }} of {{ photos.length }}
-                    </h3>
-                </div>
-            </template>
-
-            <template #body>
-                <div class="relative">
-                    <swiper
-                        :modules="modules"
-                        :slides-per-view="1"
-                        :space-between="0"
-                        :navigation="true"
-                        :initial-slide="currentGalleryIndex"
-                        @slideChange="onSlideChange"
-                        class="fullscreen-swiper"
-                    >
-                        <swiper-slide v-for="(photo, index) in photos" :key="index">
-                            <div class="flex items-center justify-center bg-gray-900" style="min-height: 60vh">
-                                <img
-                                    :src="photo.urls.original"
-                                    :alt="`Photo ${index + 1}`"
-                                    class="max-w-full max-h-[70vh] object-contain"
-                                />
-                            </div>
-                        </swiper-slide>
-                    </swiper>
-                </div>
-            </template>
-        </fwb-modal>
     </div>
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -214,22 +163,21 @@ export default {
     data() {
         return {
             modules: [Navigation, Pagination],
-            showGalleryModal: false,
             currentGalleryIndex: 0,
             currentSlide: 0,
         };
     },
     methods: {
+        ...mapActions(["openModal"]),
         openGallery(index) {
             this.currentGalleryIndex = index;
-            this.showGalleryModal = true;
-        },
-        closeGallery() {
-            this.showGalleryModal = false;
-        },
-        onSlideChange(swiper) {
-            this.currentGalleryIndex = swiper.activeIndex;
-            this.currentSlide = swiper.activeIndex;
+            this.openModal({
+                modalName: "photoGalleryModal",
+                options: {
+                    index: this.currentGalleryIndex,
+                    photos: this.photos,
+                }
+            });
         },
     },
 };
@@ -262,23 +210,5 @@ export default {
 
 .accommodation-swiper :deep(.swiper-pagination-bullet-active) {
     opacity: 1;
-}
-
-.fullscreen-swiper {
-    width: 100%;
-}
-
-.fullscreen-swiper :deep(.swiper-button-next),
-.fullscreen-swiper :deep(.swiper-button-prev) {
-    color: white;
-    background: rgba(0, 0, 0, 0.6);
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-}
-
-.fullscreen-swiper :deep(.swiper-button-next):after,
-.fullscreen-swiper :deep(.swiper-button-prev):after {
-    font-size: 20px;
 }
 </style>

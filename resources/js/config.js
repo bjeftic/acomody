@@ -6,6 +6,7 @@ export default {
         signUpModal: "sign-up-modal",
         forgotPasswordModal: "forgot-password-modal",
         filtersModal: "filters-modal",
+        photoGalleryModal: "photo-gallery-modal"
     },
     ui: {
         countries: runtimeConstants.countries,
