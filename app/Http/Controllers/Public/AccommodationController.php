@@ -19,7 +19,7 @@ class AccommodationController extends Controller
 
         return ApiResponse::success(
             'Accommodation retrieved successfully',
-            new AccommodationResource($accommodation->load('amenities', 'photos'))
+            new AccommodationResource($accommodation->load('amenities', 'photos', 'pricing'))
         );
     }
 }

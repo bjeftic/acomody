@@ -143,7 +143,7 @@
                 <!-- Price -->
                 <div class="text-sm">
                     <span class="font-bold text-gray-900 dark:text-white">
-                        {{ currency.symbol }}{{ formatPrice(accommodation.runded_price || accommodation.regular_price || accommodation.base_price_eur) }}
+                        {{ currency.symbol }}{{ formatPrice(accommodation.rounded_price || accommodation.regular_price || accommodation.base_price_eur) }}
                     </span>
                     <span class="text-xs text-gray-600 dark:text-gray-400 ml-1">
                         /night

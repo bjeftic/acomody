@@ -4,7 +4,7 @@
         :class="{ 'marker-pin-hovered': isHovered }"
     >
         <div class="marker-price">
-            {{ accommodation.runded_price }} {{ currency.symbol }}
+            {{ accommodation.rounded_price }} {{ currency.symbol }}
         </div>
     </div>
 </template>

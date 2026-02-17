@@ -52,6 +52,10 @@ class AccommodationFactory extends Factory
             'bedrooms' => fake()->numberBetween(1, 4),
             'beds' => fake()->numberBetween(1, 10),
             'bathrooms' => fake()->numberBetween(1, 2),
+            'check_in_from' => fake()->time(),
+            'check_in_until' => fake()->time(),
+            'quiet_hours_from' => fake()->time(),
+            'quiet_hours_until' => fake()->time(),
         ];
     }
 

@@ -6,7 +6,7 @@
         <div class="mb-6">
             <div class="flex items-baseline">
                 <span class="text-3xl font-bold text-gray-900 dark:text-white">
-                    €{{ accommodation.regular_price || accommodation.base_price || 0 }}
+                    €{{ accommodation.pricing.price }}
                 </span>
                 <span class="text-base text-gray-600 dark:text-gray-400 ml-2">
                     / night
@@ -96,7 +96,7 @@
             >
                 <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
                     <span>
-                        €{{ accommodation.regular_price || accommodation.base_price || 0 }} × {{ totalNights }} night{{ totalNights > 1 ? 's' : '' }}
+                        €{{ accommodation.pricing.price }} × {{ totalNights }} night{{ totalNights > 1 ? 's' : '' }}
                     </span>
                     <span>€{{ totalPrice }}</span>
                 </div>
