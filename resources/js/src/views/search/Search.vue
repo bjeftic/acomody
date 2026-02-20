@@ -187,7 +187,18 @@ export default {
 
         handleCardClick(accommodation) {
             this.clearAccommodation();
-            this.$router.push(`/accommodations/${accommodation.id}`);
+            const query = {
+                checkIn: this.checkInFromRoute || undefined,
+                checkOut: this.checkOutFromRoute || undefined,
+                adults: this.adultsFromRoute || undefined,
+                children: this.childrenFromRoute || undefined,
+                infants: this.infantsFromRoute || undefined,
+            };
+
+            this.$router.push({
+                path: `/accommodations/${accommodation.id}`,
+                query,
+            });
         },
 
         handleResize() {

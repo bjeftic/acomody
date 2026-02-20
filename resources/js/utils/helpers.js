@@ -40,6 +40,7 @@ export const formatPrice = (
     currency,
     showDecimals = true,
     display = "symbol",
+    rounding = "default", // "default" | "ceil" | "floor"
 ) => {
     if (amount === null || amount === undefined || isNaN(amount)) {
         return "";
@@ -61,7 +62,18 @@ export const formatPrice = (
     const number = Number(amount);
     const decimals = showDecimals ? decimal_places : 0;
 
-    const fixed = number.toFixed(decimals);
+    let roundedNumber;
+    if (rounding === "ceil") {
+        const factor = Math.pow(10, decimals);
+        roundedNumber = Math.ceil(number * factor) / factor;
+    } else if (rounding === "floor") {
+        const factor = Math.pow(10, decimals);
+        roundedNumber = Math.floor(number * factor) / factor;
+    } else {
+        roundedNumber = number;
+    }
+
+    const fixed = roundedNumber.toFixed(decimals);
     let [integerPart, decimalPart] = fixed.split(".");
 
     integerPart = integerPart.replace(

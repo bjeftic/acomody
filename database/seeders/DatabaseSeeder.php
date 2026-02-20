@@ -34,21 +34,27 @@ class DatabaseSeeder extends Seeder
             // Accommodation Drafts
             $this->command->info('Creating accommodation drafts...');
             $this->withProgressBar(150, function () {
-                AccommodationDraft::factory()->create();
+                AccommodationDraft::withoutAuthorization(function () {
+                    AccommodationDraft::factory()->create();
+                });
             });
             $this->command->newLine();
 
             // Locations
             $this->command->info('Creating locations...');
             $this->withProgressBar(100, function () {
-                Location::factory()->create();
+                Location::withoutAuthorization(function () {
+                    Location::factory()->create();
+                });
             });
             $this->command->newLine();
 
             // Accommodations
             $this->command->info('Creating accommodations...');
             $this->withProgressBar(5000, function () {
-                Accommodation::factory()->create();
+                Accommodation::withoutAuthorization(function () {
+                    Accommodation::factory()->create();
+                });
             });
             $this->command->newLine();
 

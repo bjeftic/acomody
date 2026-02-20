@@ -113,7 +113,7 @@ class Accommodation extends Model
             'rating' => (float) 0.0,
             'reviews_count' => (int) 0,
             'regular_price' => (float) ($this->pricing ? $this->pricing->base_price : 0.0),
-            'currency' => (string) ($this->pricing ? $this->pricing->currency : ''),
+            'currency' => (string) ($this->pricing ? $this->pricing->currency->code : ''),
             'base_price_eur' => (float) ($this->pricing ? $this->pricing->base_price_eur : 0.0),
             'seasonal_price' => (object) [], // this is also override_price, when this price is set for specific dates
             'bedrooms' => (int)  $this->bedrooms,

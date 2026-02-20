@@ -27,6 +27,7 @@ class FetchCurrencyRates extends Command
     public function handle()
     {
         $this->info("Fetching latest currency exchange rates...");
+
         $apiKey = config('services.exchangerate.api_key');
         if (empty($apiKey)) {
             $this->error("Exchange rate API key is not configured.");
@@ -34,8 +35,6 @@ class FetchCurrencyRates extends Command
         }
 
         $url = "https://v6.exchangerate-api.com/v6/{$apiKey}/latest/EUR";
-
-        $rates = [];
 
         try {
             $response = file_get_contents($url);
@@ -45,6 +44,7 @@ class FetchCurrencyRates extends Command
             }
 
             $data = json_decode($response, true);
+
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \Exception("Invalid JSON response from exchange rate API.");
             }
@@ -55,48 +55,49 @@ class FetchCurrencyRates extends Command
 
             $rates = $data['conversion_rates'];
         } catch (\Exception $e) {
-            Log::error("ExchangeService fetchRates error: " . $e->getMessage());
-            return [];
+            Log::error("FetchCurrencyRates error: " . $e->getMessage());
+            $this->error("Failed to fetch currency rates: " . $e->getMessage());
+            return 1;
         }
 
         if (empty($rates)) {
-            $this->error("Failed to fetch currency rates.");
+            $this->error("No rates returned from API.");
             return 1;
         }
-        // Here you would typically store the rates in the database or cache
-        $this->info("Successfully fetched currency rates.");
-        foreach ($rates as $currency => $rate) {
-            if($currency === 'EUR') {
-                continue; // Skip base currency
+
+        $this->info("Successfully fetched currency rates. Processing...");
+
+        Currency::withoutAuthorization(function () use ($rates) {
+            foreach ($rates as $code => $rate) {
+                if ($code === 'EUR') {
+                    continue;
+                }
+
+                $currency = Currency::where('code', $code)->where('is_active', true)->first();
+                if (!$currency) {
+                    continue;
+                }
+
+                // Deactivate previous rate
+                $currency->exchangeRates()
+                    ->where('is_active', true)
+                    ->update(['is_active' => false]);
+
+                // Create new rate
+                $currency->exchangeRates()->create([
+                    'from_currency' => 'EUR',
+                    'to_currency'   => $currency->code,
+                    'rate'          => $rate,
+                    'date'          => now()->toDateString(),
+                    'source'        => 'exchangerate-api',
+                    'is_active'     => true,
+                ]);
+
+                $this->line("1 EUR = {$rate} {$currency->code}");
             }
+        });
 
-            $currency = Currency::where('code', $currency)->first();
-            if (!$currency) {
-                continue;
-            }
-
-            if (!$currency->is_active) {
-                continue;
-            }
-
-            $lastRate = $currency->exchangeRates()->orderByDesc('date')->first();
-
-            $currency->exchangeRates()->create([
-                'from_currency' => 'EUR',
-                'to_currency' => $currency->code,
-                'rate' => $rate,
-                'date' => now()->format('Y-m-d'),
-                'source' => 'exchangerate-api',
-                'is_active' => true,
-            ]);
-
-            if($lastRate) {
-                $lastRate->is_active = false;
-                $lastRate->save();
-            }
-
-            $this->line("1 EUR = {$rate} {$currency->code}");
-        }
+        $this->info("Currency rates updated successfully.");
         return 0;
     }
 }

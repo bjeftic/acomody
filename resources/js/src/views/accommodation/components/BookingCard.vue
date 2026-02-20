@@ -6,7 +6,7 @@
         <div class="mb-6">
             <div class="flex items-baseline">
                 <span class="text-3xl font-bold text-gray-900 dark:text-white">
-                    €{{ accommodation.pricing.price }}
+                    {{ formatPrice(accommodation.pricing.base_price_in_user_currency.base_price, accommodation.pricing.base_price_in_user_currency.currency) }}
                 </span>
                 <span class="text-base text-gray-600 dark:text-gray-400 ml-2">
                     / night
@@ -74,18 +74,13 @@
 
             <!-- Guests Selector -->
             <div>
-                <label
-                    for="guests"
-                    class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
+                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                     GUESTS
                 </label>
-                <fwb-select
-                    id="guests"
+                <guests-dropdown
                     v-model="bookingForm.guests"
-                    :options="guestOptions"
-                    required
-                    class="w-full"
+                    :max-adults="accommodation.max_guests || 10"
+                    dropdown-class="left-0 right-0 w-full"
                 />
             </div>
 
@@ -96,22 +91,22 @@
             >
                 <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
                     <span>
-                        €{{ accommodation.pricing.price }} × {{ totalNights }} night{{ totalNights > 1 ? 's' : '' }}
+                        {{ formatPrice(pricePerNight, priceCurrency) }} × {{ totalNights }} night{{ totalNights > 1 ? 's' : '' }}
                     </span>
-                    <span>€{{ totalPrice }}</span>
+                    <span>{{ formatPrice(totalPrice, priceCurrency) }}</span>
                 </div>
                 <div
                     v-if="serviceFee > 0"
                     class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
                 >
                     <span>Service fee</span>
-                    <span>€{{ serviceFee }}</span>
+                    <span>{{ formatPrice(serviceFee, priceCurrency) }}</span>
                 </div>
                 <div
                     class="flex justify-between text-base font-semibold text-gray-900 dark:text-white pt-3 border-t border-gray-200 dark:border-gray-700"
                 >
                     <span>Total</span>
-                    <span>€{{ totalWithFees }}</span>
+                    <span>{{ formatPrice(totalWithFees, priceCurrency) }}</span>
                 </div>
             </div>
 
@@ -159,29 +154,43 @@
 </template>
 
 <script>
+import { formatPrice } from "@/utils/helpers";
+import GuestsDropdown from "@/src/components/common/GuestsDropdown.vue";
+
 export default {
     name: "BookingCard",
+
+    components: {
+        GuestsDropdown,
+    },
+
     props: {
         accommodation: {
             type: Object,
             required: true,
         },
     },
+
     data() {
         return {
             bookingForm: {
                 checkIn: "",
                 checkOut: "",
-                guests: 1,
+                guests: {
+                    adults: 2,
+                    children: 0,
+                    infants: 0,
+                },
             },
             isSubmitting: false,
         };
     },
+
     computed: {
         minCheckIn() {
-            const today = new Date();
-            return today.toISOString().split("T")[0];
+            return new Date().toISOString().split("T")[0];
         },
+
         minCheckOut() {
             if (!this.bookingForm.checkIn) {
                 const tomorrow = new Date();
@@ -192,90 +201,83 @@ export default {
             checkInDate.setDate(checkInDate.getDate() + 1);
             return checkInDate.toISOString().split("T")[0];
         },
-        guestOptions() {
-            const maxGuests = this.accommodation.max_guests || 10;
-            const options = [];
-            for (let i = 1; i <= maxGuests; i++) {
-                options.push({
-                    value: i,
-                    name: `${i} guest${i > 1 ? "s" : ""}`,
-                });
-            }
-            return options;
+
+        pricePerNight() {
+            return this.accommodation.pricing?.base_price_in_user_currency?.base_price || 0;
         },
+
+        priceCurrency() {
+            return this.accommodation.pricing?.base_price_in_user_currency?.currency || 'EUR';
+        },
+
         totalNights() {
-            if (!this.bookingForm.checkIn || !this.bookingForm.checkOut) {
-                return 0;
-            }
+            if (!this.bookingForm.checkIn || !this.bookingForm.checkOut) return 0;
             const checkIn = new Date(this.bookingForm.checkIn);
             const checkOut = new Date(this.bookingForm.checkOut);
-            const diffTime = Math.abs(checkOut - checkIn);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays;
+            return Math.ceil(Math.abs(checkOut - checkIn) / (1000 * 60 * 60 * 24));
         },
+
         totalPrice() {
-            const pricePerNight =
-                this.accommodation.regular_price ||
-                this.accommodation.base_price ||
-                0;
-            return (pricePerNight * this.totalNights).toFixed(2);
+            return parseFloat((this.pricePerNight * this.totalNights).toFixed(2));
         },
+
         serviceFee() {
-            // Calculate 10% service fee
-            return (this.totalPrice * 0.1).toFixed(2);
+            return parseFloat((this.totalPrice * 0.1).toFixed(2));
         },
+
         totalWithFees() {
-            return (
-                parseFloat(this.totalPrice) + parseFloat(this.serviceFee)
-            ).toFixed(2);
+            return parseFloat((this.totalPrice + this.serviceFee).toFixed(2));
         },
+
+        totalGuests() {
+            return this.bookingForm.guests.adults + this.bookingForm.guests.children;
+        },
+
         isFormValid() {
             return (
                 this.bookingForm.checkIn &&
                 this.bookingForm.checkOut &&
-                this.bookingForm.guests > 0 &&
+                this.totalGuests > 0 &&
                 this.totalNights > 0
             );
         },
     },
+
     methods: {
+        formatPrice,
+
         handleSubmit() {
-            if (!this.isFormValid) {
-                return;
-            }
+            if (!this.isFormValid) return;
 
             this.isSubmitting = true;
 
-            const bookingData = {
+            this.$emit("book", {
                 checkIn: this.bookingForm.checkIn,
                 checkOut: this.bookingForm.checkOut,
-                guests: this.bookingForm.guests,
+                guests: { ...this.bookingForm.guests },
                 nights: this.totalNights,
                 totalPrice: this.totalWithFees,
-            };
-
-            this.$emit("book", bookingData);
+            });
 
             setTimeout(() => {
                 this.isSubmitting = false;
             }, 2000);
         },
+
         contactHost() {
             // TODO: Implement contact host functionality
-            alert("Contact host feature will be implemented soon!");
+            this.$emit("contact-host");
         },
     },
+
     watch: {
         "bookingForm.checkIn"(newVal) {
-            // Auto-adjust checkout if it's before or same as check-in
             if (newVal && this.bookingForm.checkOut) {
                 const checkIn = new Date(newVal);
                 const checkOut = new Date(this.bookingForm.checkOut);
                 if (checkOut <= checkIn) {
                     checkIn.setDate(checkIn.getDate() + 1);
-                    this.bookingForm.checkOut = checkIn
-                        .toISOString()
-                        .split("T")[0];
+                    this.bookingForm.checkOut = checkIn.toISOString().split("T")[0];
                 }
             }
         },

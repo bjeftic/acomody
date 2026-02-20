@@ -10,15 +10,31 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 trait Authorizable
 {
     /**
+     * Static flag to bypass authorization checks (e.g. for console commands)
+     */
+    protected static bool $authorizationDisabled = false;
+
+    /**
      * Boot the authorizable trait for a model.
      */
     public static function bootAuthorizable(): void
     {
-        // Validate that all required methods exist
         static::validateAuthorizableMethods();
-
-        // Automatically check authorization on model events
         static::registerAuthorizationEvents();
+    }
+
+    /**
+     * Execute a callback without authorization checks
+     */
+    public static function withoutAuthorization(callable $callback): mixed
+    {
+        static::$authorizationDisabled = true;
+
+        try {
+            return $callback();
+        } finally {
+            static::$authorizationDisabled = false;
+        }
     }
 
     /**
@@ -26,8 +42,11 @@ trait Authorizable
      */
     protected static function registerAuthorizationEvents(): void
     {
-        // Before retrieving (for single model retrieval)
         static::retrieved(function ($model) {
+            if (static::$authorizationDisabled) {
+                return;
+            }
+
             $user = Auth::user();
 
             // Special case: User model when not authenticated
@@ -40,7 +59,6 @@ trait Authorizable
                 return;
             }
 
-            // Check authorization
             if (!$model->canBeReadBy($user)) {
                 throw new AccessDeniedHttpException(
                     'You are not authorized to view this ' . class_basename(static::class) . '.'
@@ -48,8 +66,11 @@ trait Authorizable
             }
         });
 
-        // Before creating
         static::creating(function ($model) {
+            if (static::$authorizationDisabled) {
+                return;
+            }
+
             $user = Auth::user();
 
             // Superadmin bypasses all checks
@@ -64,8 +85,11 @@ trait Authorizable
             }
         });
 
-        // Before updating
         static::updating(function ($model) {
+            if (static::$authorizationDisabled) {
+                return;
+            }
+
             $user = Auth::user();
 
             // Special case: User model - allow users to update their own record
@@ -85,8 +109,11 @@ trait Authorizable
             }
         });
 
-        // Before deleting
         static::deleting(function ($model) {
+            if (static::$authorizationDisabled) {
+                return;
+            }
+
             $user = Auth::user();
 
             // Superadmin bypasses all checks
@@ -113,76 +140,52 @@ trait Authorizable
             'canBeReadBy',
             'canBeCreatedBy',
             'canBeUpdatedBy',
-            'canBeDeletedBy'
+            'canBeDeletedBy',
         ];
 
-        $missingMethods = [];
-
-        foreach ($requiredMethods as $method) {
-            if (!method_exists(static::class, $method)) {
-                $missingMethods[] = $method;
-            }
-        }
+        $missingMethods = array_filter(
+            $requiredMethods,
+            fn($method) => !method_exists(static::class, $method)
+        );
 
         if (!empty($missingMethods)) {
             throw new AuthorizationMethodMissingException(
                 static::class,
-                $missingMethods
+                array_values($missingMethods)
             );
         }
     }
 
     /**
      * Check if the user can read this resource
-     *
-     * @param \App\Models\User|null $user
-     * @return bool
      */
     abstract public function canBeReadBy($user): bool;
 
     /**
      * Check if the user can create this resource
-     *
-     * @param \App\Models\User|null $user
-     * @return bool
      */
     abstract public function canBeCreatedBy($user): bool;
 
     /**
      * Check if the user can update this resource
-     *
-     * @param \App\Models\User|null $user
-     * @return bool
      */
     abstract public function canBeUpdatedBy($user): bool;
 
     /**
      * Check if the user can delete this resource
-     *
-     * @param \App\Models\User|null $user
-     * @return bool
      */
     abstract public function canBeDeletedBy($user): bool;
 
     /**
      * Scope to automatically filter models by read authorization
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param \App\Models\User|null $user
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeAuthorized($query, $user = null)
     {
         $user = $user ?? Auth::user();
 
-        // If user is superadmin, return all records
         if ($user && $user->is_superadmin) {
             return $query;
         }
-
-        // For complex filtering, implement custom scopeAuthorized in your model
-        // This is just a basic implementation that returns the query
-        // Individual models should override this for specific authorization logic
 
         return $query;
     }

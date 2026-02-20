@@ -69,6 +69,12 @@ class Currency extends Model
         return $this->hasMany(ExchangeRate::class, 'to_currency', 'code');
     }
 
+
+    public function priceableItems(): HasMany
+    {
+        return $this->hasMany(PriceableItem::class);
+    }
+
     /**
      * Get current exchange rate to another currency
      */
