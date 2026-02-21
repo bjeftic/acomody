@@ -99,7 +99,7 @@ jobs:
         with:
           name: built-assets
           path: public/build/
-          
+
       - name: Setup env
         run: |
           cp .env.example .env.testing
@@ -157,7 +157,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519_acomody_staging
           chmod 600 ~/.ssh/id_ed25519_acomody_staging
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: Deploy
         run: |
