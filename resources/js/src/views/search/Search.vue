@@ -179,13 +179,26 @@ export default {
             "updatePageInURL",
             "getFilters",
         ]),
+        ...mapActions("accommodation", ["clearAccommodation"]),
 
         handleCardHover(cardId) {
             this.hoveredCardId = cardId;
         },
 
         handleCardClick(accommodation) {
-            this.$router.push(`/accommodation/${accommodation.id}`);
+            this.clearAccommodation();
+            const query = {
+                checkIn: this.checkInFromRoute || undefined,
+                checkOut: this.checkOutFromRoute || undefined,
+                adults: this.adultsFromRoute || undefined,
+                children: this.childrenFromRoute || undefined,
+                infants: this.infantsFromRoute || undefined,
+            };
+
+            this.$router.push({
+                path: `/accommodations/${accommodation.id}`,
+                query,
+            });
         },
 
         handleResize() {

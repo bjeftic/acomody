@@ -9,6 +9,7 @@ use App\Models\Location;
 use App\Enums\Accommodation\AccommodationType;
 use App\Models\Amenity;
 use App\Models\User;
+use App\Models\Currency;
 use App\Enums\Accommodation\AccommodationOccupation;
 use App\Enums\Accommodation\BookingType;
 use App\Models\PriceableItem;
@@ -52,6 +53,10 @@ class AccommodationFactory extends Factory
             'bedrooms' => fake()->numberBetween(1, 4),
             'beds' => fake()->numberBetween(1, 10),
             'bathrooms' => fake()->numberBetween(1, 2),
+            'check_in_from' => fake()->time(),
+            'check_in_until' => fake()->time(),
+            'quiet_hours_from' => fake()->time(),
+            'quiet_hours_until' => fake()->time(),
         ];
     }
 
@@ -69,20 +74,21 @@ class AccommodationFactory extends Factory
 
             $accommodation->accommodation_draft_id = $draft->id;
         })->afterCreating(function (Accommodation $accommodation) {
-            $currency = fake()->randomElement(['EUR', 'USD', 'RSD']);
+            $currencyCode = fake()->randomElement(['EUR', 'USD', 'RSD']);
+            $currency = Currency::where('code', $currencyCode)->first();
 
-            if ($currency === 'EUR' || $currency === 'USD') {
+            if ($currency->code === 'EUR' || $currency->code === 'USD') {
                 $price = fake()->numberBetween(30, 120);
-                $basePriceEur = $currency === 'EUR' ? $price : round($price / 1.1, 2);
+                $basePriceEur = $currency->code === 'EUR' ? $price : round($price / 1.1, 2);
             }
-            if ($currency === 'RSD') {
+            if ($currency->code === 'RSD') {
                 $price = fake()->numberBetween(3000, 12000);
                 $basePriceEur = round($price / 117, 2);
             }
             PriceableItem::create([
                 'pricing_type' => PricingType::NIGHTLY,
                 'base_price' => $price,
-                'currency' => $currency,
+                'currency_id' => $currency->id,
                 'base_price_eur' => $basePriceEur,
                 'priceable_type' => Accommodation::class,
                 'priceable_id' => $accommodation->id,

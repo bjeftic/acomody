@@ -175,131 +175,27 @@
                 </div>
 
                 <!-- Guests -->
-                <div
-                    ref="guestsField"
-                    class="flex-1 min-w-[160px] px-4 py-3 cursor-pointer relative"
-                    @click="toggleGuestsDropdown"
-                >
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-700">{{
-                            guestsDisplayText
-                        }}</span>
-                        <svg
-                            class="w-4 h-4 text-gray-400"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                d="M7.41 8.84L12 13.42l4.59-4.58L18 10.25l-6 6-6-6z"
-                            />
-                        </svg>
-                    </div>
-
-                    <!-- Guests Dropdown -->
-                    <div
-                        v-if="showGuestsDropdown"
-                        ref="guestsDropdown"
-                        class="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-20"
-                        style="width: 320px"
-                        @click.stop
+                <div class="flex-1 min-w-[160px] px-4 py-3">
+                    <guests-dropdown
+                        v-model="guests"
+                        dropdown-class="right-0 w-80"
                     >
-                        <!-- Adults -->
-                        <div
-                            class="flex items-center justify-between py-4 border-b border-gray-100"
-                        >
-                            <div>
-                                <div class="font-semibold text-gray-800">
-                                    Adults
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    From 13 years and older
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <button
-                                    @click="decrementAdults"
-                                    :disabled="searchForm.adults <= 1"
-                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-900 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                        <template #trigger="{ toggle, displayText }">
+                            <div
+                                class="flex items-center justify-between cursor-pointer"
+                                @click="toggle"
+                            >
+                                <span class="text-gray-700">{{ displayText }}</span>
+                                <svg
+                                    class="w-4 h-4 text-gray-400"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
                                 >
-                                    -
-                                </button>
-                                <span class="w-5 text-center font-semibold">{{
-                                    searchForm.adults
-                                }}</span>
-                                <button
-                                    @click="incrementAdults"
-                                    :disabled="searchForm.adults >= 10"
-                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-900 transition disabled:opacity-30 disabled:cursor-not-allowed"
-                                >
-                                    +
-                                </button>
+                                    <path d="M7.41 8.84L12 13.42l4.59-4.58L18 10.25l-6 6-6-6z" />
+                                </svg>
                             </div>
-                        </div>
-
-                        <!-- Children -->
-                        <div
-                            class="flex items-center justify-between py-4 border-b border-gray-100"
-                        >
-                            <div>
-                                <div class="font-semibold text-gray-800">
-                                    Children
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    From 2 to 12 years
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <button
-                                    @click="decrementChildren"
-                                    :disabled="searchForm.children <= 0"
-                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-900 transition disabled:opacity-30 disabled:cursor-not-allowed"
-                                >
-                                    -
-                                </button>
-                                <span class="w-5 text-center font-semibold">{{
-                                    searchForm.children
-                                }}</span>
-                                <button
-                                    @click="incrementChildren"
-                                    :disabled="searchForm.children >= 10"
-                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-900 transition disabled:opacity-30 disabled:cursor-not-allowed"
-                                >
-                                    +
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Infants -->
-                        <div class="flex items-center justify-between py-4">
-                            <div>
-                                <div class="font-semibold text-gray-800">
-                                    Infants
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    Under 2 years
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <button
-                                    @click="decrementInfants"
-                                    :disabled="searchForm.infants <= 0"
-                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-900 transition disabled:opacity-30 disabled:cursor-not-allowed"
-                                >
-                                    -
-                                </button>
-                                <span class="w-5 text-center font-semibold">{{
-                                    searchForm.infants
-                                }}</span>
-                                <button
-                                    @click="incrementInfants"
-                                    :disabled="searchForm.infants >= 5"
-                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-900 transition disabled:opacity-30 disabled:cursor-not-allowed"
-                                >
-                                    +
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                        </template>
+                    </guests-dropdown>
                 </div>
 
                 <!-- Search Button -->
@@ -337,9 +233,15 @@
 <script>
 import { mapActions } from "vuex";
 import moment from "moment";
+import GuestsDropdown from "@/src/components/common/GuestsDropdown.vue";
 
 export default {
     name: "SearchBar",
+
+    components: {
+        GuestsDropdown,
+    },
+
     props: {
         initialLocationId: {
             type: [Number, String],
@@ -371,13 +273,13 @@ export default {
         },
         initialMapBounds: {
             type: Object,
-            default: {}
+            default: () => ({}),
         },
     },
+
     data() {
         return {
             validationMessage: "",
-            showGuestsDropdown: false,
             showCalendar: false,
             showLocationDropdown: false,
             locationSearchName: "",
@@ -394,65 +296,54 @@ export default {
                 location: null,
                 checkIn: null,
                 checkOut: null,
+                bounds: null,
+            },
+            // Guests kept as flat object, synced to/from GuestsDropdown via `guests` computed
+            guestsData: {
                 adults: 2,
                 children: 0,
                 infants: 0,
-                bounds: null,
             },
             localSearchResults: [],
             debounceTimer: null,
             weekDays: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-            months: [
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December",
-            ],
         };
     },
+
     computed: {
-        guestsDisplayText() {
-            const totalGuests =
-                this.searchForm.adults + this.searchForm.children;
-            let text = `${totalGuests} ${
-                totalGuests === 1 ? "guest" : "guests"
-            }`;
-            if (this.searchForm.infants > 0) {
-                text += `, ${this.searchForm.infants} ${
-                    this.searchForm.infants === 1 ? "infant" : "infants"
-                }`;
-            }
-            return text;
+        guests: {
+            get() {
+                return this.guestsData;
+            },
+            set(value) {
+                this.guestsData = value;
+            },
         },
+
         isFormValid() {
             return (
                 this.searchForm.location &&
                 this.searchForm.checkIn &&
                 this.searchForm.checkOut &&
-                this.searchForm.adults > 0 &&
+                this.guestsData.adults > 0 &&
                 this.searchForm.checkOut > this.searchForm.checkIn
             );
         },
     },
+
     mounted() {
         document.addEventListener("click", this.handleClickOutside);
         this.updateNextMonth();
         this.initializeFromProps();
     },
+
     beforeDestroy() {
         document.removeEventListener("click", this.handleClickOutside);
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
         }
     },
+
     methods: {
         ...mapActions("search", ["searchLocations"]),
 
@@ -474,9 +365,12 @@ export default {
                 this.searchForm.checkOut = moment(this.initialCheckOut, 'YYYY-MM-DD').valueOf();
             }
 
-            this.searchForm.adults = this.initialAdults || 2;
-            this.searchForm.children = this.initialChildren || 0;
-            this.searchForm.infants = this.initialInfants || 0;
+            this.guestsData = {
+                adults: this.initialAdults || 2,
+                children: this.initialChildren || 0,
+                infants: this.initialInfants || 0,
+            };
+
             this.searchForm.bounds = this.initialMapBounds;
         },
 
@@ -494,9 +388,7 @@ export default {
             this.showLocationDropdown = true;
             this.highlightedIndex = -1;
 
-            if (this.debounceTimer) {
-                clearTimeout(this.debounceTimer);
-            }
+            if (this.debounceTimer) clearTimeout(this.debounceTimer);
 
             if (this.locationSearchName.length > 0) {
                 this.debounceTimer = setTimeout(() => {
@@ -522,9 +414,7 @@ export default {
         },
 
         navigateUp() {
-            if (this.highlightedIndex > 0) {
-                this.highlightedIndex--;
-            }
+            if (this.highlightedIndex > 0) this.highlightedIndex--;
         },
 
         selectHighlighted() {
@@ -570,7 +460,7 @@ export default {
             const year = month.getFullYear();
             const monthIndex = month.getMonth();
             const firstDay = moment([year, monthIndex, 1]);
-            const startDate = firstDay.clone().startOf('week'); // Početak nedelje
+            const startDate = firstDay.clone().startOf('week');
 
             const days = [];
             const current = startDate.clone();
@@ -596,41 +486,25 @@ export default {
 
         getDayClasses(day) {
             const classes = [
-                "flex",
-                "items-center",
-                "justify-center",
-                "w-10",
-                "h-10",
-                "text-sm",
-                "transition",
+                "flex", "items-center", "justify-center",
+                "w-10", "h-10", "text-sm", "transition",
             ];
 
-            if (!day.isCurrentMonth) {
-                classes.push("text-gray-300", "cursor-not-allowed");
-                return classes.join(" ");
-            }
-
-            if (day.isPast) {
+            if (!day.isCurrentMonth || day.isPast) {
                 classes.push("text-gray-300", "cursor-not-allowed");
                 return classes.join(" ");
             }
 
             classes.push("cursor-pointer");
 
-            const dayTime = day.timestamp;
-            const checkInTime = this.searchForm.checkIn;
-            const checkOutTime = this.searchForm.checkOut;
+            const { timestamp } = day;
+            const { checkIn, checkOut } = this.searchForm;
 
-            if (checkInTime && dayTime === checkInTime) {
+            if (checkIn && timestamp === checkIn) {
                 classes.push("bg-gray-900", "text-white", "rounded-l-full");
-            } else if (checkOutTime && dayTime === checkOutTime) {
+            } else if (checkOut && timestamp === checkOut) {
                 classes.push("bg-gray-900", "text-white", "rounded-r-full");
-            } else if (
-                checkInTime &&
-                checkOutTime &&
-                dayTime > checkInTime &&
-                dayTime < checkOutTime
-            ) {
+            } else if (checkIn && checkOut && timestamp > checkIn && timestamp < checkOut) {
                 classes.push("bg-gray-100");
             } else {
                 classes.push("hover:bg-gray-100", "hover:rounded-full");
@@ -642,25 +516,17 @@ export default {
         selectDate(day) {
             if (day.isPast || !day.isCurrentMonth) return;
 
-            const timestamp = day.timestamp;
+            const { timestamp } = day;
 
-            if (
-                !this.searchForm.checkIn ||
-                (this.searchForm.checkIn && this.searchForm.checkOut)
-            ) {
+            if (!this.searchForm.checkIn || (this.searchForm.checkIn && this.searchForm.checkOut)) {
                 this.searchForm.checkIn = timestamp;
                 this.searchForm.checkOut = null;
-                this.selectionMode = "checkout";
-            } else if (this.searchForm.checkIn && !this.searchForm.checkOut) {
-                if (timestamp > this.searchForm.checkIn) {
-                    this.searchForm.checkOut = timestamp;
-                    setTimeout(() => {
-                        this.closeCalendar();
-                    }, 300);
-                } else {
-                    this.searchForm.checkIn = timestamp;
-                    this.searchForm.checkOut = null;
-                }
+            } else if (timestamp > this.searchForm.checkIn) {
+                this.searchForm.checkOut = timestamp;
+                setTimeout(() => this.closeCalendar(), 300);
+            } else {
+                this.searchForm.checkIn = timestamp;
+                this.searchForm.checkOut = null;
             }
         },
 
@@ -679,35 +545,6 @@ export default {
         clearDates() {
             this.searchForm.checkIn = null;
             this.searchForm.checkOut = null;
-            this.selectionMode = "checkin";
-        },
-
-        incrementAdults() {
-            if (this.searchForm.adults < 10) this.searchForm.adults++;
-        },
-
-        decrementAdults() {
-            if (this.searchForm.adults > 1) this.searchForm.adults--;
-        },
-
-        incrementChildren() {
-            if (this.searchForm.children < 10) this.searchForm.children++;
-        },
-
-        decrementChildren() {
-            if (this.searchForm.children > 0) this.searchForm.children--;
-        },
-
-        incrementInfants() {
-            if (this.searchForm.infants < 5) this.searchForm.infants++;
-        },
-
-        decrementInfants() {
-            if (this.searchForm.infants > 0) this.searchForm.infants--;
-        },
-
-        toggleGuestsDropdown() {
-            this.showGuestsDropdown = !this.showGuestsDropdown;
         },
 
         formatDate(timestamp) {
@@ -729,11 +566,7 @@ export default {
                 },
                 checkIn: moment(this.searchForm.checkIn).format('YYYY-MM-DD'),
                 checkOut: moment(this.searchForm.checkOut).format('YYYY-MM-DD'),
-                guests: {
-                    adults: this.searchForm.adults,
-                    children: this.searchForm.children,
-                    infants: this.searchForm.infants,
-                },
+                guests: { ...this.guestsData },
             });
         },
 
@@ -741,40 +574,21 @@ export default {
             if (
                 this.showLocationDropdown &&
                 this.$refs.locationDropdown &&
-                this.$refs.autocompleteField
+                this.$refs.autocompleteField &&
+                !this.$refs.locationDropdown.contains(event.target) &&
+                !this.$refs.autocompleteField.contains(event.target)
             ) {
-                if (
-                    !this.$refs.locationDropdown.contains(event.target) &&
-                    !this.$refs.autocompleteField.contains(event.target)
-                ) {
-                    this.showLocationDropdown = false;
-                }
+                this.showLocationDropdown = false;
             }
 
             if (
                 this.showCalendar &&
                 this.$refs.calendarDropdown &&
-                this.$refs.dateField
+                this.$refs.dateField &&
+                !this.$refs.calendarDropdown.contains(event.target) &&
+                !this.$refs.dateField.contains(event.target)
             ) {
-                if (
-                    !this.$refs.calendarDropdown.contains(event.target) &&
-                    !this.$refs.dateField.contains(event.target)
-                ) {
-                    this.showCalendar = false;
-                }
-            }
-
-            if (
-                this.showGuestsDropdown &&
-                this.$refs.guestsDropdown &&
-                this.$refs.guestsField
-            ) {
-                if (
-                    !this.$refs.guestsDropdown.contains(event.target) &&
-                    !this.$refs.guestsField.contains(event.target)
-                ) {
-                    this.showGuestsDropdown = false;
-                }
+                this.showCalendar = false;
             }
         },
     },

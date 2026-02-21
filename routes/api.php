@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Public\FilterController as PublicFilterController;
+use App\Http\Controllers\Public\AccommodationController as PublicAccommodationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -37,7 +38,11 @@ Route::post('/currency/set', [CurrencyController::class, 'set'])
 
 Route::prefix('public')->name('api.public')->group(function () {
     Route::get('filters', [PublicFilterController::class, 'index'])
-        ->name('api.filters');
+        ->name('filters');
+    Route::prefix('accommodation')->name('accommodation')->group(function () {
+        Route::get('{accommodation}', [PublicAccommodationController::class, 'show'])
+            ->name('show');
+    });
 });
 
 Route::prefix('search')->name('api.search')->group(function () {

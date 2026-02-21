@@ -28,6 +28,7 @@ export default {
                     adults: searchParams.guests.adults,
                     children: searchParams.guests.children,
                     infants: searchParams.guests.infants,
+                    sort_by: "price_asc",
                     page: 1
                 },
             });

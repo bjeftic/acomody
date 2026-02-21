@@ -12,7 +12,7 @@ use App\Models\User;
 use Illuminate\Queue\SerializesModels;
 use App\Enums\Accommodation\AccommodationOccupation;
 use App\Enums\PriceableItem\PricingType;
-use App\Models\Listing;
+use App\Models\Currency;
 use App\Models\Fee;
 use App\Services\CurrencyService;
 use App\Services\PricingService;
@@ -162,13 +162,13 @@ class CreateAccommodation
         ]);
 
         // 1. Create base pricing
-        $currency = $currencyService->getCurrencyByCountry($data['address']['country'])?->code ?? 'EUR';
+        $currency = $currencyService->getCurrencyByCountry($data['address']['country']) ?? Currency::where('code', 'EUR')->first();
 
         $pricingData = [
             'pricing_type' => PricingType::NIGHTLY,
             'base_price' => $pricing['basePrice'],
-            'currency' => $currency,
-            'base_price_eur' => calculatePriceInSettedCurrency($pricing['basePrice'], $currency, 'EUR'),
+            'currency_id' => $currency->id,
+            'base_price_eur' => calculatePriceInSettedCurrency($pricing['basePrice'], $currency->code, 'EUR'),
             'min_quantity' => $pricing['minNights'] ?? 1,
             'max_quantity' => $pricing['maxNights'] ?? null,
             'is_active' => true,

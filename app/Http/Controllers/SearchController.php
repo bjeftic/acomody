@@ -44,7 +44,7 @@ class SearchController extends Controller
         $sortBy = null;
 
         // sort by except location sort
-        $sortBy = $this->searchService->getSortByFilter($validated['sortBy'] ?? null);
+        $sortBy = $this->searchService->getSortByFilter($validated['sortBy'] ?? 'price_asc');
 
         if (!empty($validated['bounds'])) {
             // Coordinate-based search

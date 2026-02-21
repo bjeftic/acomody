@@ -6,6 +6,7 @@ import auth from "@/store/modules/auth";
 import user from "@/store/modules/user";
 import hosting from "@/store/modules/hosting";
 import search from "@/store/modules/search";
+import accommodation from "@/store/modules/accommodation";
 import ui from "@/store/modules/ui";
 
 const store = createStore({
@@ -18,6 +19,7 @@ const store = createStore({
         user,
         hosting,
         search,
+        accommodation,
         ui,
     }
 });

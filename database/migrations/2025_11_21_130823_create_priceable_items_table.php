@@ -30,7 +30,7 @@ return new class extends Migration
 
             // Base Pricing
             $table->decimal('base_price', 10, 2);
-            $table->string('currency', 3)->default('EUR');
+            $table->foreignId('currency_id')->constrained('currencies');
 
             // Base price in EUR for easier global comparisons and searches
             $table->decimal('base_price_eur', 10, 2)->nullable();

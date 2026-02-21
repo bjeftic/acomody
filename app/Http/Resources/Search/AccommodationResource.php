@@ -31,7 +31,7 @@ class AccommodationResource extends JsonResource
                     'EUR',
                     $userSettedCurrency
                 ), 2),
-            'runded_price' => ceil($userSettedCurrency === 'EUR'
+            'rounded_price' => ceil($userSettedCurrency === 'EUR'
                 ? round($document['base_price_eur'], 2)
                 : round(calculatePriceInSettedCurrency(
                     $document['base_price_eur'],
