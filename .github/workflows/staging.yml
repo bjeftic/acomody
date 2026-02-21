@@ -166,4 +166,4 @@ jobs:
       - name: Deploy
         run: |
           chmod +x vendor/bin/dep
-          vendor/bin/dep deploy staging -vv
+          vendor/bin/dep deploy staging -vvv
