@@ -158,7 +158,10 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519_acomody_staging
           chmod 600 ~/.ssh/id_ed25519_acomody_staging
           ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "github.com" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/id_ed25519_acomody_staging
 
       - name: Deploy
         run: |

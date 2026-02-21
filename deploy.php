@@ -23,7 +23,9 @@ host('staging')
     ->setRemoteUser('deployer')
     ->setIdentityFile('~/.ssh/id_ed25519_acomody_staging')
     ->setDeployPath('/var/www/acomody')
-    ->set('branch', 'main');
+    ->set('branch', 'main')
+    ->set('git_ssh_command', 'ssh -o StrictHostKeyChecking=no')
+    ->set('forward_agent', true);
 
 // ── Tasks ────────────────────────────────────────────
 
