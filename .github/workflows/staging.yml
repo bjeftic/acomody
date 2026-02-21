@@ -125,7 +125,6 @@ jobs:
     needs: [test, build-assets]
     environment:
       name: staging
-      url: http://${{ secrets.SSH_HOST }}
 
     steps:
       - uses: actions/checkout@v4
