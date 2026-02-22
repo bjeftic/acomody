@@ -1,7 +1,7 @@
 import EnhancedFluentApiClient from "./enhancedFluentApi";
 import store from "@/store";
 
-const apiClient = new EnhancedFluentApiClient('http://localhost:8000', {
+const apiClient = new EnhancedFluentApiClient(import.meta.env.VITE_API_URL, {
     initCsrf: true,
     publicEndpoints: new Set([
         "login",
