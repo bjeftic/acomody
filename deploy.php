@@ -41,7 +41,7 @@ task('php-fpm:restart', function () {
 
 desc('Restart Horizon');
 task('horizon:restart', function () {
-    run('sudo systemctl restart horizon');
+    run('sudo systemctl restart horizon || true');
 });
 
 // ── Deploy flow ───────────────────────────────────────
