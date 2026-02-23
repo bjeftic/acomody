@@ -14,6 +14,8 @@ trait Authorizable
      */
     protected static bool $authorizationDisabled = false;
 
+    private static bool $retrievingAuthUser = false;
+
     /**
      * Boot the authorizable trait for a model.
      */
@@ -47,11 +49,20 @@ trait Authorizable
                 return;
             }
 
-            $user = Auth::user();
+            // Prevent infinite loop when Auth resolves the authenticated User model
+            if ($model instanceof User) {
+                if (self::$retrievingAuthUser) {
+                    return;
+                }
 
-            // Special case: User model when not authenticated
-            if ($model instanceof User && !Auth::check()) {
-                return;
+                self::$retrievingAuthUser = true;
+                try {
+                    $user = Auth::user();
+                } finally {
+                    self::$retrievingAuthUser = false;
+                }
+            } else {
+                $user = Auth::user();
             }
 
             // Superadmin bypasses all checks
