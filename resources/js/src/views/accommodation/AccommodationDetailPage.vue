@@ -390,6 +390,16 @@ export default {
         accommodationId() {
             return this.$route.params.id;
         },
+        accommodationQueryParams() {
+            const { checkIn, checkOut, adults, children, infants } = this.$route.query;
+            const params = {};
+            if (checkIn) params.checkIn = checkIn;
+            if (checkOut) params.checkOut = checkOut;
+            if (adults) params.adults = adults;
+            if (children) params.children = children;
+            if (infants) params.infants = infants;
+            return params;
+        },
     },
     methods: {
         ...mapActions("accommodation", ["fetchAccommodation"]),
@@ -421,11 +431,11 @@ export default {
         },
     },
     created() {
-        this.fetchAccommodation(this.accommodationId);
+        this.fetchAccommodation({ id: this.accommodationId, params: this.accommodationQueryParams });
     },
     watch: {
         accommodationId() {
-            this.fetchAccommodation(this.accommodationId);
+            this.fetchAccommodation({ id: this.accommodationId, params: this.accommodationQueryParams });
         },
     },
 };
