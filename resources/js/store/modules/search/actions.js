@@ -452,7 +452,7 @@ export const handleSearch = (
     query.adults = String(searchParams.guests.adults || 2);
     query.children = String(searchParams.guests.children || 0);
     query.infants = String(searchParams.guests.infants || 0);
-    query.sort_by = searchParams.sortBy || "recommended";
+    query.sort_by = searchParams.sortBy || "price_asc";
     query.page = "1";
 
     router.replace({ query });
@@ -479,7 +479,7 @@ export const updateSearchParamsInURL = ({ state }, { route, router }) => {
     query.adults = state.searchParams.guests.adults || 2;
     query.children = state.searchParams.guests.children || 0;
     query.infants = state.searchParams.guests.infants || 0;
-    query.sort_by = state.searchParams.sortBy || "recommended";
+    query.sort_by = state.searchParams.sortBy || "price_asc";
     query.page = state.page;
 
     router.replace({ query });
