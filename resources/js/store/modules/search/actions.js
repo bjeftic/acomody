@@ -408,7 +408,11 @@ export const handleSearch = (
         location: searchData.location,
         checkIn: searchData.checkIn,
         checkOut: searchData.checkOut,
-        guests: searchData.guests,
+        guests: {
+            adults: searchData.guests.adults,
+            children: searchData.guests.children,
+            infants: searchData.guests.infants,
+        },
         sortBy: searchData.sortBy,
     };
 
