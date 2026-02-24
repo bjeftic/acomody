@@ -23,6 +23,10 @@ class DetectCurrency
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (! $request->hasSession()) {
+            return $next($request);
+        }
+
         $user = $request->user();
 
         $hasSessionCurrency = $request->session()->has('currency');

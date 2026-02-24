@@ -11,7 +11,6 @@ export const initializeAuth = async ({ commit, dispatch }) => {
                 commit(
                     "user/SET_CURRENT_USER",
                     window.initialAuthState.user,
-                    null,
                     { root: true }
                 );
                 commit("SET_AUTHENTICATED", true);
