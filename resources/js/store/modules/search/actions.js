@@ -404,7 +404,7 @@ export const handleSearch = (
     { commit, dispatch },
     { route, router, searchData },
 ) => {
-    let searchParams = {
+    const searchParams = {
         location: searchData.location,
         checkIn: searchData.checkIn,
         checkOut: searchData.checkOut,
@@ -419,19 +419,45 @@ export const handleSearch = (
     // Reset map search when doing location search
     commit("SET_IS_MAP_SEARCH", false);
     commit("SET_CURRENT_MAP_BOUNDS", null);
+    commit("SET_SEARCH_PARAMS", searchParams);
+    commit("SET_PAGE", 1);
 
-    // Remove bounds from URL
+    // Build the complete URL query in one shot to avoid racing router.replace calls
     const query = { ...route.query };
     delete query.ne_lat;
     delete query.ne_lng;
     delete query.sw_lat;
     delete query.sw_lng;
+
+    if (searchParams.location?.id) {
+        query.locationId = searchParams.location.id;
+    } else {
+        delete query.locationId;
+    }
+    if (searchParams.location?.name) {
+        query.locationName = searchParams.location.name;
+    } else {
+        delete query.locationName;
+    }
+    if (searchParams.checkIn) {
+        query.checkIn = searchParams.checkIn;
+    } else {
+        delete query.checkIn;
+    }
+    if (searchParams.checkOut) {
+        query.checkOut = searchParams.checkOut;
+    } else {
+        delete query.checkOut;
+    }
+    query.adults = String(searchParams.guests.adults || 2);
+    query.children = String(searchParams.guests.children || 0);
+    query.infants = String(searchParams.guests.infants || 0);
+    query.sort_by = searchParams.sortBy || "recommended";
+    query.page = "1";
+
     router.replace({ query });
 
-    commit("SET_SEARCH_PARAMS", searchParams);
-
-    dispatch("updateSearchParamsInURL", { route, router });
-    dispatch("resetPaginationAndSearch", { route, router });
+    dispatch("performSearch");
 };
 
 export const updateSearchParamsInURL = ({ state }, { route, router }) => {
