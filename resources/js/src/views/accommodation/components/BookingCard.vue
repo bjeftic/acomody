@@ -172,14 +172,15 @@ export default {
     },
 
     data() {
+        const query = this.$route?.query || {};
         return {
             bookingForm: {
-                checkIn: "",
-                checkOut: "",
+                checkIn: query.checkIn || "",
+                checkOut: query.checkOut || "",
                 guests: {
-                    adults: 2,
-                    children: 0,
-                    infants: 0,
+                    adults: query.adults ? parseInt(query.adults) : 2,
+                    children: query.children ? parseInt(query.children) : 0,
+                    infants: query.infants ? parseInt(query.infants) : 0,
                 },
             },
             isSubmitting: false,
