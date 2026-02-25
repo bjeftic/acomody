@@ -145,6 +145,9 @@ jobs:
           name: composer-vendor
           path: vendor/
 
+      - name: Fix permissions
+        run: chmod +x ./vendor/bin/phpstan
+
       - name: Run PHPStan
         run: composer analyse
 
