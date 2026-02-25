@@ -3,6 +3,11 @@
         <template v-if="calendarLoading">
             <form-skeleton />
         </template>
+        <template v-else-if="calendarError">
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
+                <p class="text-red-600 dark:text-red-400">{{ calendarError }}</p>
+            </div>
+        </template>
         <template v-else>
             <!-- Header -->
             <div class="mb-8">
@@ -227,6 +232,7 @@ export default {
     computed: {
         ...mapState("hosting/calendar", [
             "calendarLoading",
+            "calendarError",
             "bookings",
             "selectedDate",
             "currentYear",

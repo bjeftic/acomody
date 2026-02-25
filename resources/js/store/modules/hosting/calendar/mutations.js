@@ -4,6 +4,9 @@ export default {
     [types.SET_CALENDAR_LOADING](state, isLoading) {
         state.calendarLoading = isLoading;
     },
+    [types.SET_CALENDAR_ERROR](state, error) {
+        state.calendarError = error;
+    },
     [types.SET_BOOKINGS](state, bookings) {
         state.bookings = bookings;
     },

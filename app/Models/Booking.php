@@ -88,6 +88,30 @@ class Booking extends Model
     }
 
     // ============================================
+    // AUTHORIZATION
+    // ============================================
+
+    public function canBeReadBy($user): bool
+    {
+        return $user && ($user->id === $this->user_id || $user->id === $this->host_user_id);
+    }
+
+    public function canBeCreatedBy($user): bool
+    {
+        return $user !== null;
+    }
+
+    public function canBeUpdatedBy($user): bool
+    {
+        return $user && ($user->id === $this->user_id || $user->id === $this->host_user_id);
+    }
+
+    public function canBeDeletedBy($user): bool
+    {
+        return $user && $user->id === $this->host_user_id;
+    }
+
+    // ============================================
     // STATUS HELPERS
     // ============================================
 
