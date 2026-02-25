@@ -6,6 +6,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
+/**
+ * @property string|null $name
+ * @property string $fee_type
+ * @property string $charge_type
+ * @property string $currency
+ * @property string $percentage_rate
+ * @property string $amount
+ */
 class Fee extends Model
 {
     use SoftDeletes, HasUlids;
@@ -151,6 +159,6 @@ class Fee extends Model
             default => $this->currency,
         };
 
-        return $symbol . number_format($this->amount, 2);
+        return $symbol . number_format((float) $this->amount, 2);
     }
 }

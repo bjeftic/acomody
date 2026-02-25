@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Scout\Searchable;
 use Spatie\Translatable\HasTranslations;
 
+/**
+ * @property float|null $latitude
+ * @property float|null $longitude
+ * @property LocationType|null $location_type
+ */
 class Location extends Model
 {
     use HasFactory, Searchable, HasTranslations;
@@ -18,6 +23,7 @@ class Location extends Model
     protected $casts = [
         'latitude' => 'float',
         'longitude' => 'float',
+        'location_type' => LocationType::class,
     ];
 
     public function canBeReadBy($user): bool
@@ -197,6 +203,6 @@ class Location extends Model
 
     public function locationType(): array
     {
-        return LocationType::fromId($this->id)?->toArray() ?? [];
+        return $this->location_type?->toArray() ?? [];
     }
 }
