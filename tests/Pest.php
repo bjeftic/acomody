@@ -22,8 +22,9 @@ function authenticatedUser(array $attributes = []): User
 
 function createAccommodation(User $user, array $attributes = []): Accommodation
 {
-    return Accommodation::factory()->create(array_merge(
-        ['user_id' => $user->id],
-        $attributes
-    ));
+    return Accommodation::withoutAuthorization(fn () => Accommodation::factory()->create(array_merge([
+        'user_id'     => $user->id,
+        'approved_by' => $user->id,
+        'is_active'   => true,
+    ], $attributes)));
 }

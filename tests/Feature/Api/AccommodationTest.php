@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\Accommodation;
-use App\Models\Location;
-use App\Models\User;
 use App\Services\AccommodationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -85,7 +83,9 @@ describe('GET /api/accommodations (index)', function () {
         $user = authenticatedUser();
 
         // Create 20 accommodations so pagination is exercised
-        Accommodation::factory()->count(20)->create(['user_id' => $user->id]);
+        Accommodation::withoutAuthorization(
+            fn () => Accommodation::factory()->count(20)->create(['user_id' => $user->id])
+        );
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.index'))
@@ -97,7 +97,9 @@ describe('GET /api/accommodations (index)', function () {
 
     it('respects the per_page query parameter', function () {
         $user = authenticatedUser();
-        Accommodation::factory()->count(10)->create(['user_id' => $user->id]);
+        Accommodation::withoutAuthorization(
+            fn () => Accommodation::factory()->count(10)->create(['user_id' => $user->id])
+        );
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.index', ['per_page' => 5]))
@@ -112,7 +114,7 @@ describe('GET /api/accommodations (index)', function () {
         $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.index', ['per_page' => 'abc']))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['per_page']);
+            ->assertJsonFragment(['field' => 'per_page']);
     });
 
     it('returns 422 when per_page is below minimum (1)', function () {
@@ -121,7 +123,7 @@ describe('GET /api/accommodations (index)', function () {
         $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.index', ['per_page' => 0]))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['per_page']);
+            ->assertJsonFragment(['field' => 'per_page']);
     });
 
     it('returns 422 when per_page exceeds the maximum (100)', function () {
@@ -130,7 +132,7 @@ describe('GET /api/accommodations (index)', function () {
         $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.index', ['per_page' => 101]))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['per_page']);
+            ->assertJsonFragment(['field' => 'per_page']);
     });
 
     it('accepts per_page at boundary values (1 and 100)', function () {
@@ -242,10 +244,12 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
     });
 
     it('response success flag is false on 404', function () {
-        $user = authenticatedUser();
+        $owner         = authenticatedUser();
+        $other         = authenticatedUser();
+        $accommodation = createAccommodation($owner);
 
-        $this->actingAs($user, 'sanctum')
-            ->getJson(route('api.accommodations.accommodations.show', 999999))
+        $this->actingAs($other, 'sanctum')
+            ->getJson(route('api.accommodations.accommodations.show', $accommodation->id))
             ->assertStatus(404)
             ->assertJson(['success' => false]);
     });
@@ -294,7 +298,7 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
     it('returns 404 when the accommodation is soft-deleted', function () {
         $user          = authenticatedUser();
         $accommodation = createAccommodation($user);
-        $accommodation->delete(); // assumes SoftDeletes trait
+        Accommodation::withoutAuthorization(fn () => $accommodation->delete()); // assumes SoftDeletes trait
 
         $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.show', $accommodation->id))

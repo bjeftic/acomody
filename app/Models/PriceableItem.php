@@ -17,6 +17,7 @@ class PriceableItem extends Model
         'priceable_id',
         'pricing_type',
         'base_price',
+        'currency_id',
         'currency',
         'base_price_eur',
         'has_weekend_pricing',
