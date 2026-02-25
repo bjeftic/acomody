@@ -184,7 +184,7 @@ class ExchangeRate extends Model
         $date = $date ?? now();
 
         // Get base currency (EUR)
-        $baseCurrency = Currency::where('is_base', true)->first()?->code ?? 'EUR';
+        $baseCurrency = Currency::where('is_base', true)->value('code') ?? 'EUR';
 
         // If converting from base currency
         if ($fromCurrency === $baseCurrency) {

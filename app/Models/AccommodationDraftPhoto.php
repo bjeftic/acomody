@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property string|null $path
+ * @property string|null $thumbnail_path
+ * @property string|null $medium_path
+ * @property string|null $large_path
+ * @property int|null $file_size
+ * @property AccommodationDraft $accommodationDraft
+ */
 class AccommodationDraftPhoto extends Model
 {
     use HasFactory, SoftDeletes, HasStorageFiles;

@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
+/**
+ * @property string $period_type
+ * @property \Carbon\Carbon|null $start_date
+ * @property \Carbon\Carbon|null $end_date
+ */
 class PricingPeriod extends Model
 {
     use HasUlids;
@@ -125,13 +130,5 @@ class PricingPeriod extends Model
             return 'N/A';
         }
         return $this->start_date->format('M d, Y') . ' - ' . $this->end_date->format('M d, Y');
-    }
-
-    public function getDurationDaysAttribute(): ?int
-    {
-        if (!$this->start_date || !$this->end_date) {
-            return null;
-        }
-        return $this->start_date->diffInDays($this->end_date) + 1;
     }
 }

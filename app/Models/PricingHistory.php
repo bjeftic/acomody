@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
+/**
+ * @property string $change_type
+ * @property string $change_source
+ */
 class PricingHistory extends Model
 {
     use HasUlids;
