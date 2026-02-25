@@ -46,7 +46,7 @@ class AccommodationFactory extends Factory
             'longitude' => fake()->longitude(19, 22),
             'street_address' => fake()->address(),
             'is_active' => fake()->boolean(95),
-            'approved_by' => User::where('is_superadmin', true)->inRandomOrder()->first()->id,
+            'approved_by' => User::where('is_superadmin', true)->inRandomOrder()->first()?->id,
             'views_count' => fake()->numberBetween(0, 10000),
             'favorites_count' => fake()->numberBetween(0, 5000),
             'is_featured' => fake()->boolean(10),
