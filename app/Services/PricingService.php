@@ -30,7 +30,7 @@ class PricingService
      * Calculate complete price breakdown
      *
      * @param string $entityType - 'App\Models\Accommodation', etc.
-     * @param int $entityId
+     * @param string $entityId
      * @param Carbon $startDate
      * @param Carbon $endDate
      * @param int $quantity - nights, hours, items, etc.
@@ -41,7 +41,7 @@ class PricingService
      */
     public function calculateTotalPrice(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate,
         int $quantity = 1,
@@ -287,7 +287,7 @@ class PricingService
      */
     public function validateBooking(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate,
         int $quantity,
@@ -342,7 +342,7 @@ class PricingService
      */
     public function getQuickQuote(
         string $entityType,
-        int $entityId,
+        string $entityId,
         int $quantity
     ): array {
         $pricing = PriceableItem::forEntity($entityType, $entityId)->active()->firstOrFail();
@@ -458,7 +458,7 @@ class PricingService
     /**
      * Add pricing period (seasonal, special date, etc.)
      */
-    public function addPricingPeriod(string $entityType, int $entityId, array $data): PricingPeriod
+    public function addPricingPeriod(string $entityType, string $entityId, array $data): PricingPeriod
     {
         DB::beginTransaction();
         try {
@@ -565,7 +565,7 @@ class PricingService
     /**
      * Get pricing history
      */
-    public function getPricingHistory(string $entityType, int $entityId): \Illuminate\Database\Eloquent\Collection
+    public function getPricingHistory(string $entityType, string $entityId): \Illuminate\Database\Eloquent\Collection
     {
         return PricingHistory::forEntity($entityType, $entityId)
             ->orderBy('changed_at', 'desc')

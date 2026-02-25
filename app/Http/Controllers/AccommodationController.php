@@ -5,21 +5,27 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\Accommodation\IndexRequest;
+use App\Http\Requests\Booking\CheckAvailabilityRequest;
+use App\Http\Requests\Booking\CalculatePriceRequest;
 use App\Http\Resources\AccommodationResource;
 use App\Http\Resources\PhotoResource;
 use App\Services\AccommodationService;
+use App\Services\BookingService;
 use App\Http\Support\ApiResponse;
 use App\Models\Accommodation;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
 class AccommodationController extends Controller
 {
     protected AccommodationService $accommodationService;
+    protected BookingService $bookingService;
 
-    public function __construct(AccommodationService $accommodationService)
+    public function __construct(AccommodationService $accommodationService, BookingService $bookingService)
     {
         $this->accommodationService = $accommodationService;
+        $this->bookingService = $bookingService;
     }
 
     /**
@@ -129,6 +135,44 @@ class AccommodationController extends Controller
             'Accommodation retrieved successfully',
             new AccommodationResource($accommodation)
         );
+    }
+
+    /**
+     * Check availability for a date range.
+     */
+    public function checkAvailability(CheckAvailabilityRequest $request, Accommodation $accommodation): JsonResponse
+    {
+        $checkIn  = Carbon::parse($request->check_in);
+        $checkOut = Carbon::parse($request->check_out);
+
+        $result = $this->bookingService->checkAvailability($accommodation, $checkIn, $checkOut);
+
+        return ApiResponse::success('Availability checked', new class($result) extends \Illuminate\Http\Resources\Json\JsonResource {
+            public function toArray($request): array { return $this->resource; }
+        });
+    }
+
+    /**
+     * Calculate full price breakdown for a stay.
+     */
+    public function calculatePrice(CalculatePriceRequest $request, Accommodation $accommodation): JsonResponse
+    {
+        try {
+            $breakdown = $this->bookingService->calculatePrice(
+                $accommodation,
+                Carbon::parse($request->check_in),
+                Carbon::parse($request->check_out),
+                (int) $request->guests,
+                $request->optional_fee_ids ?? [],
+                $request->guest_ages ?? []
+            );
+
+            return ApiResponse::success('Price calculated', new class($breakdown) extends \Illuminate\Http\Resources\Json\JsonResource {
+                public function toArray($request): array { return $this->resource; }
+            });
+        } catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage(), null, null, 422);
+        }
     }
 
     public function indexPhotos(Accommodation $accommodation): JsonResponse
