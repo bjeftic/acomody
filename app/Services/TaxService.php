@@ -24,7 +24,7 @@ class TaxService
      * Calculate all applicable taxes
      *
      * @param string $entityType
-     * @param int $entityId
+     * @param string $entityId
      * @param float $subtotal - base subtotal before fees
      * @param float $feesTotal - total fees amount
      * @param int $quantity - nights, hours, items
@@ -34,7 +34,7 @@ class TaxService
      */
     public function calculateAllTaxes(
         string $entityType,
-        int $entityId,
+        string $entityId,
         float $subtotal,
         float $feesTotal = 0,
         int $quantity = 1,
@@ -292,7 +292,7 @@ class TaxService
      */
     public function assignTax(
         string $entityType,
-        int $entityId,
+        string $entityId,
         int $taxRateId,
         array $overrides = []
     ): EntityTax {
@@ -411,7 +411,7 @@ class TaxService
     /**
      * Get entity's assigned taxes with details
      */
-    public function getEntityTaxes(string $entityType, int $entityId): array
+    public function getEntityTaxes(string $entityType, string $entityId): array
     {
         $entityTaxes = EntityTax::forEntity($entityType, $entityId)
             ->active()

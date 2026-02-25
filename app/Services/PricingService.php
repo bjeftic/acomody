@@ -118,7 +118,7 @@ class PricingService
             'persons' => $persons,
             'unit_prices' => [],
             'subtotal' => 0,
-            'currency' => $pricing->currency,
+            'currency' => $pricing->currency->code,
         ];
 
         // Calculate for each day/hour/unit
@@ -231,7 +231,7 @@ class PricingService
             'persons' => $persons,
             'base_price' => $pricing->base_price,
             'subtotal' => 0,
-            'currency' => $pricing->currency,
+            'currency' => $pricing->currency->code,
         ];
 
         // Calculate based on pricing type
@@ -355,8 +355,8 @@ class PricingService
             'base_price' => $pricing->base_price,
             'quantity' => $quantity,
             'subtotal' => $subtotal,
-            'currency' => $pricing->currency,
-            'formatted' => $this->formatPrice($subtotal, $pricing->currency),
+            'currency' => $pricing->currency->code,
+            'formatted' => $this->formatPrice($subtotal, $pricing->currency->code),
         ];
     }
 

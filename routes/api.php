@@ -41,7 +41,7 @@ Route::post('/currency/set', [CurrencyController::class, 'set'])
 Route::prefix('public')->name('api.public')->group(function () {
     Route::get('filters', [PublicFilterController::class, 'index'])
         ->name('filters');
-    Route::prefix('accommodation')->name('accommodation')->group(function () {
+    Route::prefix('accommodations')->name('accommodations')->group(function () {
         Route::get('{accommodation}', [PublicAccommodationController::class, 'show'])
             ->name('show');
     });

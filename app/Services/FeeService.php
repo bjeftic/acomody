@@ -22,7 +22,7 @@ class FeeService
      * Calculate all fees (mandatory + optional)
      *
      * @param string $entityType
-     * @param int $entityId
+     * @param string $entityId
      * @param float $subtotal - base subtotal before fees
      * @param int $quantity - nights, hours, items
      * @param int $persons
@@ -31,7 +31,7 @@ class FeeService
      */
     public function calculateAllFees(
         string $entityType,
-        int $entityId,
+        string $entityId,
         float $subtotal,
         int $quantity = 1,
         int $persons = 1,
@@ -198,7 +198,7 @@ class FeeService
      */
     public function calculateRefundableFees(
         string $entityType,
-        int $entityId,
+        string $entityId,
         array $paidFees
     ): array {
         $refunds = [];
@@ -324,7 +324,7 @@ class FeeService
     /**
      * Bulk create fees
      */
-    public function bulkCreateFees(string $entityType, int $entityId, array $feesData): array
+    public function bulkCreateFees(string $entityType, string $entityId, array $feesData): array
     {
         DB::beginTransaction();
         try {
@@ -478,7 +478,7 @@ class FeeService
     /**
      * Get all fees for entity
      */
-    public function getEntityFees(string $entityType, int $entityId): array
+    public function getEntityFees(string $entityType, string $entityId): array
     {
         $fees = Fee::forEntity($entityType, $entityId)
             ->active()

@@ -171,7 +171,7 @@ class BookingService
             throw $e;
         }
 
-        $booking->load(['accommodation', 'guest', 'host']);
+        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
 
         // Notifications (non-critical — failures are logged, not re-thrown)
         try {
@@ -223,7 +223,7 @@ class BookingService
             throw $e;
         }
 
-        $booking->load(['accommodation', 'guest', 'host']);
+        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
 
         try {
             Mail::to($booking->guest->email)->queue(new BookingConfirmedMail($booking));
@@ -249,7 +249,7 @@ class BookingService
             'decline_reason' => $reason,
         ]);
 
-        $booking->load(['accommodation', 'guest', 'host']);
+        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
 
         try {
             Mail::to($booking->guest->email)->queue(new BookingDeclinedMail($booking));
@@ -293,7 +293,7 @@ class BookingService
             throw $e;
         }
 
-        $booking->load(['accommodation', 'guest', 'host']);
+        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
 
         try {
             Mail::to($booking->guest->email)->queue(new BookingCancelledMail($booking));

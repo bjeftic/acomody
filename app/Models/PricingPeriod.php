@@ -95,7 +95,7 @@ class PricingPeriod extends Model
         });
     }
 
-    public function scopeForEntity($query, string $entityType, int $entityId)
+    public function scopeForEntity($query, string $entityType, string $entityId)
     {
         return $query->where('priceable_type', $entityType)
                      ->where('priceable_id', $entityId);
