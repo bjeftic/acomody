@@ -74,7 +74,7 @@
             "@php artisan test"
         ],
         "analyse": [
-            "./vendor/bin/phpstan analyse --memory-limit=256M"
+            "@php vendor/bin/phpstan analyse --memory-limit=256M"
         ]
     },
     "extra": {
