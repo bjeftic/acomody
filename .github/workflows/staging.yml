@@ -146,7 +146,9 @@ jobs:
           path: vendor/
 
       - name: Run PHPStan
-        run: composer analyse
+        run: |
+          chmod +x vendor/bin/phpstan
+          composer analyse
 
   deploy-staging:
     name: 🚀 Deploy to Staging
