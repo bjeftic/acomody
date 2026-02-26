@@ -45,6 +45,12 @@ const routes = [
         component: () => import('@/src/views/auth/VerifyEmail.vue'),
     },
     {
+        path: '/account',
+        name: 'page-account',
+        component: () => import('@/src/views/account/AccountView.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'page-not-found',
         component: () => import('@/src/views/Page404.vue'),
