@@ -31,6 +31,14 @@ const routes = [
         },
         component: () => import('@/src/views/hosting/listings/ShowListing.vue'),
     },
+    {
+        path: 'calendar',
+        name: 'page-calendar',
+        meta: {
+            requiresAuth: true,
+        },
+        component: () => import('@/src/views/hosting/Calendar.vue'),
+    },
 ];
 
 export default routes;

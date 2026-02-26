@@ -17,6 +17,8 @@ use App\Http\Controllers\AmenityController;
 use App\Http\Controllers\FeeController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\Host\BookingController as HostBookingController;
 
 // ============================================
 // PUBLIC ROUTES
@@ -39,7 +41,7 @@ Route::post('/currency/set', [CurrencyController::class, 'set'])
 Route::prefix('public')->name('api.public')->group(function () {
     Route::get('filters', [PublicFilterController::class, 'index'])
         ->name('filters');
-    Route::prefix('accommodation')->name('accommodation')->group(function () {
+    Route::prefix('accommodations')->name('accommodations')->group(function () {
         Route::get('{accommodation}', [PublicAccommodationController::class, 'show'])
             ->name('show');
     });
@@ -130,5 +132,26 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ->name('accommodations.index');
         Route::get('{accommodation}', [AccommodationController::class, 'show'])
             ->name('accommodations.show');
+        Route::post('{accommodation}/check-availability', [AccommodationController::class, 'checkAvailability'])
+            ->name('accommodations.check-availability');
+        Route::post('{accommodation}/calculate-price', [AccommodationController::class, 'calculatePrice'])
+            ->name('accommodations.calculate-price');
+    });
+
+    // Guest bookings
+    Route::prefix('bookings')->name('api.bookings.')->group(function () {
+        Route::get('', [BookingController::class, 'index'])->name('index');
+        Route::post('', [BookingController::class, 'store'])->name('store');
+        Route::get('{booking}', [BookingController::class, 'show'])->name('show');
+        Route::post('{booking}/cancel', [BookingController::class, 'cancel'])->name('cancel');
+    });
+
+    // Host booking management
+    Route::prefix('host/bookings')->name('api.host.bookings.')->group(function () {
+        Route::get('', [HostBookingController::class, 'index'])->name('index');
+        Route::get('{booking}', [HostBookingController::class, 'show'])->name('show');
+        Route::post('{booking}/confirm', [HostBookingController::class, 'confirm'])->name('confirm');
+        Route::post('{booking}/decline', [HostBookingController::class, 'decline'])->name('decline');
+        Route::post('{booking}/cancel', [HostBookingController::class, 'cancel'])->name('cancel');
     });
 });

@@ -7,6 +7,7 @@ use App\Enums\Accommodation\AccommodationOccupation;
 use App\Enums\Accommodation\AccommodationType;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -294,6 +295,11 @@ class Accommodation extends Model
                 ]
             ]
         ];
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
     }
 
     public function amenities(): BelongsToMany

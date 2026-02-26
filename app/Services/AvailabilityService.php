@@ -24,14 +24,14 @@ class AvailabilityService
      * Check if entity is available for date range
      *
      * @param string $entityType
-     * @param int $entityId
+     * @param string $entityId
      * @param Carbon $startDate
      * @param Carbon $endDate
      * @return array - ['available' => bool, 'reasons' => array]
      */
     public function checkAvailability(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate
     ): array {
@@ -74,7 +74,7 @@ class AvailabilityService
      */
     public function getAvailableDates(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate
     ): array {
@@ -95,7 +95,7 @@ class AvailabilityService
      */
     public function isDateAvailable(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $date
     ): bool {
         $blockedPeriods = AvailabilityPeriod::forEntity($entityType, $entityId)
@@ -111,7 +111,7 @@ class AvailabilityService
      */
     public function getBlockedDates(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate
     ): array {
@@ -148,7 +148,7 @@ class AvailabilityService
      */
     public function blockDates(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate,
         string $reason = 'owner_blocked',
@@ -185,7 +185,7 @@ class AvailabilityService
      */
     public function unblockDates(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate
     ): bool {
@@ -216,7 +216,7 @@ class AvailabilityService
      */
     public function markAsBooked(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate,
         ?string $notes = null
@@ -251,7 +251,7 @@ class AvailabilityService
      */
     public function markAsAvailable(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate
     ): AvailabilityPeriod {
@@ -288,7 +288,7 @@ class AvailabilityService
      */
     public function setRecurringClosed(
         string $entityType,
-        int $entityId,
+        string $entityId,
         array $days,
         Carbon $startDate,
         Carbon $endDate,
@@ -326,7 +326,7 @@ class AvailabilityService
      */
     public function setCapacity(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $date,
         int $maxCapacity
     ): AvailabilityPeriod {
@@ -364,7 +364,7 @@ class AvailabilityService
      */
     public function incrementBookings(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $date,
         int $count = 1
     ): bool {
@@ -388,7 +388,7 @@ class AvailabilityService
      */
     public function decrementBookings(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $date,
         int $count = 1
     ): bool {
@@ -408,7 +408,7 @@ class AvailabilityService
      */
     public function hasCapacity(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $date
     ): bool {
         $period = AvailabilityPeriod::forEntity($entityType, $entityId)
@@ -443,7 +443,7 @@ class AvailabilityService
      */
     protected function removeOverlappingPeriods(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate
     ): void {
@@ -472,7 +472,7 @@ class AvailabilityService
      */
     public function getMonthlyCalendar(
         string $entityType,
-        int $entityId,
+        string $entityId,
         int $year,
         int $month
     ): array {
@@ -519,7 +519,7 @@ class AvailabilityService
      */
     protected function logAvailabilityChange(
         string $entityType,
-        int $entityId,
+        string $entityId,
         ?array $oldValues,
         ?array $newValues
     ): void {

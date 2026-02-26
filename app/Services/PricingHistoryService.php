@@ -28,7 +28,7 @@ class PricingHistoryService
      */
     public function getEntityHistory(
         string $entityType,
-        int $entityId,
+        string $entityId,
         ?int $limit = null
     ): \Illuminate\Database\Eloquent\Collection {
         $query = PricingHistory::forEntity($entityType, $entityId)
@@ -47,7 +47,7 @@ class PricingHistoryService
      */
     public function getHistoryByType(
         string $entityType,
-        int $entityId,
+        string $entityId,
         string $changeType
     ): \Illuminate\Database\Eloquent\Collection {
         return PricingHistory::forEntity($entityType, $entityId)
@@ -62,7 +62,7 @@ class PricingHistoryService
      */
     public function getHistoryByUser(
         string $entityType,
-        int $entityId,
+        string $entityId,
         int $userId
     ): \Illuminate\Database\Eloquent\Collection {
         return PricingHistory::forEntity($entityType, $entityId)
@@ -76,7 +76,7 @@ class PricingHistoryService
      */
     public function getHistoryInRange(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $startDate,
         Carbon $endDate
     ): \Illuminate\Database\Eloquent\Collection {
@@ -91,7 +91,7 @@ class PricingHistoryService
      */
     public function getFormattedHistory(
         string $entityType,
-        int $entityId
+        string $entityId
     ): array {
         $history = $this->getEntityHistory($entityType, $entityId);
 
@@ -286,7 +286,7 @@ class PricingHistoryService
      */
     public function comparePricing(
         string $entityType,
-        int $entityId,
+        string $entityId,
         Carbon $date1,
         Carbon $date2
     ): array {
@@ -345,7 +345,7 @@ class PricingHistoryService
      */
     public function getChangeStatistics(
         string $entityType,
-        int $entityId,
+        string $entityId,
         ?Carbon $startDate = null,
         ?Carbon $endDate = null
     ): array {
@@ -380,7 +380,7 @@ class PricingHistoryService
      */
     public function getPriceTimeline(
         string $entityType,
-        int $entityId
+        string $entityId
     ): array {
         $history = PricingHistory::forEntity($entityType, $entityId)
             ->byType('base_price')
@@ -423,7 +423,7 @@ class PricingHistoryService
      */
     public function exportHistory(
         string $entityType,
-        int $entityId
+        string $entityId
     ): string {
         $history = $this->getFormattedHistory($entityType, $entityId);
 
