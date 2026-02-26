@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @OA\Schema(
@@ -35,6 +36,12 @@ class UserResource extends JsonResource
             'status' => $this->status,
             'terms_accepted' => $this->terms_accepted_at ? true : false,
             'privacy_policy_accepted' => $this->privacy_policy_accepted_at ? true : false,
+            'first_name' => $this->userProfile?->first_name,
+            'last_name' => $this->userProfile?->last_name,
+            'phone' => $this->userProfile?->phone,
+            'avatar_url' => $this->userProfile?->avatar
+                ? Storage::disk('user_profile_photos')->url($this->userProfile->avatar)
+                : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

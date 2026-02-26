@@ -69,6 +69,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users', [UserController::class, 'show'])
         ->name('api.users');
 
+    Route::put('/users', [UserController::class, 'update'])
+        ->name('api.users.update');
+
+    Route::put('/users/password', [UserController::class, 'updatePassword'])
+        ->name('api.users.password.update');
+
+    Route::post('/users/avatar', [UserController::class, 'uploadAvatar'])
+        ->name('api.users.avatar.upload');
+
     Route::get('/accommodation-types', [AccommodationTypeController::class, 'index'])
         ->name('api.accommodation.types');
 

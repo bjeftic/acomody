@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\AvatarUploadRequest;
+use App\Http\Requests\User\UpdatePasswordRequest;
+use App\Http\Requests\User\UpdateUserProfileRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Support\ApiResponse;
 use Illuminate\Auth\AuthenticationException;
@@ -9,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Services\UserService;
 use Exception;
@@ -101,5 +105,30 @@ class UserController extends Controller
 
             throw new HttpException(500, 'Failed to retrieve user profile. Please try again later.');
         }
+    }
+
+    public function update(UpdateUserProfileRequest $request): JsonResponse
+    {
+        $user = $this->userService->updateProfile(Auth::user(), $request->validated());
+
+        return ApiResponse::success('Profile updated successfully.', new UserResource($user));
+    }
+
+    public function updatePassword(UpdatePasswordRequest $request): JsonResponse
+    {
+        try {
+            $this->userService->updatePassword(Auth::user(), $request->validated());
+        } catch (ValidationException $e) {
+            throw $e;
+        }
+
+        return ApiResponse::success('Password updated successfully.');
+    }
+
+    public function uploadAvatar(AvatarUploadRequest $request): JsonResponse
+    {
+        $user = $this->userService->uploadAvatar(Auth::user(), $request->file('avatar'));
+
+        return ApiResponse::success('Avatar updated successfully.', new UserResource($user));
     }
 }
