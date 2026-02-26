@@ -174,17 +174,4 @@ class TaxRate extends Model
 
         return implode(', ', $parts);
     }
-
-    public function getRateDescriptionAttribute(): string
-    {
-        if ($this->rate_percent) {
-            return $this->rate_percent . '%';
-        }
-
-        if ($this->flat_amount) {
-            return '€' . number_format($this->flat_amount, 2) . ' flat';
-        }
-
-        return 'N/A';
-    }
 }

@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
+/**
+ * @property string $status
+ * @property string|null $reason
+ */
 class AvailabilityPeriod extends Model
 {
     use HasUlids;

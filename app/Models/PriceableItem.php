@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string $priceable_type
+ * @property string $pricing_type
+ * @property string $base_price
+ * @property string $base_price_eur
+ * @property Currency|null $currency
+ */
 class PriceableItem extends Model
 {
     use SoftDeletes, HasUlids;
@@ -99,7 +106,7 @@ class PriceableItem extends Model
 
     public function getFormattedPriceAttribute(): string
     {
-        return $this->formatPrice($this->base_price);
+        return $this->formatPrice((float) $this->base_price);
     }
 
     public function getPricingTypeLabelAttribute(): string
@@ -124,12 +131,14 @@ class PriceableItem extends Model
     {
         if ($amount === null) return '';
 
-        $symbol = match ($this->currency) {
+        $currencyCode = (string) ($this->attributes['currency'] ?? '');
+
+        $symbol = match ($currencyCode) {
             'EUR' => '€',
             'USD' => '$',
             'GBP' => '£',
             'RSD' => 'дин',
-            default => $this->currency,
+            default => $currencyCode,
         };
 
         return $symbol . number_format($amount, 2);

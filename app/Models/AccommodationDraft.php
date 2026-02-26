@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/**
+ * @property string $user_id
+ */
 class AccommodationDraft extends Model
 {
     use HasUlids, HasFactory;

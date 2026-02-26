@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Laravel\Scout\Searchable;
 
+/**
+ * @property PriceableItem|null $pricing
+ */
 class Accommodation extends Model
 {
     use HasFactory, Searchable, HasUlids;
