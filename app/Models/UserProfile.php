@@ -13,11 +13,12 @@ class UserProfile extends Model
         'first_name',
         'last_name',
         'user_id',
+        'phone',
         'bio',
         'website',
         'social_links',
         'preferences',
-        'avatar'
+        'avatar',
     ];
 
     public function canBeReadBy($user): bool

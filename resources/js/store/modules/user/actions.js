@@ -12,3 +12,19 @@ export const fetchUser = async ({ commit }) => {
         throw error;
     }
 };
+
+export const updateProfile = async ({ commit }, payload) => {
+    const response = await apiClient.users.put(payload);
+    commit("SET_CURRENT_USER", response.data);
+    return response;
+};
+
+export const updatePassword = async ({ commit }, payload) => {
+    return await apiClient.users.password.put(payload);
+};
+
+export const uploadAvatar = async ({ commit }, file) => {
+    const response = await apiClient.users.avatar.upload(file, "avatar");
+    commit("SET_CURRENT_USER", response.data);
+    return response;
+};

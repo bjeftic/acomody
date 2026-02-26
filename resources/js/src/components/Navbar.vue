@@ -69,11 +69,12 @@
                             <nav
                                 class="py-2 text-sm rounded-lg text-gray-700 border border-gray-200 dark:text-gray-200 dark:border-gray-700 flex flex-col"
                             >
-                                <span
+                                <router-link
+                                    :to="{ name: 'page-account' }"
                                     class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                 >
                                     My account
-                                </span>
+                                </router-link>
                                 <span
                                     class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                 >
