@@ -116,10 +116,9 @@
                 color="blue"
                 size="lg"
                 class="w-full"
-                :disabled="isSubmitting || !isFormValid"
+                :disabled="!isFormValid"
             >
-                <span v-if="isSubmitting">Processing...</span>
-                <span v-else>Reserve</span>
+                Reserve
             </fwb-button>
 
             <!-- Notice -->
@@ -183,7 +182,6 @@ export default {
                     infants: query.infants ? parseInt(query.infants) : 0,
                 },
             },
-            isSubmitting: false,
         };
     },
 
@@ -250,19 +248,17 @@ export default {
         handleSubmit() {
             if (!this.isFormValid) return;
 
-            this.isSubmitting = true;
-
-            this.$emit("book", {
-                checkIn: this.bookingForm.checkIn,
-                checkOut: this.bookingForm.checkOut,
-                guests: { ...this.bookingForm.guests },
-                nights: this.totalNights,
-                totalPrice: this.totalWithFees,
+            this.$router.push({
+                name: 'accommodation-reserve',
+                params: { id: this.$route.params.id },
+                query: {
+                    checkIn: this.bookingForm.checkIn,
+                    checkOut: this.bookingForm.checkOut,
+                    adults: this.bookingForm.guests.adults,
+                    children: this.bookingForm.guests.children,
+                    infants: this.bookingForm.guests.infants,
+                },
             });
-
-            setTimeout(() => {
-                this.isSubmitting = false;
-            }, 2000);
         },
 
         contactHost() {

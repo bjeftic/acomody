@@ -139,25 +139,33 @@ class BookingService
 
         DB::beginTransaction();
         try {
+            $priceDetails = array_filter([
+                'unit_prices'   => $breakdown['unit_prices'] ?? null,
+                'bulk_discount' => $breakdown['bulk_discount'] ?? null,
+                'fees'          => $breakdown['fees'] ?? null,
+                'taxes'         => $breakdown['taxes'] ?? null,
+            ], fn ($v) => $v !== null);
+
             $booking = Booking::create([
-                'accommodation_id' => $accommodation->id,
-                'user_id'          => $guest->id,
-                'host_user_id'     => $accommodation->user_id,
-                'check_in'         => $checkIn->toDateString(),
-                'check_out'        => $checkOut->toDateString(),
-                'nights'           => $nights,
-                'guests'           => $guests,
-                'status'           => BookingStatus::PENDING,
-                'booking_type'     => $bookingType,
-                'currency'         => $breakdown['currency'],
-                'subtotal'         => $breakdown['subtotal'],
-                'fees_total'       => $breakdown['fees_subtotal'] ?? 0,
-                'taxes_total'      => $breakdown['taxes_subtotal'] ?? 0,
-                'total_price'      => $breakdown['total'],
-                'price_breakdown'  => $breakdown,
-                'optional_fee_ids' => $data['optional_fee_ids'] ?? null,
-                'payment_status'   => PaymentStatus::UNPAID,
-                'guest_notes'      => $data['guest_notes'] ?? null,
+                'accommodation_id'  => $accommodation->id,
+                'user_id'           => $guest->id,
+                'host_user_id'      => $accommodation->user_id,
+                'check_in'          => $checkIn->toDateString(),
+                'check_out'         => $checkOut->toDateString(),
+                'nights'            => $nights,
+                'guests'            => $guests,
+                'status'            => BookingStatus::PENDING,
+                'booking_type'      => $bookingType,
+                'currency'          => $breakdown['currency'],
+                'subtotal'          => $breakdown['subtotal'],
+                'fees_total'        => $breakdown['fees_subtotal'] ?? 0,
+                'taxes_total'       => $breakdown['taxes_subtotal'] ?? 0,
+                'total_price'       => $breakdown['total'],
+                'priceable_item_id' => $breakdown['priceable_item_id'],
+                'price_details'     => $priceDetails,
+                'optional_fee_ids'  => $data['optional_fee_ids'] ?? null,
+                'payment_status'    => PaymentStatus::UNPAID,
+                'guest_notes'       => $data['guest_notes'] ?? null,
             ]);
 
             // Instant booking: confirm immediately
@@ -317,7 +325,7 @@ class BookingService
     public function getGuestBookings(User $guest, int $perPage = 15): LengthAwarePaginator
     {
         return Booking::forGuest($guest->id)
-            ->with(['accommodation'])
+            ->with(['accommodation.primaryPhoto'])
             ->orderByDesc('check_in')
             ->paginate($perPage);
     }

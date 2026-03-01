@@ -18,6 +18,15 @@ export const clearAccommodation = ({ commit }) => {
     commit("SET_ACCOMMODATION", null);
 };
 
+export const calculatePrice = async (_, { accommodationId, checkIn, checkOut, guests }) => {
+    const response = await apiClient.accommodations[accommodationId]['calculate-price'].post({
+        check_in: checkIn,
+        check_out: checkOut,
+        guests,
+    });
+    return response.data.data;
+};
+
 export const createBooking = async (_, { accommodationId, checkIn, checkOut, guests, guestNotes }) => {
     const payload = {
         accommodation_id: accommodationId,
@@ -31,5 +40,5 @@ export const createBooking = async (_, { accommodationId, checkIn, checkOut, gue
     }
 
     const response = await apiClient.bookings.post(payload);
-    return response.data;
+    return response.data.data;
 };

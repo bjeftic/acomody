@@ -43,7 +43,15 @@ return new class extends Migration
             $table->decimal('fees_total', 10, 2)->default(0);
             $table->decimal('taxes_total', 10, 2)->default(0);
             $table->decimal('total_price', 10, 2);
-            $table->json('price_breakdown')->nullable();
+
+            // Reference to the pricing config active at booking time
+            $table->ulid('priceable_item_id')->nullable()->index();
+            $table->foreign('priceable_item_id')->references('id')->on('priceable_items')->nullOnDelete();
+
+            // Line-item detail snapshot (per-night rates, individual fees, taxes)
+            // Totals are stored as scalars above; this JSON holds only the itemised breakdown
+            $table->json('price_details')->nullable();
+
             $table->json('optional_fee_ids')->nullable();
 
             // Payment

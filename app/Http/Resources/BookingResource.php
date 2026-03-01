@@ -28,14 +28,18 @@ class BookingResource extends JsonResource
             'fees_total'     => $this->fees_total,
             'taxes_total'    => $this->taxes_total,
             'total_price'    => $this->total_price,
-            'price_breakdown' => $this->price_breakdown,
+            'price_details'  => $this->price_details,
             'refund_amount'  => $this->refund_amount,
 
             // Accommodation
             'accommodation' => $this->whenLoaded('accommodation', fn () => [
                 'id'    => $this->accommodation->id,
                 'title' => $this->accommodation->title,
+                'address' => $this->accommodation->street_address,
                 'cancellation_policy' => $this->accommodation->cancellation_policy,
+                'primary_photo_url' => $this->accommodation->relationLoaded('primaryPhoto')
+                    ? $this->accommodation->primaryPhoto?->medium_url
+                    : null,
             ]),
 
             // Guest (visible to host)

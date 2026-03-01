@@ -80,11 +80,12 @@
                                 >
                                     Dashboard
                                 </span>
-                                <span
+                                <router-link
+                                    :to="{ name: 'bookings-list' }"
                                     class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                 >
                                     Bookings
-                                </span>
+                                </router-link>
                                 <span
                                     class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                 >

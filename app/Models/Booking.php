@@ -27,7 +27,8 @@ class Booking extends Model
         'fees_total',
         'taxes_total',
         'total_price',
-        'price_breakdown',
+        'priceable_item_id',
+        'price_details',
         'optional_fee_ids',
         'payment_status',
         'availability_period_id',
@@ -44,7 +45,7 @@ class Booking extends Model
     protected $casts = [
         'status'          => BookingStatus::class,
         'payment_status'  => PaymentStatus::class,
-        'price_breakdown' => 'array',
+        'price_details'   => 'array',
         'optional_fee_ids' => 'array',
         'check_in'        => 'date',
         'check_out'       => 'date',
@@ -85,6 +86,11 @@ class Booking extends Model
     public function availabilityPeriod(): BelongsTo
     {
         return $this->belongsTo(AvailabilityPeriod::class);
+    }
+
+    public function priceableItem(): BelongsTo
+    {
+        return $this->belongsTo(PriceableItem::class);
     }
 
     // ============================================

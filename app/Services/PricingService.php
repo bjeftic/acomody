@@ -54,8 +54,10 @@ class PricingService
             ->active()
             ->firstOrFail();
 
+        $breakdown = ['priceable_item_id' => $pricing->id];
+
         // Calculate based on pricing type
-        $breakdown = match ($pricing->pricing_type) {
+        $breakdown += match ($pricing->pricing_type) {
             'nightly', 'daily', 'hourly' => $this->calculateTimeBasedPrice($pricing, $startDate, $endDate, $quantity, $persons),
             'per_item', 'per_person', 'per_table', 'fixed' => $this->calculateQuantityBasedPrice($pricing, $quantity, $persons),
             default => throw new \Exception("Unsupported pricing type: {$pricing->pricing_type}"),
