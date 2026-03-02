@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @OA\Schema(
@@ -65,6 +66,16 @@ class AccommodationResource extends JsonResource
             'pricing' => new PriceResource($this->whenLoaded('pricing')),
             'views_count' => $this->views_count,
             'favorites_count' => $this->favorites_count,
+            'cancellation_policy' => $this->cancellation_policy,
+            'booking_type' => $this->booking_type,
+            'host' => $this->whenLoaded('user', fn () => [
+                'id'         => $this->user->id,
+                'first_name' => $this->user->userProfile?->first_name,
+                'last_name'  => $this->user->userProfile?->last_name,
+                'avatar_url' => $this->user->userProfile?->avatar
+                    ? Storage::disk('user_profile_photos')->url($this->user->userProfile->avatar)
+                    : null,
+            ]),
         ];
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Resources\BookingResource;
 use App\Http\Support\ApiResponse;
 use App\Models\Accommodation;
 use App\Models\Booking;
+use App\Models\UserProfile;
 use App\Services\BookingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +22,9 @@ class BookingController extends Controller
      */
     public function index(): JsonResponse
     {
-        $bookings = $this->bookingService->getGuestBookings(userOrFail());
+        $bookings = Accommodation::withoutAuthorization(
+            fn () => $this->bookingService->getGuestBookings(userOrFail())
+        );
 
         return ApiResponse::success(
             'Bookings retrieved successfully',
@@ -44,7 +47,9 @@ class BookingController extends Controller
             return ApiResponse::forbidden('You do not have access to this booking.');
         }
 
-        $booking->load(['accommodation', 'guest']);
+        Accommodation::withoutAuthorization(
+            fn () => $booking->load(['accommodation.primaryPhoto', 'guest'])
+        );
 
         return ApiResponse::success(
             'Booking retrieved successfully',

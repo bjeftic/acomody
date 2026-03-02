@@ -344,21 +344,8 @@
                 <!-- Right Column - Booking Card (Sticky) -->
                 <div class="lg:col-span-1">
                     <div class="sticky top-8 space-y-4">
-                        <div
-                            v-if="bookingSuccess"
-                            class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 text-green-700 dark:text-green-400 text-sm"
-                        >
-                            {{ bookingSuccess }}
-                        </div>
-                        <div
-                            v-if="bookingError"
-                            class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-red-700 dark:text-red-400 text-sm"
-                        >
-                            {{ bookingError }}
-                        </div>
                         <booking-card
                             :accommodation="accommodation"
-                            @book="handleBooking"
                         />
                     </div>
                 </div>
@@ -392,8 +379,6 @@ export default {
         return {
             error: null,
             isFavorite: false,
-            bookingSuccess: null,
-            bookingError: null,
         };
     },
     computed: {
@@ -416,7 +401,7 @@ export default {
         },
     },
     methods: {
-        ...mapActions("accommodation", ["fetchAccommodation", "createBooking"]),
+        ...mapActions("accommodation", ["fetchAccommodation"]),
         async checkFavoriteStatus() {
             // TODO: Implement favorite status check from API
         },
@@ -426,24 +411,6 @@ export default {
                 // TODO: Call API to toggle favorite
             } catch (err) {
                 console.error("Error toggling favorite:", err);
-            }
-        },
-        async handleBooking({ checkIn, checkOut, guests }) {
-            this.bookingError = null;
-            this.bookingSuccess = null;
-
-            try {
-                await this.createBooking({
-                    accommodationId: this.accommodationId,
-                    checkIn,
-                    checkOut,
-                    guests: guests.adults + guests.children,
-                });
-
-                this.bookingSuccess = "Your booking request was submitted successfully!";
-            } catch (err) {
-                const message = err?.error?.message || err?.message || "Failed to create booking. Please try again.";
-                this.bookingError = message;
             }
         },
         goBack() {

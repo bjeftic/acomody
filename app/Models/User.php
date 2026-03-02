@@ -2,25 +2,29 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Mail\Auth\ResetPasswordMail;
+use App\Mail\Auth\VerifyEmailMail;
+use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail as AuthMustVerifyEmail;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use App\Notifications\ResetPasswordNotification;
-use App\Notifications\VerifyEmailNotification;
-use Illuminate\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\Access\Authorizable;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Model implements MustVerifyEmail, AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
+class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use Authenticatable, Authorizable, CanResetPassword, AuthMustVerifyEmail, HasApiTokens, HasFactory, Notifiable;
+    use Authenticatable, AuthMustVerifyEmail, Authorizable, CanResetPassword, HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -57,7 +61,7 @@ class User extends Model implements MustVerifyEmail, AuthenticatableContract, Au
 
     public function canBeReadBy($user): bool
     {
-        if (!$user) {
+        if (! $user) {
             return true;
         }
 
@@ -102,16 +106,28 @@ class User extends Model implements MustVerifyEmail, AuthenticatableContract, Au
         return $this->hasMany(PasswordHistory::class);
     }
 
-    public function sendPasswordResetNotification($token)
+    public function sendPasswordResetNotification($token): void
     {
-        $this->notify(new ResetPasswordNotification($token));
+        $frontendUrl = config('app.frontend_url', config('app.url'));
+        $resetUrl = $frontendUrl.'/reset-password?token='.$token.'&email='.urlencode($this->email);
+
+        Mail::to($this->email)->queue(new ResetPasswordMail($this, $resetUrl));
     }
 
     /**
-     * Send the email verification notification.
+     * Send the email verification notification (used for resend requests).
      */
-    public function sendEmailVerificationNotification()
+    public function sendEmailVerificationNotification(): void
     {
-        $this->notify(new VerifyEmailNotification);
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $this->getKey(),
+                'hash' => sha1($this->getEmailForVerification()),
+            ]
+        );
+
+        Mail::to($this->email)->queue(new VerifyEmailMail($this, $verificationUrl));
     }
 }

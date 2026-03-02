@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\PriceableItem;
-use App\Models\PricingPeriod;
 use App\Models\PricingHistory;
+use App\Models\PricingPeriod;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -29,14 +29,10 @@ class PricingService
     /**
      * Calculate complete price breakdown
      *
-     * @param string $entityType - 'App\Models\Accommodation', etc.
-     * @param string $entityId
-     * @param Carbon $startDate
-     * @param Carbon $endDate
-     * @param int $quantity - nights, hours, items, etc.
-     * @param int $persons
-     * @param array $guestAges - for age-based tax exemptions
-     * @param array $optionalFeeIds - user-selected optional fees
+     * @param  string  $entityType  - 'App\Models\Accommodation', etc.
+     * @param  int  $quantity  - nights, hours, items, etc.
+     * @param  array  $guestAges  - for age-based tax exemptions
+     * @param  array  $optionalFeeIds  - user-selected optional fees
      * @return array - complete breakdown
      */
     public function calculateTotalPrice(
@@ -54,8 +50,10 @@ class PricingService
             ->active()
             ->firstOrFail();
 
+        $breakdown = ['priceable_item_id' => $pricing->id];
+
         // Calculate based on pricing type
-        $breakdown = match ($pricing->pricing_type) {
+        $breakdown += match ($pricing->pricing_type) {
             'nightly', 'daily', 'hourly' => $this->calculateTimeBasedPrice($pricing, $startDate, $endDate, $quantity, $persons),
             'per_item', 'per_person', 'per_table', 'fixed' => $this->calculateQuantityBasedPrice($pricing, $quantity, $persons),
             default => throw new \Exception("Unsupported pricing type: {$pricing->pricing_type}"),
@@ -91,7 +89,7 @@ class PricingService
         $breakdown['total'] = $breakdown['subtotal_before_tax'] + $breakdown['taxes_subtotal'];
 
         // Format all amounts
-        $breakdown = $this->formatBreakdown($breakdown, $pricing->currency);
+        $breakdown = $this->formatBreakdown($breakdown, $pricing->currency->code);
 
         return $breakdown;
     }
@@ -180,7 +178,7 @@ class PricingService
             ->orderByPriority('desc')
             ->first();
 
-        if (!$period) {
+        if (! $period) {
             return null;
         }
 
@@ -205,11 +203,12 @@ class PricingService
      */
     protected function isWeekend(PriceableItem $pricing, Carbon $date): bool
     {
-        if (!$pricing->weekend_days) {
+        if (! $pricing->weekend_days) {
             return $date->isWeekend(); // Default: Sat & Sun
         }
 
         $dayName = strtolower($date->format('l'));
+
         return in_array($dayName, $pricing->weekend_days);
     }
 
@@ -267,7 +266,7 @@ class PricingService
      */
     protected function calculateBulkDiscount(PriceableItem $pricing, int $quantity, float $subtotal): float
     {
-        if (!$pricing->bulk_discount_threshold || !$pricing->bulk_discount_percent) {
+        if (! $pricing->bulk_discount_threshold || ! $pricing->bulk_discount_percent) {
             return 0;
         }
 
@@ -298,10 +297,10 @@ class PricingService
         // Get pricing
         $pricing = PriceableItem::forEntity($entityType, $entityId)->active()->first();
 
-        if (!$pricing) {
+        if (! $pricing) {
             return [
                 'valid' => false,
-                'errors' => ['Pricing not configured for this item']
+                'errors' => ['Pricing not configured for this item'],
             ];
         }
 
@@ -323,13 +322,13 @@ class PricingService
             $endDate
         );
 
-        if (!$availabilityCheck['available']) {
+        if (! $availabilityCheck['available']) {
             $errors = array_merge($errors, $availabilityCheck['reasons']);
         }
 
         return [
             'valid' => empty($errors),
-            'errors' => $errors
+            'errors' => $errors,
         ];
     }
 
@@ -391,7 +390,7 @@ class PricingService
             default => $currency,
         };
 
-        return $symbol . number_format($amount, 2);
+        return $symbol.number_format($amount, 2);
     }
 
     // ============================================
@@ -408,13 +407,14 @@ class PricingService
             $pricing = PriceableItem::create([
                 'priceable_type' => $entityType,
                 'priceable_id' => $entityId,
-                ...$data
+                ...$data,
             ]);
 
             // Log change
             $this->logPricingChange($entityType, $entityId, 'base_price', null, $pricing->toArray());
 
             DB::commit();
+
             return $pricing;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -444,6 +444,7 @@ class PricingService
             );
 
             DB::commit();
+
             return $pricing->fresh();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -465,13 +466,14 @@ class PricingService
             $period = PricingPeriod::create([
                 'priceable_type' => $entityType,
                 'priceable_id' => $entityId,
-                ...$data
+                ...$data,
             ]);
 
             // Log change
             $this->logPricingChange($entityType, $entityId, 'period_pricing', null, $period->toArray());
 
             DB::commit();
+
             return $period;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -500,6 +502,7 @@ class PricingService
             );
 
             DB::commit();
+
             return $period->fresh();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -527,6 +530,7 @@ class PricingService
             $deleted = $period->delete();
 
             DB::commit();
+
             return $deleted;
         } catch (\Exception $e) {
             DB::rollBack();

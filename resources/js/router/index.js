@@ -25,6 +25,24 @@ const routes = [
         component: () => import('@/src/views/accommodation/AccommodationDetailPage.vue')
     },
     {
+        path: '/accommodations/:id/reserve',
+        name: 'accommodation-reserve',
+        component: () => import('@/src/views/accommodation/ReservationConfirmPage.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/bookings',
+        name: 'bookings-list',
+        component: () => import('@/src/views/bookings/BookingsPage.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/bookings/:id',
+        name: 'booking-detail',
+        component: () => import('@/src/views/bookings/BookingDetailPage.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
         path: '/s',
         name: 'page-search',
         component: () => import('@/src/views/search/Search.vue'),
