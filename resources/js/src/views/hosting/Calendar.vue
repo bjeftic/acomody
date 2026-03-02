@@ -191,6 +191,56 @@
                                         {{ booking.currency }} {{ booking.totalPrice.toFixed(2) }}
                                     </span>
                                 </div>
+
+                                <!-- Confirm / Decline for pending bookings -->
+                                <template v-if="booking.status === 'pending'">
+                                    <!-- Decline reason form -->
+                                    <div
+                                        v-if="decliningBookingId === booking.id"
+                                        class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700"
+                                    >
+                                        <textarea
+                                            v-model="declineReason"
+                                            placeholder="Reason for declining (optional)"
+                                            rows="2"
+                                            class="w-full text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
+                                        ></textarea>
+                                        <div class="flex gap-2 mt-2">
+                                            <button
+                                                @click="onDeclineBooking(booking.id)"
+                                                :disabled="pendingAction === booking.id"
+                                                class="flex-1 py-1.5 px-3 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {{ pendingAction === booking.id ? 'Declining…' : 'Confirm decline' }}
+                                            </button>
+                                            <button
+                                                @click="decliningBookingId = null; declineReason = ''"
+                                                :disabled="pendingAction === booking.id"
+                                                class="py-1.5 px-3 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action buttons -->
+                                    <div v-else class="flex gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                        <button
+                                            @click="onConfirmBooking(booking.id)"
+                                            :disabled="pendingAction === booking.id"
+                                            class="flex-1 py-1.5 px-3 text-sm font-medium rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {{ pendingAction === booking.id ? 'Confirming…' : 'Confirm' }}
+                                        </button>
+                                        <button
+                                            @click="decliningBookingId = booking.id"
+                                            :disabled="pendingAction === booking.id"
+                                            class="flex-1 py-1.5 px-3 text-sm font-medium rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+                                        >
+                                            Decline
+                                        </button>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                     </div>
@@ -226,6 +276,9 @@ export default {
                 "January", "February", "March", "April", "May", "June",
                 "July", "August", "September", "October", "November", "December",
             ],
+            pendingAction: null,
+            decliningBookingId: null,
+            declineReason: "",
         };
     },
 
@@ -327,6 +380,8 @@ export default {
             "loadCalendarData",
             "setSelectedDate",
             "navigateMonth",
+            "confirmBooking",
+            "declineBooking",
         ]),
 
         toDateString(year, month, day) {
@@ -379,6 +434,30 @@ export default {
                     return "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300";
                 default:
                     return "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400";
+            }
+        },
+
+        async onConfirmBooking(bookingId) {
+            this.pendingAction = bookingId;
+            try {
+                await this.confirmBooking(bookingId);
+            } catch {
+                // silently ignore — booking list retains current state
+            } finally {
+                this.pendingAction = null;
+            }
+        },
+
+        async onDeclineBooking(bookingId) {
+            this.pendingAction = bookingId;
+            try {
+                await this.declineBooking({ bookingId, reason: this.declineReason });
+                this.decliningBookingId = null;
+                this.declineReason = "";
+            } catch {
+                // silently ignore
+            } finally {
+                this.pendingAction = null;
             }
         },
 

@@ -4,28 +4,31 @@ namespace App\Mail\Booking;
 
 use App\Models\Booking;
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 
-class BookingConfirmedMail extends Mailable
+class BookingConfirmedMail extends BookingMailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
 
-    public function __construct(public readonly Booking $booking) {}
+    public function __construct(
+        public readonly Booking $booking,
+        public readonly bool $forHost = false,
+    ) {}
 
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: "Booking Confirmed — {$this->booking->accommodation->title}",
-        );
+        $subject = $this->forHost
+            ? "New Booking Confirmed — {$this->booking->accommodation->title}"
+            : "Booking Confirmed — {$this->booking->accommodation->title}";
+
+        return new Envelope(subject: $subject);
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'mail.booking.confirmed',
+            view: $this->forHost ? 'mail.booking.confirmed-host' : 'mail.booking.confirmed',
         );
     }
 }

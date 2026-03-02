@@ -3,28 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Booking Request</title>
+    <title>New Booking Confirmed</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; color: #333; }
         .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-        .header { background: #7c3aed; color: #fff; padding: 32px; text-align: center; }
+        .header { background: #16a34a; color: #fff; padding: 32px; text-align: center; }
         .header h1 { margin: 0; font-size: 24px; }
         .body { padding: 32px; }
         .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
         .detail-row:last-child { border-bottom: none; }
         .label { color: #666; font-size: 14px; }
         .value { font-weight: 600; font-size: 14px; }
+        .total { font-size: 18px; font-weight: 700; color: #16a34a; }
         .footer { background: #f9f9f9; padding: 20px 32px; text-align: center; font-size: 12px; color: #999; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>📩 New Booking Request</h1>
+        <h1>✓ New Booking Confirmed</h1>
     </div>
     <div class="body">
         <p>Hi {{ $booking->host->first_name ?? $booking->host->name }},</p>
-        <p>You have a new booking request for <strong>{{ $booking->accommodation->title }}</strong>. Please log in to confirm or decline.</p>
+        <p>A new booking for <strong>{{ $booking->accommodation->title }}</strong> has been confirmed. Here are the details:</p>
 
         <div style="margin: 24px 0;">
             <div class="detail-row">
@@ -48,8 +49,12 @@
                 <span class="value">{{ $booking->guests }}</span>
             </div>
             <div class="detail-row">
+                <span class="label">Booking ID</span>
+                <span class="value" style="font-size:12px;">{{ $booking->id }}</span>
+            </div>
+            <div class="detail-row">
                 <span class="label">Total</span>
-                <span class="value">{{ strtoupper($booking->currency) }} {{ number_format($booking->total_price, 2) }}</span>
+                <span class="value total">{{ strtoupper($booking->currency) }} {{ number_format($booking->total_price, 2) }}</span>
             </div>
         </div>
 
@@ -59,14 +64,10 @@
 
         <div style="margin: 32px 0; text-align: center;">
             <a href="{{ config('app.frontend_url') }}/hosting/calendar"
-               style="display:inline-block; background:#7c3aed; color:#fff; text-decoration:none; padding:14px 32px; border-radius:8px; font-size:16px; font-weight:600;">
-                Review Request
+               style="display:inline-block; background:#16a34a; color:#fff; text-decoration:none; padding:14px 32px; border-radius:8px; font-size:16px; font-weight:600;">
+                View in Dashboard
             </a>
         </div>
-
-        <p style="color:#666; font-size:13px; text-align:center;">
-            Or log in to your <a href="{{ config('app.frontend_url') }}/hosting/calendar" style="color:#7c3aed;">host dashboard</a> to confirm or decline.
-        </p>
     </div>
     <div class="footer">
         &copy; {{ date('Y') }} Acomody &mdash; All rights reserved.

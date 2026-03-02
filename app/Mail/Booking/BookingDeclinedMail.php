@@ -4,14 +4,12 @@ namespace App\Mail\Booking;
 
 use App\Models\Booking;
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 
-class BookingDeclinedMail extends Mailable
+class BookingDeclinedMail extends BookingMailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
 
     public function __construct(public readonly Booking $booking) {}
 

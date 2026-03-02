@@ -36,6 +36,25 @@ export const setSelectedDate = ({ commit }, date) => {
     commit("SET_SELECTED_DATE", date);
 };
 
+export const confirmBooking = async ({ commit, state }, bookingId) => {
+    const response = await apiClient.host.bookings[bookingId].confirm.post();
+    const item = response.data?.data;
+    const existing = state.bookings.find((b) => b.id === bookingId);
+    if (existing && item) {
+        commit("UPDATE_BOOKING", { ...existing, status: item.status });
+    }
+};
+
+export const declineBooking = async ({ commit, state }, { bookingId, reason }) => {
+    const payload = reason ? { reason } : {};
+    const response = await apiClient.host.bookings[bookingId].decline.post(payload);
+    const item = response.data?.data;
+    const existing = state.bookings.find((b) => b.id === bookingId);
+    if (existing && item) {
+        commit("UPDATE_BOOKING", { ...existing, status: item.status });
+    }
+};
+
 export const navigateMonth = ({ commit, state }, direction) => {
     let month = state.currentMonth + direction;
     let year = state.currentYear;
