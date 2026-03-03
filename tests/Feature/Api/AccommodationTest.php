@@ -2,6 +2,7 @@
 
 use App\Models\Accommodation;
 use App\Services\AccommodationService;
+use App\Services\BookingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -36,10 +37,10 @@ describe('GET /api/accommodations (index)', function () {
     });
 
     it('returns only accommodations that belong to the authenticated user', function () {
-        $owner  = authenticatedUser();
-        $other  = authenticatedUser();
+        $owner = authenticatedUser();
+        $other = authenticatedUser();
 
-        $ownAccommodation   = createAccommodation($owner);
+        $ownAccommodation = createAccommodation($owner);
         $otherAccommodation = createAccommodation($other);
 
         $response = $this->actingAs($owner, 'sanctum')
@@ -60,7 +61,7 @@ describe('GET /api/accommodations (index)', function () {
             ->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'data'    => [],
+                'data' => [],
             ]);
     });
 
@@ -192,7 +193,7 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
     });
 
     it('returns 200 with the accommodation when the owner requests it', function () {
-        $user          = authenticatedUser();
+        $user = authenticatedUser();
         $accommodation = createAccommodation($user);
 
         $this->actingAs($user, 'sanctum')
@@ -214,8 +215,8 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
     });
 
     it('returns 404 when user tries to access another owner\'s accommodation', function () {
-        $owner         = authenticatedUser();
-        $other         = authenticatedUser();
+        $owner = authenticatedUser();
+        $other = authenticatedUser();
         $accommodation = createAccommodation($owner);
 
         $this->actingAs($other, 'sanctum')
@@ -228,7 +229,7 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
     });
 
     it('returns correct JSON structure on success', function () {
-        $user          = authenticatedUser();
+        $user = authenticatedUser();
         $accommodation = createAccommodation($user);
 
         $this->actingAs($user, 'sanctum')
@@ -244,8 +245,8 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
     });
 
     it('response success flag is false on 404', function () {
-        $owner         = authenticatedUser();
-        $other         = authenticatedUser();
+        $owner = authenticatedUser();
+        $other = authenticatedUser();
         $accommodation = createAccommodation($owner);
 
         $this->actingAs($other, 'sanctum')
@@ -257,7 +258,7 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
     // ── Service layer ───────────────────────────────────────
 
     it('delegates to AccommodationService::getAccommodationById with correct args', function () {
-        $user          = authenticatedUser();
+        $user = authenticatedUser();
         $accommodation = createAccommodation($user);
 
         $mock = Mockery::mock(AccommodationService::class);
@@ -274,7 +275,7 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
     });
 
     it('returns 404 when service returns null', function () {
-        $user          = authenticatedUser();
+        $user = authenticatedUser();
         $accommodation = createAccommodation($user);
 
         $mock = Mockery::mock(AccommodationService::class);
@@ -296,7 +297,7 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
     // ── Soft-deleted / inactive edge cases ─────────────────
 
     it('returns 404 when the accommodation is soft-deleted', function () {
-        $user          = authenticatedUser();
+        $user = authenticatedUser();
         $accommodation = createAccommodation($user);
         Accommodation::withoutAuthorization(fn () => $accommodation->delete()); // assumes SoftDeletes trait
 
@@ -304,4 +305,176 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
             ->getJson(route('api.accommodations.accommodations.show', $accommodation->id))
             ->assertStatus(404);
     });
+});
+
+// ============================================================
+// CHECK AVAILABILITY  POST /api/accommodations/{id}/check-availability
+// ============================================================
+
+describe('POST /api/accommodations/{id}/check-availability', function () {
+
+    it('returns 401 for unauthenticated requests', function () {
+        $accommodation = createAccommodation(authenticatedUser());
+
+        $this->postJson(route('api.accommodations.accommodations.check-availability', $accommodation), [])
+            ->assertUnauthorized();
+    });
+
+    it('returns 422 when check_in is missing', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson(route('api.accommodations.accommodations.check-availability', $accommodation), [
+                'check_out' => now()->addDays(5)->toDateString(),
+                'guests' => 2,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'check_in']);
+    });
+
+    it('returns 422 when check_out is missing', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson(route('api.accommodations.accommodations.check-availability', $accommodation), [
+                'check_in' => now()->addDays(2)->toDateString(),
+                'guests' => 2,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'check_out']);
+    });
+
+    it('returns 422 when guests is missing', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson(route('api.accommodations.accommodations.check-availability', $accommodation), [
+                'check_in' => now()->addDays(2)->toDateString(),
+                'check_out' => now()->addDays(5)->toDateString(),
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'guests']);
+    });
+
+    it('returns 422 when check_in is in the past', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson(route('api.accommodations.accommodations.check-availability', $accommodation), [
+                'check_in' => now()->subDay()->toDateString(),
+                'check_out' => now()->addDays(3)->toDateString(),
+                'guests' => 2,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'check_in']);
+    });
+
+    it('returns 200 and delegates to BookingService::checkAvailability', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $mock = Mockery::mock(BookingService::class);
+        $mock->shouldReceive('checkAvailability')
+            ->once()
+            ->andReturn(['available' => true, 'reasons' => []]);
+
+        $this->app->instance(BookingService::class, $mock);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson(route('api.accommodations.accommodations.check-availability', $accommodation), [
+                'check_in' => now()->addDays(2)->toDateString(),
+                'check_out' => now()->addDays(5)->toDateString(),
+                'guests' => 2,
+            ])
+            ->assertSuccessful()
+            ->assertJson(['success' => true, 'message' => 'Availability checked']);
+    });
+
+});
+
+// ============================================================
+// CALCULATE PRICE  POST /api/accommodations/{id}/calculate-price
+// ============================================================
+
+describe('POST /api/accommodations/{id}/calculate-price', function () {
+
+    it('returns 401 for unauthenticated requests', function () {
+        $accommodation = createAccommodation(authenticatedUser());
+
+        $this->postJson(route('api.accommodations.accommodations.calculate-price', $accommodation), [])
+            ->assertUnauthorized();
+    });
+
+    it('returns 422 when check_in is missing', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson(route('api.accommodations.accommodations.calculate-price', $accommodation), [
+                'check_out' => now()->addDays(5)->toDateString(),
+                'guests' => 2,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'check_in']);
+    });
+
+    it('returns 422 when check_out is missing', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson(route('api.accommodations.accommodations.calculate-price', $accommodation), [
+                'check_in' => now()->addDays(2)->toDateString(),
+                'guests' => 2,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'check_out']);
+    });
+
+    it('returns 422 when guests is missing', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson(route('api.accommodations.accommodations.calculate-price', $accommodation), [
+                'check_in' => now()->addDays(2)->toDateString(),
+                'check_out' => now()->addDays(5)->toDateString(),
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'guests']);
+    });
+
+    it('returns 200 and delegates to BookingService::calculatePrice', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $mock = Mockery::mock(BookingService::class);
+        $mock->shouldReceive('calculatePrice')
+            ->once()
+            ->andReturn([
+                'subtotal' => 300.00,
+                'fees_subtotal' => 0,
+                'taxes_subtotal' => 0,
+                'total' => 300.00,
+                'currency' => 'EUR',
+                'nights' => 3,
+                'priceable_item_id' => null,
+            ]);
+
+        $this->app->instance(BookingService::class, $mock);
+
+        $this->actingAs($user, 'sanctum')
+            ->postJson(route('api.accommodations.accommodations.calculate-price', $accommodation), [
+                'check_in' => now()->addDays(2)->toDateString(),
+                'check_out' => now()->addDays(5)->toDateString(),
+                'guests' => 2,
+            ])
+            ->assertSuccessful()
+            ->assertJson(['success' => true, 'message' => 'Price calculated']);
+    });
+
 });
