@@ -129,6 +129,14 @@ describe('GET /api/bookings/{booking} (guest show)', function () {
             ->assertJsonStructure(['success', 'message', 'data']);
     });
 
+    it('returns 404 for a non-existent booking id', function () {
+        $user = authenticatedUser();
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson(route('api.bookings.show', 'non-existent-id'))
+            ->assertNotFound();
+    });
+
 });
 
 // ============================================================
@@ -227,6 +235,28 @@ describe('POST /api/bookings (store)', function () {
             ->assertJsonFragment(['field' => 'guests']);
     });
 
+    it('returns 409 when the accommodation is unavailable', function () {
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $accommodation = createAccommodation($host);
+
+        $mock = Mockery::mock(BookingService::class);
+        $mock->shouldReceive('createBooking')
+            ->once()
+            ->andThrow(new \RuntimeException('Dates are not available'));
+
+        $this->app->instance(BookingService::class, $mock);
+
+        $this->actingAs($guest, 'sanctum')
+            ->postJson(route('api.bookings.store'), [
+                'accommodation_id' => $accommodation->id,
+                'check_in' => now()->addDays(5)->toDateString(),
+                'check_out' => now()->addDays(8)->toDateString(),
+                'guests' => 2,
+            ])
+            ->assertStatus(409);
+    });
+
     it('returns 201 when BookingService creates the booking successfully', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
@@ -282,6 +312,15 @@ describe('POST /api/bookings/{booking}/cancel (guest cancel)', function () {
             ->postJson(route('api.bookings.cancel', $booking), [])
             ->assertSuccessful()
             ->assertJson(['success' => true, 'message' => 'Booking cancelled successfully']);
+    });
+
+    it('returns 403 when a different user tries to cancel the booking', function () {
+        $booking = createGuestBooking();
+        $otherUser = authenticatedUser();
+
+        $this->actingAs($otherUser, 'sanctum')
+            ->postJson(route('api.bookings.cancel', $booking), [])
+            ->assertForbidden();
     });
 
     it('returns 409 when the booking cannot be cancelled', function () {
