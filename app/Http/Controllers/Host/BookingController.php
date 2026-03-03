@@ -8,6 +8,7 @@ use App\Http\Requests\Booking\DeclineRequest;
 use App\Http\Resources\BookingResource;
 use App\Http\Support\ApiResponse;
 use App\Models\Booking;
+use App\Models\User;
 use App\Services\BookingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,17 +23,19 @@ class BookingController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $status   = $request->query('status');
-        $bookings = $this->bookingService->getHostBookings(userOrFail(), status: $status);
+        $status = $request->query('status');
+        $bookings = User::withoutAuthorization(
+            fn () => $this->bookingService->getHostBookings(userOrFail(), status: $status)
+        );
 
         return ApiResponse::success(
             'Bookings retrieved successfully',
             BookingResource::collection($bookings->items()),
             [
                 'current_page' => $bookings->currentPage(),
-                'last_page'    => $bookings->lastPage(),
-                'per_page'     => $bookings->perPage(),
-                'total'        => $bookings->total(),
+                'last_page' => $bookings->lastPage(),
+                'per_page' => $bookings->perPage(),
+                'total' => $bookings->total(),
             ]
         );
     }
@@ -46,7 +49,7 @@ class BookingController extends Controller
             return ApiResponse::forbidden('You do not have access to this booking.');
         }
 
-        $booking->load(['accommodation', 'guest']);
+        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest']));
 
         return ApiResponse::success(
             'Booking retrieved successfully',
@@ -70,6 +73,7 @@ class BookingController extends Controller
             return ApiResponse::error($e->getMessage(), null, null, 409);
         } catch (\Throwable $e) {
             Log::error('Booking confirmation failed', ['booking_id' => $booking->id, 'error' => $e->getMessage()]);
+
             return ApiResponse::error('Failed to confirm booking.', null, null, 500);
         }
     }
@@ -94,6 +98,7 @@ class BookingController extends Controller
             return ApiResponse::error($e->getMessage(), null, null, 409);
         } catch (\Throwable $e) {
             Log::error('Booking decline failed', ['booking_id' => $booking->id, 'error' => $e->getMessage()]);
+
             return ApiResponse::error('Failed to decline booking.', null, null, 500);
         }
     }
@@ -118,6 +123,7 @@ class BookingController extends Controller
             return ApiResponse::error($e->getMessage(), null, null, 409);
         } catch (\Throwable $e) {
             Log::error('Booking host-cancel failed', ['booking_id' => $booking->id, 'error' => $e->getMessage()]);
+
             return ApiResponse::error('Failed to cancel booking.', null, null, 500);
         }
     }
