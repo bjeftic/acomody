@@ -44,15 +44,9 @@ class BookingController extends Controller
      */
     public function show(Booking $booking): JsonResponse
     {
-        if ($booking->host_user_id !== userOrFail()->id) {
-            return ApiResponse::forbidden('You do not have access to this booking.');
-        }
-
-        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest']));
-
         return ApiResponse::success(
             'Booking retrieved successfully',
-            new BookingResource($booking)
+            new BookingResource($this->bookingService->fetchBooking($booking->id))
         );
     }
 
@@ -66,7 +60,7 @@ class BookingController extends Controller
 
             return ApiResponse::success(
                 'Booking confirmed successfully',
-                new BookingResource($booking)
+                new BookingResource($this->bookingService->fetchBooking($booking->id))
             );
         } catch (\RuntimeException $e) {
             return ApiResponse::error($e->getMessage(), null, null, 409);
@@ -91,7 +85,7 @@ class BookingController extends Controller
 
             return ApiResponse::success(
                 'Booking declined',
-                new BookingResource($booking)
+                new BookingResource($this->bookingService->fetchBooking($booking->id))
             );
         } catch (\RuntimeException $e) {
             return ApiResponse::error($e->getMessage(), null, null, 409);
@@ -116,7 +110,7 @@ class BookingController extends Controller
 
             return ApiResponse::success(
                 'Booking cancelled successfully',
-                new BookingResource($booking)
+                new BookingResource($this->bookingService->fetchBooking($booking->id))
             );
         } catch (\RuntimeException $e) {
             return ApiResponse::error($e->getMessage(), null, null, 409);

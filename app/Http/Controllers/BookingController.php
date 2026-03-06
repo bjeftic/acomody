@@ -334,7 +334,7 @@ class BookingController extends Controller
 
             return ApiResponse::success(
                 'Booking cancelled successfully',
-                new BookingResource($booking)
+                new BookingResource($this->bookingService->fetchBooking($booking->id))
             );
         } catch (\RuntimeException $e) {
             return ApiResponse::error($e->getMessage(), null, null, 409);

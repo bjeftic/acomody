@@ -125,10 +125,11 @@ describe('POST /api/host/bookings/{booking}/confirm (confirm)', function () {
         $mock->shouldReceive('confirmBooking')
             ->once()
             ->andReturn($booking);
+        $mock->shouldReceive('fetchBooking')
+            ->once()
+            ->andReturn($booking);
 
         $this->app->instance(BookingService::class, $mock);
-
-        Booking::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
 
         $this->actingAs($host, 'sanctum')
             ->postJson(route('api.host.bookings.confirm', $booking))

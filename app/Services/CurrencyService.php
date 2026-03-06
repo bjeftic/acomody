@@ -65,7 +65,7 @@ class CurrencyService
                 ->code;
         }
 
-        return Currency::getDefault();
+        return Currency::getDefault()?->code ?? 'EUR';
     }
 
     /**

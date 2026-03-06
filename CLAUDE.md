@@ -307,6 +307,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ## Authentication & Authorization
 
 - Use Laravel's built-in authentication and authorization features (gates, policies, Sanctum, etc.).
+- Never use withoutAuthorization method (only in seeders and migrations).
 
 ## URL Generation
 

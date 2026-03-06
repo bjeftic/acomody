@@ -217,8 +217,6 @@ class BookingService
             throw $e;
         }
 
-        User::withoutAuthorization(fn() => $booking->load(['accommodation', 'guest', 'host']));
-
         event(new BookingConfirmed($booking));
 
         return $booking;
@@ -238,8 +236,6 @@ class BookingService
             'declined_at' => now(),
             'decline_reason' => $reason,
         ]);
-
-        User::withoutAuthorization(fn() => $booking->load(['accommodation', 'guest', 'host']));
 
         event(new BookingDeclined($booking));
 
@@ -279,8 +275,6 @@ class BookingService
             throw $e;
         }
 
-        User::withoutAuthorization(fn() => $booking->load(['accommodation', 'guest', 'host']));
-
         event(new BookingCancelled($booking, $canceller->id));
 
         return $booking;
@@ -295,32 +289,11 @@ class BookingService
      */
     public function getGuestBookings(User $guest, int $perPage = 15): LengthAwarePaginator
     {
-        $query = DB::table('bookings')
-            ->join('accommodations', 'bookings.accommodation_id', '=', 'accommodations.id')
-            ->join('users', 'bookings.user_id', '=', 'users.id')
-            ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-            ->leftJoin('photos', function ($join) {
-                $join->on('photos.photoable_id', '=', 'accommodations.id')
-                    ->where('photos.photoable_type', '=', 'App\Models\Accommodation')
-                    ->where('photos.is_primary', '=', true)
-                    ->whereNull('photos.deleted_at');
-            })
-            ->where('bookings.user_id', '=', $guest->id)
-            ->select(
-                'bookings.*',
-                'accommodations.id as accommodation_id',
-                'accommodations.title as accommodation_title',
-                'accommodations.street_address as accommodation_address',
-                'accommodations.cancellation_policy as accommodation_cancellation_policy',
-                'users.email as guest_email',
-                'users.id as guest_id',
-                'user_profiles.first_name as guest_first_name',
-                'user_profiles.last_name as guest_last_name',
-                'photos.medium_path as primary_photo_medium_path',
-            )
-            ->orderByDesc('bookings.check_in');
-
-        return $query->paginate($perPage);
+        return Booking::query()
+            ->with(['accommodation.primaryPhoto', 'guest'])
+            ->where('user_id', $guest->id)
+            ->orderByDesc('check_in')
+            ->paginate($perPage);
     }
 
     /**
@@ -329,36 +302,12 @@ class BookingService
 
     public function getHostBookings(User $host, int $perPage = 15, ?string $status = null): LengthAwarePaginator
     {
-        $query = DB::table('bookings')
-            ->join('accommodations', 'bookings.accommodation_id', '=', 'accommodations.id')
-            ->join('users', 'bookings.user_id', '=', 'users.id')
-            ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-            ->leftJoin('photos', function ($join) {
-                $join->on('photos.photoable_id', '=', 'accommodations.id')
-                    ->where('photos.photoable_type', '=', 'App\Models\Accommodation')
-                    ->where('photos.is_primary', '=', true)
-                    ->whereNull('photos.deleted_at');
-            })
-            ->where('bookings.host_user_id', '=', $host->id)
-            ->select(
-                'bookings.*',
-                'accommodations.id as accommodation_id',
-                'accommodations.title as accommodation_title',
-                'accommodations.street_address as accommodation_address',
-                'accommodations.cancellation_policy as accommodation_cancellation_policy',
-                'users.email as guest_email',
-                'users.id as guest_id',
-                'user_profiles.first_name as guest_first_name',
-                'user_profiles.last_name as guest_last_name',
-                'photos.medium_path as primary_photo_medium_path',
-            )
-            ->orderByDesc('bookings.check_in');
-
-        if ($status) {
-            $query->where('bookings.status', $status);
-        }
-
-        return $query->paginate($perPage);
+        return Booking::query()
+            ->with(['accommodation.primaryPhoto'])
+            ->where('host_user_id', $host->id)
+            ->when($status, fn ($q) => $q->where('status', $status))
+            ->orderByDesc('check_in')
+            ->paginate($perPage);
     }
 
     // ============================================
@@ -419,24 +368,10 @@ class BookingService
         };
     }
 
-    public function fetchBooking(string $bookingId)
+    public function fetchBooking(string $bookingId): ?Booking
     {
-        return DB::table('bookings')
-            ->join('accommodations', 'bookings.accommodation_id', '=', 'accommodations.id')
-            ->join('users', 'bookings.user_id', '=', 'users.id')
-            ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-            ->where('bookings.id', '=', $bookingId)
-            ->select(
-                'bookings.*',
-                'accommodations.id as accommodation_id',
-                'accommodations.title as accommodation_title',
-                'accommodations.street_address as accommodation_address',
-                'accommodations.cancellation_policy as accommodation_cancellation_policy',
-                'users.email as guest_email',
-                'users.id as guest_id',
-                'user_profiles.first_name as guest_first_name',
-                'user_profiles.last_name as guest_last_name',
-            )
-            ->first();
+        return Booking::query()
+            ->with(['accommodation.primaryPhoto'])
+            ->find($bookingId);
     }
 }

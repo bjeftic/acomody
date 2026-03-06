@@ -14,6 +14,10 @@ uses(RefreshDatabase::class);
 
 describe('GET /api/accommodations (index)', function () {
 
+    beforeEach(function () {
+        seedCurrencyRates();
+    });
+
     it('returns 401 for unauthenticated requests', function () {
         $this->getJson(route('api.accommodations.accommodations.index'))
             ->assertStatus(401);
@@ -185,6 +189,10 @@ describe('GET /api/accommodations (index)', function () {
 // ============================================================
 
 describe('GET /api/accommodations/{accommodation} (show)', function () {
+
+    beforeEach(function () {
+        seedCurrencyRates();
+    });
 
     it('returns 401 for unauthenticated requests', function () {
         $user = authenticatedUser();
