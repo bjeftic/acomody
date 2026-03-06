@@ -88,13 +88,11 @@ class BookingController extends Controller
      */
     public function index(): JsonResponse
     {
-        $bookings = Accommodation::withoutAuthorization(
-            fn () => $this->bookingService->getGuestBookings(userOrFail())
-        );
+        $bookings = $this->bookingService->getGuestBookings(userOrFail());
 
         return ApiResponse::success(
             'Bookings retrieved successfully',
-            BookingResource::collection($bookings->items()),
+            BookingResource::collection($bookings),
             [
                 'current_page' => $bookings->currentPage(),
                 'last_page' => $bookings->lastPage(),
@@ -143,11 +141,9 @@ class BookingController extends Controller
      */
     public function show(Booking $booking): JsonResponse
     {
-        $booking->load(['accommodation.primaryPhoto', 'guest']);
-
         return ApiResponse::success(
             'Booking retrieved successfully',
-            new BookingResource($booking)
+            new BookingResource($this->bookingService->fetchBooking($booking->id))
         );
     }
 
@@ -261,7 +257,7 @@ class BookingController extends Controller
                 $booking->booking_type === 'instant_booking'
                     ? 'Booking confirmed successfully'
                     : 'Booking request submitted successfully',
-                new BookingResource($booking)
+                new BookingResource($this->bookingService->fetchBooking($booking->id))
             );
         } catch (\InvalidArgumentException $e) {
             return ApiResponse::error($e->getMessage(), null, null, 422);

@@ -19,20 +19,18 @@ use App\Models\Location;
  */
 function createLocation(array $attributes = []): Location
 {
-    $user = authenticatedUser();
+    $user = authenticatedUser(['is_superadmin' => true]);
     $country = Country::where('is_active', true)->first();
 
     return Location::withoutSyncingToSearch(function () use ($country, $user, $attributes) {
-        return Location::withoutAuthorization(function () use ($country, $user, $attributes) {
-            return Location::create(array_merge([
-                'country_id' => $country->id,
-                'name' => 'Test City',
-                'location_type' => LocationType::CITY->value,
-                'latitude' => 44.8167,
-                'longitude' => 20.4667,
-                'user_id' => $user->id,
-            ], $attributes));
-        });
+        return Location::create(array_merge([
+            'country_id' => $country->id,
+            'name' => 'Test City',
+            'location_type' => LocationType::CITY->value,
+            'latitude' => 44.8167,
+            'longitude' => 20.4667,
+            'user_id' => $user->id,
+        ], $attributes));
     });
 }
 
@@ -65,6 +63,13 @@ describe('Location model – authorization', function () {
         $user = authenticatedUser();
         $location = createLocation();
 
+        expect($location->canBeCreatedBy($user))->toBeFalse();
+    });
+
+    it('canBeCreatedBy returns true for an authenticated superadmin user', function () {
+        $user = authenticatedUser(['is_superadmin' => true]);
+        $location = createLocation();
+
         expect($location->canBeCreatedBy($user))->toBeTrue();
     });
 
@@ -74,11 +79,18 @@ describe('Location model – authorization', function () {
         expect($location->canBeUpdatedBy(null))->toBeFalse();
     });
 
+    it('canBeUpdatedBy returns true for an authenticated superadmin user', function () {
+        $user = authenticatedUser(['is_superadmin' => true]);
+        $location = createLocation();
+
+        expect($location->canBeUpdatedBy($user))->toBeTrue();
+    });
+
     it('canBeUpdatedBy returns true for an authenticated user', function () {
         $user = authenticatedUser();
         $location = createLocation();
 
-        expect($location->canBeUpdatedBy($user))->toBeTrue();
+        expect($location->canBeUpdatedBy($user))->toBeFalse();
     });
 
     it('canBeDeletedBy returns false for a guest (null) user', function () {
@@ -87,13 +99,19 @@ describe('Location model – authorization', function () {
         expect($location->canBeDeletedBy(null))->toBeFalse();
     });
 
-    it('canBeDeletedBy returns true for an authenticated user', function () {
+    it('canBeDeletedBy returns false for an authenticated user', function () {
         $user = authenticatedUser();
+        $location = createLocation();
+
+        expect($location->canBeDeletedBy($user))->toBeFalse();
+    });
+
+    it('canBeDeletedBy returns true for an authenticated superadmin user', function () {
+        $user = authenticatedUser(['is_superadmin' => true]);
         $location = createLocation();
 
         expect($location->canBeDeletedBy($user))->toBeTrue();
     });
-
 });
 
 // ============================================================
@@ -134,13 +152,12 @@ describe('Location model – relationships', function () {
     it('country relationship is eager-loadable', function () {
         createLocation();
 
-        $location = Location::withoutSyncingToSearch(fn () => Location::withoutAuthorization(fn () => Location::with('country')->latest()->first()
-        )
+        $location = Location::withoutSyncingToSearch(
+            fn() => Location::with('country')->latest()->first()
         );
 
         expect($location->relationLoaded('country'))->toBeTrue();
     });
-
 });
 
 // ============================================================
@@ -173,7 +190,6 @@ describe('Location model – attribute casting', function () {
 
         expect($location->fresh()->name)->toBe('Belgrade');
     });
-
 });
 
 // ============================================================
@@ -216,7 +232,6 @@ describe('Location model – searchable array', function () {
 
         expect($array['id'])->toBeString();
     });
-
 });
 
 // ============================================================
@@ -227,7 +242,7 @@ describe('LocationType enum', function () {
 
     it('has all expected cases', function () {
         $cases = LocationType::cases();
-        $values = array_map(fn ($c) => $c->value, $cases);
+        $values = array_map(fn($c) => $c->value, $cases);
 
         expect($values)->toContain('city')
             ->toContain('region')
@@ -245,5 +260,4 @@ describe('LocationType enum', function () {
             expect($item)->toHaveKeys(['id', 'label', 'description']);
         }
     });
-
 });

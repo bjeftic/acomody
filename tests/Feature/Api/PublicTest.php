@@ -83,4 +83,15 @@ describe('GET /api/public/accommodations/{accommodation}', function () {
             ->assertJsonStructure(['success', 'message', 'data']);
     });
 
+    it('returns 200 for an authenticated guest who did not create the accommodation', function () {
+        $owner = authenticatedUser();
+        $accommodation = createAccommodation($owner);
+
+        $guest = authenticatedUser();
+        $this->actingAs($guest)
+            ->getJson(route('api.publicaccommodationsshow', $accommodation))
+            ->assertSuccessful()
+            ->assertJson(['success' => true]);
+    });
+
 });

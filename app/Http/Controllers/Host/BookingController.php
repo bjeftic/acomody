@@ -24,9 +24,8 @@ class BookingController extends Controller
     public function index(Request $request): JsonResponse
     {
         $status = $request->query('status');
-        $bookings = User::withoutAuthorization(
-            fn () => $this->bookingService->getHostBookings(userOrFail(), status: $status)
-        );
+
+        $bookings = $this->bookingService->getHostBookings(userOrFail(), status: $status);
 
         return ApiResponse::success(
             'Bookings retrieved successfully',

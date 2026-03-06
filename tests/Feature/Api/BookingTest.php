@@ -1,40 +1,9 @@
 <?php
 
-use App\Enums\Accommodation\BookingType;
 use App\Enums\Booking\BookingStatus;
-use App\Enums\Booking\PaymentStatus;
-use App\Models\Booking;
 use App\Services\BookingService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
-
-// ============================================================
-// Guest Booking controller  — /api/bookings  (auth:sanctum)
-// ============================================================
-
-// Helper: create a booking without going through BookingService.
-// Uses a different name to avoid conflict with BookingEmailsTest::createBooking().
-function createGuestBooking(array $attributes = []): Booking
-{
-    $guest = authenticatedUser();
-    $host = authenticatedUser();
-    $accommodation = createAccommodation($host);
-
-    return Booking::withoutAuthorization(fn () => Booking::create(array_merge([
-        'accommodation_id' => $accommodation->id,
-        'user_id' => $guest->id,
-        'host_user_id' => $host->id,
-        'check_in' => now()->addDays(10)->toDateString(),
-        'check_out' => now()->addDays(13)->toDateString(),
-        'nights' => 3,
-        'guests' => 2,
-        'status' => BookingStatus::PENDING,
-        'booking_type' => BookingType::REQUEST_TO_BOOK->value,
-        'currency' => 'EUR',
-        'subtotal' => 150.00,
-        'total_price' => 150.00,
-        'payment_status' => PaymentStatus::UNPAID,
-    ], $attributes)));
-}
 
 // ============================================================
 // GET /api/bookings (index)
@@ -67,8 +36,8 @@ describe('GET /api/bookings (guest index)', function () {
     });
 
     it('returns only the authenticated guest\'s bookings', function () {
-        $booking = createGuestBooking();
-        $guest = Booking::withoutAuthorization(fn () => $booking->fresh()->guest);
+        $guest = authenticatedUser();
+        createBooking($guest, authenticatedUser());
 
         $this->actingAs($guest, 'sanctum')
             ->getJson(route('api.bookings.index'))
@@ -84,7 +53,6 @@ describe('GET /api/bookings (guest index)', function () {
             ->assertSuccessful()
             ->assertJsonStructure(['meta' => ['current_page', 'last_page', 'per_page', 'total']]);
     });
-
 });
 
 // ============================================================
@@ -94,15 +62,17 @@ describe('GET /api/bookings (guest index)', function () {
 describe('GET /api/bookings/{booking} (guest show)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
-        $booking = createGuestBooking();
+        $booking = createBooking(authenticatedUser(), authenticatedUser());
+
+        Auth::logout();
 
         $this->getJson(route('api.bookings.show', $booking))
             ->assertUnauthorized();
     });
 
     it('returns 200 when the guest owns the booking', function () {
-        $booking = createGuestBooking();
-        $guest = Booking::withoutAuthorization(fn () => $booking->fresh()->guest);
+        $guest = authenticatedUser();
+        $booking = createBooking($guest, authenticatedUser());
 
         $this->actingAs($guest, 'sanctum')
             ->getJson(route('api.bookings.show', $booking))
@@ -111,7 +81,7 @@ describe('GET /api/bookings/{booking} (guest show)', function () {
     });
 
     it('returns 403 when another user tries to access the booking', function () {
-        $booking = createGuestBooking();
+        $booking = createBooking(authenticatedUser(), authenticatedUser());
         $otherGuest = authenticatedUser();
 
         $this->actingAs($otherGuest, 'sanctum')
@@ -120,8 +90,8 @@ describe('GET /api/bookings/{booking} (guest show)', function () {
     });
 
     it('returns correct JSON structure on success', function () {
-        $booking = createGuestBooking();
-        $guest = Booking::withoutAuthorization(fn () => $booking->fresh()->guest);
+        $guest = authenticatedUser();
+        $booking = createBooking($guest, authenticatedUser());
 
         $this->actingAs($guest, 'sanctum')
             ->getJson(route('api.bookings.show', $booking))
@@ -136,7 +106,6 @@ describe('GET /api/bookings/{booking} (guest show)', function () {
             ->getJson(route('api.bookings.show', 'non-existent-id'))
             ->assertNotFound();
     });
-
 });
 
 // ============================================================
@@ -261,16 +230,13 @@ describe('POST /api/bookings (store)', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $accommodation = createAccommodation($host);
-        $booking = createGuestBooking([
-            'user_id' => $guest->id,
-            'host_user_id' => $host->id,
-            'accommodation_id' => $accommodation->id,
-        ]);
-
-        Booking::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
+        $booking = createBooking($guest, $host);
 
         $mock = Mockery::mock(BookingService::class);
         $mock->shouldReceive('createBooking')
+            ->once()
+            ->andReturn($booking);
+        $mock->shouldReceive('fetchBooking')
             ->once()
             ->andReturn($booking);
 
@@ -286,7 +252,6 @@ describe('POST /api/bookings (store)', function () {
             ->assertCreated()
             ->assertJson(['success' => true]);
     });
-
 });
 
 // ============================================================
@@ -296,7 +261,9 @@ describe('POST /api/bookings (store)', function () {
 describe('POST /api/bookings/{booking}/cancel (guest cancel)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
-        $booking = createGuestBooking();
+        $booking = createBooking(authenticatedUser(), authenticatedUser());
+
+        Auth::logout();
 
         $this->postJson(route('api.bookings.cancel', $booking))
             ->assertUnauthorized();
@@ -305,8 +272,8 @@ describe('POST /api/bookings/{booking}/cancel (guest cancel)', function () {
     it('returns 200 when the guest cancels their own pending booking', function () {
         Event::fake();
 
-        $booking = createGuestBooking();
-        $guest = Booking::withoutAuthorization(fn () => $booking->fresh()->guest);
+        $guest = authenticatedUser();
+        $booking = createBooking($guest, authenticatedUser());
 
         $this->actingAs($guest, 'sanctum')
             ->postJson(route('api.bookings.cancel', $booking), [])
@@ -315,7 +282,7 @@ describe('POST /api/bookings/{booking}/cancel (guest cancel)', function () {
     });
 
     it('returns 403 when a different user tries to cancel the booking', function () {
-        $booking = createGuestBooking();
+        $booking = createBooking(authenticatedUser(), authenticatedUser());
         $otherUser = authenticatedUser();
 
         $this->actingAs($otherUser, 'sanctum')
@@ -326,12 +293,13 @@ describe('POST /api/bookings/{booking}/cancel (guest cancel)', function () {
     it('returns 409 when the booking cannot be cancelled', function () {
         Event::fake();
 
-        $booking = createGuestBooking(['status' => BookingStatus::CANCELLED]);
-        $guest = Booking::withoutAuthorization(fn () => $booking->fresh()->guest);
+        $guest = authenticatedUser();
+
+        $booking = createBooking($guest, authenticatedUser(), ['status' => BookingStatus::CANCELLED]);
+        $guest = $booking->fresh()->guest;
 
         $this->actingAs($guest, 'sanctum')
             ->postJson(route('api.bookings.cancel', $booking), [])
             ->assertStatus(409);
     });
-
 });

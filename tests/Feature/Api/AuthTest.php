@@ -361,12 +361,12 @@ describe('POST /api/reset-password', function () {
         $user = authenticatedUser();
         $token = Password::createToken($user);
 
-        User::withoutAuthorization(fn () => $this->postJson(route('api.password.store'), [
+        $this->postJson(route('api.password.store'), [
             'token' => $token,
             'email' => $user->email,
             'password' => 'NewSecureP@ss2024!',
             'password_confirmation' => 'NewSecureP@ss2024!',
-        ])->assertSuccessful());
+        ])->assertSuccessful();
 
         expect(Hash::check('NewSecureP@ss2024!', $user->fresh()->password))->toBeTrue();
     });
@@ -455,12 +455,12 @@ describe('POST /api/reset-password', function () {
         $user = authenticatedUser(['failed_login_attempts' => 3]);
         $token = Password::createToken($user);
 
-        User::withoutAuthorization(fn () => $this->postJson(route('api.password.store'), [
+        $this->postJson(route('api.password.store'), [
             'token' => $token,
             'email' => $user->email,
             'password' => 'NewSecureP@ss2024!',
             'password_confirmation' => 'NewSecureP@ss2024!',
-        ])->assertSuccessful());
+        ])->assertSuccessful();
 
         expect($user->fresh()->failed_login_attempts)->toBe(0);
     });

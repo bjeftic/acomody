@@ -4,6 +4,7 @@ use App\Models\Accommodation;
 use App\Services\AccommodationService;
 use App\Services\BookingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 
 uses(RefreshDatabase::class);
 
@@ -40,7 +41,7 @@ describe('GET /api/accommodations (index)', function () {
         $owner = authenticatedUser();
         $other = authenticatedUser();
 
-        $ownAccommodation = createAccommodation($owner);
+        $ownerAccommodation = createAccommodation($owner);
         $otherAccommodation = createAccommodation($other);
 
         $response = $this->actingAs($owner, 'sanctum')
@@ -49,7 +50,7 @@ describe('GET /api/accommodations (index)', function () {
 
         $ids = collect($response->json('data'))->pluck('id');
 
-        expect($ids)->toContain($ownAccommodation->id)
+        expect($ids)->toContain($ownerAccommodation->id)
             ->and($ids)->not->toContain($otherAccommodation->id);
     });
 
@@ -186,7 +187,10 @@ describe('GET /api/accommodations (index)', function () {
 describe('GET /api/accommodations/{accommodation} (show)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
-        $accommodation = createAccommodation(authenticatedUser());
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        Auth::logout();
 
         $this->getJson(route('api.accommodations.accommodations.show', $accommodation->id))
             ->assertStatus(401);
@@ -299,7 +303,7 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
     it('returns 404 when the accommodation is soft-deleted', function () {
         $user = authenticatedUser();
         $accommodation = createAccommodation($user);
-        Accommodation::withoutAuthorization(fn () => $accommodation->delete()); // assumes SoftDeletes trait
+        $accommodation->delete(); // assumes SoftDeletes trait
 
         $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.show', $accommodation->id))
@@ -314,7 +318,10 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
 describe('POST /api/accommodations/{id}/check-availability', function () {
 
     it('returns 401 for unauthenticated requests', function () {
-        $accommodation = createAccommodation(authenticatedUser());
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        Auth::logout();
 
         $this->postJson(route('api.accommodations.accommodations.check-availability', $accommodation), [])
             ->assertUnauthorized();
@@ -403,7 +410,10 @@ describe('POST /api/accommodations/{id}/check-availability', function () {
 describe('POST /api/accommodations/{id}/calculate-price', function () {
 
     it('returns 401 for unauthenticated requests', function () {
-        $accommodation = createAccommodation(authenticatedUser());
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        Auth::logout();
 
         $this->postJson(route('api.accommodations.accommodations.calculate-price', $accommodation), [])
             ->assertUnauthorized();

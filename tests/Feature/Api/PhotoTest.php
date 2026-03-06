@@ -16,9 +16,11 @@ use Illuminate\Support\Facades\Storage;
 // ============================================================
 
 beforeEach(function () {
-    $this->draft = AccommodationDraft::withoutAuthorization(
-        fn () => AccommodationDraft::factory()->create()
-    );
+    $user = authenticatedUser();
+    $this->draft = AccommodationDraft::factory()->create([
+        'user_id' => $user->id,
+        'status' => 'draft',
+    ]);
 });
 
 // ============================================================
@@ -94,7 +96,6 @@ describe('Photo model – creation', function () {
 
         expect($photo->uploaded_at)->toBeInstanceOf(\Carbon\Carbon::class);
     });
-
 });
 
 // ============================================================
@@ -110,7 +111,7 @@ describe('Photo model – scopes', function () {
 
         $completed = Photo::completed()->get();
 
-        expect($completed->every(fn ($p) => $p->status === 'completed'))->toBeTrue();
+        expect($completed->every(fn($p) => $p->status === 'completed'))->toBeTrue();
     });
 
     it('completed() scope excludes non-completed photos', function () {
@@ -140,7 +141,7 @@ describe('Photo model – scopes', function () {
 
         $primaryPhotos = Photo::primary()->get();
 
-        expect($primaryPhotos->every(fn ($p) => $p->is_primary === true))->toBeTrue();
+        expect($primaryPhotos->every(fn($p) => $p->is_primary === true))->toBeTrue();
     });
 
     it('primary() scope excludes non-primary photos', function () {
@@ -154,7 +155,6 @@ describe('Photo model – scopes', function () {
 
         expect($primaryIds)->not->toContain($nonPrimary->id);
     });
-
 });
 
 // ============================================================
@@ -228,7 +228,6 @@ describe('Photo factory states', function () {
         expect($photo->width)->toBe(1920)
             ->and($photo->height)->toBe(1080);
     });
-
 });
 
 // ============================================================
@@ -273,7 +272,6 @@ describe('Photo model – URL attributes', function () {
 
         expect($photo->url)->toContain('picsum.photos');
     });
-
 });
 
 // ============================================================
@@ -305,7 +303,6 @@ describe('Photo model – formatted_size attribute', function () {
 
         expect($photo->formatted_size)->toBe('0 bytes');
     });
-
 });
 
 // ============================================================
@@ -332,7 +329,6 @@ describe('Photo model – polymorphic relationship', function () {
         expect($photo->photoable_type)->toBe(AccommodationDraft::class);
         expect($photo->photoable_id)->toBe($this->draft->id);
     });
-
 });
 
 // ============================================================
@@ -367,5 +363,4 @@ describe('Photo model – file deletion on delete', function () {
 
         Storage::disk('accommodation_draft_photos')->assertMissing($photo->path);
     });
-
 });
