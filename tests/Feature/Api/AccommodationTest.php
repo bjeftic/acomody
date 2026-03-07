@@ -89,9 +89,9 @@ describe('GET /api/accommodations (index)', function () {
         $user = authenticatedUser();
 
         // Create 20 accommodations so pagination is exercised
-        Accommodation::withoutAuthorization(
-            fn () => Accommodation::factory()->count(20)->create(['user_id' => $user->id])
-        );
+        for ($i = 0; $i < 20; $i++) {
+            createAccommodation($user);
+        }   
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.index'))
@@ -103,9 +103,9 @@ describe('GET /api/accommodations (index)', function () {
 
     it('respects the per_page query parameter', function () {
         $user = authenticatedUser();
-        Accommodation::withoutAuthorization(
-            fn () => Accommodation::factory()->count(10)->create(['user_id' => $user->id])
-        );
+        for ($i = 0; $i < 10; $i++) {
+            createAccommodation($user);
+        }  
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.index', ['per_page' => 5]))

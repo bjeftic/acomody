@@ -204,6 +204,21 @@ describe('POST /api/bookings (store)', function () {
             ->assertJsonFragment(['field' => 'guests']);
     });
 
+    it('returns 404 when the accommodation is not active', function () {
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $accommodation = createAccommodation($host, ['is_active' => false]);
+
+        $this->actingAs($guest, 'sanctum')
+            ->postJson(route('api.bookings.store'), [
+                'accommodation_id' => $accommodation->id,
+                'check_in' => now()->addDays(5)->toDateString(),
+                'check_out' => now()->addDays(8)->toDateString(),
+                'guests' => 2,
+            ])
+            ->assertNotFound();
+    });
+
     it('returns 409 when the accommodation is unavailable', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();

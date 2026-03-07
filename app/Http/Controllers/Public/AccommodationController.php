@@ -17,9 +17,6 @@ class AccommodationController extends Controller
 
     public function show(Accommodation $accommodation): JsonResponse
     {
-        
-        // $accommodation->load('amenities', 'photos', 'pricing', 'user.userProfile');
-
         return ApiResponse::success(
             'Accommodation retrieved successfully',
             new AccommodationResource($this->accommodationService->fetchAccommodation($accommodation->id))

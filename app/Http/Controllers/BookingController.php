@@ -10,6 +10,7 @@ use App\Models\Accommodation;
 use App\Models\Booking;
 use App\Services\BookingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
@@ -244,6 +245,12 @@ class BookingController extends Controller
      */
     public function store(StoreRequest $request): JsonResponse
     {
+        $accommodation = DB::table('accommodations')->where('id', $request->accommodation_id)->first();
+
+        if (!$accommodation->is_active) {
+            return ApiResponse::error('Accommodation is not available for booking.', null, null, 404);
+        }
+
         $accommodation = Accommodation::findOrFail($request->accommodation_id);
 
         try {

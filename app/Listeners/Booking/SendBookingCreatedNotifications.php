@@ -17,7 +17,7 @@ class SendBookingCreatedNotifications implements ShouldQueue
     {
         $booking = $event->booking;
 
-        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
+        $booking->load(['accommodation', 'guest', 'host']);
 
         try {
             if ($booking->booking_type === BookingType::INSTANT_BOOKING->value) {
