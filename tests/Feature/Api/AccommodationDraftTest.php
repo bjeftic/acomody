@@ -2,6 +2,7 @@
 
 use App\Models\AccommodationDraft;
 use App\Models\Photo;
+use Illuminate\Support\Facades\Auth;
 
 // ============================================================
 // AccommodationDraftController
@@ -13,12 +14,10 @@ use App\Models\Photo;
 
 beforeEach(function () {
     $this->user = authenticatedUser();
-    $this->draft = AccommodationDraft::withoutAuthorization(
-        fn () => AccommodationDraft::factory()->create([
-            'user_id' => $this->user->id,
-            'status' => 'draft',
-        ])
-    );
+    $this->draft = AccommodationDraft::factory()->create([
+        'user_id' => $this->user->id,
+        'status' => 'draft',
+    ]);
 });
 
 // ============================================================
@@ -28,6 +27,7 @@ beforeEach(function () {
 describe('GET /api/accommodation-drafts (index)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
         $this->getJson(route('api.accommodation.drafts.accommodation-draft.index'))
             ->assertUnauthorized();
     });
@@ -49,9 +49,7 @@ describe('GET /api/accommodation-drafts (index)', function () {
     it('returns only drafts belonging to the authenticated user', function () {
         // Create a draft for another user
         $other = authenticatedUser();
-        AccommodationDraft::withoutAuthorization(
-            fn () => AccommodationDraft::factory()->create(['user_id' => $other->id, 'status' => 'draft'])
-        );
+        AccommodationDraft::factory()->create(['user_id' => $other->id, 'status' => 'draft']);
 
         $response = $this->actingAs($this->user, 'sanctum')
             ->getJson(route('api.accommodation.drafts.accommodation-draft.index'))
@@ -61,12 +59,10 @@ describe('GET /api/accommodation-drafts (index)', function () {
     });
 
     it('filters drafts by status=waiting_for_approval', function () {
-        AccommodationDraft::withoutAuthorization(
-            fn () => AccommodationDraft::factory()->create([
-                'user_id' => $this->user->id,
-                'status' => 'waiting_for_approval',
-            ])
-        );
+        AccommodationDraft::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'waiting_for_approval',
+        ]);
 
         $response = $this->actingAs($this->user, 'sanctum')
             ->getJson(route('api.accommodation.drafts.accommodation-draft.index', ['status' => 'waiting_for_approval']))
@@ -80,7 +76,6 @@ describe('GET /api/accommodation-drafts (index)', function () {
             ->getJson(route('api.accommodation.drafts.accommodation-draft.index', ['status' => 'invalid']))
             ->assertUnprocessable();
     });
-
 });
 
 // ============================================================
@@ -90,6 +85,7 @@ describe('GET /api/accommodation-drafts (index)', function () {
 describe('GET /api/accommodation-drafts/draft (getAccommodationDraft)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
         $this->getJson(route('api.accommodation.drafts.accommodation-draft.get'))
             ->assertUnauthorized();
     });
@@ -116,7 +112,6 @@ describe('GET /api/accommodation-drafts/draft (getAccommodationDraft)', function
             ->getJson(route('api.accommodation.drafts.accommodation-draft.get'))
             ->assertNotFound();
     });
-
 });
 
 // ============================================================
@@ -126,6 +121,7 @@ describe('GET /api/accommodation-drafts/draft (getAccommodationDraft)', function
 describe('POST /api/accommodation-drafts (createDraft)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
         $this->postJson(route('api.accommodation.drafts.accommodation-draft.create'), ['data' => []])
             ->assertUnauthorized();
     });
@@ -155,7 +151,6 @@ describe('POST /api/accommodation-drafts (createDraft)', function () {
             ->postJson(route('api.accommodation.drafts.accommodation-draft.create'), ['data' => ['step' => 1]])
             ->assertUnprocessable();
     });
-
 });
 
 // ============================================================
@@ -165,6 +160,7 @@ describe('POST /api/accommodation-drafts (createDraft)', function () {
 describe('PUT /api/accommodation-drafts/{id} (updateDraft)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
         $this->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [])
             ->assertUnauthorized();
     });
@@ -220,7 +216,6 @@ describe('PUT /api/accommodation-drafts/{id} (updateDraft)', function () {
             ->assertUnprocessable()
             ->assertJsonFragment(['field' => 'status']);
     });
-
 });
 
 // ============================================================
@@ -230,6 +225,7 @@ describe('PUT /api/accommodation-drafts/{id} (updateDraft)', function () {
 describe('GET /api/accommodation-drafts/stats (getDraftStats)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
         $this->getJson(route('api.accommodation.drafts.accommodation-draft.stats'))
             ->assertUnauthorized();
     });
@@ -257,7 +253,6 @@ describe('GET /api/accommodation-drafts/stats (getDraftStats)', function () {
         // beforeEach created 1 draft-status draft
         expect($response->json('meta.total_drafts'))->toBe(1);
     });
-
 });
 
 // ============================================================
@@ -267,6 +262,7 @@ describe('GET /api/accommodation-drafts/stats (getDraftStats)', function () {
 describe('GET /api/accommodation-drafts/{id}/photos (getPhotos)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
         $this->getJson(route('api.accommodation.drafts.accommodation-draft.photos.index', $this->draft))
             ->assertUnauthorized();
     });
@@ -291,7 +287,6 @@ describe('GET /api/accommodation-drafts/{id}/photos (getPhotos)', function () {
 
         expect(count($response->json('data')))->toBe(2);
     });
-
 });
 
 // ============================================================
@@ -301,6 +296,7 @@ describe('GET /api/accommodation-drafts/{id}/photos (getPhotos)', function () {
 describe('PUT /api/accommodation-drafts/{id}/photos/reorder (reorderPhotos)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
         $this->putJson(route('api.accommodation.drafts.accommodation-draft.photos.reorder', $this->draft), [])
             ->assertUnauthorized();
     });
@@ -330,12 +326,10 @@ describe('PUT /api/accommodation-drafts/{id}/photos/reorder (reorderPhotos)', fu
     });
 
     it('returns 422 when photo_ids contains a photo from another draft', function () {
-        $otherDraft = AccommodationDraft::withoutAuthorization(
-            fn () => AccommodationDraft::factory()->create([
-                'user_id' => $this->user->id,
-                'status' => 'waiting_for_approval',
-            ])
-        );
+        $otherDraft = AccommodationDraft::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'waiting_for_approval',
+        ]);
 
         $foreignPhoto = Photo::factory()->create([
             'photoable_type' => AccommodationDraft::class,
@@ -348,7 +342,6 @@ describe('PUT /api/accommodation-drafts/{id}/photos/reorder (reorderPhotos)', fu
             ])
             ->assertUnprocessable();
     });
-
 });
 
 // ============================================================
@@ -358,6 +351,7 @@ describe('PUT /api/accommodation-drafts/{id}/photos/reorder (reorderPhotos)', fu
 describe('DELETE /api/accommodation-drafts/{id}/photos/{photo} (destroyPhoto)', function () {
 
     it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
         $photo = Photo::factory()->create([
             'photoable_type' => AccommodationDraft::class,
             'photoable_id' => $this->draft->id,
@@ -383,12 +377,10 @@ describe('DELETE /api/accommodation-drafts/{id}/photos/{photo} (destroyPhoto)', 
     });
 
     it('returns 404 when the photo belongs to a different draft', function () {
-        $otherDraft = AccommodationDraft::withoutAuthorization(
-            fn () => AccommodationDraft::factory()->create([
-                'user_id' => $this->user->id,
-                'status' => 'waiting_for_approval',
-            ])
-        );
+        $otherDraft = AccommodationDraft::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'waiting_for_approval',
+        ]);
 
         $photo = Photo::factory()->create([
             'photoable_type' => AccommodationDraft::class,
@@ -402,5 +394,4 @@ describe('DELETE /api/accommodation-drafts/{id}/photos/{photo} (destroyPhoto)', 
             ->deleteJson($url)
             ->assertNotFound();
     });
-
 });

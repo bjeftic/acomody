@@ -19,32 +19,6 @@ use App\Models\Booking;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 
-// ============================================================
-// Helpers
-// ============================================================
-
-function createBooking(array $attributes = []): Booking
-{
-    $guest = authenticatedUser();
-    $host = authenticatedUser();
-    $accommodation = createAccommodation($host);
-
-    return Booking::withoutAuthorization(fn () => Booking::create(array_merge([
-        'accommodation_id' => $accommodation->id,
-        'user_id' => $guest->id,
-        'host_user_id' => $host->id,
-        'check_in' => now()->addDays(10)->toDateString(),
-        'check_out' => now()->addDays(13)->toDateString(),
-        'nights' => 3,
-        'guests' => 2,
-        'status' => BookingStatus::PENDING,
-        'booking_type' => BookingType::INSTANT_BOOKING->value,
-        'currency' => 'EUR',
-        'subtotal' => 150.00,
-        'total_price' => 150.00,
-        'payment_status' => PaymentStatus::UNPAID,
-    ], $attributes)));
-}
 
 function loadBookingRelations(Booking $booking): void
 {
@@ -88,7 +62,9 @@ describe('SendBookingCreatedNotifications', function () {
     it('queues BookingConfirmedMail to guest and host for instant bookings', function () {
         Mail::fake();
 
-        $booking = createBooking(['booking_type' => BookingType::INSTANT_BOOKING->value]);
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['booking_type' => BookingType::INSTANT_BOOKING->value]);
         loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
@@ -101,7 +77,9 @@ describe('SendBookingCreatedNotifications', function () {
     it('sends the host a forHost copy for instant bookings', function () {
         Mail::fake();
 
-        $booking = createBooking(['booking_type' => BookingType::INSTANT_BOOKING->value]);
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['booking_type' => BookingType::INSTANT_BOOKING->value]);
         loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
@@ -113,7 +91,9 @@ describe('SendBookingCreatedNotifications', function () {
     it('queues BookingRequestedMail to guest and host for request-to-book', function () {
         Mail::fake();
 
-        $booking = createBooking(['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
         loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
@@ -126,7 +106,9 @@ describe('SendBookingCreatedNotifications', function () {
     it('sends the host a forHost copy for request-to-book', function () {
         Mail::fake();
 
-        $booking = createBooking(['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
         loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
@@ -138,7 +120,9 @@ describe('SendBookingCreatedNotifications', function () {
     it('does not queue BookingRequestedMail for instant bookings', function () {
         Mail::fake();
 
-        $booking = createBooking(['booking_type' => BookingType::INSTANT_BOOKING->value]);
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['booking_type' => BookingType::INSTANT_BOOKING->value]);
         loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
@@ -149,7 +133,9 @@ describe('SendBookingCreatedNotifications', function () {
     it('does not queue BookingConfirmedMail for request-to-book', function () {
         Mail::fake();
 
-        $booking = createBooking(['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
         loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
@@ -168,7 +154,9 @@ describe('SendBookingConfirmedNotifications', function () {
     it('queues BookingConfirmedMail to guest and host', function () {
         Mail::fake();
 
-        $booking = createBooking(['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
         loadBookingRelations($booking);
 
         (new SendBookingConfirmedNotifications)->handle(new BookingConfirmed($booking));
@@ -181,7 +169,9 @@ describe('SendBookingConfirmedNotifications', function () {
     it('sends the host a forHost copy', function () {
         Mail::fake();
 
-        $booking = createBooking(['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
         loadBookingRelations($booking);
 
         (new SendBookingConfirmedNotifications)->handle(new BookingConfirmed($booking));
@@ -201,7 +191,9 @@ describe('SendBookingDeclinedNotification', function () {
     it('queues BookingDeclinedMail to guest only', function () {
         Mail::fake();
 
-        $booking = createBooking(['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
         loadBookingRelations($booking);
 
         (new SendBookingDeclinedNotification)->handle(new BookingDeclined($booking));
@@ -213,7 +205,9 @@ describe('SendBookingDeclinedNotification', function () {
     it('does not queue BookingDeclinedMail to host', function () {
         Mail::fake();
 
-        $booking = createBooking(['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
         loadBookingRelations($booking);
 
         (new SendBookingDeclinedNotification)->handle(new BookingDeclined($booking));
@@ -232,7 +226,9 @@ describe('SendBookingCancelledNotifications', function () {
     it('queues BookingCancelledMail to both guest and host when guest cancels', function () {
         Mail::fake();
 
-        $booking = createBooking();
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host);
         loadBookingRelations($booking);
 
         (new SendBookingCancelledNotifications)->handle(
@@ -247,7 +243,9 @@ describe('SendBookingCancelledNotifications', function () {
     it('sends the host a forHost copy when guest cancels', function () {
         Mail::fake();
 
-        $booking = createBooking();
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host);
         loadBookingRelations($booking);
 
         (new SendBookingCancelledNotifications)->handle(
@@ -261,7 +259,9 @@ describe('SendBookingCancelledNotifications', function () {
     it('queues BookingCancelledMail to guest only when host cancels', function () {
         Mail::fake();
 
-        $booking = createBooking();
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host);
         loadBookingRelations($booking);
 
         (new SendBookingCancelledNotifications)->handle(
@@ -275,7 +275,9 @@ describe('SendBookingCancelledNotifications', function () {
     it('does not notify the host when they cancel', function () {
         Mail::fake();
 
-        $booking = createBooking();
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host);
         loadBookingRelations($booking);
 
         (new SendBookingCancelledNotifications)->handle(

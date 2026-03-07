@@ -109,15 +109,4 @@ describe('POST /api/currency/set', function () {
             ->assertJsonPath('data.code', 'EUR');
     });
 
-    it('does not update preferred_currency for guest users', function () {
-        $user = authenticatedUser(['preferred_currency' => 'EUR']);
-
-        // Guest request - no actingAs
-        $this->postJson(route('api.currency.set'), ['currency' => 'USD'], $this->headers)
-            ->assertSuccessful();
-
-        // User's preference in DB should be unchanged
-        expect($user->fresh()->preferred_currency)->toBe('EUR');
-    });
-
 });

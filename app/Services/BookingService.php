@@ -103,7 +103,7 @@ class BookingService
 
         if (! $availability['available']) {
             throw new \RuntimeException(
-                'The selected dates are not available: '.implode(', ', $availability['reasons'])
+                'The selected dates are not available: ' . implode(', ', $availability['reasons'])
             );
         }
 
@@ -142,7 +142,7 @@ class BookingService
                 'bulk_discount' => $breakdown['bulk_discount'] ?? null,
                 'fees' => $breakdown['fees'] ?? null,
                 'taxes' => $breakdown['taxes'] ?? null,
-            ], fn ($v) => $v !== null);
+            ], fn($v) => $v !== null);
 
             $booking = Booking::create([
                 'accommodation_id' => $accommodation->id,
@@ -177,8 +177,6 @@ class BookingService
             throw $e;
         }
 
-        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
-
         event(new BookingCreated($booking));
 
         return $booking;
@@ -206,7 +204,7 @@ class BookingService
 
         if (! $availability['available']) {
             throw new \RuntimeException(
-                'The requested dates are no longer available: '.implode(', ', $availability['reasons'])
+                'The requested dates are no longer available: ' . implode(', ', $availability['reasons'])
             );
         }
 
@@ -218,8 +216,6 @@ class BookingService
             DB::rollBack();
             throw $e;
         }
-
-        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
 
         event(new BookingConfirmed($booking));
 
@@ -240,8 +236,6 @@ class BookingService
             'declined_at' => now(),
             'decline_reason' => $reason,
         ]);
-
-        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
 
         event(new BookingDeclined($booking));
 
@@ -281,8 +275,6 @@ class BookingService
             throw $e;
         }
 
-        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
-
         event(new BookingCancelled($booking, $canceller->id));
 
         return $booking;
@@ -297,8 +289,9 @@ class BookingService
      */
     public function getGuestBookings(User $guest, int $perPage = 15): LengthAwarePaginator
     {
-        return Booking::forGuest($guest->id)
-            ->with(['accommodation.primaryPhoto'])
+        return Booking::query()
+            ->with(['accommodation.primaryPhoto', 'guest'])
+            ->where('user_id', $guest->id)
             ->orderByDesc('check_in')
             ->paginate($perPage);
     }
@@ -306,17 +299,15 @@ class BookingService
     /**
      * All bookings across the host's properties.
      */
+
     public function getHostBookings(User $host, int $perPage = 15, ?string $status = null): LengthAwarePaginator
     {
-        $query = Booking::forHost($host->id)
-            ->with(['accommodation', 'guest'])
-            ->orderByDesc('check_in');
-
-        if ($status) {
-            $query->where('status', $status);
-        }
-
-        return $query->paginate($perPage);
+        return Booking::query()
+            ->with(['accommodation.primaryPhoto'])
+            ->where('host_user_id', $host->id)
+            ->when($status, fn ($q) => $q->where('status', $status))
+            ->orderByDesc('check_in')
+            ->paginate($perPage);
     }
 
     // ============================================
@@ -375,5 +366,12 @@ class BookingService
             'non_refundable' => 0.0,
             default => 0.0,
         };
+    }
+
+    public function fetchBooking(string $bookingId): ?Booking
+    {
+        return Booking::query()
+            ->with(['accommodation.primaryPhoto'])
+            ->find($bookingId);
     }
 }

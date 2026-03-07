@@ -75,4 +75,24 @@ class AccommodationService
             ->where('id', $accommodationId)
             ->first();
     }
+
+    public function fetchAccommodation(string $accommodationId): ?Accommodation
+    {
+        $accommodation = Accommodation::query()
+            ->with([
+                'amenities' => fn ($q) => $q->orderBy('sort_order'),
+                'photos'    => fn ($q) => $q->whereNull('deleted_at'),
+                'pricing'   => fn ($q) => $q->where('is_active', true),
+            ])
+            ->find($accommodationId);
+
+        if ($accommodation) {
+            $accommodation->host_profile = DB::table('user_profiles')
+                ->where('user_id', $accommodation->user_id)
+                ->select('id', 'first_name', 'last_name', 'avatar', 'bio')
+                ->first();
+        }
+
+        return $accommodation;
+    }
 }

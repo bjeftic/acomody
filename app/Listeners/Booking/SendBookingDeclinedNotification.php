@@ -15,7 +15,7 @@ class SendBookingDeclinedNotification implements ShouldQueue
     {
         $booking = $event->booking;
 
-        User::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
+        $booking->load(['accommodation', 'guest', 'host']);
 
         try {
             Mail::to($booking->guest->email)->queue(new BookingDeclinedMail($booking));

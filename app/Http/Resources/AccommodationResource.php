@@ -61,21 +61,21 @@ class AccommodationResource extends JsonResource
             'max_guests' => $this->max_guests,
             'title' => $this->title,
             'description' => $this->description,
-            'amenities' => AmenityResource::collection($this->whenLoaded('amenities')),
-            'photos' => PhotoResource::collection($this->whenLoaded('photos')),
-            'pricing' => new PriceResource($this->whenLoaded('pricing')),
+            'amenities' => AmenityResource::collection($this->amenities ?? []),
+            'photos' => PhotoResource::collection($this->photos ?? []),
+            'pricing' => $this->pricing ? new PriceResource($this->pricing) : null,
             'views_count' => $this->views_count,
             'favorites_count' => $this->favorites_count,
             'cancellation_policy' => $this->cancellation_policy,
             'booking_type' => $this->booking_type,
-            'host' => $this->whenLoaded('user', fn () => [
-                'id'         => $this->user->id,
-                'first_name' => $this->user->userProfile?->first_name,
-                'last_name'  => $this->user->userProfile?->last_name,
-                'avatar_url' => $this->user->userProfile?->avatar
-                    ? Storage::disk('user_profile_photos')->url($this->user->userProfile->avatar)
+            'host' => $this->host_profile ? [
+                'id'         => $this->host_profile->id,
+                'first_name' => $this->host_profile->first_name,
+                'last_name'  => $this->host_profile->last_name,
+                'avatar_url' => $this->host_profile->avatar
+                    ? Storage::disk('user_profile_photos')->url($this->host_profile->avatar)
                     : null,
-            ]),
+            ] : null,
         ];
     }
 }

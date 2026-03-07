@@ -35,6 +35,13 @@ describe('Country model – authorization', function () {
         $user = authenticatedUser();
         $country = Country::where('is_active', true)->first();
 
+        expect($country->canBeCreatedBy($user))->toBeFalse();
+    });
+
+    it('canBeCreatedBy returns true for an authenticated superadmin user', function () {
+        $user = authenticatedUser(['is_superadmin' => true]);
+        $country = Country::where('is_active', true)->first();
+
         expect($country->canBeCreatedBy($user))->toBeTrue();
     });
 
@@ -46,6 +53,13 @@ describe('Country model – authorization', function () {
 
     it('canBeUpdatedBy returns true for an authenticated user', function () {
         $user = authenticatedUser();
+        $country = Country::where('is_active', true)->first();
+
+        expect($country->canBeUpdatedBy($user))->toBeFalse();
+    });
+
+    it('canBeUpdatedBy returns true for an authenticated superadmin user', function () {
+        $user = authenticatedUser(['is_superadmin' => true]);
         $country = Country::where('is_active', true)->first();
 
         expect($country->canBeUpdatedBy($user))->toBeTrue();
@@ -61,9 +75,15 @@ describe('Country model – authorization', function () {
         $user = authenticatedUser();
         $country = Country::where('is_active', true)->first();
 
-        expect($country->canBeDeletedBy($user))->toBeTrue();
+        expect($country->canBeDeletedBy($user))->toBeFalse();
     });
 
+    it('canBeDeletedBy returns true for an authenticated superadmin user', function () {
+        $user = authenticatedUser(['is_superadmin' => true]);
+        $country = Country::where('is_active', true)->first();
+
+        expect($country->canBeDeletedBy($user))->toBeTrue();
+    });
 });
 
 describe('Country model – data and relationships', function () {
@@ -89,7 +109,7 @@ describe('Country model – data and relationships', function () {
         // Country::all() already filters to is_active = true automatically.
         $countries = Country::all();
 
-        expect($countries->every(fn ($c) => $c->is_active === true))->toBeTrue();
+        expect($countries->every(fn($c) => $c->is_active === true))->toBeTrue();
     });
 
     it('can retrieve a country by its iso_code_2', function () {
@@ -100,23 +120,20 @@ describe('Country model – data and relationships', function () {
     });
 
     it('can load associated locations', function () {
-        $user = authenticatedUser();
+        $user = authenticatedUser(['is_superadmin' => true]);
         $country = Country::where('is_active', true)->first();
 
         Location::withoutSyncingToSearch(function () use ($country, $user) {
-            Location::withoutAuthorization(function () use ($country, $user) {
-                Location::create([
-                    'country_id' => $country->id,
-                    'name' => 'Test City',
-                    'location_type' => 'city',
-                    'latitude' => 44.8,
-                    'longitude' => 20.4,
-                    'user_id' => $user->id,
-                ]);
-            });
+            Location::create([
+                'country_id' => $country->id,
+                'name' => 'Test City',
+                'location_type' => 'city',
+                'latitude' => 44.8,
+                'longitude' => 20.4,
+                'user_id' => $user->id,
+            ]);
         });
 
         expect($country->locations()->count())->toBeGreaterThan(0);
     });
-
 });

@@ -41,13 +41,7 @@ describe('GET /api/public/filters', function () {
 describe('GET /api/public/accommodations/{accommodation}', function () {
 
     beforeEach(function () {
-        // PriceResource converts prices using exchange rates.
-        // Seed a few pairs so the endpoint doesn't throw "Exchange rates table is empty".
-        DB::table('exchange_rates')->insert([
-            ['from_currency' => 'EUR', 'to_currency' => 'USD', 'rate' => 1.08, 'date' => now()->toDateString(), 'source' => 'other', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['from_currency' => 'EUR', 'to_currency' => 'GBP', 'rate' => 0.85, 'date' => now()->toDateString(), 'source' => 'other', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['from_currency' => 'EUR', 'to_currency' => 'RSD', 'rate' => 117.0, 'date' => now()->toDateString(), 'source' => 'other', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-        ]);
+        seedCurrencyRates();
     });
 
     it('returns 200 for an existing active accommodation without authentication', function () {
@@ -81,6 +75,17 @@ describe('GET /api/public/accommodations/{accommodation}', function () {
         $this->getJson(route('api.publicaccommodationsshow', $accommodation))
             ->assertSuccessful()
             ->assertJsonStructure(['success', 'message', 'data']);
+    });
+
+    it('returns 200 for an authenticated guest who did not create the accommodation', function () {
+        $owner = authenticatedUser();
+        $accommodation = createAccommodation($owner);
+
+        $guest = authenticatedUser();
+        $this->actingAs($guest)
+            ->getJson(route('api.publicaccommodationsshow', $accommodation))
+            ->assertSuccessful()
+            ->assertJson(['success' => true]);
     });
 
 });

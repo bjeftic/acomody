@@ -10,6 +10,7 @@ use App\Models\Accommodation;
 use App\Models\Booking;
 use App\Services\BookingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
@@ -88,13 +89,11 @@ class BookingController extends Controller
      */
     public function index(): JsonResponse
     {
-        $bookings = Accommodation::withoutAuthorization(
-            fn () => $this->bookingService->getGuestBookings(userOrFail())
-        );
+        $bookings = $this->bookingService->getGuestBookings(userOrFail());
 
         return ApiResponse::success(
             'Bookings retrieved successfully',
-            BookingResource::collection($bookings->items()),
+            BookingResource::collection($bookings),
             [
                 'current_page' => $bookings->currentPage(),
                 'last_page' => $bookings->lastPage(),
@@ -143,11 +142,9 @@ class BookingController extends Controller
      */
     public function show(Booking $booking): JsonResponse
     {
-        $booking->load(['accommodation.primaryPhoto', 'guest']);
-
         return ApiResponse::success(
             'Booking retrieved successfully',
-            new BookingResource($booking)
+            new BookingResource($this->bookingService->fetchBooking($booking->id))
         );
     }
 
@@ -248,6 +245,12 @@ class BookingController extends Controller
      */
     public function store(StoreRequest $request): JsonResponse
     {
+        $accommodation = DB::table('accommodations')->where('id', $request->accommodation_id)->first();
+
+        if (!$accommodation->is_active) {
+            return ApiResponse::error('Accommodation is not available for booking.', null, null, 404);
+        }
+
         $accommodation = Accommodation::findOrFail($request->accommodation_id);
 
         try {
@@ -261,7 +264,7 @@ class BookingController extends Controller
                 $booking->booking_type === 'instant_booking'
                     ? 'Booking confirmed successfully'
                     : 'Booking request submitted successfully',
-                new BookingResource($booking)
+                new BookingResource($this->bookingService->fetchBooking($booking->id))
             );
         } catch (\InvalidArgumentException $e) {
             return ApiResponse::error($e->getMessage(), null, null, 422);
@@ -338,7 +341,7 @@ class BookingController extends Controller
 
             return ApiResponse::success(
                 'Booking cancelled successfully',
-                new BookingResource($booking)
+                new BookingResource($this->bookingService->fetchBooking($booking->id))
             );
         } catch (\RuntimeException $e) {
             return ApiResponse::error($e->getMessage(), null, null, 409);

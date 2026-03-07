@@ -18,17 +18,17 @@ class Country extends Model
 
     public function canBeCreatedBy($user): bool
     {
-        return $user !== null;
+        return $user !== null && $user->is_superadmin;
     }
 
     public function canBeUpdatedBy($user): bool
     {
-        return $user !== null;
+        return $user !== null && $user->is_superadmin;
     }
 
     public function canBeDeletedBy($user): bool
     {
-        return $user !== null;
+        return $user !== null && $user->is_superadmin;
     }
 
     public function locations()
