@@ -305,7 +305,7 @@ export default {
     methods: {
         initializeDaySpecific() {
             const daySpecific = {};
-            this.daysOfWeek.forEach((day) => {
+            (this.daysOfWeek || []).forEach((day) => {
                 daySpecific[day.id] = {
                     enabled:
                         this.pricing.daySpecificMinStay?.[day.id]?.enabled ||

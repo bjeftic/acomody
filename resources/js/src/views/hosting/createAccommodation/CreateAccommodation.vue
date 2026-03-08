@@ -102,7 +102,7 @@ export default {
                     // weekendPrice: 0,
                     // weeklyDiscount: 0,
                     // monthlyDiscount: 0,
-                    bookingType: "instant-booking",
+                    bookingType: "instant_booking",
                     minStay: 1,
                     // hasDaySpecificMinStay: false,
                     // daySpecificMinStay: {
@@ -341,7 +341,7 @@ export default {
                     // weekendPrice: 0,
                     // weeklyDiscount: 0,
                     // monthlyDiscount: 0,
-                    bookingType: "instant-booking",
+                    bookingType: "instant_booking",
                     minStay: 1,
                     // hasDaySpecificMinStay: false,
                     // daySpecificMinStay: {},

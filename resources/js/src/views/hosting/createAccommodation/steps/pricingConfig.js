@@ -75,7 +75,7 @@ export const pricingConfig = {
         minStay: 1,
         // hasDaySpecificMinStay: false,
         // daySpecificMinStay: {},
-        bookingType: "instant-booking",
+        bookingType: "instant_booking",
     },
 
     // Pricing strategies
