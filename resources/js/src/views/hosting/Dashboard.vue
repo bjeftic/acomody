@@ -84,7 +84,7 @@
 
                     <action-card
                         title="My bookings"
-                        @click="$router.push({ name: 'page-calendar' })"
+                        @click="$router.push({ name: 'page-host-bookings' })"
                     >
                         <template #icon>
                             <CalendarIcon />

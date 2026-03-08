@@ -317,4 +317,82 @@ describe('POST /api/bookings/{booking}/cancel (guest cancel)', function () {
             ->postJson(route('api.bookings.cancel', $booking), [])
             ->assertStatus(409);
     });
+
+    it('returns 200 when the guest cancels their own confirmed booking', function () {
+        Event::fake();
+
+        $guest = authenticatedUser();
+        $booking = createBooking($guest, authenticatedUser(), ['status' => BookingStatus::CONFIRMED]);
+
+        $this->actingAs($guest, 'sanctum')
+            ->postJson(route('api.bookings.cancel', $booking), [])
+            ->assertSuccessful()
+            ->assertJson(['success' => true, 'message' => 'Booking cancelled successfully']);
+    });
+
+    it('stores the cancellation reason on the booking', function () {
+        Event::fake();
+
+        $guest = authenticatedUser();
+        $booking = createBooking($guest, authenticatedUser());
+
+        $this->actingAs($guest, 'sanctum')
+            ->postJson(route('api.bookings.cancel', $booking), ['reason' => 'Change of plans']);
+
+        expect($booking->fresh()->cancellation_reason)->toBe('Change of plans');
+    });
+
+    it('sets cancelled_at and cancelled_by_user_id after guest cancellation', function () {
+        Event::fake();
+
+        $guest = authenticatedUser();
+        $booking = createBooking($guest, authenticatedUser());
+
+        $this->actingAs($guest, 'sanctum')
+            ->postJson(route('api.bookings.cancel', $booking), []);
+
+        $fresh = $booking->fresh();
+        expect($fresh->cancelled_at)->not->toBeNull();
+        expect($fresh->cancelled_by_user_id)->toBe($guest->id);
+    });
+
+    it('returns the booking with cancelled status in the response data', function () {
+        Event::fake();
+
+        $guest = authenticatedUser();
+        $booking = createBooking($guest, authenticatedUser());
+
+        $this->actingAs($guest, 'sanctum')
+            ->postJson(route('api.bookings.cancel', $booking), [])
+            ->assertSuccessful()
+            ->assertJsonPath('data.status', 'cancelled');
+    });
+
+    it('returns 409 when trying to cancel a declined booking', function () {
+        $guest = authenticatedUser();
+        $booking = createBooking($guest, authenticatedUser(), ['status' => BookingStatus::DECLINED]);
+
+        $this->actingAs($guest, 'sanctum')
+            ->postJson(route('api.bookings.cancel', $booking), [])
+            ->assertStatus(409);
+    });
+
+    it('returns 409 when trying to cancel a completed booking', function () {
+        $guest = authenticatedUser();
+        $booking = createBooking($guest, authenticatedUser(), ['status' => BookingStatus::COMPLETED]);
+
+        $this->actingAs($guest, 'sanctum')
+            ->postJson(route('api.bookings.cancel', $booking), [])
+            ->assertStatus(409);
+    });
+
+    it('returns 422 when reason exceeds 500 characters', function () {
+        $guest = authenticatedUser();
+        $booking = createBooking($guest, authenticatedUser());
+
+        $this->actingAs($guest, 'sanctum')
+            ->postJson(route('api.bookings.cancel', $booking), ['reason' => str_repeat('a', 501)])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'reason']);
+    });
 });

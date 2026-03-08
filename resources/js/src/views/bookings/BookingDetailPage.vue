@@ -171,6 +171,55 @@
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Your notes</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-400">{{ booking.guest_notes }}</p>
             </div>
+
+            <!-- Cancellation info (after cancellation) -->
+            <div v-if="booking.status === 'cancelled'" class="bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 p-6">
+                <h3 class="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">Booking cancelled</h3>
+                <p v-if="booking.cancellation_reason" class="text-sm text-red-700 dark:text-red-300 mb-2">
+                    Reason: {{ booking.cancellation_reason }}
+                </p>
+                <p v-if="booking.refund_amount > 0" class="text-sm text-red-700 dark:text-red-300">
+                    Refund: {{ formatBookingAmount(booking.refund_amount) }}
+                </p>
+                <p v-else class="text-sm text-red-700 dark:text-red-300">No refund applicable.</p>
+            </div>
+
+            <!-- Cancel booking section -->
+            <div v-if="canCancel" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Cancel booking</h3>
+
+                <div v-if="!showCancelConfirm">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Need to cancel? Please review the cancellation policy before proceeding.
+                    </p>
+                    <fwb-button color="red" @click="showCancelConfirm = true">Cancel booking</fwb-button>
+                </div>
+
+                <div v-else class="space-y-4">
+                    <p class="text-sm text-gray-700 dark:text-gray-300 font-medium">Are you sure you want to cancel this booking?</p>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Reason (optional)
+                        </label>
+                        <textarea
+                            v-model="cancelReason"
+                            rows="3"
+                            maxlength="500"
+                            placeholder="Let the host know why you're cancelling..."
+                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                        ></textarea>
+                    </div>
+                    <fwb-alert v-if="cancelError" type="danger" class="text-sm">{{ cancelError }}</fwb-alert>
+                    <div class="flex gap-3">
+                        <fwb-button color="red" :disabled="cancelling" @click="cancelBooking">
+                            {{ cancelling ? 'Cancelling…' : 'Yes, cancel booking' }}
+                        </fwb-button>
+                        <fwb-button color="alternative" :disabled="cancelling" @click="showCancelConfirm = false">
+                            Keep booking
+                        </fwb-button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -186,12 +235,19 @@ export default {
             booking: null,
             loading: true,
             error: null,
+            showCancelConfirm: false,
+            cancelReason: '',
+            cancelling: false,
+            cancelError: null,
         };
     },
 
     computed: {
         isConfirmed() {
             return this.booking?.status === 'confirmed';
+        },
+        canCancel() {
+            return this.booking?.status === 'pending' || this.booking?.status === 'confirmed';
         },
         statusBadgeClass() {
             const status = this.booking?.status;
@@ -234,6 +290,22 @@ export default {
                 this.error = err?.error?.message || err?.message || 'Booking not found.';
             } finally {
                 this.loading = false;
+            }
+        },
+
+        async cancelBooking() {
+            this.cancelling = true;
+            this.cancelError = null;
+            try {
+                const response = await apiClient.bookings[this.$route.params.id].cancel.post({
+                    reason: this.cancelReason || undefined,
+                });
+                this.booking = response.data.data;
+                this.showCancelConfirm = false;
+            } catch (err) {
+                this.cancelError = err?.error?.message || err?.message || 'Failed to cancel booking.';
+            } finally {
+                this.cancelling = false;
             }
         },
     },

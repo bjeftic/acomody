@@ -256,4 +256,69 @@ describe('POST /api/host/bookings/{booking}/cancel (host cancel)', function () {
             ->assertStatus(409);
     });
 
+    it('returns 200 when the host cancels a confirmed booking', function () {
+        Event::fake();
+
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host, ['status' => BookingStatus::CONFIRMED]);
+
+        $this->actingAs($host, 'sanctum')
+            ->postJson(route('api.host.bookings.cancel', $booking), [])
+            ->assertSuccessful()
+            ->assertJson(['success' => true, 'message' => 'Booking cancelled successfully']);
+    });
+
+    it('stores the cancellation reason when provided', function () {
+        Event::fake();
+
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host);
+
+        $this->actingAs($host, 'sanctum')
+            ->postJson(route('api.host.bookings.cancel', $booking), ['reason' => 'Property unavailable']);
+
+        expect($booking->fresh()->cancellation_reason)->toBe('Property unavailable');
+    });
+
+    it('sets cancelled_by_user_id to the host after cancellation', function () {
+        Event::fake();
+
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host);
+
+        $this->actingAs($host, 'sanctum')
+            ->postJson(route('api.host.bookings.cancel', $booking), []);
+
+        expect($booking->fresh()->cancelled_by_user_id)->toBe($host->id);
+    });
+
+    it('returns the booking with cancelled status in the response data', function () {
+        Event::fake();
+
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host);
+
+        $this->actingAs($host, 'sanctum')
+            ->postJson(route('api.host.bookings.cancel', $booking), [])
+            ->assertSuccessful()
+            ->assertJsonPath('data.status', 'cancelled');
+    });
+
+    it('returns 409 when a non-host user tries to cancel via the host endpoint', function () {
+        Event::fake();
+
+        $guest = authenticatedUser();
+        $host = authenticatedUser();
+        $booking = createBooking($guest, $host);
+        $other = authenticatedUser();
+
+        $this->actingAs($other, 'sanctum')
+            ->postJson(route('api.host.bookings.cancel', $booking), [])
+            ->assertStatus(409);
+    });
+
 });
