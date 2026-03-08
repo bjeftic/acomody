@@ -2,7 +2,10 @@
 
 use App\Models\AccommodationDraft;
 use App\Models\Photo;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 
 // ============================================================
 // AccommodationDraftController
@@ -252,6 +255,90 @@ describe('GET /api/accommodation-drafts/stats (getDraftStats)', function () {
 
         // beforeEach created 1 draft-status draft
         expect($response->json('meta.total_drafts'))->toBe(1);
+    });
+});
+
+// ============================================================
+// POST /api/accommodation-drafts/{id}/photos (storePhotos)
+// ============================================================
+
+describe('POST /api/accommodation-drafts/{id}/photos (storePhotos)', function () {
+
+    it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
+        $this->postJson(route('api.accommodation.drafts.accommodation-draft.photos.store', $this->draft), [])
+            ->assertUnauthorized();
+    });
+
+    it('returns 422 when no photos are provided', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->postJson(route('api.accommodation.drafts.accommodation-draft.photos.store', $this->draft), [])
+            ->assertUnprocessable();
+    });
+
+    it('queues photos and returns 202 with pending photo records', function () {
+        Bus::fake();
+        Storage::fake('local');
+
+        $file = UploadedFile::fake()->image('photo.jpg', 800, 600);
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson(route('api.accommodation.drafts.accommodation-draft.photos.store', $this->draft), [
+                'photos' => [$file],
+            ])
+            ->assertStatus(202)
+            ->assertJson(['success' => true, 'message' => 'Photos queued for processing']);
+
+        expect($response->json('meta.queued_count'))->toBe(1);
+
+        Bus::assertBatched(fn ($batch) => $batch->jobs->count() === 1);
+        $this->assertDatabaseHas('photos', [
+            'photoable_type' => AccommodationDraft::class,
+            'photoable_id' => $this->draft->id,
+            'status' => 'pending',
+        ]);
+    });
+
+    it('marks the first uploaded photo as primary when none exists', function () {
+        Bus::fake();
+        Storage::fake('local');
+
+        $file = UploadedFile::fake()->image('primary.jpg', 800, 600);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->postJson(route('api.accommodation.drafts.accommodation-draft.photos.store', $this->draft), [
+                'photos' => [$file],
+            ])
+            ->assertStatus(202);
+
+        $this->assertDatabaseHas('photos', [
+            'photoable_id' => $this->draft->id,
+            'is_primary' => true,
+        ]);
+    });
+
+    it('does not mark additional photos as primary when one already exists', function () {
+        Bus::fake();
+        Storage::fake('local');
+
+        Photo::factory()->primary()->create([
+            'photoable_type' => AccommodationDraft::class,
+            'photoable_id' => $this->draft->id,
+        ]);
+
+        $file = UploadedFile::fake()->image('extra.jpg', 800, 600);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->postJson(route('api.accommodation.drafts.accommodation-draft.photos.store', $this->draft), [
+                'photos' => [$file],
+            ])
+            ->assertStatus(202);
+
+        $primaryCount = Photo::where('photoable_id', $this->draft->id)
+            ->where('is_primary', true)
+            ->count();
+
+        expect($primaryCount)->toBe(1);
     });
 });
 

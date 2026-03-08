@@ -10,14 +10,12 @@ use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class ProcessPhotoUpload implements ShouldQueue
 {
@@ -44,13 +42,21 @@ class ProcessPhotoUpload implements ShouldQueue
     public bool $deleteWhenMissingModels = true;
 
     protected string $photoId;
+
     protected string $tempFilePath;
+
     protected string $originalFilename;
+
     protected string $mimeType;
+
     protected int $fileSize;
+
     protected string $modelType;
+
     protected string $modelId;
+
     protected int $order;
+
     protected bool $isPrimary;
 
     /**
@@ -91,6 +97,7 @@ class ProcessPhotoUpload implements ShouldQueue
             Log::info('Photo upload job cancelled (batch cancelled)', [
                 'photo_id' => $this->photoId,
             ]);
+
             return;
         }
 
@@ -101,32 +108,19 @@ class ProcessPhotoUpload implements ShouldQueue
             $photo = Photo::findOrFail($this->photoId);
 
             // Verify temp file exists
-            if (!Storage::disk('temp')->exists($this->tempFilePath)) {
+            $tempFilePath = storage_path('app/private/'.$this->tempFilePath);
+
+            if (! file_exists($tempFilePath)) {
                 throw new Exception("Temporary file not found: {$this->tempFilePath}");
             }
 
-            // Get the model instance
-            $model = $this->modelType::findOrFail($this->modelId);
-
-            // Determine disk based on model type
-            $disk = $this->getDiskForModel($model);
+            // Determine disk and folder from stored model type/id (no model load needed)
+            $disk = $this->getDiskForModelType($this->modelType);
             $imageService->setDisk($disk);
 
-            Log::info('IMAGE SERVICE DISK SET', [
-                'disk' => $disk,
-                'service_disk' => $imageService->getDisk(),
-                'disk_driver' => config("filesystems.disks.$disk.driver"),
-                'disk_bucket' => config("filesystems.disks.$disk.bucket"),
-            ]);
-
-            // Download file from MinIO temp to local temp
-            $tempContent = Storage::disk('temp')->get($this->tempFilePath);
-            $localTempPath = sys_get_temp_dir() . '/' . basename($this->tempFilePath);
-            file_put_contents($localTempPath, $tempContent);
-
-            // Create UploadedFile instance from local temp file
+            // Create UploadedFile instance from temp file
             $uploadedFile = new UploadedFile(
-                $localTempPath,
+                $tempFilePath,
                 $this->originalFilename,
                 $this->mimeType,
                 null,
@@ -134,7 +128,7 @@ class ProcessPhotoUpload implements ShouldQueue
             );
 
             // Upload and process image
-            $folderName = $this->getFolderName($model);
+            $folderName = $this->getFolderNameForModelType($this->modelType, $this->modelId);
 
             $uploadResult = $imageService->upload(
                 $uploadedFile,
@@ -159,9 +153,7 @@ class ProcessPhotoUpload implements ShouldQueue
             DB::commit();
 
             // Clean up temp file
-            Storage::disk('temp')->delete($this->tempFilePath);
-
-            @unlink($localTempPath);
+            @unlink($tempFilePath);
 
             Log::info('Photo processed successfully', [
                 'photo_id' => $this->photoId,
@@ -190,16 +182,6 @@ class ProcessPhotoUpload implements ShouldQueue
             // Broadcast failure event
             broadcast(new PhotoUploadFailed($this->photoId, $e->getMessage()))->toOthers();
 
-            // Clean up temp file on failure
-            try {
-                Storage::disk('temp')->delete($this->tempFilePath);
-            } catch (Exception $cleanupException) {
-                Log::warning('Failed to cleanup temp file', [
-                    'temp_path' => $this->tempFilePath,
-                    'error' => $cleanupException->getMessage(),
-                ]);
-            }
-
             throw $e;
         }
     }
@@ -227,7 +209,7 @@ class ProcessPhotoUpload implements ShouldQueue
 
         // Cleanup
         try {
-            Storage::disk('temp')->delete($this->tempFilePath);
+            @unlink(storage_path('app/private/'.$this->tempFilePath));
         } catch (Exception $e) {
             Log::warning('Failed to cleanup temp file in failed handler', [
                 'temp_path' => $this->tempFilePath,
@@ -236,13 +218,11 @@ class ProcessPhotoUpload implements ShouldQueue
     }
 
     /**
-     * Get disk for model
+     * Get disk for model type
      */
-    protected function getDiskForModel(Model $model): string
+    protected function getDiskForModelType(string $modelClass): string
     {
-        $modelClass = get_class($model);
-
-        return match($modelClass) {
+        return match ($modelClass) {
             'App\\Models\\AccommodationDraft' => config('images.presets.accommodation_draft.disk'),
             'App\\Models\\Accommodation' => config('images.presets.accommodation.disk'),
             'App\\Models\\User' => config('images.presets.user_profile.disk'),
@@ -251,17 +231,15 @@ class ProcessPhotoUpload implements ShouldQueue
     }
 
     /**
-     * Get folder name for model
+     * Get folder name for model type
      */
-    protected function getFolderName(Model $model): string
+    protected function getFolderNameForModelType(string $modelClass, string $modelId): string
     {
-        $modelClass = get_class($model);
-
-        return match($modelClass) {
-            'App\\Models\\AccommodationDraft' => "draft-{$model->id}",
-            'App\\Models\\Accommodation' => "property-{$model->id}",
-            'App\\Models\\User' => "user-{$model->id}",
-            default => "unknown-{$model->id}",
+        return match ($modelClass) {
+            'App\\Models\\AccommodationDraft' => "draft-{$modelId}",
+            'App\\Models\\Accommodation' => "property-{$modelId}",
+            'App\\Models\\User' => "user-{$modelId}",
+            default => "unknown-{$modelId}",
         };
     }
 }

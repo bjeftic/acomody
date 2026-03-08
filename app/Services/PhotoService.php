@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Jobs\ProcessPhotoUpload;
 use App\Models\Photo;
 use Exception;
-use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Bus;
@@ -112,9 +111,8 @@ class PhotoService
     /**
      * Queue multiple photo uploads as a batch (RECOMMENDED METHOD)
      *
-     * @param Model $model
-     * @param array $files Array of UploadedFile instances
-     * @param int $startOrder Starting order number
+     * @param  array  $files  Array of UploadedFile instances
+     * @param  int  $startOrder  Starting order number
      * @return array ['batch_id' => string, 'photos' => Photo[], 'total' => int]
      */
     public function queuePhotoUploads(
@@ -136,7 +134,7 @@ class PhotoService
                 // Validate file before queueing
                 $this->validateFile($file);
 
-                $isPrimary = !$hasPrimaryPhoto && empty($photos);
+                $isPrimary = ! $hasPrimaryPhoto && empty($photos);
 
                 // Create Photo record with 'pending' status
                 $photo = Photo::create([
@@ -223,7 +221,7 @@ class PhotoService
 
         foreach ($files as $file) {
             try {
-                $isPrimary = !$hasPrimaryPhoto && empty($uploadedPhotos);
+                $isPrimary = ! $hasPrimaryPhoto && empty($uploadedPhotos);
                 $photo = $this->uploadPhoto($model, $file, $order, $isPrimary);
                 $uploadedPhotos[] = $photo;
                 $order++;
@@ -256,20 +254,20 @@ class PhotoService
      */
     protected function storeTemporaryFile(UploadedFile $file): string
     {
+        $filename = Str::ulid().'.'.$file->getClientOriginalExtension();
+        $directory = storage_path('app/private/temp-uploads');
 
-        $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
-        $path = "uploads/{$filename}";
+        if (! is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
 
+        $destination = $directory.'/'.$filename;
 
-        $result = Storage::disk('temp')->put($path, file_get_contents($file->getRealPath()));
+        if (! copy($file->getRealPath(), $destination)) {
+            throw new \Exception('Failed to store temporary upload file for processing.');
+        }
 
-        Log::info('File uploaded', [
-            'path' => $path,
-            'result' => $result,
-            'exists' => Storage::disk('temp')->exists($path),
-        ]);
-
-        return $path;
+        return 'temp-uploads/'.$filename;
     }
 
     /**
@@ -285,7 +283,7 @@ class PhotoService
             'image/webp',
         ]);
 
-        if (!$file->isValid()) {
+        if (! $file->isValid()) {
             throw new Exception('Invalid file upload');
         }
 
@@ -294,7 +292,7 @@ class PhotoService
             throw new Exception("File size exceeds maximum allowed size of {$maxSizeMB}MB");
         }
 
-        if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
+        if (! in_array($file->getMimeType(), $allowedMimeTypes)) {
             throw new Exception('Invalid file type. Only JPEG, PNG, and WebP images are allowed');
         }
     }
