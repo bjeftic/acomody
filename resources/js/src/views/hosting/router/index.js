@@ -39,6 +39,22 @@ const routes = [
         },
         component: () => import('@/src/views/hosting/Calendar.vue'),
     },
+    {
+        path: 'bookings',
+        name: 'page-host-bookings',
+        meta: {
+            requiresAuth: true,
+        },
+        component: () => import('@/src/views/hosting/bookings/HostBookingsPage.vue'),
+    },
+    {
+        path: 'bookings/:bookingId',
+        name: 'page-host-booking-show',
+        meta: {
+            requiresAuth: true,
+        },
+        component: () => import('@/src/views/hosting/bookings/HostBookingDetailPage.vue'),
+    },
 ];
 
 export default routes;

@@ -1,8 +1,6 @@
 <?php
 
 use App\Enums\Accommodation\BookingType;
-use App\Enums\Booking\BookingStatus;
-use App\Enums\Booking\PaymentStatus;
 use App\Events\Booking\BookingCancelled;
 use App\Events\Booking\BookingConfirmed;
 use App\Events\Booking\BookingCreated;
@@ -15,15 +13,9 @@ use App\Mail\Booking\BookingCancelledMail;
 use App\Mail\Booking\BookingConfirmedMail;
 use App\Mail\Booking\BookingDeclinedMail;
 use App\Mail\Booking\BookingRequestedMail;
-use App\Models\Booking;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 
-
-function loadBookingRelations(Booking $booking): void
-{
-    Booking::withoutAuthorization(fn () => $booking->load(['accommodation', 'guest', 'host']));
-}
 
 // ============================================================
 // Event → Listener Registration
@@ -65,7 +57,6 @@ describe('SendBookingCreatedNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host, ['booking_type' => BookingType::INSTANT_BOOKING->value]);
-        loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
 
@@ -80,7 +71,6 @@ describe('SendBookingCreatedNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host, ['booking_type' => BookingType::INSTANT_BOOKING->value]);
-        loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
 
@@ -94,7 +84,6 @@ describe('SendBookingCreatedNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
-        loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
 
@@ -109,7 +98,6 @@ describe('SendBookingCreatedNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
-        loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
 
@@ -123,7 +111,6 @@ describe('SendBookingCreatedNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host, ['booking_type' => BookingType::INSTANT_BOOKING->value]);
-        loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
 
@@ -136,7 +123,6 @@ describe('SendBookingCreatedNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
-        loadBookingRelations($booking);
 
         (new SendBookingCreatedNotifications)->handle(new BookingCreated($booking));
 
@@ -157,7 +143,6 @@ describe('SendBookingConfirmedNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
-        loadBookingRelations($booking);
 
         (new SendBookingConfirmedNotifications)->handle(new BookingConfirmed($booking));
 
@@ -172,7 +157,6 @@ describe('SendBookingConfirmedNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
-        loadBookingRelations($booking);
 
         (new SendBookingConfirmedNotifications)->handle(new BookingConfirmed($booking));
 
@@ -194,7 +178,6 @@ describe('SendBookingDeclinedNotification', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
-        loadBookingRelations($booking);
 
         (new SendBookingDeclinedNotification)->handle(new BookingDeclined($booking));
 
@@ -208,7 +191,6 @@ describe('SendBookingDeclinedNotification', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host, ['booking_type' => BookingType::REQUEST_TO_BOOK->value]);
-        loadBookingRelations($booking);
 
         (new SendBookingDeclinedNotification)->handle(new BookingDeclined($booking));
 
@@ -229,7 +211,6 @@ describe('SendBookingCancelledNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host);
-        loadBookingRelations($booking);
 
         (new SendBookingCancelledNotifications)->handle(
             new BookingCancelled($booking, $booking->user_id)
@@ -246,7 +227,6 @@ describe('SendBookingCancelledNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host);
-        loadBookingRelations($booking);
 
         (new SendBookingCancelledNotifications)->handle(
             new BookingCancelled($booking, $booking->user_id)
@@ -262,7 +242,6 @@ describe('SendBookingCancelledNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host);
-        loadBookingRelations($booking);
 
         (new SendBookingCancelledNotifications)->handle(
             new BookingCancelled($booking, $booking->host_user_id)
@@ -278,7 +257,6 @@ describe('SendBookingCancelledNotifications', function () {
         $guest = authenticatedUser();
         $host = authenticatedUser();
         $booking = createBooking($guest, $host);
-        loadBookingRelations($booking);
 
         (new SendBookingCancelledNotifications)->handle(
             new BookingCancelled($booking, $booking->host_user_id)

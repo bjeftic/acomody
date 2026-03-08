@@ -76,7 +76,7 @@ return new class extends Migration
             $table->time('check_out_until')->nullable();
             $table->time('quiet_hours_from')->nullable();
             $table->time('quiet_hours_until')->nullable();
-            $table->enum('cancellation_policy', ['flexible', 'moderate', 'firm', 'strict', 'non-refundable'])->default('moderate');
+            $table->enum('cancellation_policy', ['flexible', 'moderate', 'firm', 'strict', 'non_refundable'])->default('moderate');
             $table->integer('bedrooms')->default(1);
             $table->integer('beds')->default(1);
             $table->integer('bathrooms')->default(1);
