@@ -19,10 +19,6 @@ abstract class BookingMailable extends Mailable
         $class = $value->class;
         $find = fn () => $class::with($value->relations ?? [])->findOrFail($value->id);
 
-        if (method_exists($class, 'withoutAuthorization')) {
-            return $class::withoutAuthorization($find);
-        }
-
-        return $find();
+        return $class::withoutEvents($find);
     }
 }
