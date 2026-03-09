@@ -1,127 +1,75 @@
 <template>
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <!-- Section Header -->
-        <div class="mb-6">
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
-                Top rated accommodations
-            </h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Discover the highest-rated stays loved by guests around the world
-            </p>
-        </div>
-
-        <!-- Loading Skeletons -->
-        <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            <div v-for="n in 12" :key="n" class="animate-pulse">
-                <div class="aspect-square rounded-xl bg-gray-200 dark:bg-gray-700 mb-3"></div>
-                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
-                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+        <!-- Loading state for locations -->
+        <div v-if="loadingLocations">
+            <div v-for="n in 5" :key="n" class="mb-12">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-40 animate-pulse"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-14 animate-pulse"></div>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div v-for="i in 12" :key="i" class="animate-pulse">
+                        <div class="aspect-square rounded-xl bg-gray-200 dark:bg-gray-700 mb-3"></div>
+                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
+                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Error state -->
-        <div v-else-if="error" class="text-center py-12 text-gray-500 dark:text-gray-400">
-            <p>{{ error }}</p>
-            <button
-                @click="loadAccommodations"
-                class="mt-4 px-4 py-2 text-sm font-medium text-blue-600 hover:underline"
-            >
-                Try again
-            </button>
-        </div>
-
-        <!-- Empty state -->
-        <div v-else-if="accommodations.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
-            <p>No accommodations found.</p>
-        </div>
-
-        <!-- Grid -->
-        <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            <accommodation-card
-                v-for="accommodation in accommodations"
-                :key="accommodation.id"
-                :accommodation="accommodation"
-                @click="navigateToAccommodation(accommodation)"
-            />
-        </div>
-
-        <!-- Pagination -->
-        <paginator
-            v-if="totalFound > 0"
-            :model-value="currentPage"
-            :total-items="totalFound"
-            :per-page="ITEMS_PER_PAGE"
-            class="mt-8"
-            @update:modelValue="changePage"
+        <!-- Location sections -->
+        <location-section
+            v-for="location in resolvedLocations"
+            :key="location.id"
+            :location="location"
         />
     </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
 import apiClient from '@/services/apiClient';
-import AccommodationCard from '@/src/views/search/components/AccommodationCard.vue';
-import Paginator from '@/src/components/common/Paginator.vue';
-
-const ITEMS_PER_PAGE = 12;
+import LocationSection from './LocationSection.vue';
 
 export default {
     name: 'RecomendedAccommodations',
     components: {
-        AccommodationCard,
-        Paginator,
+        LocationSection,
+    },
+    props: {
+        locations: {
+            type: Array,
+            default: null,
+        },
     },
     data() {
         return {
-            ITEMS_PER_PAGE,
-            loading: false,
-            error: null,
-            accommodations: [],
-            currentPage: 1,
-            totalFound: 0,
+            loadingLocations: false,
+            fetchedLocations: [],
         };
     },
     computed: {
-        ...mapState('ui', ['selectedCurrency']),
+        resolvedLocations() {
+            return this.locations?.length ? this.locations : this.fetchedLocations;
+        },
     },
     mounted() {
-        this.loadAccommodations();
+        if (!this.locations?.length) {
+            this.fetchLocations();
+        }
     },
     methods: {
-        async loadAccommodations() {
-            this.loading = true;
-            this.error = null;
+        async fetchLocations() {
+            this.loadingLocations = true;
 
             try {
-                const response = await apiClient.public.accommodations
-                    .query({
-                        sortBy: 'rating',
-                        perPage: ITEMS_PER_PAGE,
-                        page: this.currentPage,
-                    })
-                    .get();
-
-                const data = response.data;
-                this.accommodations = data.hits ?? [];
-                this.totalFound = data.found ?? 0;
+                const response = await apiClient.public.locations.get();
+                this.fetchedLocations = (response.data ?? []).slice(0, 5);
             } catch (err) {
-                this.error = 'Could not load accommodations. Please try again.';
-                console.error('Failed to load accommodations:', err);
+                console.error('Failed to fetch locations:', err);
             } finally {
-                this.loading = false;
+                this.loadingLocations = false;
             }
-        },
-        navigateToAccommodation(accommodation) {
-            this.$router.push({
-                name: 'accommodation-detail',
-                params: { id: accommodation.id },
-            });
-        },
-        changePage(page) {
-            this.currentPage = page;
-            this.loadAccommodations();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         },
     },
 };

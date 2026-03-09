@@ -1,5 +1,5 @@
 <template>
-    <fwb-navbar class="bg-white border-b border-gray-200">
+    <fwb-navbar class="relative z-30 bg-white border-b border-gray-200">
         <div class="w-full px-4 sm:px-0 max-w-7xl mx-auto">
             <div class="flex justify-between items-center h-12">
                 <!-- Logo/Brand -->
