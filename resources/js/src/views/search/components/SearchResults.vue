@@ -65,13 +65,13 @@
                             @hover="$emit('card-hover', $event)"
                         />
                     </div>
-                    <fwb-pagination
+                    <paginator
                         v-if="accommodations.length > 0"
                         :model-value="page"
                         :total-items="totalAccommodationsFound"
                         :per-page="20"
-                        @update:model-value="handlePageChange"
-                        large
+                        class="mt-6"
+                        @update:modelValue="handlePageChange"
                     />
                 </div>
 
@@ -97,12 +97,14 @@
 import { mapState, mapActions } from "vuex";
 import config from "@/config";
 import AccommodationCard from "@/src/views/search/components/AccommodationCard.vue";
+import Paginator from "@/src/components/common/Paginator.vue";
 import SearchMap from "./SearchMap.vue";
 
 export default {
     name: "SearchResults",
     components: {
         AccommodationCard,
+        Paginator,
         SearchMap,
     },
     props: {
