@@ -2,25 +2,22 @@
 
 @push('styles')
 <style>
-    .flex {
-        display: flex;
-    }
-
-    .flex-1 {
-        flex: 1;
-    }
-
-    .m-0 {
-        margin: 0;
-    }
-
-    .pill {
-        display: inline-block;
-        border: 2px solid transparent;
-        padding: 0.125rem 0.25rem;
-        margin: 0.25rem;
-        border-radius: 0.5rem;
-    }
+    .detail-label { font-weight: bold; min-width: 140px; display: inline-block; }
+    .detail-row { margin-bottom: 6px; }
+    .photo-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .photo-thumb { position: relative; }
+    .photo-thumb img { width: 180px; height: 130px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
+    .photo-primary-badge { position: absolute; top: 4px; left: 4px; background: #16a34a; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 3px; }
+    .comment-item { background: #f5f5f5; border-left: 3px solid #337ab7; padding: 10px 14px; margin-bottom: 10px; border-radius: 3px; }
+    .comment-meta { font-size: 12px; color: #888; margin-bottom: 4px; }
+    .pill { display: inline-block; border: 1px solid #ccc; padding: 2px 8px; margin: 2px; border-radius: 12px; font-size: 12px; background: #f9f9f9; }
+    .section-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+    .status-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    .status-waiting { background: #fff3cd; color: #856404; }
+    .status-processing { background: #cce5ff; color: #004085; }
+    .status-published { background: #d4edda; color: #155724; }
+    .status-rejected { background: #f8d7da; color: #721c24; }
+    .status-draft { background: #e2e3e5; color: #383d41; }
 </style>
 @endpush
 
@@ -28,124 +25,230 @@
 @include('super-admin.partials.modals.delete')
 
 <section>
+
+    {{-- Header --}}
     <div class="panel panel-default">
         <div class="panel-body">
-            <div class="flex justify-between items-center">
-                <div class="flex text-2xl">
-                    <b>Accommodation draft details</b>
-                </div>
-            </div>
-
-            <hr />
-
-            {{-- Alerts --}}
-            @foreach (['danger', 'warning', 'success', 'info'] as $msg)
-            @if (session()->has('alert-' . $msg))
-            <p class="alert alert-{{ $msg }}">
-                {{ session('alert-' . $msg) }}
-                {!! Html::a('&times;', '#')
-                ->class('close')
-                ->attribute('data-dismiss', 'alert')
-                ->attribute('aria-label', 'close') !!}
-            </p>
-            @endif
-            @endforeach
-
-            {{-- Validation errors --}}
-            @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            {{-- Accommodation draft details --}}
-            <div class="flex">
-                <div class="flex-1">
-                    <p><b>ID:</b> {{ $accommodationDraft->id }}</p>
-                    <p><b>Accommodation type:</b> {{ $accommodationDraft->draftData['accommodation_type'] ?? '-' }}</p>
-                    <p><b>Occupation:</b> {{ $accommodationDraft->draftData['accommodation_occupation'] ?? '-' }}</p>
-                    <p><b>Title:</b> {{ $accommodationDraft->draftData['title'] }}</p>
-                    <p><b>Description:</b> {{ $accommodationDraft->draftData['description'] }}</p>
-                    <p><b>Email:</b> {{ $accommodationDraft->draftData['email'] ?? '-' }}</p>
-                    <p><b>Street:</b> {{ $accommodationDraft->draftData['street'] ?? '-' }}</p>
-                    <p><b>City:</b> {{ $accommodationDraft->draftData['city'] ?? '-' }}</p>
-                    <p><b>Country:</b> {{ $accommodationDraft->draftData['country'] ?? '-' }}</p>
-                    <p><b>Postal Code:</b> {{ $accommodationDraft->draftData['postal_code'] ?? '-' }}</p>
-                    <hr />
-                    <p><b>House Rules:</b></p>
-                    @foreach ($accommodationDraft->draftData['house_rules'] as $rule => $value)
-                    <p><b>{{ ucwords(str_replace('_', ' ', $rule)) }}:</b> {{ $value ? 'Yes' : 'No' }} - {{ $value }}</p>
-                    @endforeach
-                    <hr />
-                    <p><b>Created at:</b> {{ $accommodationDraft->created_at }}</p>
-                    <p><b>Updated at:</b> {{ $accommodationDraft->updated_at }}</p>
-
-                    @if (! empty($widgets))
-                    <p><b>Widgets</b></p>
-                    <ul>
-                        @foreach($widgets as $w)
-                        <li>
-                            {!! Html::a($w['name'], $w['url'])
-                            ->attribute('target', '_blank')
-                            ->attribute('rel', 'noopener noreferrer') !!}
-                        </li>
-                        @endforeach
-                    </ul>
-                    @endif
-                </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="margin:0;">Accommodation Draft Review</h2>
+                <span class="status-badge status-{{ $accommodationDraft->status }}">
+                    {{ ucwords(str_replace('_', ' ', $accommodationDraft->status)) }}
+                </span>
             </div>
         </div>
     </div>
 
-    {{-- Apply location --}}
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <div class="form-group">
-                {!! html()->label('Location', 'location') !!}
-                <div class="form-controls">
-                    {!! html()->select('location', [], old('location', $location->parent ?? null))
-                    ->class('form-control select2-ajax')
-                    ->id('location-select')
-                    ->placeholder('Select location') !!}
-                </div>
+    {{-- Alerts --}}
+    @foreach (['danger', 'warning', 'success', 'info'] as $msg)
+        @if (session()->has('alert-' . $msg))
+            <div class="alert alert-{{ $msg }}">
+                {{ session('alert-' . $msg) }}
             </div>
+        @endif
+    @endforeach
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    {{-- Validation errors --}}
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul style="margin:0;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- Basic Details --}}
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="section-title">Basic Details</span></div>
+        <div class="panel-body">
+            <div class="detail-row"><span class="detail-label">ID:</span> {{ $accommodationDraft->id }}</div>
+            <div class="detail-row"><span class="detail-label">Host:</span>
+                {{ $accommodationDraft->user->name ?? '-' }}
+                ({{ $accommodationDraft->user->email ?? '-' }})
+            </div>
+            <div class="detail-row"><span class="detail-label">Type:</span> {{ $accommodationDraft->draftData['accommodation_type'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Occupation:</span> {{ $accommodationDraft->draftData['accommodation_occupation'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Title:</span> {{ $accommodationDraft->draftData['title'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Description:</span> {{ $accommodationDraft->draftData['description'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Email:</span> {{ $accommodationDraft->draftData['email'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Website:</span> {{ $accommodationDraft->draftData['website'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Max Guests:</span> {{ $accommodationDraft->draftData['max_guests'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Bedrooms:</span> {{ $accommodationDraft->draftData['bedrooms'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Bathrooms:</span> {{ $accommodationDraft->draftData['bathrooms'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Submitted:</span> {{ $accommodationDraft->created_at->format('d M Y H:i') }}</div>
+        </div>
+    </div>
+
+    {{-- Address & Coordinates --}}
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="section-title">Address</span></div>
+        <div class="panel-body">
+            <div class="detail-row"><span class="detail-label">Street:</span> {{ $accommodationDraft->draftData['street'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">City:</span> {{ $accommodationDraft->draftData['city'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">State:</span> {{ $accommodationDraft->draftData['state'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Country:</span> {{ $accommodationDraft->draftData['country'] ?? '-' }}</div>
+            <div class="detail-row"><span class="detail-label">Postal Code:</span> {{ $accommodationDraft->draftData['postal_code'] ?? '-' }}</div>
+            @if (!empty($accommodationDraft->draftData['coordinates']))
+                <div class="detail-row"><span class="detail-label">Coordinates:</span>
+                    {{ $accommodationDraft->draftData['coordinates']['latitude'] ?? '-' }},
+                    {{ $accommodationDraft->draftData['coordinates']['longitude'] ?? '-' }}
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- House Rules --}}
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="section-title">House Rules</span></div>
+        <div class="panel-body">
+            @forelse ($accommodationDraft->draftData['house_rules'] as $rule => $value)
+                <div class="detail-row">
+                    <span class="detail-label">{{ ucwords(str_replace('_', ' ', $rule)) }}:</span>
+                    {{ is_bool($value) ? ($value ? 'Yes' : 'No') : ($value ?? '-') }}
+                </div>
+            @empty
+                <p style="color:#888;">No house rules provided.</p>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- Pricing --}}
+    @if (!empty($accommodationDraft->draftData['pricing']))
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="section-title">Pricing</span></div>
+        <div class="panel-body">
+            @foreach ($accommodationDraft->draftData['pricing'] as $key => $value)
+                @if (!is_array($value))
+                    <div class="detail-row">
+                        <span class="detail-label">{{ ucwords(str_replace(['_', 'Price', 'Nights'], [' ', ' Price', ' Nights'], preg_replace('/([A-Z])/', ' $1', $key))) }}:</span>
+                        {{ $value ?? '-' }}
+                    </div>
+                @endif
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    {{-- Amenities --}}
+    @if (!empty($accommodationDraft->draftData['amenities']))
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="section-title">Amenities</span></div>
+        <div class="panel-body">
+            @foreach ($accommodationDraft->draftData['amenities'] as $amenity)
+                <span class="pill">{{ is_array($amenity) ? ($amenity['name'] ?? $amenity['id'] ?? '') : $amenity }}</span>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    {{-- Photos --}}
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="section-title">Photos ({{ $accommodationDraft->photos->count() }})</span></div>
+        <div class="panel-body">
+            @if ($accommodationDraft->photos->isEmpty())
+                <p style="color:#888;">No photos uploaded.</p>
+            @else
+                <div class="photo-grid">
+                    @foreach ($accommodationDraft->photos as $photo)
+                        <div class="photo-thumb">
+                            <img src="{{ $photo->medium_url ?? $photo->url }}" alt="{{ $photo->alt_text ?? 'Photo' }}" />
+                            @if ($photo->is_primary)
+                                <span class="photo-primary-badge">Primary</span>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Review Comments --}}
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="section-title">Review Comments ({{ $accommodationDraft->reviewComments->count() }})</span></div>
+        <div class="panel-body">
+            @forelse ($accommodationDraft->reviewComments as $comment)
+                <div class="comment-item">
+                    <div class="comment-meta">
+                        {{ $comment->user->name ?? 'Admin' }} &mdash; {{ $comment->created_at->format('d M Y H:i') }}
+                    </div>
+                    <div>{{ $comment->body }}</div>
+                </div>
+            @empty
+                <p style="color:#888;">No comments yet.</p>
+            @endforelse
+
+            {{-- Add Comment Form --}}
+            <hr />
+            <p><strong>Add a comment</strong> <small style="color:#888;">(an email will be sent to the host)</small></p>
+            {!! html()->form('POST', route('admin.accommodation-drafts.comments.store', $accommodationDraft->id))->open() !!}
+                @csrf
+                <div class="form-group">
+                    {!! html()->textarea('body', old('body'))
+                        ->class('form-control')
+                        ->attribute('rows', 3)
+                        ->placeholder('Write your comment here…') !!}
+                </div>
+                {!! html()->button('Add Comment', 'submit')->class('btn btn-primary') !!}
+            {!! html()->form()->close() !!}
         </div>
     </div>
 
     {{-- Actions --}}
+    @if (in_array($accommodationDraft->status, ['waiting_for_approval', 'draft']))
     <div class="panel panel-default">
+        <div class="panel-heading"><span class="section-title">Actions</span></div>
         <div class="panel-body">
-            <div class="flex" style="gap:1rem;">
-                {!! Html::a(route('admin.accommodation-drafts.edit', $accommodationDraft->id), 'Edit')
-                ->class('btn btn-primary') !!}
 
-                {!! html()->form('POST', url("/admin/accommodation-drafts/{$accommodationDraft->id}/approve"))
-                ->style('display:inline-block;')
-                ->open() !!}
-                    @csrf
-                    {!! html()->hidden('location_id')->id('location_id_input') !!}
-                    {!! html()->button('Approve', 'submit')
-                    ->class('btn btn-success')
-                    ->attribute('data-toggle', 'tooltip')
-                    ->attribute('title', 'You will receive notification once accommodation is created') !!}
-                {!! html()->form()->close() !!}
-
-                {!! html()->form('DELETE', url("/admin/accommodation-drafts/{$accommodationDraft->id}/delete"))
-                ->style('display:inline-block;')
-                ->open() !!}
-                    @csrf
-                    @method('DELETE')
-                    {!! html()->button('Reject', 'submit')
-                    ->class('btn btn-danger')
-                    ->attribute('onclick', "return confirm('Are you sure you want to reject this accommodation draft?')") !!}
-                {!! html()->form()->close() !!}
+            {{-- Approve --}}
+            <div class="panel panel-success">
+                <div class="panel-heading">Approve</div>
+                <div class="panel-body">
+                    {!! html()->form('POST', route('admin.accommodation-drafts.approve', $accommodationDraft->id))->open() !!}
+                        @csrf
+                        <div class="form-group">
+                            {!! html()->label('Location', 'location') !!}
+                            {!! html()->select('location', [], null)
+                                ->class('form-control select2-ajax')
+                                ->id('location-select')
+                                ->placeholder('Search and select a location') !!}
+                            {!! html()->hidden('location_id')->id('location_id_input') !!}
+                        </div>
+                        {!! html()->button('Approve & Publish', 'submit')
+                            ->class('btn btn-success')
+                            ->attribute('data-toggle', 'tooltip')
+                            ->attribute('title', 'The host will be notified once the accommodation is created') !!}
+                    {!! html()->form()->close() !!}
+                </div>
             </div>
+
+            {{-- Reject --}}
+            <div class="panel panel-danger">
+                <div class="panel-heading">Reject</div>
+                <div class="panel-body">
+                    {!! html()->form('POST', route('admin.accommodation-drafts.reject', $accommodationDraft->id))->open() !!}
+                        @csrf
+                        <div class="form-group">
+                            {!! html()->label('Reason (optional — will be included in the notification email)', 'reason') !!}
+                            {!! html()->textarea('reason', old('reason'))
+                                ->class('form-control')
+                                ->attribute('rows', 3)
+                                ->placeholder('Explain why this submission is being rejected…') !!}
+                        </div>
+                        {!! html()->button('Reject Submission', 'submit')
+                            ->class('btn btn-danger')
+                            ->attribute('onclick', "return confirm('Are you sure you want to reject this accommodation draft?')") !!}
+                    {!! html()->form()->close() !!}
+                </div>
+            </div>
+
         </div>
     </div>
+    @endif
+
 </section>
 @endsection
 
@@ -169,9 +272,7 @@
                 processResults: function (data) {
                     return {
                         results: data.results,
-                        pagination: {
-                            more: data.pagination.more
-                        }
+                        pagination: { more: data.pagination.more }
                     };
                 },
                 cache: true
@@ -179,15 +280,9 @@
             minimumInputLength: 2
         });
 
-        // Update hidden input when location is selected
         $('#location-select').on('change', function() {
             $('#location_id_input').val($(this).val());
         });
-
-        @if(isset($location) && $location->parent && $location->parentName)
-            var option = new Option('{{ $location->parentName }}', '{{ $location->parent }}', true, true);
-            $('#location-select').append(option).trigger('change');
-        @endif
     });
 </script>
 @endpush
