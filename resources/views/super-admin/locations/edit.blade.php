@@ -3,7 +3,7 @@
 @section('content')
 <section>
     <div class="panel panel-default">
-        <div class="panel-heading">Add new Location</div>
+        <div class="panel-heading">Edit Location: {{ $location->name }}</div>
 
         <div class="panel-body">
             @foreach (['danger', 'warning', 'success', 'info'] as $msg)
@@ -25,8 +25,9 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ url('/admin/locations') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('admin.locations.update', $location) }}" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
                 @include('super-admin.partials.forms.location')
             </form>
         </div>

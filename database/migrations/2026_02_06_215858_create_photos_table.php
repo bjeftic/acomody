@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->ulidMorphs('photoable');
+            // photoable_id stored as string to support both ULID-keyed models
+            // (AccommodationDraft, Accommodation) and integer-keyed models (Location, User)
+            $table->string('photoable_type');
+            $table->string('photoable_id');
+            $table->index(['photoable_type', 'photoable_id']);
 
             // Storage paths
             $table->string('disk')->default('minio'); // Storage disk (minio/s3)

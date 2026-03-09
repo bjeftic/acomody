@@ -56,7 +56,7 @@ return new class extends Migration
                 'riad',
                 'ryokan',
                 'shepherd_house',
-                'igloo'
+                'igloo',
             ]);
             $table->enum('accommodation_occupation', ['entire_place', 'private_room', 'shared_room']);
             $table->string('title');
@@ -66,7 +66,7 @@ return new class extends Migration
             $table->unsignedBigInteger('views_count')->default(0);
             $table->unsignedBigInteger('favorites_count')->default(0);
             $table->boolean('is_featured')->default(false);
-            $table->foreignId('location_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('location_id')->constrained()->cascadeOnDelete();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->string('street_address')->nullable();
