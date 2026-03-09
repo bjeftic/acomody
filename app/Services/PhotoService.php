@@ -385,6 +385,7 @@ class PhotoService
             'App\\Models\\AccommodationDraft' => config('images.presets.accommodation_draft.disk'),
             'App\\Models\\Accommodation' => config('images.presets.accommodation.disk'),
             'App\\Models\\User' => config('images.presets.user_profile.disk'),
+            'App\\Models\\Location' => config('images.presets.location.disk'),
             default => 'accommodation_draft_photos',
         };
     }
@@ -400,6 +401,7 @@ class PhotoService
             'App\\Models\\AccommodationDraft' => "draft-{$model->id}",
             'App\\Models\\Accommodation' => "property-{$model->id}",
             'App\\Models\\User' => "user-{$model->id}",
+            'App\\Models\\Location' => "location-{$model->id}",
             default => "unknown-{$model->id}",
         };
     }

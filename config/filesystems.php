@@ -120,6 +120,12 @@ $buckets = [
         'visibility' => 'public',
     ],
 
+    'location_photos' => [
+        'public' => true,
+        'description' => 'Location cover photos (shown on home screen)',
+        'visibility' => 'public',
+    ],
+
     'user_documents' => [
         'public' => false,
         'description' => 'User identity documents (KYC)',
@@ -293,13 +299,12 @@ foreach ($buckets as $bucketName => $config) {
     if ($driver === 'local') {
         $disk += [
             'driver' => 'local',
-            'root' => storage_path('app' . ($isPublic ? '/public' : '') . "/$bucketName"),
-            'url' => $isPublic ? $appUrl . "/storage/$bucketName" : null,
+            'root' => storage_path('app'.($isPublic ? '/public' : '')."/$bucketName"),
+            'url' => $isPublic ? $appUrl."/storage/$bucketName" : null,
             'visibility' => $isPublic ? 'public' : 'private',
             'throw' => false,
         ];
-    }
-    elseif ($driver === 'minio') {
+    } elseif ($driver === 'minio') {
         if ($minioUseSingleBucket) {
             // Single bucket strategy with prefixes
             $disk += [
@@ -309,7 +314,7 @@ foreach ($buckets as $bucketName => $config) {
                 'region' => env('MINIO_REGION', 'us-east-1'),
                 'bucket' => $minioMainBucket,
                 'prefix' => $bucketName,
-                'url' => env('MINIO_URL', $appUrl . ':9000') . "/$minioMainBucket/$bucketName",
+                'url' => env('MINIO_URL', $appUrl.':9000')."/$minioMainBucket/$bucketName",
                 'endpoint' => env('MINIO_ENDPOINT', 'http://minio:9000'),
                 'use_path_style_endpoint' => true,
                 'use_single_bucket' => true,
@@ -318,14 +323,14 @@ foreach ($buckets as $bucketName => $config) {
             ];
         } else {
             // Multiple buckets strategy
-            $actualBucketName = 'files-' . Str::replace('_', '-', $bucketName);
+            $actualBucketName = 'files-'.Str::replace('_', '-', $bucketName);
             $disk += [
                 'driver' => 's3',
                 'key' => $storageKey,
                 'secret' => $storageSecret,
                 'region' => env('MINIO_REGION', 'us-east-1'),
                 'bucket' => $actualBucketName,
-                'url' => env('MINIO_URL', $appUrl . ':9000') . "/$actualBucketName",
+                'url' => env('MINIO_URL', $appUrl.':9000')."/$actualBucketName",
                 'endpoint' => env('MINIO_ENDPOINT', 'http://minio:9000'),
                 'use_path_style_endpoint' => true,
                 'use_single_bucket' => false,
@@ -333,8 +338,7 @@ foreach ($buckets as $bucketName => $config) {
                 'throw' => false,
             ];
         }
-    }
-    elseif ($driver === 's3') {
+    } elseif ($driver === 's3') {
         if ($awsUseSingleBucket) {
             // Single bucket strategy with prefixes
             $disk += [
@@ -367,8 +371,7 @@ foreach ($buckets as $bucketName => $config) {
                 'throw' => false,
             ];
         }
-    }
-    elseif ($driver === 'digitalocean') {
+    } elseif ($driver === 'digitalocean') {
         if ($doUseSingleBucket) {
             // Single Space strategy with prefixes
             $disk += [
@@ -379,7 +382,7 @@ foreach ($buckets as $bucketName => $config) {
                 'bucket' => $doBucket,
                 'prefix' => $bucketName,
                 'endpoint' => "https://$doRegion.digitaloceanspaces.com",
-                'url' => env('DO_SPACES_URL') ? env('DO_SPACES_URL') . "/$bucketName" : null,
+                'url' => env('DO_SPACES_URL') ? env('DO_SPACES_URL')."/$bucketName" : null,
                 'use_path_style_endpoint' => false,
                 'use_single_bucket' => true,
                 'visibility' => $isPublic ? 'public' : 'private',
@@ -467,7 +470,7 @@ return [
             'public' => [
                 'driver' => 'local',
                 'root' => storage_path('app/public'),
-                'url' => $appUrl . '/storage',
+                'url' => $appUrl.'/storage',
                 'visibility' => 'public',
                 'throw' => false,
                 'report' => false,
@@ -484,7 +487,7 @@ return [
                 'secret' => env('MINIO_SECRET_KEY', 'minioadmin'),
                 'region' => env('MINIO_REGION', 'us-east-1'),
                 'bucket' => $minioMainBucket,
-                'url' => env('MINIO_URL', $appUrl . ':9000'),
+                'url' => env('MINIO_URL', $appUrl.':9000'),
                 'endpoint' => env('MINIO_ENDPOINT', 'http://minio:9000'),
                 'use_path_style_endpoint' => true,
                 'use_single_bucket' => $minioUseSingleBucket,

@@ -104,6 +104,17 @@ return [
             ],
         ],
 
+        // Location Cover Photos
+        'location' => [
+            'disk' => 'location_photos',
+            'max_file_size' => 5242880, // 5MB
+            'sizes' => [
+                'thumbnail' => ['width' => 400, 'height' => 300, 'quality' => 80, 'crop' => true],
+                'medium' => ['width' => 800, 'height' => 600, 'quality' => 85, 'crop' => true],
+                'large' => ['width' => 1600, 'height' => 1200, 'quality' => 90, 'crop' => true],
+            ],
+        ],
+
         // Category/Destination Images
         'category' => [
             'disk' => env('APP_ENV') === 'production' ? 's3' : 'minio',
