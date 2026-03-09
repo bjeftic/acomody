@@ -51,6 +51,14 @@ class Location extends Model
     }
 
     /**
+     * Only active locations are indexed in Typesense.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->is_active;
+    }
+
+    /**
      * Get the name of the index associated with the model.
      */
     public function searchableAs(): string

@@ -22,7 +22,7 @@ function makeLocation(array $attributes = []): Location
     $superadmin = superadmin();
     $country = Country::where('is_active', true)->first();
 
-    return Location::withoutSyncingToSearch(fn () => Location::create(array_merge([
+    return Location::create(array_merge([
         'name' => 'Test City',
         'country_id' => $country->id,
         'location_type' => LocationType::CITY->value,
@@ -30,7 +30,7 @@ function makeLocation(array $attributes = []): Location
         'longitude' => 20.4,
         'is_active' => true,
         'user_id' => $superadmin->id,
-    ], $attributes)));
+    ], $attributes));
 }
 
 function validLocationPayload(array $overrides = []): array
@@ -102,7 +102,7 @@ describe('POST /admin/locations', function () {
             ['image' => $file]
         ))->assertRedirect('/admin/locations');
 
-        $location = Location::withoutSyncingToSearch(fn () => Location::latest()->first());
+        $location = Location::latest()->first();
 
         expect($location->photos()->count())->toBe(1);
         expect($location->primaryPhoto->is_primary)->toBeTrue();
@@ -117,7 +117,7 @@ describe('POST /admin/locations', function () {
         $this->post('/admin/locations', $payload)
             ->assertRedirect('/admin/locations');
 
-        $location = Location::withoutSyncingToSearch(fn () => Location::latest()->first());
+        $location = Location::latest()->first();
         expect($location->is_active)->toBeFalse();
     });
 
@@ -129,7 +129,7 @@ describe('POST /admin/locations', function () {
         $this->post('/admin/locations', $payload)
             ->assertRedirect('/admin/locations');
 
-        $location = Location::withoutSyncingToSearch(fn () => Location::latest()->first());
+        $location = Location::latest()->first();
         expect($location->latitude)->toBeNull();
         expect($location->longitude)->toBeNull();
     });

@@ -60,7 +60,7 @@ class LocationController
             ]
         ));
 
-        $location = Location::withoutSyncingToSearch(fn () => Location::create([
+        $location = Location::create([
             'name' => $this->buildTranslations($validated['name']),
             'country_id' => $validated['country'],
             'location_type' => $validated['location_type'],
@@ -69,7 +69,7 @@ class LocationController
             'longitude' => $validated['longitude'] ?? null,
             'is_active' => $request->boolean('is_active'),
             'user_id' => userOrFail()->id,
-        ]));
+        ]);
 
         if ($request->hasFile('image')) {
             $this->photoService->uploadPhoto($location, $request->file('image'), 0, true);
@@ -107,7 +107,7 @@ class LocationController
             ]
         ));
 
-        Location::withoutSyncingToSearch(fn () => $location->update([
+        $location->update([
             'name' => $this->buildTranslations($validated['name']),
             'country_id' => $validated['country'],
             'location_type' => $validated['location_type'],
@@ -115,7 +115,7 @@ class LocationController
             'latitude' => $validated['latitude'] ?? null,
             'longitude' => $validated['longitude'] ?? null,
             'is_active' => $request->boolean('is_active'),
-        ]));
+        ]);
 
         if ($request->boolean('remove_image') || $request->hasFile('image')) {
             $existingPhoto = $location->primaryPhoto;
@@ -139,7 +139,7 @@ class LocationController
             $this->photoService->deletePhoto($photo);
         }
 
-        Location::withoutSyncingToSearch(fn () => $location->delete());
+        $location->delete();
 
         return redirect()->route('admin.locations.index')
             ->with('success', 'Location deleted successfully.');
