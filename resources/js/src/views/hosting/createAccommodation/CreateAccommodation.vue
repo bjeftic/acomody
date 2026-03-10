@@ -311,7 +311,7 @@ export default {
                     bed_types: this.formData.floorPlan.bedTypes
                         .filter((bt) => bt.quantity > 0)
                         .map((bt) => ({
-                            bed_id: bt.bed_id,
+                            bed_type: bt.bed_type,
                             quantity: bt.quantity,
                         })),
                 },

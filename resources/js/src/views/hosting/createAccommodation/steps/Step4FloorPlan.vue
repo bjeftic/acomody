@@ -11,52 +11,30 @@
 
         <div class="space-y-8 max-w-xl overflow-auto py-4 h-[60vh] mx-auto">
             <!-- Guests -->
-            <counter-item
-                label="Guests"
-                :value="formData.floorPlan.guests"
-                :min="1"
-                :max="16"
-                @update:value="updateFloorPlan('guests', $event)"
-            />
+            <counter-item label="Guests" :value="formData.floorPlan.guests" :min="1" :max="16"
+                @update:value="updateFloorPlan('guests', $event)" />
 
             <!-- Bedrooms -->
-            <counter-item
-                label="Bedrooms"
-                :value="formData.floorPlan.bedrooms"
-                :min="0"
-                :max="50"
-                @update:value="updateFloorPlan('bedrooms', $event)"
-            />
+            <counter-item label="Bedrooms" :value="formData.floorPlan.bedrooms" :min="0" :max="50"
+                @update:value="updateFloorPlan('bedrooms', $event)" />
 
             <!-- Bathrooms -->
-            <counter-item
-                label="Bathrooms"
-                :value="formData.floorPlan.bathrooms"
-                :min="1"
-                :max="20"
-                @update:value="updateFloorPlan('bathrooms', $event)"
-            />
+            <counter-item label="Bathrooms" :value="formData.floorPlan.bathrooms" :min="1" :max="20"
+                @update:value="updateFloorPlan('bathrooms', $event)" />
 
             <!-- Bed Types -->
-            <div class="pt-2">
-                <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">
+            <div class="my-2">
+                <h3 class="text-base font-medium text-gray-900 dark:text-white">
                     Bed types
                 </h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                     Select the types of beds available (at least one required).
                 </p>
-                <div class="space-y-0">
-                    <counter-item
-                        v-for="bedType in formData.floorPlan.bedTypes"
-                        :key="bedType.bed_type"
-                        :label="bedType.name"
-                        :sub-label="bedType.description"
-                        :value="bedType.quantity"
-                        :min="0"
-                        :max="20"
-                        @update:value="updateBedType(bedType.bed_type, $event)"
-                    />
-                </div>
+            </div>
+            <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <counter-item v-for="bedType in formData.floorPlan.bedTypes" :key="bedType.bed_type"
+                    :label="bedType.name" :sub-label="bedType.description" :value="bedType.quantity" :min="0" :max="20"
+                    @update:value="updateBedType(bedType.bed_type, $event)" />
             </div>
         </div>
     </div>

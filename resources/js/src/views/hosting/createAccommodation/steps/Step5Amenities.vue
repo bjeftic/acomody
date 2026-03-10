@@ -15,13 +15,9 @@
                     {{ amenityCategory.title }}
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <amenity-checkbox
-                        v-for="amenity in amenitiesSorted[amenityCategory.key]"
-                        :key="amenity.id"
-                        :amenity="amenity"
-                        :selected="formData.amenities.includes(amenity.id)"
-                        @toggle="toggleAmenity(amenity.id)"
-                    />
+                    <amenity-checkbox v-for="amenity in amenitiesSorted[amenityCategory.key]" :key="amenity.id"
+                        :amenity="amenity" :selected="formData.amenities.includes(amenity.id)"
+                        @toggle="toggleAmenity(amenity.id)" />
                 </div>
             </template>
         </div>

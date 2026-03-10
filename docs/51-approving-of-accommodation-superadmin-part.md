@@ -226,3 +226,130 @@ $this->mock(SearchService::class, function ($mock) {
 | `tests/Feature/SuperAdmin/AccommodationDraftControllerTest.php` | New — 25 tests |
 | `tests/Feature/SuperAdmin/AccommodationControllerTest.php` | New — 10 tests |
 | `tests/Feature/Api/SearchAccommodationTest.php` | New — 4 tests |
+
+---
+
+## Session 2 — Data Validation, Bug Fixes & Frontend Polish
+
+### Bug Fix #6 — `postal_code` vs `zip_code` Key Mismatch
+
+**Problem:** `AccommodationDraftController::show()` read `$accommodationDraft->data['address']['postal_code']` but both the frontend and `AccommodationDraftFactory` store the field as `address.zip_code`. The postal code was always `null` in the superadmin review view.
+
+**Fix:** Changed line 69 of the controller `show()` method:
+```php
+// Before
+$draftData['postal_code'] = $accommodationDraft->data['address']['postal_code'] ?? null;
+
+// After
+$draftData['postal_code'] = $accommodationDraft->data['address']['zip_code'] ?? null;
+```
+
+**File:** `app/Http/Controllers/SuperAdmin/AccommodationDraftController.php`
+
+---
+
+### Bug Fix #7 — `withoutAuthorization` Used Outside Seeders/Migrations
+
+**Problem:** `AccommodationDraftController::reject()` and `addComment()` wrapped `ReviewComment::create()` in `ReviewComment::withoutAuthorization()`. Project convention forbids `withoutAuthorization` outside seeders/migrations. Additionally, `ReviewComment::canBeCreatedBy($user)` already returns `true` for superadmins — the wrapper was entirely redundant.
+
+Same issue existed in `AccommodationDraftControllerTest.php` where `ReviewComment::create()` in the test setup used the wrapper.
+
+**Fix:** Removed all three `withoutAuthorization` usages. No functional change — superadmins could always create comments.
+
+**Files:**
+- `app/Http/Controllers/SuperAdmin/AccommodationDraftController.php`
+- `tests/Feature/SuperAdmin/AccommodationDraftControllerTest.php`
+
+---
+
+### Bug Fix #8 — Frontend Sends `bed_id` Instead of `bed_type`
+
+**Problem:** In `CreateAccommodation.vue`, `prepareDraftData()` mapped bed types as:
+```js
+bed_types: this.formData.floorPlan.bedTypes
+    .filter((bt) => bt.quantity > 0)
+    .map((bt) => ({
+        bed_id: bt.bed_id,   // bt.bed_id doesn't exist on the object → undefined → omitted from JSON
+        quantity: bt.quantity,
+    })),
+```
+The `bedTypes` objects have a `bed_type` field, not `bed_id`. The backend and factory both use `bed_type`. As a result, all submitted bed type entries were missing their type identifier.
+
+**Fix:**
+```js
+.map((bt) => ({
+    bed_type: bt.bed_type,   // correct field name
+    quantity: bt.quantity,
+})),
+```
+
+**File:** `resources/js/src/views/hosting/createAccommodation/CreateAccommodation.vue`
+
+---
+
+### Feature — Comprehensive `data` Field Validation in `UpdateRequest`
+
+**Before:** The `UpdateRequest` only validated the top-level `data` field as `required|array`. All nested fields (accommodation type, address, coordinates, floor plan, pricing, house rules) were accepted without any type, format, or enum validation.
+
+**After:** Full nested validation with two modes controlled by the `status` field:
+
+| Mode | Trigger | Behaviour |
+|------|---------|-----------|
+| Draft | `status: draft` | All `data.*` fields are `nullable` — partial payloads accepted at any wizard step |
+| Submit | `status: waiting_for_approval` | All required fields become `required` — full payload enforced |
+
+**Validated fields:**
+
+| Field | Rule |
+|-------|------|
+| `data.accommodation_type` | `Rule::enum(AccommodationType::class)` |
+| `data.accommodation_occupation` | `Rule::enum(AccommodationOccupation::class)` |
+| `data.address.country` | `exists:countries,iso_code_2` |
+| `data.address.street`, `.city` | `string\|max:255` |
+| `data.address.state`, `.zip_code` | `nullable` always |
+| `data.coordinates.latitude` | `numeric\|between:-90,90` |
+| `data.coordinates.longitude` | `numeric\|between:-180,180` |
+| `data.floor_plan.guests` | `integer\|min:1\|max:16` |
+| `data.floor_plan.bedrooms` | `integer\|min:0\|max:50` |
+| `data.floor_plan.bathrooms` | `integer\|min:0\|max:20` |
+| `data.floor_plan.bed_types` | `array\|min:1` on submit |
+| `data.floor_plan.bed_types.*.bed_type` | `Rule::enum(BedType::class)` |
+| `data.floor_plan.bed_types.*.quantity` | `integer\|min:1\|max:20` |
+| `data.amenities.*` | `exists:amenities,id` |
+| `data.title` | `min:10\|max:255` on submit, `max:255` in draft |
+| `data.description` | `min:50\|max:5000` on submit, `max:5000` in draft |
+| `data.pricing.basePrice` | `numeric\|min:10\|max:10000` |
+| `data.pricing.bookingType` | `Rule::enum(BookingType::class)` |
+| `data.pricing.minStay` | `integer\|min:1\|max:365` |
+| `data.house_rules.checkInFrom/Until` | `date_format:H:i` |
+| `data.house_rules.checkOutUntil` | `date_format:H:i` |
+| `data.house_rules.quietHoursFrom/Until` | `nullable\|date_format:H:i` |
+| `data.house_rules.cancellationPolicy` | `in:flexible,moderate,firm,strict,non-refundable` |
+
+**File:** `app/Http/Requests/AccommodationDraft/UpdateRequest.php`
+
+---
+
+### Feature — Bed Types Visual Distinction (Step 4 Floor Plan)
+
+The bed types list was visually identical to the main counters (guests, bedrooms, bathrooms). Wrapped the bed types section in a bordered card to make it clearly a sub-section:
+
+```html
+<div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+    <!-- header + counter-item list -->
+</div>
+```
+
+**File:** `resources/js/src/views/hosting/createAccommodation/steps/Step4FloorPlan.vue`
+
+---
+
+### Tests Added (Session 2)
+
+| File | Tests Added |
+|------|-------------|
+| `tests/Feature/Jobs/CreateAccommodationJobTest.php` | 11 new — accommodation record creation, bed types (filter zero qty, no bed_types key), amenities sync, pricing |
+| `tests/Feature/SuperAdmin/AccommodationDraftControllerTest.php` | 2 new — renders bed type labels, renders postal code from `zip_code` |
+| `tests/Feature/Api/AccommodationDraftTest.php` | 12 new — partial draft acceptance, invalid enum values, out-of-range coordinates, invalid country code, invalid bed type, price below minimum, invalid time format, invalid cancellation policy, required fields on submission, complete valid submission |
+
+**Total tests after session 2: 473 passing**
