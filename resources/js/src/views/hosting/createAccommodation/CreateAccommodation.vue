@@ -38,7 +38,6 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
-import { BED_TYPES } from "@/src/views/hosting/createAccommodation/constants.js";
 import WizardNavigation from "@/src/views/hosting/createAccommodation/components/WizardNavigation.vue";
 import Step1AccommodationType from "@/src/views/hosting/createAccommodation/steps/Step1AccommodationType.vue";
 import Step2OccupationType from "@/src/views/hosting/createAccommodation/steps/Step2OccupationType.vue";
@@ -91,12 +90,7 @@ export default {
                     guests: 1,
                     bedrooms: 1,
                     bathrooms: 1,
-                    bedTypes: BED_TYPES.map((bt) => ({
-                        bed_type: bt.value,
-                        name: bt.name,
-                        description: bt.description,
-                        quantity: 0,
-                    })),
+                    bedTypes: [],
                 },
                 amenities: [],
                 photos: [],
@@ -139,6 +133,7 @@ export default {
         ...mapState("hosting/createAccommodation", [
             "accommodationDraft",
             "accommodationDraftId",
+            "bedTypes",
             "currentStep",
             "createAccommodationLoading",
         ]),
@@ -196,10 +191,22 @@ export default {
             immediate: true,
             deep: true,
             handler(newDraft) {
-                if (newDraft) {
+                if (newDraft && this.bedTypes.length) {
                     this.loadDraftData(newDraft);
                 }
             },
+        },
+        bedTypes(newBedTypes) {
+            if (newBedTypes.length && this.accommodationDraft) {
+                this.loadDraftData(this.accommodationDraft);
+            } else if (newBedTypes.length) {
+                this.formData.floorPlan.bedTypes = newBedTypes.map((bedType) => ({
+                    bed_type: bedType.value,
+                    name: bedType.name,
+                    description: bedType.description,
+                    quantity: 0,
+                }));
+            }
         },
     },
     methods: {
@@ -342,7 +349,7 @@ export default {
                     guests: draft.floor_plan?.guests || 1,
                     bedrooms: draft.floor_plan?.bedrooms || 1,
                     bathrooms: draft.floor_plan?.bathrooms || 1,
-                    bedTypes: BED_TYPES.map((bedType) => ({
+                    bedTypes: this.bedTypes.map((bedType) => ({
                         bed_type: bedType.value,
                         name: bedType.name,
                         description: bedType.description,

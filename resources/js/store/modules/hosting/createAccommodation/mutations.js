@@ -21,6 +21,9 @@ export default {
     [types.SET_AMENITIES](state, amenities) {
         state.amenities = amenities.data;
     },
+    [types.SET_BED_TYPES](state, bedTypes) {
+        state.bedTypes = bedTypes.data;
+    },
     [types.SET_CREATE_ACCOMMODATION_STEP](state, accommodationDraft) {
         state.currentStep = accommodationDraft.data.current_step;
     },

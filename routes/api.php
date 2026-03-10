@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\BedTypeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FeeController;
@@ -79,6 +80,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/accommodation-types', [AccommodationTypeController::class, 'index'])
         ->name('api.accommodation.types');
+
+    Route::get('/bed-types', [BedTypeController::class, 'index'])
+        ->name('api.bed.types');
 
     Route::get('/amenities', [AmenityController::class, 'index'])
         ->name('api.amenities');
