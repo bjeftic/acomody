@@ -80,12 +80,12 @@ describe('GET /admin/accommodation-drafts/{id}', function () {
         $draft = makeDraft();
         $admin = superadmin();
 
-        ReviewComment::withoutAuthorization(fn () => ReviewComment::create([
+        ReviewComment::create([
             'commentable_id' => $draft->id,
             'commentable_type' => AccommodationDraft::class,
             'user_id' => $admin->id,
             'body' => 'Please update the photos.',
-        ]));
+        ]);
 
         $this->get("/admin/accommodation-drafts/{$draft->id}")
             ->assertSuccessful()
@@ -96,6 +96,67 @@ describe('GET /admin/accommodation-drafts/{id}', function () {
         superadmin();
 
         $this->get('/admin/accommodation-drafts/non-existent-id')->assertNotFound();
+    });
+
+    it('renders bed type labels on the show page', function () {
+        $user = authenticatedUser();
+        superadmin();
+
+        $draft = AccommodationDraft::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'waiting_for_approval',
+            'data' => json_encode([
+                'accommodation_type' => 'apartment',
+                'accommodation_occupation' => 'entire_place',
+                'title' => 'My Place',
+                'description' => 'Nice place.',
+                'address' => ['country' => 'RS', 'street' => '1 St', 'city' => 'BG', 'state' => null, 'zip_code' => '11000'],
+                'coordinates' => ['latitude' => 44.8, 'longitude' => 20.4],
+                'floor_plan' => [
+                    'guests' => 2,
+                    'bedrooms' => 1,
+                    'bathrooms' => 1,
+                    'bed_types' => [
+                        ['bed_type' => 'double', 'quantity' => 1],
+                        ['bed_type' => 'king', 'quantity' => 2],
+                    ],
+                ],
+                'amenities' => [],
+                'pricing' => ['basePrice' => 50, 'bookingType' => 'instant_booking'],
+                'house_rules' => ['checkInFrom' => '15:00', 'checkInUntil' => '20:00', 'checkOutUntil' => '11:00', 'hasQuietHours' => false, 'quietHoursFrom' => '22:00', 'quietHoursUntil' => '08:00', 'cancellationPolicy' => 'moderate'],
+            ]),
+        ]);
+
+        $this->get("/admin/accommodation-drafts/{$draft->id}")
+            ->assertSuccessful()
+            ->assertSee('Double Bed')
+            ->assertSee('King Bed');
+    });
+
+    it('renders the postal code from zip_code in draft data', function () {
+        $user = authenticatedUser();
+        superadmin();
+
+        $draft = AccommodationDraft::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'waiting_for_approval',
+            'data' => json_encode([
+                'accommodation_type' => 'apartment',
+                'accommodation_occupation' => 'entire_place',
+                'title' => 'My Place',
+                'description' => 'Nice place.',
+                'address' => ['country' => 'RS', 'street' => '1 St', 'city' => 'BG', 'state' => null, 'zip_code' => '11000'],
+                'coordinates' => ['latitude' => 44.8, 'longitude' => 20.4],
+                'floor_plan' => ['guests' => 2, 'bedrooms' => 1, 'bathrooms' => 1, 'bed_types' => []],
+                'amenities' => [],
+                'pricing' => ['basePrice' => 50, 'bookingType' => 'instant_booking'],
+                'house_rules' => ['checkInFrom' => '15:00', 'checkInUntil' => '20:00', 'checkOutUntil' => '11:00', 'hasQuietHours' => false, 'quietHoursFrom' => '22:00', 'quietHoursUntil' => '08:00', 'cancellationPolicy' => 'moderate'],
+            ]),
+        ]);
+
+        $this->get("/admin/accommodation-drafts/{$draft->id}")
+            ->assertSuccessful()
+            ->assertSee('11000');
     });
 });
 

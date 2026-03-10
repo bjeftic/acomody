@@ -31,16 +31,16 @@ class ReviewComment extends Model
 
     public function canBeCreatedBy($user): bool
     {
-        return $user !== null;
+        return $user !== null && $user->is_superadmin;
     }
 
     public function canBeUpdatedBy($user): bool
     {
-        return $user && $user->id === $this->user_id;
+        return $user !== null && $user->is_superadmin;
     }
 
     public function canBeDeletedBy($user): bool
     {
-        return $user && $user->id === $this->user_id;
+        return $user && $user->id === $this->user_id && $user->is_superadmin;
     }
 }

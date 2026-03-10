@@ -4,7 +4,7 @@
             Share some basics about your place
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            You'll add more details later, like bed types.
+            Tell guests how many people can stay and what types of beds you have.
         </p>
 
         <hr />
@@ -28,15 +28,6 @@
                 @update:value="updateFloorPlan('bedrooms', $event)"
             />
 
-            <!-- Beds -->
-            <counter-item
-                label="Beds"
-                :value="formData.floorPlan.beds"
-                :min="1"
-                :max="50"
-                @update:value="updateFloorPlan('beds', $event)"
-            />
-
             <!-- Bathrooms -->
             <counter-item
                 label="Bathrooms"
@@ -45,6 +36,28 @@
                 :max="20"
                 @update:value="updateFloorPlan('bathrooms', $event)"
             />
+
+            <!-- Bed Types -->
+            <div class="pt-2">
+                <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">
+                    Bed types
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    Select the types of beds available (at least one required).
+                </p>
+                <div class="space-y-0">
+                    <counter-item
+                        v-for="bedType in formData.floorPlan.bedTypes"
+                        :key="bedType.bed_type"
+                        :label="bedType.name"
+                        :sub-label="bedType.description"
+                        :value="bedType.quantity"
+                        :min="0"
+                        :max="20"
+                        @update:value="updateBedType(bedType.bed_type, $event)"
+                    />
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -75,6 +88,17 @@ export default {
                 floorPlan: {
                     ...this.formData.floorPlan,
                     [field]: value,
+                },
+            });
+        },
+        updateBedType(bedType, quantity) {
+            this.$emit("update:form-data", {
+                ...this.formData,
+                floorPlan: {
+                    ...this.formData.floorPlan,
+                    bedTypes: this.formData.floorPlan.bedTypes.map((bt) =>
+                        bt.bed_type === bedType ? { ...bt, quantity } : bt
+                    ),
                 },
             });
         },

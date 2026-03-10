@@ -220,7 +220,7 @@ class CreateAccommodation implements ShouldQueue
      */
     private function createAccommodation(array $data, AccommodationDraft $draft): Accommodation
     {
-        return Accommodation::create([
+        $accommodation = Accommodation::create([
             'location_id' => $this->locationId,
             'accommodation_draft_id' => $draft->id,
             'accommodation_type' => $data['accommodation_type'],
@@ -228,7 +228,6 @@ class CreateAccommodation implements ShouldQueue
             'title' => $data['title'],
             'description' => $data['description'],
             'booking_type' => $data['pricing']['bookingType'] ?? 'instant_booking',
-            'amenities' => json_encode($data['amenities'] ?? []),
             'user_id' => $draft->user_id,
             'check_in_from' => $data['house_rules']['checkInFrom'] ?? null,
             'check_in_until' => $data['house_rules']['checkInUntil'] ?? null,
@@ -236,15 +235,35 @@ class CreateAccommodation implements ShouldQueue
             'quiet_hours_from' => $data['house_rules']['quietHoursFrom'] ?? null,
             'quiet_hours_until' => $data['house_rules']['quietHoursUntil'] ?? null,
             'cancellation_policy' => $data['house_rules']['cancellationPolicy'] ?? null,
-            'max_guests' => $data['max_guests'] ?? 1,
+            'max_guests' => $data['floor_plan']['guests'] ?? 1,
+            'bedrooms' => $data['floor_plan']['bedrooms'] ?? 1,
+            'bathrooms' => $data['floor_plan']['bathrooms'] ?? 1,
             'latitude' => $data['coordinates']['latitude'] ?? null,
             'longitude' => $data['coordinates']['longitude'] ?? null,
             'approved_by' => $this->userId,
             'is_active' => true,
             'is_featured' => false,
             'street_address' => $data['address']['street'] ?? null,
-            'postal_code' => $data['address']['postal_code'] ?? null,
         ]);
+
+        if (! empty($data['amenities'])) {
+            $accommodation->amenities()->sync($data['amenities']);
+        }
+
+        $bedTypes = collect($data['floor_plan']['bed_types'] ?? [])
+            ->filter(fn (array $bt) => ($bt['quantity'] ?? 0) > 0)
+            ->map(fn (array $bt) => [
+                'bed_type' => $bt['bed_type'],
+                'quantity' => $bt['quantity'],
+            ])
+            ->values()
+            ->toArray();
+
+        if (! empty($bedTypes)) {
+            $accommodation->beds()->createMany($bedTypes);
+        }
+
+        return $accommodation;
     }
 
     private function setupPricing(Accommodation $accommodation, array $data, PricingService $pricingService, CurrencyService $currencyService): void

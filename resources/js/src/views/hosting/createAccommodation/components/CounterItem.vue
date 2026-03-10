@@ -6,6 +6,9 @@
             <h3 class="text-base font-medium text-gray-900 dark:text-white">
                 {{ label }}
             </h3>
+            <p v-if="subLabel" class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                {{ subLabel }}
+            </p>
         </div>
         <div class="flex items-center space-x-4">
             <button
@@ -75,6 +78,10 @@ export default {
         label: {
             type: String,
             required: true,
+        },
+        subLabel: {
+            type: String,
+            default: null,
         },
         value: {
             type: Number,

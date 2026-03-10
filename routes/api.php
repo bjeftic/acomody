@@ -1,24 +1,23 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Public\FilterController as PublicFilterController;
-use App\Http\Controllers\Public\AccommodationController as PublicAccommodationController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\AccommodationController;
-use App\Http\Controllers\AccommodationTypeController;
 use App\Http\Controllers\AccommodationDraftController;
+use App\Http\Controllers\AccommodationTypeController;
 use App\Http\Controllers\AmenityController;
-use App\Http\Controllers\FeeController;
-use App\Http\Controllers\CurrencyController;
-use App\Http\Controllers\SearchController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\FeeController;
 use App\Http\Controllers\Host\BookingController as HostBookingController;
+use App\Http\Controllers\Public\AccommodationController as PublicAccommodationController;
+use App\Http\Controllers\Public\FilterController as PublicFilterController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 // ============================================
 // PUBLIC ROUTES
@@ -36,7 +35,7 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])
     ->name('api.password.store');
 
 Route::post('/currency/set', [CurrencyController::class, 'set'])
-        ->name('api.currency.set');
+    ->name('api.currency.set');
 
 Route::prefix('public')->name('api.public')->group(function () {
     Route::get('filters', [PublicFilterController::class, 'index'])

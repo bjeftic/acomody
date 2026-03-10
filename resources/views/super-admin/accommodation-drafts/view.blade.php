@@ -79,6 +79,14 @@
             <div class="detail-row"><span class="detail-label">Max Guests:</span> {{ $accommodationDraft->draftData['max_guests'] ?? '-' }}</div>
             <div class="detail-row"><span class="detail-label">Bedrooms:</span> {{ $accommodationDraft->draftData['bedrooms'] ?? '-' }}</div>
             <div class="detail-row"><span class="detail-label">Bathrooms:</span> {{ $accommodationDraft->draftData['bathrooms'] ?? '-' }}</div>
+            <div class="detail-row">
+                <span class="detail-label">Bed Types:</span>
+                @forelse ($accommodationDraft->draftData['bed_types'] ?? [] as $bedType)
+                    <span class="pill">{{ $bedType['label'] }} &times;{{ $bedType['quantity'] }}</span>
+                @empty
+                    -
+                @endforelse
+            </div>
             <div class="detail-row"><span class="detail-label">Submitted:</span> {{ $accommodationDraft->created_at->format('d M Y H:i') }}</div>
         </div>
     </div>

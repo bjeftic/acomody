@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-
 class Bed extends Model
 {
     protected $fillable = [
-        'type',
-        'quantity',
+        'name',
+        'description',
+        'is_active',
     ];
 
     public function canBeReadBy($user): bool

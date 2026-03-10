@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Enums\Accommodation\AccommodationOccupation;
 use App\Enums\Accommodation\AccommodationType;
+use App\Enums\Accommodation\BedType;
 use App\Jobs\CreateAccommodation;
 use App\Mail\Accommodation\AccommodationRejectedMail;
 use App\Mail\Accommodation\ReviewCommentAddedMail;
@@ -65,10 +66,19 @@ class AccommodationDraftController
         $draftData['city'] = $accommodationDraft->data['address']['city'] ?? null;
         $draftData['state'] = $accommodationDraft->data['address']['state'] ?? null;
         $draftData['country'] = $accommodationDraft->data['address']['country'] ?? null;
-        $draftData['postal_code'] = $accommodationDraft->data['address']['postal_code'] ?? null;
-        $draftData['max_guests'] = $accommodationDraft->data['max_guests'] ?? null;
-        $draftData['bedrooms'] = $accommodationDraft->data['bedrooms'] ?? null;
-        $draftData['bathrooms'] = $accommodationDraft->data['bathrooms'] ?? null;
+        $draftData['postal_code'] = $accommodationDraft->data['address']['zip_code'] ?? null;
+        $floorPlan = $accommodationDraft->data['floor_plan'] ?? [];
+        $draftData['max_guests'] = $floorPlan['guests'] ?? null;
+        $draftData['bedrooms'] = $floorPlan['bedrooms'] ?? null;
+        $draftData['bathrooms'] = $floorPlan['bathrooms'] ?? null;
+        $draftData['bed_types'] = collect($floorPlan['bed_types'] ?? [])
+            ->filter(fn (array $bt) => ($bt['quantity'] ?? 0) > 0)
+            ->map(fn (array $bt) => [
+                'label' => BedType::from($bt['bed_type'])->label(),
+                'quantity' => $bt['quantity'],
+            ])
+            ->values()
+            ->all();
         $amenityIds = $accommodationDraft->data['amenities'] ?? [];
         $draftData['amenities'] = ! empty($amenityIds)
             ? Amenity::whereIn('id', $amenityIds)->pluck('name')->all()
@@ -131,12 +141,12 @@ class AccommodationDraftController
         $reason = $validated['reason'] ?? null;
 
         if (! empty($reason)) {
-            ReviewComment::withoutAuthorization(fn () => ReviewComment::create([
+            ReviewComment::create([
                 'commentable_id' => $accommodationDraft->id,
                 'commentable_type' => AccommodationDraft::class,
                 'user_id' => userOrFail()->id,
                 'body' => $reason,
-            ]));
+            ]);
         }
 
         Mail::to($accommodationDraft->user->email)
@@ -158,12 +168,12 @@ class AccommodationDraftController
 
         $accommodationDraft = AccommodationDraft::with('user')->whereId($id)->firstOrFail();
 
-        $comment = ReviewComment::withoutAuthorization(fn () => ReviewComment::create([
+        $comment = ReviewComment::create([
             'commentable_id' => $accommodationDraft->id,
             'commentable_type' => AccommodationDraft::class,
             'user_id' => userOrFail()->id,
             'body' => $validated['body'],
-        ]));
+        ]);
 
         Mail::to($accommodationDraft->user->email)
             ->queue(new ReviewCommentAddedMail($accommodationDraft, $comment));

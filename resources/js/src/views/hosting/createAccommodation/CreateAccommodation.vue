@@ -38,6 +38,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import { BED_TYPES } from "@/src/views/hosting/createAccommodation/constants.js";
 import WizardNavigation from "@/src/views/hosting/createAccommodation/components/WizardNavigation.vue";
 import Step1AccommodationType from "@/src/views/hosting/createAccommodation/steps/Step1AccommodationType.vue";
 import Step2OccupationType from "@/src/views/hosting/createAccommodation/steps/Step2OccupationType.vue";
@@ -89,8 +90,13 @@ export default {
                 floorPlan: {
                     guests: 1,
                     bedrooms: 1,
-                    beds: 1,
                     bathrooms: 1,
+                    bedTypes: BED_TYPES.map((bt) => ({
+                        bed_type: bt.value,
+                        name: bt.name,
+                        description: bt.description,
+                        quantity: 0,
+                    })),
                 },
                 amenities: [],
                 photos: [],
@@ -161,8 +167,10 @@ export default {
                     return (
                         this.formData.floorPlan.guests >= 1 &&
                         this.formData.floorPlan.bedrooms >= 0 &&
-                        this.formData.floorPlan.beds >= 1 &&
-                        this.formData.floorPlan.bathrooms >= 0.5
+                        this.formData.floorPlan.bathrooms >= 0.5 &&
+                        this.formData.floorPlan.bedTypes.some(
+                            (bt) => bt.quantity > 0
+                        )
                     );
                 case 5:
                     return true;
@@ -299,8 +307,13 @@ export default {
                 floor_plan: {
                     guests: this.formData.floorPlan.guests,
                     bedrooms: this.formData.floorPlan.bedrooms,
-                    beds: this.formData.floorPlan.beds,
                     bathrooms: this.formData.floorPlan.bathrooms,
+                    bed_types: this.formData.floorPlan.bedTypes
+                        .filter((bt) => bt.quantity > 0)
+                        .map((bt) => ({
+                            bed_id: bt.bed_id,
+                            quantity: bt.quantity,
+                        })),
                 },
                 amenities: this.formData.amenities,
                 title: this.formData.title,
@@ -328,8 +341,16 @@ export default {
                 floorPlan: {
                     guests: draft.floor_plan?.guests || 1,
                     bedrooms: draft.floor_plan?.bedrooms || 1,
-                    beds: draft.floor_plan?.beds || 1,
                     bathrooms: draft.floor_plan?.bathrooms || 1,
+                    bedTypes: BED_TYPES.map((bedType) => ({
+                        bed_type: bedType.value,
+                        name: bedType.name,
+                        description: bedType.description,
+                        quantity:
+                            draft.floor_plan?.bed_types?.find(
+                                (bt) => bt.bed_type === bedType.value
+                            )?.quantity ?? 0,
+                    })),
                 },
                 amenities: draft.amenities || [],
                 photos: draft.photos || [],

@@ -77,7 +77,7 @@ class Accommodation extends Model
 
     public function canBeCreatedBy($user): bool
     {
-        return $user !== null;
+        return $user !== null && $user->is_superadmin;
     }
 
     public function canBeUpdatedBy($user): bool
@@ -122,7 +122,7 @@ class Accommodation extends Model
             'base_price_eur' => (float) ($this->pricing ? $this->pricing->base_price_eur : 0.0),
             'seasonal_price' => (object) [], // this is also override_price, when this price is set for specific dates
             'bedrooms' => (int) $this->bedrooms,
-            'beds' => (int) $this->beds,
+            'beds' => (int) $this->beds()->sum('quantity'),
             'bathrooms' => (int) $this->bathrooms,
             'photos' => $this->photos
                 ->take(5)
@@ -316,6 +316,11 @@ class Accommodation extends Model
     public function amenities(): BelongsToMany
     {
         return $this->belongsToMany(Amenity::class, 'accommodation_amenity');
+    }
+
+    public function beds(): HasMany
+    {
+        return $this->hasMany(AccommodationBed::class);
     }
 
     public function photos(): MorphMany
