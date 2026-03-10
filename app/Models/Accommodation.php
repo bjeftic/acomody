@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\Accommodation\AccommodationOccupation;
 use App\Enums\Accommodation\AccommodationType;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Laravel\Scout\Searchable;
 
@@ -19,7 +19,7 @@ use Laravel\Scout\Searchable;
  */
 class Accommodation extends Model
 {
-    use HasFactory, Searchable, HasUlids;
+    use HasFactory, HasUlids, Searchable;
 
     protected $fillable = [
         'accommodation_draft_id',
@@ -57,7 +57,7 @@ class Accommodation extends Model
     public function canBeReadBy($user): bool
     {
         // Public accommodations: approved and active - accessible to everyone (including guests)
-        if (!is_null($this->approved_by) && $this->is_active) {
+        if (! is_null($this->approved_by) && $this->is_active) {
             return true;
         }
 
@@ -77,7 +77,7 @@ class Accommodation extends Model
 
     public function canBeCreatedBy($user): bool
     {
-        return $user !== null;
+        return $user !== null && $user->is_superadmin;
     }
 
     public function canBeUpdatedBy($user): bool
@@ -107,7 +107,7 @@ class Accommodation extends Model
             'title' => (string) $this->title,
             'accommodation_category' => (string) $this->accommodation_type->category()->value,
             'accommodation_occupation' => (string) $this->accommodation_occupation->value,
-            'amenities' => $this->amenities()->pluck('slug')->map(fn($id) => (string) $id)->toArray(),
+            'amenities' => $this->amenities()->pluck('slug')->map(fn ($id) => (string) $id)->toArray(),
             'booking_type' => (string) $this->booking_type,
             'cancellation_policy' => (string) $this->cancellation_policy,
             'max_guests' => (int) $this->max_guests,
@@ -121,13 +121,13 @@ class Accommodation extends Model
             'currency' => (string) ($this->pricing ? $this->pricing->currency->code : ''),
             'base_price_eur' => (float) ($this->pricing ? $this->pricing->base_price_eur : 0.0),
             'seasonal_price' => (object) [], // this is also override_price, when this price is set for specific dates
-            'bedrooms' => (int)  $this->bedrooms,
-            'beds' => (int) $this->beds,
+            'bedrooms' => (int) $this->bedrooms,
+            'beds' => (int) $this->beds()->sum('quantity'),
             'bathrooms' => (int) $this->bathrooms,
             'photos' => $this->photos
                 ->take(5)
                 ->pluck('medium_url')
-                ->map(fn($url) => (string) $url)
+                ->map(fn ($url) => (string) $url)
                 ->toArray(),
             'created_at' => $this->created_at ? $this->created_at->timestamp : null,
         ];
@@ -137,7 +137,7 @@ class Accommodation extends Model
         if ($this->latitude !== null && $this->longitude !== null) {
             $array['location'] = [
                 (float) $this->latitude,
-                (float) $this->longitude
+                (float) $this->longitude,
             ];
         }
 
@@ -293,14 +293,19 @@ class Accommodation extends Model
                     'type' => 'string[]',
                     'optional' => true,
                     'facet' => false,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
     }
 
     public function bookings(): HasMany
@@ -311,6 +316,11 @@ class Accommodation extends Model
     public function amenities(): BelongsToMany
     {
         return $this->belongsToMany(Amenity::class, 'accommodation_amenity');
+    }
+
+    public function beds(): HasMany
+    {
+        return $this->hasMany(AccommodationBed::class);
     }
 
     public function photos(): MorphMany
@@ -398,7 +408,7 @@ class Accommodation extends Model
                 'exemption_certificate',
                 'exemption_valid_until',
                 'custom_rules',
-                'is_active'
+                'is_active',
             ])
             ->withTimestamps();
     }

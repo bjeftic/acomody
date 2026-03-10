@@ -1,11 +1,14 @@
 <?php
 
-use App\Models\User;
-use App\Models\Accommodation;
-use App\Models\Booking;
-use App\Enums\Booking\PaymentStatus;
 use App\Enums\Accommodation\BookingType;
 use App\Enums\Booking\BookingStatus;
+use App\Enums\Booking\PaymentStatus;
+use App\Enums\Location\LocationType;
+use App\Models\Accommodation;
+use App\Models\Booking;
+use App\Models\Country;
+use App\Models\Location;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 uses(
@@ -21,7 +24,7 @@ function authenticatedUser(array $attributes = []): User
 {
     $user = User::factory()->create(array_merge([
         'email_verified_at' => now(),
-        'status'            => 'active',
+        'status' => 'active',
     ], $attributes));
 
     Auth::login($user);
@@ -34,9 +37,9 @@ function createAccommodation(User $user, array $attributes = []): Accommodation
     $superadmin = authenticatedUser(['is_superadmin' => true]);
 
     return Accommodation::factory()->create(array_merge([
-        'user_id'     => $user->id,
+        'user_id' => $user->id,
         'approved_by' => $superadmin->id,
-        'is_active'   => true,
+        'is_active' => true,
     ], $attributes));
 }
 
@@ -46,12 +49,12 @@ function createAccommodation(User $user, array $attributes = []): Accommodation
 
 // Helper: create a booking without going through BookingService.
 // Uses a different name to avoid conflict with BookingEmailsTest::createBooking().
-function createBooking(User|null $guest, User|null $host, array $attributes = []): Booking
+function createBooking(?User $guest, ?User $host, array $attributes = []): Booking
 {
-    if (!$guest) {
+    if (! $guest) {
         $guest = authenticatedUser();
     }
-    if (!$host) {
+    if (! $host) {
         $host = authenticatedUser();
     }
 
@@ -71,6 +74,27 @@ function createBooking(User|null $guest, User|null $host, array $attributes = []
         'subtotal' => 150.00,
         'total_price' => 150.00,
         'payment_status' => PaymentStatus::UNPAID,
+    ], $attributes));
+}
+
+function superadmin(): User
+{
+    return authenticatedUser(['is_superadmin' => true]);
+}
+
+function makeLocation(array $attributes = []): Location
+{
+    $superadmin = superadmin();
+    $country = Country::where('is_active', true)->first();
+
+    return Location::create(array_merge([
+        'name' => 'Test City',
+        'country_id' => $country->id,
+        'location_type' => LocationType::CITY->value,
+        'latitude' => 44.8,
+        'longitude' => 20.4,
+        'is_active' => true,
+        'user_id' => $superadmin->id,
     ], $attributes));
 }
 

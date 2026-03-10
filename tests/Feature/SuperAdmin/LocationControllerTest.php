@@ -12,27 +12,6 @@ use Illuminate\Support\Facades\Storage;
 // Helpers
 // ============================================================
 
-function superadmin(): \App\Models\User
-{
-    return authenticatedUser(['is_superadmin' => true]);
-}
-
-function makeLocation(array $attributes = []): Location
-{
-    $superadmin = superadmin();
-    $country = Country::where('is_active', true)->first();
-
-    return Location::create(array_merge([
-        'name' => 'Test City',
-        'country_id' => $country->id,
-        'location_type' => LocationType::CITY->value,
-        'latitude' => 44.8,
-        'longitude' => 20.4,
-        'is_active' => true,
-        'user_id' => $superadmin->id,
-    ], $attributes));
-}
-
 function validLocationPayload(array $overrides = []): array
 {
     $country = Country::where('is_active', true)->first();

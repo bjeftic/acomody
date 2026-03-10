@@ -4,47 +4,38 @@
             Share some basics about your place
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            You'll add more details later, like bed types.
+            Tell guests how many people can stay and what types of beds you have.
         </p>
 
         <hr />
 
         <div class="space-y-8 max-w-xl overflow-auto py-4 h-[60vh] mx-auto">
             <!-- Guests -->
-            <counter-item
-                label="Guests"
-                :value="formData.floorPlan.guests"
-                :min="1"
-                :max="16"
-                @update:value="updateFloorPlan('guests', $event)"
-            />
+            <counter-item label="Guests" :value="formData.floorPlan.guests" :min="1" :max="16"
+                @update:value="updateFloorPlan('guests', $event)" />
 
             <!-- Bedrooms -->
-            <counter-item
-                label="Bedrooms"
-                :value="formData.floorPlan.bedrooms"
-                :min="0"
-                :max="50"
-                @update:value="updateFloorPlan('bedrooms', $event)"
-            />
-
-            <!-- Beds -->
-            <counter-item
-                label="Beds"
-                :value="formData.floorPlan.beds"
-                :min="1"
-                :max="50"
-                @update:value="updateFloorPlan('beds', $event)"
-            />
+            <counter-item label="Bedrooms" :value="formData.floorPlan.bedrooms" :min="0" :max="50"
+                @update:value="updateFloorPlan('bedrooms', $event)" />
 
             <!-- Bathrooms -->
-            <counter-item
-                label="Bathrooms"
-                :value="formData.floorPlan.bathrooms"
-                :min="1"
-                :max="20"
-                @update:value="updateFloorPlan('bathrooms', $event)"
-            />
+            <counter-item label="Bathrooms" :value="formData.floorPlan.bathrooms" :min="1" :max="20"
+                @update:value="updateFloorPlan('bathrooms', $event)" />
+
+            <!-- Bed Types -->
+            <div class="my-2">
+                <h3 class="text-base font-medium text-gray-900 dark:text-white">
+                    Bed types
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                    Select the types of beds available (at least one required).
+                </p>
+            </div>
+            <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <counter-item v-for="bedType in formData.floorPlan.bedTypes" :key="bedType.bed_type"
+                    :label="bedType.name" :sub-label="bedType.description" :value="bedType.quantity" :min="0" :max="20"
+                    @update:value="updateBedType(bedType.bed_type, $event)" />
+            </div>
         </div>
     </div>
 </template>
@@ -75,6 +66,17 @@ export default {
                 floorPlan: {
                     ...this.formData.floorPlan,
                     [field]: value,
+                },
+            });
+        },
+        updateBedType(bedType, quantity) {
+            this.$emit("update:form-data", {
+                ...this.formData,
+                floorPlan: {
+                    ...this.formData.floorPlan,
+                    bedTypes: this.formData.floorPlan.bedTypes.map((bt) =>
+                        bt.bed_type === bedType ? { ...bt, quantity } : bt
+                    ),
                 },
             });
         },

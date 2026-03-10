@@ -3,6 +3,7 @@ export default {
     accommodationDraftId: null,
     accommodationTypes: [],
     amenities: [],
+    bedTypes: [],
     createAccommodationLoading: true,
     currentStep: 1,
 };

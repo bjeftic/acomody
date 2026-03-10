@@ -115,7 +115,7 @@
                             <span
                                 class="text-sm text-gray-700 dark:text-gray-300"
                             >
-                                {{ formData.floorPlan.beds }} beds
+                                {{ totalBeds }} beds
                             </span>
                         </div>
                         <div class="flex items-center space-x-2">
@@ -387,6 +387,13 @@ export default {
                 (t) => t.id === this.formData.accommodationType
             );
             return type ? type.name : "";
+        },
+
+        totalBeds() {
+            return (this.formData.floorPlan.bedTypes ?? []).reduce(
+                (sum, bt) => sum + (bt.quantity ?? 0),
+                0
+            );
         },
 
         occupationTypeName() {

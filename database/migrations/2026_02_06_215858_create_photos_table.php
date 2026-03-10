@@ -54,6 +54,14 @@ return new class extends Migration
             $table->index('status');
             $table->index('deleted_at');
         });
+
+        // Enforce at most one primary photo per model at the DB level.
+        // The WHERE clause makes this a partial index (only rows where is_primary = true are indexed).
+        \DB::statement('
+            CREATE UNIQUE INDEX unique_primary_photo_per_model
+            ON photos (photoable_type, photoable_id)
+            WHERE is_primary = true AND deleted_at IS NULL
+        ');
     }
 
     /**

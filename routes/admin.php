@@ -2,10 +2,10 @@
 
 use App\Http\Controllers\SuperAdmin\AccommodationController;
 use App\Http\Controllers\SuperAdmin\AccommodationDraftController;
-use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\AuthController;
-use App\Http\Controllers\SuperAdmin\UserController;
+use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\LocationController;
+use App\Http\Controllers\SuperAdmin\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,6 +25,8 @@ Route::middleware(['auth', 'super.admin'])->group(function () {
         Route::resource('accommodations', AccommodationController::class)->names('accommodations');
 
         Route::post('accommodation-drafts/{id}/approve', [AccommodationDraftController::class, 'approve'])->name('accommodation-drafts.approve');
+        Route::post('accommodation-drafts/{id}/reject', [AccommodationDraftController::class, 'reject'])->name('accommodation-drafts.reject');
+        Route::post('accommodation-drafts/{id}/comments', [AccommodationDraftController::class, 'addComment'])->name('accommodation-drafts.comments.store');
         Route::resource('accommodation-drafts', AccommodationDraftController::class)->names('accommodation-drafts');
 
         Route::get('locations/search', [LocationController::class, 'search'])->name('locations.search');

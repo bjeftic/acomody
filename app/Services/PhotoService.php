@@ -124,12 +124,16 @@ class PhotoService
         $jobs = [];
         $order = $startOrder;
 
-        // Determine if first photo should be primary
-        $hasPrimaryPhoto = $model->photos()->where('is_primary', true)->exists();
-
         DB::beginTransaction();
 
         try {
+            // Check inside the transaction with a lock to prevent race conditions
+            // between concurrent upload batches both marking their first photo as primary.
+            $hasPrimaryPhoto = $model->photos()
+                ->where('is_primary', true)
+                ->lockForUpdate()
+                ->exists();
+
             foreach ($files as $file) {
                 // Validate file before queueing
                 $this->validateFile($file);
@@ -217,7 +221,11 @@ class PhotoService
         $failedPhotos = [];
         $order = $startOrder;
 
-        $hasPrimaryPhoto = $model->photos()->where('is_primary', true)->exists();
+        $hasPrimaryPhoto = DB::transaction(fn () => $model->photos()
+            ->where('is_primary', true)
+            ->lockForUpdate()
+            ->exists()
+        );
 
         foreach ($files as $file) {
             try {

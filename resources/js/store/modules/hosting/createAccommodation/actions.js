@@ -5,6 +5,7 @@ export const loadInitialCreateAccommodationData = async ({ dispatch }) => {
         dispatch("fetchAccommodationDraft"),
         dispatch("fetchAccommodationTypes"),
         dispatch("fetchAmenities"),
+        dispatch("fetchBedTypes"),
     ];
 
     await Promise.all(actions).finally(() => {
@@ -44,6 +45,13 @@ export const fetchAmenities = async ({ commit }) => {
     const response = await apiClient.amenities.get();
 
     commit("SET_AMENITIES", response.data);
+    return response;
+};
+
+export const fetchBedTypes = async ({ commit }) => {
+    const response = await apiClient.bedTypes.get();
+
+    commit("SET_BED_TYPES", response.data);
     return response;
 };
 

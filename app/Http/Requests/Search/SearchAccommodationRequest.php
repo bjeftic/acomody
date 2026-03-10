@@ -42,7 +42,7 @@ class SearchAccommodationRequest extends FormRequest
 
         return [
             // Location search option 1
-            'location.id' => 'required_without:bounds|integer',
+            'location.id' => 'required_without:bounds|string',
             'location.name' => 'required_without:bounds|string|max:255',
 
             // Location search option 2
