@@ -501,7 +501,7 @@ describe('POST /api/accommodations/{id}/calculate-price', function () {
 // PUT /api/accommodations/{id} (update)
 // ============================================================
 
-describe('PUT /api/accommodations/{id} (update)', function () {
+describe('PATCH /api/accommodations/{id} (update)', function () {
 
     beforeEach(function () {
         seedCurrencyRates();
@@ -549,7 +549,7 @@ describe('PUT /api/accommodations/{id} (update)', function () {
 
         Auth::logout();
 
-        $this->putJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload())
+        $this->patchJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload())
             ->assertUnauthorized();
     });
 
@@ -560,7 +560,7 @@ describe('PUT /api/accommodations/{id} (update)', function () {
         $other = authenticatedUser();
 
         $this->actingAs($other, 'sanctum')
-            ->putJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload())
+            ->patchJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload())
             ->assertForbidden();
     });
 
@@ -569,7 +569,7 @@ describe('PUT /api/accommodations/{id} (update)', function () {
         $accommodation = createAccommodation($user);
 
         $this->actingAs($user, 'sanctum')
-            ->putJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload())
+            ->patchJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload())
             ->assertSuccessful()
             ->assertJson(['success' => true, 'message' => 'Accommodation updated successfully']);
     });
@@ -579,7 +579,7 @@ describe('PUT /api/accommodations/{id} (update)', function () {
         $accommodation = createAccommodation($user);
 
         $this->actingAs($user, 'sanctum')
-            ->putJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload());
+            ->patchJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload());
 
         $this->assertDatabaseHas('accommodations', [
             'id' => $accommodation->id,
@@ -595,7 +595,7 @@ describe('PUT /api/accommodations/{id} (update)', function () {
         unset($payload['title']);
 
         $this->actingAs($user, 'sanctum')
-            ->putJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
+            ->patchJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
             ->assertUnprocessable()
             ->assertJsonFragment(['field' => 'title']);
     });
@@ -608,7 +608,7 @@ describe('PUT /api/accommodations/{id} (update)', function () {
         $payload['accommodation_type'] = 'spaceship';
 
         $this->actingAs($user, 'sanctum')
-            ->putJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
+            ->patchJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
             ->assertUnprocessable()
             ->assertJsonFragment(['field' => 'accommodation_type']);
     });
@@ -621,7 +621,7 @@ describe('PUT /api/accommodations/{id} (update)', function () {
         $payload['house_rules']['cancellationPolicy'] = 'super_strict';
 
         $this->actingAs($user, 'sanctum')
-            ->putJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
+            ->patchJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
             ->assertUnprocessable()
             ->assertJsonFragment(['field' => 'house_rules.cancellationPolicy']);
     });
@@ -635,7 +635,7 @@ describe('PUT /api/accommodations/{id} (update)', function () {
         $payload['amenities'] = [$amenity->id];
 
         $this->actingAs($user, 'sanctum')
-            ->putJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
+            ->patchJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
             ->assertSuccessful();
 
         $this->assertDatabaseHas('accommodation_amenity', [
@@ -651,7 +651,7 @@ describe('PUT /api/accommodations/{id} (update)', function () {
         $payload = validAccommodationPayload();
 
         $this->actingAs($user, 'sanctum')
-            ->putJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
+            ->patchJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
             ->assertSuccessful();
 
         $this->assertDatabaseHas('accommodation_beds', [

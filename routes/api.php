@@ -14,6 +14,8 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FeeController;
 use App\Http\Controllers\Host\BookingController as HostBookingController;
+use App\Http\Controllers\Host\IcalCalendarController as HostIcalCalendarController;
+use App\Http\Controllers\IcalExportController;
 use App\Http\Controllers\Public\AccommodationController as PublicAccommodationController;
 use App\Http\Controllers\Public\FilterController as PublicFilterController;
 use App\Http\Controllers\SearchController;
@@ -46,6 +48,10 @@ Route::prefix('public')->name('api.public')->group(function () {
             ->name('show');
     });
 });
+
+// iCal export — public
+Route::get('/{accommodationId}/ical/{token}', [IcalExportController::class, 'export'])
+    ->name('api.ical.export');
 
 Route::prefix('search')->name('api.search')->group(function () {
     Route::get('locations', [SearchController::class, 'searchLocations'])
@@ -138,7 +144,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ->name('accommodations.index');
         Route::get('{accommodation}', [AccommodationController::class, 'show'])
             ->name('accommodations.show');
-        Route::put('{accommodation}', [AccommodationController::class, 'update'])
+        Route::patch('{accommodation}', [AccommodationController::class, 'update'])
             ->name('accommodations.update');
         Route::post('{accommodation}/check-availability', [AccommodationController::class, 'checkAvailability'])
             ->name('accommodations.check-availability');
@@ -153,6 +159,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('{booking}', [BookingController::class, 'show'])->name('show');
         Route::post('{booking}/cancel', [BookingController::class, 'cancel'])->name('cancel');
     });
+
+    // Host iCal calendar management
+    Route::prefix('host/accommodations/{accommodation}/ical-calendars')->name('api.host.ical.')->group(function () {
+        Route::get('', [HostIcalCalendarController::class, 'index'])->name('index');
+        Route::post('', [HostIcalCalendarController::class, 'store'])->name('store');
+        Route::put('{icalCalendar}', [HostIcalCalendarController::class, 'update'])->name('update');
+        Route::delete('{icalCalendar}', [HostIcalCalendarController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::post('host/accommodations/{accommodation}/ical-token/regenerate', [HostIcalCalendarController::class, 'regenerateToken'])
+        ->name('api.host.ical.token.regenerate');
 
     // Host booking management
     Route::prefix('host/bookings')->name('api.host.bookings.')->group(function () {
