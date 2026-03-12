@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 
 /**
@@ -47,12 +48,27 @@ class Accommodation extends Model
         'bedrooms',
         'bathrooms',
         'user_id',
+        'ical_token',
+        'ical_export_active',
     ];
 
     protected $casts = [
         'accommodation_occupation' => AccommodationOccupation::class,
         'accommodation_type' => AccommodationType::class,
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $accommodation) {
+            if (empty($accommodation->ical_token)) {
+                do {
+                    $token = Str::random(64);
+                } while (self::query()->where('ical_token', $token)->exists());
+
+                $accommodation->ical_token = $token;
+            }
+        });
+    }
 
     public function canBeReadBy($user): bool
     {
@@ -311,6 +327,11 @@ class Accommodation extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function icalCalendars(): HasMany
+    {
+        return $this->hasMany(IcalCalendar::class);
     }
 
     public function amenities(): BelongsToMany

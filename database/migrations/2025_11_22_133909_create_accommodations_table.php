@@ -81,6 +81,8 @@ return new class extends Migration
             $table->integer('bathrooms')->default(1);
             $table->boolean('is_active')->default(false);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('ical_token', 64)->nullable()->unique();
+            $table->boolean('ical_export_active')->default(false);
             $table->timestamps();
         });
 

@@ -153,10 +153,14 @@ class AccommodationController extends Controller
 
     public function update(UpdateRequest $request, Accommodation $accommodation): JsonResponse
     {
-        $accommodation = $this->accommodationService->updateAccommodation(
-            $accommodation,
-            $request->validated()
-        );
+        $validated = $request->validated();
+
+        if (isset($validated['accommodation_type'])) {
+            $accommodation = $this->accommodationService->updateAccommodation($accommodation, $validated);
+        } else {
+            $accommodation->update(array_intersect_key($validated, array_flip(['ical_export_active'])));
+            $accommodation = $accommodation->fresh(['amenities', 'photos', 'pricing', 'beds', 'location.country']);
+        }
 
         return ApiResponse::success(
             'Accommodation updated successfully',

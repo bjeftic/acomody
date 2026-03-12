@@ -77,6 +77,8 @@ class AccommodationResource extends JsonResource
             'favorites_count' => $this->favorites_count,
             'cancellation_policy' => $this->cancellation_policy,
             'booking_type' => $this->booking_type,
+            'ical_token' => $this->ical_token,
+            'ical_export_active' => $this->ical_export_active,
             'check_in_from' => $this->check_in_from,
             'check_in_until' => $this->check_in_until,
             'check_out_until' => $this->check_out_until,
