@@ -3,6 +3,7 @@ import apiClient from "@/services/apiClient";
 export const loadInitialMyListingsData = async ({ dispatch }) => {
     const actions = [
         dispatch("fetchAccommodationDrafts"),
+        dispatch("fetchRejectedDrafts"),
         dispatch("fetchMyAccommodations"),
     ];
 
@@ -11,9 +12,7 @@ export const loadInitialMyListingsData = async ({ dispatch }) => {
     });
 };
 
-export const fetchAccommodationDrafts= async ({ commit }) => {
-
-    // Here we need to fetch only drafts that are in waiting for approval status
+export const fetchAccommodationDrafts = async ({ commit }) => {
     try {
         const drafts = await apiClient.accommodationDrafts
             .query({ status: "waiting_for_approval" })
@@ -23,6 +22,20 @@ export const fetchAccommodationDrafts= async ({ commit }) => {
         return drafts;
     } catch (error) {
         console.error("Failed to fetch accommodation drafts:", error);
+        throw error;
+    }
+};
+
+export const fetchRejectedDrafts = async ({ commit }) => {
+    try {
+        const drafts = await apiClient.accommodationDrafts
+            .query({ status: "rejected" })
+            .get();
+
+        commit("SET_REJECTED_DRAFTS", drafts.data);
+        return drafts;
+    } catch (error) {
+        console.error("Failed to fetch rejected drafts:", error);
         throw error;
     }
 };
@@ -57,6 +70,31 @@ export const fetchAccommodation = async ({ commit }, accommodationId) => {
         return accommodation;
     } catch (error) {
         console.error(`Failed to fetch accommodation with ID ${accommodationId}:`, error);
+        throw error;
+    }
+};
+
+export const loadInitialEditAccommodationData = async ({ dispatch }, accommodationId) => {
+    const actions = [
+        dispatch("fetchAccommodation", accommodationId),
+        dispatch("hosting/createAccommodation/fetchAccommodationTypes", null, { root: true }),
+        dispatch("hosting/createAccommodation/fetchAmenities", null, { root: true }),
+        dispatch("hosting/createAccommodation/fetchBedTypes", null, { root: true }),
+    ];
+
+    await Promise.all(actions).finally(() => {
+        dispatch("setMyListingsLoading", false);
+    });
+};
+
+export const updateAccommodation = async ({ commit }, { accommodationId, data }) => {
+    try {
+        const response = await apiClient.accommodations[accommodationId].put(data);
+
+        commit("SET_ACCOMMODATION", response.data);
+        return response;
+    } catch (error) {
+        console.error(`Failed to update accommodation with ID ${accommodationId}:`, error);
         throw error;
     }
 };

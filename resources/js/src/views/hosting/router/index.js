@@ -32,6 +32,14 @@ const routes = [
         component: () => import('@/src/views/hosting/listings/ShowListing.vue'),
     },
     {
+        path: 'drafts/:draftId/edit',
+        name: 'page-draft-edit',
+        meta: {
+            requiresAuth: true,
+        },
+        component: () => import('@/src/views/hosting/listings/EditAccommodationDraft.vue'),
+    },
+    {
         path: 'calendar',
         name: 'page-calendar',
         meta: {

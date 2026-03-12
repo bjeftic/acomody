@@ -110,6 +110,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('stats', [AccommodationDraftController::class, 'getDraftStats'])
             ->name('accommodation-draft.stats');
 
+        Route::get('{accommodationDraft}', [AccommodationDraftController::class, 'show'])
+            ->name('accommodation-draft.show');
+
         Route::prefix('{accommodationDraft}')->group(function () {
             Route::get('photos', [AccommodationDraftController::class, 'getPhotos'])
                 ->name('accommodation-draft.photos.index');
@@ -135,6 +138,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ->name('accommodations.index');
         Route::get('{accommodation}', [AccommodationController::class, 'show'])
             ->name('accommodations.show');
+        Route::put('{accommodation}', [AccommodationController::class, 'update'])
+            ->name('accommodations.update');
         Route::post('{accommodation}/check-availability', [AccommodationController::class, 'checkAvailability'])
             ->name('accommodations.check-availability');
         Route::post('{accommodation}/calculate-price', [AccommodationController::class, 'calculatePrice'])

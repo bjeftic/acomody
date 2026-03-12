@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Traits\HasActiveScope;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Translatable\HasTranslations;
 
 class Amenity extends Model
 {
-    use HasActiveScope, HasTranslations;
+    use HasActiveScope, HasFactory, HasTranslations;
 
     public $translatable = ['name'];
 
@@ -16,7 +17,6 @@ class Amenity extends Model
         'name',
         'icon',
         'category',
-        'type',
         'is_feeable',
         'is_active',
     ];

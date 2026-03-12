@@ -7,6 +7,9 @@ export default {
     [types.SET_ACCOMMODATION_DRAFTS](state, drafts) {
         state.myAccommodationDrafts = drafts.data;
     },
+    [types.SET_REJECTED_DRAFTS](state, drafts) {
+        state.myRejectedDrafts = drafts.data;
+    },
     [types.SET_ACCOMMODATIONS](state, accommodations) {
         state.accommodations = accommodations.data;
     },

@@ -10,7 +10,7 @@
                 <h1
                     class="text-3xl font-semibold text-gray-900 dark:text-white mb-2"
                 >
-                    Listing details
+                    Edit listing
                 </h1>
                 <p class="text-lg text-gray-600 dark:text-gray-400">
                     Changes are applied immediately to your live listing.
@@ -23,20 +23,7 @@
             <div
                 class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden mb-6"
             >
-                <!-- Photos area -->
-                <div v-if="currentEditSection === 'photos'" class="p-6">
-                    <step6-photos
-                        :form-data="formData"
-                        :errors="errors"
-                        @update:form-data="updateFormData"
-                    />
-                    <div class="flex gap-3 mt-6">
-                        <fwb-button color="light" @click="cancelEdit">
-                            Done
-                        </fwb-button>
-                    </div>
-                </div>
-                <div v-else class="relative aspect-video bg-gray-100 dark:bg-gray-900 group cursor-pointer" @click="startEdit('photos')">
+                <div class="relative aspect-video bg-gray-100 dark:bg-gray-900">
                     <img
                         v-if="formData.photos.length > 0"
                         :src="formData.photos[0].urls?.large"
@@ -48,11 +35,6 @@
                         class="w-full h-full flex items-center justify-center text-gray-400"
                     >
                         <span>No photos uploaded</span>
-                    </div>
-                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                        <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-sm font-medium px-4 py-2 rounded-lg shadow">
-                            Edit photos
-                        </span>
                     </div>
                     <div
                         class="absolute bottom-4 right-4 px-3 py-1 bg-white dark:bg-gray-900 rounded-lg shadow-lg"
@@ -118,7 +100,7 @@
 
             <!-- Edit Sections -->
             <div class="space-y-4">
-                <!-- Property Info -->
+                <!-- Property Info (steps 1+2) -->
                 <div
                     v-if="currentEditSection === 'property'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -179,7 +161,7 @@
                     </div>
                 </edit-section>
 
-                <!-- Location -->
+                <!-- Location (step 3) -->
                 <div
                     v-if="currentEditSection === 'location'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -217,12 +199,14 @@
                         <p>{{ formData.address.street }}</p>
                         <p>
                             {{ formData.address.city }},
-                            {{ formData.address.country }}
+                            {{ formData.address.state }}
+                            {{ formData.address.zipCode }}
                         </p>
+                        <p>{{ formData.address.country }}</p>
                     </div>
                 </edit-section>
 
-                <!-- Floor Plan -->
+                <!-- Floor Plan (step 4) -->
                 <div
                     v-if="currentEditSection === 'floorPlan'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -288,7 +272,7 @@
                     </div>
                 </edit-section>
 
-                <!-- Amenities -->
+                <!-- Amenities (step 5) -->
                 <div
                     v-if="currentEditSection === 'amenities'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -325,7 +309,7 @@
                     </p>
                 </edit-section>
 
-                <!-- Title -->
+                <!-- Title (step 7) -->
                 <div
                     v-if="currentEditSection === 'title'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -364,7 +348,7 @@
                     </p>
                 </edit-section>
 
-                <!-- Description -->
+                <!-- Description (step 8) -->
                 <div
                     v-if="currentEditSection === 'description'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -403,7 +387,7 @@
                     </p>
                 </edit-section>
 
-                <!-- Pricing -->
+                <!-- Pricing (step 9) -->
                 <div
                     v-if="currentEditSection === 'pricing'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -469,7 +453,7 @@
                     </div>
                 </edit-section>
 
-                <!-- House Rules -->
+                <!-- House Rules (step 10) -->
                 <div
                     v-if="currentEditSection === 'houseRules'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -548,14 +532,13 @@ import Step2OccupationType from "@/src/views/hosting/createAccommodation/steps/S
 import Step3Address from "@/src/views/hosting/createAccommodation/steps/Step3Address.vue";
 import Step4FloorPlan from "@/src/views/hosting/createAccommodation/steps/Step4FloorPlan.vue";
 import Step5Amenities from "@/src/views/hosting/createAccommodation/steps/Step5Amenities.vue";
-import Step6Photos from "@/src/views/hosting/createAccommodation/steps/Step6Photos.vue";
 import Step7Title from "@/src/views/hosting/createAccommodation/steps/Step7Title.vue";
 import Step8Description from "@/src/views/hosting/createAccommodation/steps/Step8Description.vue";
 import Step9Pricing from "@/src/views/hosting/createAccommodation/steps/Step9Pricing.vue";
 import Step10HouseRules from "@/src/views/hosting/createAccommodation/steps/Step10HouseRules.vue";
 
 export default {
-    name: "ShowListing",
+    name: "EditAccommodation",
     components: {
         EditSection,
         Step1AccommodationType,
@@ -563,7 +546,6 @@ export default {
         Step3Address,
         Step4FloorPlan,
         Step5Amenities,
-        Step6Photos,
         Step7Title,
         Step8Description,
         Step9Pricing,
@@ -618,10 +600,7 @@ export default {
     },
     computed: {
         ...mapState("hosting/listings", ["accommodation", "myListingsLoading"]),
-        ...mapState("hosting/createAccommodation", [
-            "accommodationTypes",
-            "bedTypes",
-        ]),
+        ...mapState("hosting/createAccommodation", ["accommodationTypes", "bedTypes"]),
         accommodationId() {
             return this.$route.params.accommodationId;
         },
@@ -630,19 +609,17 @@ export default {
             const type = this.accommodationTypes.find(
                 (t) => t.id === this.formData.accommodationType
             );
-            return type ? type.name : this.formData.accommodationType;
+            return type ? type.name : "";
         },
         occupationTypeName() {
-            if (!this.formData.accommodationOccupation) return "";
+            if (!this.formData.accommodationType) return "";
             const type = this.accommodationTypes.find(
                 (t) => t.id === this.formData.accommodationType
             );
             const occupation = type?.available_occupations?.find(
                 (o) => o.id === this.formData.accommodationOccupation
             );
-            return occupation
-                ? occupation.name
-                : this.formData.accommodationOccupation;
+            return occupation ? occupation.name : "";
         },
     },
     watch: {
@@ -711,21 +688,10 @@ export default {
             }
         },
 
-        toHHMM(timeStr) {
-            if (!timeStr) return null;
-            return timeStr.substring(0, 5);
-        },
-
         loadAccommodationData(accommodation) {
             this.formData = {
-                accommodationType:
-                    accommodation.accommodation_type?.value ??
-                    accommodation.accommodation_type ??
-                    null,
-                accommodationOccupation:
-                    accommodation.accommodation_occupation?.value ??
-                    accommodation.accommodation_occupation ??
-                    null,
+                accommodationType: accommodation.accommodation_type?.value ?? accommodation.accommodation_type ?? null,
+                accommodationOccupation: accommodation.accommodation_occupation?.value ?? accommodation.accommodation_occupation ?? null,
                 address: {
                     country: accommodation.location?.country_code || "",
                     street: accommodation.address || "",
@@ -756,26 +722,18 @@ export default {
                 title: accommodation.title || "",
                 description: accommodation.description || "",
                 pricing: {
-                    basePrice:
-                        accommodation.pricing?.base_price?.base_price || 100,
-                    bookingType:
-                        accommodation.booking_type || "instant_booking",
+                    basePrice: accommodation.pricing?.base_price?.base_price || 100,
+                    bookingType: accommodation.booking_type || "instant_booking",
                     minStay: accommodation.pricing?.min_quantity || 1,
                 },
                 houseRules: {
-                    checkInFrom:
-                        this.toHHMM(accommodation.check_in_from) || "15:00",
-                    checkInUntil:
-                        this.toHHMM(accommodation.check_in_until) || "20:00",
-                    checkOutUntil:
-                        this.toHHMM(accommodation.check_out_until) || "11:00",
-                    hasQuietHours: !!accommodation.quiet_hours_from,
-                    quietHoursFrom:
-                        this.toHHMM(accommodation.quiet_hours_from) || "22:00",
-                    quietHoursUntil:
-                        this.toHHMM(accommodation.quiet_hours_until) || "08:00",
-                    cancellationPolicy:
-                        accommodation.cancellation_policy || "moderate",
+                    checkInFrom: accommodation.check_in_from || "15:00",
+                    checkInUntil: accommodation.check_in_until || "20:00",
+                    checkOutUntil: accommodation.check_out_until || "11:00",
+                    hasQuietHours: !!(accommodation.quiet_hours_from),
+                    quietHoursFrom: accommodation.quiet_hours_from || "22:00",
+                    quietHoursUntil: accommodation.quiet_hours_until || "08:00",
+                    cancellationPolicy: accommodation.cancellation_policy || "moderate",
                 },
             };
         },
@@ -817,8 +775,7 @@ export default {
                     hasQuietHours: this.formData.houseRules.hasQuietHours,
                     quietHoursFrom: this.formData.houseRules.quietHoursFrom,
                     quietHoursUntil: this.formData.houseRules.quietHoursUntil,
-                    cancellationPolicy:
-                        this.formData.houseRules.cancellationPolicy,
+                    cancellationPolicy: this.formData.houseRules.cancellationPolicy,
                 },
             };
         },

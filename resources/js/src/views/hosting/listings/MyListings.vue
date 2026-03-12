@@ -14,6 +14,26 @@
                     Manage your property listings here.
                 </p>
             </div>
+            <div v-if="myRejectedDrafts.length > 0" class="mb-10">
+                <h2
+                    class="text-xl font-semibold text-gray-900 dark:text-white mb-4"
+                >
+                    Rejected
+                </h2>
+                <div class="space-y-3">
+                    <action-card
+                        v-for="draft in myRejectedDrafts"
+                        :key="draft.id"
+                        :title="draft.data.title || 'Untitled Listing'"
+                        subtitle="Rejected — click to review feedback and edit"
+                        @click="$router.push({ name: 'page-draft-edit', params: { draftId: draft.id } })"
+                    >
+                        <template #icon>
+                            <HouseIcon />
+                        </template>
+                    </action-card>
+                </div>
+            </div>
             <div v-if="myAccommodationDrafts.length > 0" class="mb-10">
                 <h2
                     class="text-xl font-semibold text-gray-900 dark:text-white mb-4"
@@ -21,7 +41,6 @@
                     Waiting for approval
                 </h2>
                 <div class="space-y-3">
-                    <!-- My Listings Link -->
                     <action-card
                         v-for="accommodationDraft in myAccommodationDrafts"
                         :key="accommodationDraft.id"
@@ -67,7 +86,7 @@ import { mapState, mapActions } from "vuex";
 export default {
     name: "MyListings",
     computed: {
-        ...mapState("hosting/listings", ["myAccommodationDrafts", "accommodations"]),
+        ...mapState("hosting/listings", ["myAccommodationDrafts", "myRejectedDrafts", "accommodations"]),
     },
     methods: {
         ...mapActions("hosting/listings", ["loadInitialMyListingsData"]),
