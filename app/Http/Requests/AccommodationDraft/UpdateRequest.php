@@ -16,7 +16,9 @@ class UpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $draft = $this->route('accommodationDraft');
+
+        return in_array($draft->status, ['draft', 'rejected']);
     }
 
     /**

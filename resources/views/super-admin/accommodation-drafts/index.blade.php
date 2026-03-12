@@ -5,15 +5,10 @@
         <div class="panel panel-default">
             <div class="panel-heading">
               Accommodation Drafts
-              @if ($accommodationDrafts instanceof \Illuminate\Database\Eloquent\Collection)
-                <a href="/admin/accommodation-drafts">(paginated accommodation drafts)</a>
-              @else
-                <a href="/admin/accommodation-drafts/all">(all accommodation drafts)</a>
-              @endif
             </div>
 
             <div style="display:flex; padding: 16px;" id="triggerByEnter">
-              <input type="test" style="max-width:300px" class="form-control" id="search" value="{{$search}}" />
+              <input type="test" style="max-width:300px" class="form-control" id="search" value="{{$search}}" placeholder="Search by title…" />
               <button type="button" class="btn btn-primary mb-2" style="margin-left: 10px;" onclick="search()">Search</button>
             </div>
 
@@ -31,23 +26,33 @@
                 <table class="table table-hover table-striped table-condensed">
                     <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Host</th>
+                        <th>Location</th>
+                        <th>Type</th>
+                        <th>Status</th>
                         <th>Created at</th>
-                        <th>Updated at</th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach ($accommodationDrafts as $draft)
+                        @php
+                            $data = is_array($draft->data) ? $draft->data : json_decode($draft->data, true);
+                            $city = $data['address']['city'] ?? null;
+                            $country = $data['address']['country'] ?? null;
+                            $location = implode(', ', array_filter([$city, $country]));
+                            $type = $data['accommodation_type'] ?? null;
+                        @endphp
                         <tr>
-                            <td>{{ $draft->id }}</td>
-                            <td>{{ $draft->created_at }}</td>
-                            <td>{{ $draft->updated_at }}</td>
+                            <td>{{ $data['title'] ?? '—' }}</td>
+                            <td>{{ $draft->user?->userProfile?->first_name }} {{ $draft->user?->userProfile?->last_name }}</td>
+                            <td>{{ $location ?: '—' }}</td>
+                            <td>{{ $type ? \App\Enums\Accommodation\AccommodationType::from($type)->label() : '—' }}</td>
+                            <td>{{ $draft->status }}</td>
+                            <td>{{ $draft->created_at->format('Y-m-d H:i') }}</td>
                             <td align="right">
-                                <div class="btn-group">
-                                    <a href='/admin/accommodation-drafts/{{ $draft->id }}' class="btn btn-default btn-xs">View</a>
-                                    <a href='/admin/accommodation-drafts/{{ $draft->id }}/edit' class="btn btn-default btn-xs">Edit</a>
-                                </div>
+                                <a href='/admin/accommodation-drafts/{{ $draft->id }}' class="btn btn-default btn-xs">View</a>
                             </td>
                         </tr>
                     @endforeach

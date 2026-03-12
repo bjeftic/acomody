@@ -28,11 +28,11 @@ class AccommodationDraftController
         /** @var string $search */
         $search = $request->search ?? '';
 
-        $accommodationDraftsPaginated = AccommodationDraft::where('status', 'waiting_for_approval')
+        $accommodationDraftsPaginated = AccommodationDraft::with('user.userProfile')
+            ->where('status', 'waiting_for_approval')
             ->latest('id')
             ->when(! empty($search), function ($q) use ($search) {
-                $q->where('title', 'ilike', "%{$search}%")
-                    ->orWhere('description', 'ilike', "%{$search}%");
+                $q->whereRaw("data->>'title' ilike ?", ["%{$search}%"]);
             })
             ->paginate(12)
             ->appends($request->only(['search', 'page']));

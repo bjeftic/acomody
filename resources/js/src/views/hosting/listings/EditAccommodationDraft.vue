@@ -1,6 +1,6 @@
 <template>
     <div class="max-w-4xl mx-auto py-12">
-        <template v-if="myListingsLoading">
+        <template v-if="createAccommodationLoading">
             <form-skeleton />
         </template>
 
@@ -10,11 +10,52 @@
                 <h1
                     class="text-3xl font-semibold text-gray-900 dark:text-white mb-2"
                 >
-                    Listing details
+                    Edit listing
                 </h1>
                 <p class="text-lg text-gray-600 dark:text-gray-400">
-                    Changes are applied immediately to your live listing.
+                    Make changes to your listing below.
                 </p>
+            </div>
+
+            <!-- Rejection Banner + Review Comments -->
+            <div
+                v-if="isRejected"
+                class="mb-6 p-5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl"
+            >
+                <h3
+                    class="text-base font-semibold text-red-800 dark:text-red-300 mb-1"
+                >
+                    This listing was rejected
+                </h3>
+                <p class="text-sm text-red-700 dark:text-red-400">
+                    Please review the feedback below, make the necessary changes,
+                    and resubmit for approval.
+                </p>
+
+                <div
+                    v-if="accommodationDraftReviewComments.length"
+                    class="mt-4 space-y-3"
+                >
+                    <p
+                        class="text-sm font-semibold text-red-700 dark:text-red-400"
+                    >
+                        Reviewer comments:
+                    </p>
+                    <div
+                        v-for="comment in accommodationDraftReviewComments"
+                        :key="comment.id"
+                        class="p-4 bg-white dark:bg-gray-800 rounded-lg border border-red-100 dark:border-red-900"
+                    >
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            {{ comment.body }}
+                        </p>
+                        <p
+                            class="text-xs text-gray-500 dark:text-gray-500 mt-1"
+                        >
+                            {{ formatDate(comment.created_at) }}
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <hr class="mb-6" />
@@ -23,7 +64,6 @@
             <div
                 class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden mb-6"
             >
-                <!-- Photos area -->
                 <div v-if="currentEditSection === 'photos'" class="p-6">
                     <step6-photos
                         :form-data="formData"
@@ -108,17 +148,9 @@
                 </div>
             </div>
 
-            <!-- Saved Banner -->
-            <div
-                v-if="savedSection"
-                class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-sm text-green-800 dark:text-green-300"
-            >
-                Changes saved successfully.
-            </div>
-
             <!-- Edit Sections -->
             <div class="space-y-4">
-                <!-- Property Info -->
+                <!-- Property Info (steps 1+2) -->
                 <div
                     v-if="currentEditSection === 'property'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -141,7 +173,7 @@
                     <div class="flex gap-3 mt-6">
                         <fwb-button
                             :disabled="isSaving"
-                            @click="saveSection('property')"
+                            @click="saveSection"
                         >
                             Save
                         </fwb-button>
@@ -179,7 +211,7 @@
                     </div>
                 </edit-section>
 
-                <!-- Location -->
+                <!-- Location (step 3) -->
                 <div
                     v-if="currentEditSection === 'location'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -197,7 +229,7 @@
                     <div class="flex gap-3 mt-6">
                         <fwb-button
                             :disabled="isSaving"
-                            @click="saveSection('location')"
+                            @click="saveSection"
                         >
                             Save
                         </fwb-button>
@@ -217,12 +249,14 @@
                         <p>{{ formData.address.street }}</p>
                         <p>
                             {{ formData.address.city }},
-                            {{ formData.address.country }}
+                            {{ formData.address.state }}
+                            {{ formData.address.zipCode }}
                         </p>
+                        <p>{{ formData.address.country }}</p>
                     </div>
                 </edit-section>
 
-                <!-- Floor Plan -->
+                <!-- Floor Plan (step 4) -->
                 <div
                     v-if="currentEditSection === 'floorPlan'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -240,7 +274,7 @@
                     <div class="flex gap-3 mt-6">
                         <fwb-button
                             :disabled="isSaving"
-                            @click="saveSection('floorPlan')"
+                            @click="saveSection"
                         >
                             Save
                         </fwb-button>
@@ -288,7 +322,7 @@
                     </div>
                 </edit-section>
 
-                <!-- Amenities -->
+                <!-- Amenities (step 5) -->
                 <div
                     v-if="currentEditSection === 'amenities'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -306,7 +340,7 @@
                     <div class="flex gap-3 mt-6">
                         <fwb-button
                             :disabled="isSaving"
-                            @click="saveSection('amenities')"
+                            @click="saveSection"
                         >
                             Save
                         </fwb-button>
@@ -325,7 +359,7 @@
                     </p>
                 </edit-section>
 
-                <!-- Title -->
+                <!-- Title (step 7) -->
                 <div
                     v-if="currentEditSection === 'title'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -343,7 +377,7 @@
                     <div class="flex gap-3 mt-6">
                         <fwb-button
                             :disabled="isSaving"
-                            @click="saveSection('title')"
+                            @click="saveSection"
                         >
                             Save
                         </fwb-button>
@@ -364,7 +398,7 @@
                     </p>
                 </edit-section>
 
-                <!-- Description -->
+                <!-- Description (step 8) -->
                 <div
                     v-if="currentEditSection === 'description'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -382,7 +416,7 @@
                     <div class="flex gap-3 mt-6">
                         <fwb-button
                             :disabled="isSaving"
-                            @click="saveSection('description')"
+                            @click="saveSection"
                         >
                             Save
                         </fwb-button>
@@ -403,7 +437,7 @@
                     </p>
                 </edit-section>
 
-                <!-- Pricing -->
+                <!-- Pricing (step 9) -->
                 <div
                     v-if="currentEditSection === 'pricing'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -421,7 +455,7 @@
                     <div class="flex gap-3 mt-6">
                         <fwb-button
                             :disabled="isSaving"
-                            @click="saveSection('pricing')"
+                            @click="saveSection"
                         >
                             Save
                         </fwb-button>
@@ -469,7 +503,7 @@
                     </div>
                 </edit-section>
 
-                <!-- House Rules -->
+                <!-- House Rules (step 10) -->
                 <div
                     v-if="currentEditSection === 'houseRules'"
                     class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -487,7 +521,7 @@
                     <div class="flex gap-3 mt-6">
                         <fwb-button
                             :disabled="isSaving"
-                            @click="saveSection('houseRules')"
+                            @click="saveSection"
                         >
                             Save
                         </fwb-button>
@@ -536,6 +570,27 @@
                     </div>
                 </edit-section>
             </div>
+
+            <!-- Submit for Approval -->
+            <div
+                class="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800"
+            >
+                <h4
+                    class="text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                >
+                    Ready to submit?
+                </h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    Once submitted, our team will review your listing within 24
+                    hours.
+                </p>
+                <fwb-button
+                    :disabled="isSaving"
+                    @click="submitForApproval"
+                >
+                    Submit for approval
+                </fwb-button>
+            </div>
         </template>
     </div>
 </template>
@@ -555,7 +610,7 @@ import Step9Pricing from "@/src/views/hosting/createAccommodation/steps/Step9Pri
 import Step10HouseRules from "@/src/views/hosting/createAccommodation/steps/Step10HouseRules.vue";
 
 export default {
-    name: "ShowListing",
+    name: "EditAccommodationDraft",
     components: {
         EditSection,
         Step1AccommodationType,
@@ -573,7 +628,6 @@ export default {
         return {
             currentEditSection: null,
             isSaving: false,
-            savedSection: null,
             errors: {},
             formData: {
                 accommodationType: null,
@@ -600,7 +654,7 @@ export default {
                 title: "",
                 description: "",
                 pricing: {
-                    basePrice: 100,
+                    basePrice: 5000,
                     bookingType: "instant_booking",
                     minStay: 1,
                 },
@@ -617,46 +671,52 @@ export default {
         };
     },
     computed: {
-        ...mapState("hosting/listings", ["accommodation", "myListingsLoading"]),
         ...mapState("hosting/createAccommodation", [
+            "accommodationDraft",
+            "accommodationDraftId",
+            "accommodationDraftStatus",
+            "accommodationDraftReviewComments",
             "accommodationTypes",
             "bedTypes",
+            "createAccommodationLoading",
         ]),
-        accommodationId() {
-            return this.$route.params.accommodationId;
+        draftId() {
+            return this.$route.params.draftId;
+        },
+        isRejected() {
+            return this.accommodationDraftStatus === "rejected";
         },
         accommodationTypeName() {
             if (!this.formData.accommodationType) return "";
             const type = this.accommodationTypes.find(
                 (t) => t.id === this.formData.accommodationType
             );
-            return type ? type.name : this.formData.accommodationType;
+            return type ? type.name : "";
         },
         occupationTypeName() {
-            if (!this.formData.accommodationOccupation) return "";
+            if (!this.formData.accommodationType) return "";
             const type = this.accommodationTypes.find(
                 (t) => t.id === this.formData.accommodationType
             );
             const occupation = type?.available_occupations?.find(
                 (o) => o.id === this.formData.accommodationOccupation
             );
-            return occupation
-                ? occupation.name
-                : this.formData.accommodationOccupation;
+            return occupation ? occupation.name : "";
         },
     },
     watch: {
-        accommodation: {
+        accommodationDraft: {
             immediate: true,
-            handler(newAccommodation) {
-                if (newAccommodation && this.bedTypes.length) {
-                    this.loadAccommodationData(newAccommodation);
+            deep: true,
+            handler(newDraft) {
+                if (newDraft && this.bedTypes.length) {
+                    this.loadDraftData(newDraft);
                 }
             },
         },
         bedTypes(newBedTypes) {
-            if (newBedTypes.length && this.accommodation) {
-                this.loadAccommodationData(this.accommodation);
+            if (newBedTypes.length && this.accommodationDraft) {
+                this.loadDraftData(this.accommodationDraft);
             } else if (newBedTypes.length) {
                 this.formData.floorPlan.bedTypes = newBedTypes.map(
                     (bedType) => ({
@@ -670,14 +730,14 @@ export default {
         },
     },
     methods: {
-        ...mapActions("hosting/listings", [
-            "loadInitialEditAccommodationData",
-            "updateAccommodation",
+        ...mapActions("hosting/createAccommodation", [
+            "loadInitialEditDraftData",
+            "updateAccommodationDraft",
+            "fetchPhotos",
         ]),
 
         startEdit(section) {
             this.currentEditSection = section;
-            this.savedSection = null;
             this.errors = {};
         },
 
@@ -690,18 +750,17 @@ export default {
             this.formData = { ...this.formData, ...updates };
         },
 
-        async saveSection(section) {
+        async saveSection() {
             this.isSaving = true;
             try {
-                await this.updateAccommodation({
-                    accommodationId: this.accommodationId,
-                    data: this.prepareData(),
+                const draftData = this.prepareDraftData();
+                await this.updateAccommodationDraft({
+                    draftId: this.accommodationDraftId,
+                    draftData,
+                    status: "draft",
+                    currentStep: 12,
                 });
                 this.currentEditSection = null;
-                this.savedSection = section;
-                setTimeout(() => {
-                    this.savedSection = null;
-                }, 3000);
             } catch (error) {
                 if (error.response?.data?.errors) {
                     this.errors = error.response.data.errors;
@@ -711,81 +770,87 @@ export default {
             }
         },
 
-        toHHMM(timeStr) {
-            if (!timeStr) return null;
-            return timeStr.substring(0, 5);
+        async submitForApproval() {
+            this.isSaving = true;
+            try {
+                const draftData = this.prepareDraftData();
+                await this.updateAccommodationDraft({
+                    draftId: this.accommodationDraftId,
+                    draftData,
+                    status: "waiting_for_approval",
+                    currentStep: 12,
+                });
+                this.$router.push({ name: "page-listings" });
+            } catch (error) {
+                if (error.response?.data?.errors) {
+                    this.errors = error.response.data.errors;
+                }
+            } finally {
+                this.isSaving = false;
+            }
         },
 
-        loadAccommodationData(accommodation) {
+        loadDraftData(draft) {
             this.formData = {
-                accommodationType:
-                    accommodation.accommodation_type?.value ??
-                    accommodation.accommodation_type ??
-                    null,
+                accommodationType: draft.accommodation_type || null,
                 accommodationOccupation:
-                    accommodation.accommodation_occupation?.value ??
-                    accommodation.accommodation_occupation ??
-                    null,
+                    draft.accommodation_occupation || null,
                 address: {
-                    country: accommodation.location?.country_code || "",
-                    street: accommodation.address || "",
-                    city: accommodation.location?.name || "",
-                    state: "",
-                    zipCode: "",
+                    country: draft.address?.country || "",
+                    street: draft.address?.street || "",
+                    city: draft.address?.city || "",
+                    state: draft.address?.state || "",
+                    zipCode: draft.address?.zip_code || "",
                 },
                 coordinates: {
-                    latitude: accommodation.latitude || null,
-                    longitude: accommodation.longitude || null,
+                    latitude: draft.coordinates?.latitude || null,
+                    longitude: draft.coordinates?.longitude || null,
                 },
                 floorPlan: {
-                    guests: accommodation.max_guests || 1,
-                    bedrooms: accommodation.bedrooms || 1,
-                    bathrooms: accommodation.bathrooms || 1,
+                    guests: draft.floor_plan?.guests || 1,
+                    bedrooms: draft.floor_plan?.bedrooms || 1,
+                    bathrooms: draft.floor_plan?.bathrooms || 1,
                     bedTypes: this.bedTypes.map((bedType) => ({
                         bed_type: bedType.value,
                         name: bedType.name,
                         description: bedType.description,
                         quantity:
-                            accommodation.beds?.find(
+                            draft.floor_plan?.bed_types?.find(
                                 (bt) => bt.bed_type === bedType.value
                             )?.quantity ?? 0,
                     })),
                 },
-                amenities: accommodation.amenities?.map((a) => a.id) || [],
-                photos: accommodation.photos || [],
-                title: accommodation.title || "",
-                description: accommodation.description || "",
-                pricing: {
-                    basePrice:
-                        accommodation.pricing?.base_price?.base_price || 100,
-                    bookingType:
-                        accommodation.booking_type || "instant_booking",
-                    minStay: accommodation.pricing?.min_quantity || 1,
+                amenities: draft.amenities || [],
+                photos: draft.photos || [],
+                title: draft.title || "",
+                description: draft.description || "",
+                pricing: draft.pricing || {
+                    basePrice: 5000,
+                    bookingType: "instant_booking",
+                    minStay: 1,
                 },
-                houseRules: {
-                    checkInFrom:
-                        this.toHHMM(accommodation.check_in_from) || "15:00",
-                    checkInUntil:
-                        this.toHHMM(accommodation.check_in_until) || "20:00",
-                    checkOutUntil:
-                        this.toHHMM(accommodation.check_out_until) || "11:00",
-                    hasQuietHours: !!accommodation.quiet_hours_from,
-                    quietHoursFrom:
-                        this.toHHMM(accommodation.quiet_hours_from) || "22:00",
-                    quietHoursUntil:
-                        this.toHHMM(accommodation.quiet_hours_until) || "08:00",
-                    cancellationPolicy:
-                        accommodation.cancellation_policy || "moderate",
+                houseRules: draft.house_rules || {
+                    checkInFrom: "15:00",
+                    checkInUntil: "20:00",
+                    checkOutUntil: "11:00",
+                    hasQuietHours: false,
+                    quietHoursFrom: "22:00",
+                    quietHoursUntil: "08:00",
+                    cancellationPolicy: "moderate",
                 },
             };
         },
 
-        prepareData() {
+        prepareDraftData() {
             return {
                 accommodation_type: this.formData.accommodationType,
                 accommodation_occupation: this.formData.accommodationOccupation,
                 address: {
+                    country: this.formData.address.country,
                     street: this.formData.address.street,
+                    city: this.formData.address.city,
+                    state: this.formData.address.state,
+                    zip_code: this.formData.address.zipCode,
                 },
                 coordinates: {
                     latitude: this.formData.coordinates.latitude,
@@ -795,36 +860,35 @@ export default {
                     guests: this.formData.floorPlan.guests,
                     bedrooms: this.formData.floorPlan.bedrooms,
                     bathrooms: this.formData.floorPlan.bathrooms,
-                    bed_types: this.formData.floorPlan.bedTypes
-                        .filter((bt) => bt.quantity > 0)
-                        .map((bt) => ({
-                            bed_type: bt.bed_type,
-                            quantity: bt.quantity,
-                        })),
+                    bed_types: this.formData.floorPlan.bedTypes.filter(
+                        (bt) => bt.quantity > 0
+                    ).map((bt) => ({
+                        bed_type: bt.bed_type,
+                        quantity: bt.quantity,
+                    })),
                 },
                 amenities: this.formData.amenities,
                 title: this.formData.title,
                 description: this.formData.description,
-                pricing: {
-                    basePrice: this.formData.pricing.basePrice,
-                    bookingType: this.formData.pricing.bookingType,
-                    minStay: this.formData.pricing.minStay,
-                },
-                house_rules: {
-                    checkInFrom: this.formData.houseRules.checkInFrom,
-                    checkInUntil: this.formData.houseRules.checkInUntil,
-                    checkOutUntil: this.formData.houseRules.checkOutUntil,
-                    hasQuietHours: this.formData.houseRules.hasQuietHours,
-                    quietHoursFrom: this.formData.houseRules.quietHoursFrom,
-                    quietHoursUntil: this.formData.houseRules.quietHoursUntil,
-                    cancellationPolicy:
-                        this.formData.houseRules.cancellationPolicy,
-                },
+                pricing: this.formData.pricing,
+                house_rules: this.formData.houseRules,
             };
+        },
+
+        formatDate(dateStr) {
+            if (!dateStr) return "";
+            return new Date(dateStr).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            });
         },
     },
     async created() {
-        await this.loadInitialEditAccommodationData(this.accommodationId);
+        await this.loadInitialEditDraftData(this.draftId);
+        if (this.accommodationDraftId) {
+            await this.fetchPhotos(this.accommodationDraftId);
+        }
     },
 };
 </script>

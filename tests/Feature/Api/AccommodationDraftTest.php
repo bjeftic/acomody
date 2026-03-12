@@ -2,6 +2,7 @@
 
 use App\Models\AccommodationDraft;
 use App\Models\Photo;
+use App\Models\ReviewComment;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
@@ -418,6 +419,124 @@ describe('PUT /api/accommodation-drafts/{id} (updateDraft)', function () {
                 ],
             ])
             ->assertSuccessful();
+    });
+
+    it('returns 403 when draft status is waiting_for_approval', function () {
+        $pendingDraft = AccommodationDraft::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'waiting_for_approval',
+        ]);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $pendingDraft), [
+                'status' => 'draft',
+                'current_step' => 1,
+                'data' => [],
+            ])
+            ->assertForbidden();
+    });
+
+    it('returns 403 when draft status is published', function () {
+        $publishedDraft = AccommodationDraft::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'published',
+        ]);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $publishedDraft), [
+                'status' => 'draft',
+                'current_step' => 1,
+                'data' => [],
+            ])
+            ->assertForbidden();
+    });
+
+    it('returns 200 when draft status is rejected', function () {
+        // Use a fresh user without an existing 'draft'-status draft to avoid unique constraint
+        $freshUser = authenticatedUser();
+        $rejectedDraft = AccommodationDraft::factory()->create([
+            'user_id' => $freshUser->id,
+            'status' => 'rejected',
+        ]);
+
+        $this->actingAs($freshUser, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $rejectedDraft), [
+                'status' => 'draft',
+                'current_step' => 2,
+                'data' => ['accommodation_type' => 'apartment'],
+            ])
+            ->assertSuccessful();
+    });
+});
+
+// ============================================================
+// GET /api/accommodation-drafts/{id} (show)
+// ============================================================
+
+describe('GET /api/accommodation-drafts/{id} (show)', function () {
+
+    it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
+        $this->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertUnauthorized();
+    });
+
+    it('returns 200 with the draft for the owner', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertSuccessful()
+            ->assertJson(['success' => true, 'message' => 'Accommodation draft retrieved successfully']);
+    });
+
+    it('returns the correct draft id', function () {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertSuccessful();
+
+        expect($response->json('data.id'))->toBe($this->draft->id);
+    });
+
+    it('returns 403 when a different user tries to view the draft', function () {
+        $otherUser = authenticatedUser();
+
+        $this->actingAs($otherUser, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertForbidden();
+    });
+
+    it('returns the draft when status is rejected', function () {
+        $this->draft->update(['status' => 'rejected']);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertSuccessful()
+            ->assertJsonFragment(['status' => 'rejected']);
+    });
+
+    it('includes review_comments in the response', function () {
+        $superadmin = superadmin();
+        $comment = ReviewComment::factory()->create([
+            'commentable_type' => AccommodationDraft::class,
+            'commentable_id' => $this->draft->id,
+            'user_id' => $superadmin->id,
+            'body' => 'Please fix the description.',
+        ]);
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertSuccessful();
+
+        expect($response->json('data.review_comments'))->toHaveCount(1)
+            ->and($response->json('data.review_comments.0.id'))->toBe($comment->id)
+            ->and($response->json('data.review_comments.0.body'))->toBe('Please fix the description.');
+    });
+
+    it('returns an empty review_comments array when there are none', function () {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertSuccessful();
+
+        expect($response->json('data.review_comments'))->toBeArray()->toHaveCount(0);
     });
 });
 

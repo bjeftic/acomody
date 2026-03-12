@@ -91,7 +91,7 @@ describe('GET /api/accommodations (index)', function () {
         // Create 20 accommodations so pagination is exercised
         for ($i = 0; $i < 20; $i++) {
             createAccommodation($user);
-        }   
+        }
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.index'))
@@ -105,7 +105,7 @@ describe('GET /api/accommodations (index)', function () {
         $user = authenticatedUser();
         for ($i = 0; $i < 10; $i++) {
             createAccommodation($user);
-        }  
+        }
 
         $response = $this->actingAs($user, 'sanctum')
             ->getJson(route('api.accommodations.accommodations.index', ['per_page' => 5]))
@@ -269,14 +269,14 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
 
     // ── Service layer ───────────────────────────────────────
 
-    it('delegates to AccommodationService::getAccommodationById with correct args', function () {
+    it('delegates to AccommodationService::getAccommodationForEdit with correct args', function () {
         $user = authenticatedUser();
         $accommodation = createAccommodation($user);
 
         $mock = Mockery::mock(AccommodationService::class);
-        $mock->shouldReceive('getAccommodationById')
+        $mock->shouldReceive('getAccommodationForEdit')
             ->once()
-            ->with($user->id, $accommodation->id)
+            ->with($accommodation->id)
             ->andReturn($accommodation);
 
         $this->app->instance(AccommodationService::class, $mock);
@@ -291,7 +291,7 @@ describe('GET /api/accommodations/{accommodation} (show)', function () {
         $accommodation = createAccommodation($user);
 
         $mock = Mockery::mock(AccommodationService::class);
-        $mock->shouldReceive('getAccommodationById')
+        $mock->shouldReceive('getAccommodationForEdit')
             ->once()
             ->andReturn(null);
 
@@ -495,4 +495,169 @@ describe('POST /api/accommodations/{id}/calculate-price', function () {
             ->assertJson(['success' => true, 'message' => 'Price calculated']);
     });
 
+});
+
+// ============================================================
+// PUT /api/accommodations/{id} (update)
+// ============================================================
+
+describe('PUT /api/accommodations/{id} (update)', function () {
+
+    beforeEach(function () {
+        seedCurrencyRates();
+    });
+
+    /** @return array<string, mixed> */
+    function validAccommodationPayload(): array
+    {
+        return [
+            'accommodation_type' => 'apartment',
+            'accommodation_occupation' => 'entire_place',
+            'address' => ['street' => '123 Main St'],
+            'coordinates' => ['latitude' => 44.8, 'longitude' => 20.4],
+            'floor_plan' => [
+                'guests' => 4,
+                'bedrooms' => 2,
+                'bathrooms' => 1,
+                'bed_types' => [
+                    ['bed_type' => 'double', 'quantity' => 2],
+                ],
+            ],
+            'amenities' => [],
+            'title' => 'Cozy Apartment in Belgrade',
+            'description' => 'A beautiful and cozy apartment located in the heart of Belgrade, perfect for any traveler.',
+            'pricing' => [
+                'basePrice' => 75,
+                'bookingType' => 'instant_booking',
+                'minStay' => 1,
+            ],
+            'house_rules' => [
+                'checkInFrom' => '15:00',
+                'checkInUntil' => '20:00',
+                'checkOutUntil' => '11:00',
+                'hasQuietHours' => false,
+                'quietHoursFrom' => null,
+                'quietHoursUntil' => null,
+                'cancellationPolicy' => 'moderate',
+            ],
+        ];
+    }
+
+    it('returns 401 for unauthenticated requests', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        Auth::logout();
+
+        $this->putJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload())
+            ->assertUnauthorized();
+    });
+
+    it('returns 403 when a different user tries to update', function () {
+        $owner = authenticatedUser();
+        $accommodation = createAccommodation($owner);
+
+        $other = authenticatedUser();
+
+        $this->actingAs($other, 'sanctum')
+            ->putJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload())
+            ->assertForbidden();
+    });
+
+    it('returns 200 on success', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload())
+            ->assertSuccessful()
+            ->assertJson(['success' => true, 'message' => 'Accommodation updated successfully']);
+    });
+
+    it('persists updated title and description', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload());
+
+        $this->assertDatabaseHas('accommodations', [
+            'id' => $accommodation->id,
+            'title' => 'Cozy Apartment in Belgrade',
+        ]);
+    });
+
+    it('returns 422 when title is missing', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $payload = validAccommodationPayload();
+        unset($payload['title']);
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'title']);
+    });
+
+    it('returns 422 when accommodation_type is invalid', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $payload = validAccommodationPayload();
+        $payload['accommodation_type'] = 'spaceship';
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'accommodation_type']);
+    });
+
+    it('returns 422 when cancellation_policy is invalid', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $payload = validAccommodationPayload();
+        $payload['house_rules']['cancellationPolicy'] = 'super_strict';
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'house_rules.cancellationPolicy']);
+    });
+
+    it('syncs amenities on update', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+        $amenity = \App\Models\Amenity::factory()->create();
+
+        $payload = validAccommodationPayload();
+        $payload['amenities'] = [$amenity->id];
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
+            ->assertSuccessful();
+
+        $this->assertDatabaseHas('accommodation_amenity', [
+            'accommodation_id' => $accommodation->id,
+            'amenity_id' => $amenity->id,
+        ]);
+    });
+
+    it('recreates beds on update', function () {
+        $user = authenticatedUser();
+        $accommodation = createAccommodation($user);
+
+        $payload = validAccommodationPayload();
+
+        $this->actingAs($user, 'sanctum')
+            ->putJson(route('api.accommodations.accommodations.update', $accommodation), $payload)
+            ->assertSuccessful();
+
+        $this->assertDatabaseHas('accommodation_beds', [
+            'accommodation_id' => $accommodation->id,
+            'bed_type' => 'double',
+            'quantity' => 2,
+        ]);
+    });
 });

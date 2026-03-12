@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
  * @OA\Schema(
  *     schema="Accommodation",
  *     type="object",
+ *
  *     @OA\Property(property="id", type="string", format="ulid", example="01ARZ3NDEKTSV4RRFFQ69G5FAV"),
  *     @OA\Property(property="address", type="string", example="123 Main Street"),
  *     @OA\Property(property="latitude", type="number", format="float", example=44.8125),
@@ -24,18 +25,24 @@ use Illuminate\Support\Facades\Storage;
  *     @OA\Property(
  *         property="amenities",
  *         type="array",
+ *
  *         @OA\Items(ref="#/components/schemas/Amenity")
  *     ),
+ *
  *     @OA\Property(
  *         property="photos",
  *         type="array",
+ *
  *         @OA\Items(ref="#/components/schemas/Photo")
  *     ),
+ *
  *     @OA\Property(
  *         property="price",
  *         type="array",
+ *
  *         @OA\Items(ref="#/components/schemas/Price")
  *     ),
+ *
  *     @OA\Property(property="views_count", type="integer", example=142),
  *     @OA\Property(property="favorites_count", type="integer", example=17),
  * )
@@ -59,6 +66,8 @@ class AccommodationResource extends JsonResource
             'accommodation_type' => $this->accommodation_type,
             'accommodation_occupation' => $this->accommodation_occupation,
             'max_guests' => $this->max_guests,
+            'bedrooms' => $this->bedrooms,
+            'bathrooms' => $this->bathrooms,
             'title' => $this->title,
             'description' => $this->description,
             'amenities' => AmenityResource::collection($this->amenities ?? []),
@@ -68,10 +77,29 @@ class AccommodationResource extends JsonResource
             'favorites_count' => $this->favorites_count,
             'cancellation_policy' => $this->cancellation_policy,
             'booking_type' => $this->booking_type,
+            'check_in_from' => $this->check_in_from,
+            'check_in_until' => $this->check_in_until,
+            'check_out_until' => $this->check_out_until,
+            'quiet_hours_from' => $this->quiet_hours_from,
+            'quiet_hours_until' => $this->quiet_hours_until,
+            'beds' => $this->when(
+                $this->relationLoaded('beds'),
+                fn () => $this->beds->map(fn ($bed) => [
+                    'bed_type' => $bed->bed_type->value,
+                    'quantity' => $bed->quantity,
+                ])->values()
+            ),
+            'location' => $this->when(
+                $this->relationLoaded('location') && $this->location,
+                fn () => [
+                    'name' => $this->location->getTranslation('name', 'en'),
+                    'country_code' => $this->location->country?->iso_code_2,
+                ]
+            ),
             'host' => $this->host_profile ? [
-                'id'         => $this->host_profile->id,
+                'id' => $this->host_profile->id,
                 'first_name' => $this->host_profile->first_name,
-                'last_name'  => $this->host_profile->last_name,
+                'last_name' => $this->host_profile->last_name,
                 'avatar_url' => $this->host_profile->avatar
                     ? Storage::disk('user_profile_photos')->url($this->host_profile->avatar)
                     : null,
