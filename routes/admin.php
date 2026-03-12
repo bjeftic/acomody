@@ -22,12 +22,12 @@ Route::middleware(['auth', 'super.admin'])->group(function () {
 
         Route::resource('users', UserController::class)->names('users');
 
-        Route::resource('accommodations', AccommodationController::class)->names('accommodations');
+        Route::resource('accommodations', AccommodationController::class)->only(['index', 'show'])->names('accommodations');
 
         Route::post('accommodation-drafts/{id}/approve', [AccommodationDraftController::class, 'approve'])->name('accommodation-drafts.approve');
         Route::post('accommodation-drafts/{id}/reject', [AccommodationDraftController::class, 'reject'])->name('accommodation-drafts.reject');
         Route::post('accommodation-drafts/{id}/comments', [AccommodationDraftController::class, 'addComment'])->name('accommodation-drafts.comments.store');
-        Route::resource('accommodation-drafts', AccommodationDraftController::class)->names('accommodation-drafts');
+        Route::resource('accommodation-drafts', AccommodationDraftController::class)->only(['index', 'show'])->names('accommodation-drafts');
 
         Route::get('locations/search', [LocationController::class, 'search'])->name('locations.search');
         Route::resource('locations', LocationController::class)->names('locations');
