@@ -39,35 +39,35 @@
             <!-- Check-in / Check-out Dates -->
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label
-                        for="check-in"
-                        class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                         CHECK-IN
                     </label>
-                    <input
-                        id="check-in"
+                    <VueDatePicker
                         v-model="bookingForm.checkIn"
-                        type="date"
-                        :min="minCheckIn"
-                        required
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                        model-type="format"
+                        :min-date="minCheckIn"
+                        :disabled-dates="isDateDisabled"
+                        :time-config="{ enableTimePicker: false }"
+                        :auto-apply="true"
+                        placeholder="Select date"
+                        :format="formatPickerDate"
+                        @update:model-value="onCheckInChange"
                     />
                 </div>
                 <div>
-                    <label
-                        for="check-out"
-                        class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                         CHECK-OUT
                     </label>
-                    <input
-                        id="check-out"
+                    <VueDatePicker
                         v-model="bookingForm.checkOut"
-                        type="date"
-                        :min="minCheckOut"
-                        required
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                        model-type="format"
+                        :min-date="minCheckOut"
+                        :start-date="bookingForm.checkIn || minCheckOut"
+                        :disabled-dates="isDateDisabled"
+                        :time-config="{ enableTimePicker: false }"
+                        :auto-apply="true"
+                        placeholder="Select date"
+                        :format="formatPickerDate"
                     />
                 </div>
             </div>
@@ -153,7 +153,10 @@
 </template>
 
 <script>
+import { VueDatePicker } from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 import { formatPrice } from "@/utils/helpers";
+import apiClient from "@/services/apiClient";
 import GuestsDropdown from "@/src/components/common/GuestsDropdown.vue";
 
 export default {
@@ -161,6 +164,7 @@ export default {
 
     components: {
         GuestsDropdown,
+        VueDatePicker,
     },
 
     props: {
@@ -174,31 +178,41 @@ export default {
         const query = this.$route?.query || {};
         return {
             bookingForm: {
-                checkIn: query.checkIn || "",
-                checkOut: query.checkOut || "",
+                checkIn: query.checkIn || null,
+                checkOut: query.checkOut || null,
                 guests: {
                     adults: query.adults ? parseInt(query.adults) : 2,
                     children: query.children ? parseInt(query.children) : 0,
                     infants: query.infants ? parseInt(query.infants) : 0,
                 },
             },
+            blockedRanges: [],
         };
+    },
+
+    async created() {
+        try {
+            const response = await apiClient.public.accommodations[this.accommodation.id]["blocked-dates"].get();
+            this.blockedRanges = response.data.data ?? [];
+        } catch {
+            // non-critical — booking validation still happens on submit
+        }
     },
 
     computed: {
         minCheckIn() {
-            return new Date().toISOString().split("T")[0];
+            return new Date();
         },
 
         minCheckOut() {
             if (!this.bookingForm.checkIn) {
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
-                return tomorrow.toISOString().split("T")[0];
+                return tomorrow;
             }
-            const checkInDate = new Date(this.bookingForm.checkIn);
-            checkInDate.setDate(checkInDate.getDate() + 1);
-            return checkInDate.toISOString().split("T")[0];
+            const date = new Date(this.bookingForm.checkIn);
+            date.setDate(date.getDate() + 1);
+            return date;
         },
 
         pricePerNight() {
@@ -206,7 +220,7 @@ export default {
         },
 
         priceCurrency() {
-            return this.accommodation.pricing?.base_price_in_user_currency?.currency || 'EUR';
+            return this.accommodation.pricing?.base_price_in_user_currency?.currency || "EUR";
         },
 
         totalNights() {
@@ -245,11 +259,33 @@ export default {
     methods: {
         formatPrice,
 
+        formatPickerDate(date) {
+            if (!date) return "";
+            const d = new Date(date);
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${y}-${m}-${day}`;
+        },
+
+        isDateDisabled(date) {
+            const d = date.toISOString().split("T")[0];
+            return this.blockedRanges.some((range) => d >= range.start && d < range.end);
+        },
+
+        onCheckInChange(value) {
+            if (value && this.bookingForm.checkOut && this.bookingForm.checkOut <= value) {
+                const next = new Date(value);
+                next.setDate(next.getDate() + 1);
+                this.bookingForm.checkOut = next.toISOString().split("T")[0];
+            }
+        },
+
         handleSubmit() {
             if (!this.isFormValid) return;
 
             this.$router.push({
-                name: 'accommodation-reserve',
+                name: "accommodation-reserve",
                 params: { id: this.$route.params.id },
                 query: {
                     checkIn: this.bookingForm.checkIn,
@@ -262,21 +298,7 @@ export default {
         },
 
         contactHost() {
-            // TODO: Implement contact host functionality
             this.$emit("contact-host");
-        },
-    },
-
-    watch: {
-        "bookingForm.checkIn"(newVal) {
-            if (newVal && this.bookingForm.checkOut) {
-                const checkIn = new Date(newVal);
-                const checkOut = new Date(this.bookingForm.checkOut);
-                if (checkOut <= checkIn) {
-                    checkIn.setDate(checkIn.getDate() + 1);
-                    this.bookingForm.checkOut = checkIn.toISOString().split("T")[0];
-                }
-            }
         },
     },
 };

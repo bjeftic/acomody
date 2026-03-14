@@ -46,6 +46,8 @@ Route::prefix('public')->name('api.public')->group(function () {
     Route::prefix('accommodations')->name('accommodations')->group(function () {
         Route::get('{accommodation}', [PublicAccommodationController::class, 'show'])
             ->name('show');
+        Route::get('{accommodationId}/blocked-dates', [PublicAccommodationController::class, 'blockedDates'])
+            ->name('blocked-dates');
     });
 });
 
