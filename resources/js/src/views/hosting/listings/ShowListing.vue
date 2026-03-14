@@ -473,6 +473,7 @@
                 <ical-sync
                     :accommodation-id="accommodationId"
                     :ical-token="icalToken"
+                    :ical-export-active="icalExportActive"
                     @token-updated="onTokenUpdated"
                 />
 
@@ -585,6 +586,7 @@ export default {
             savedSection: null,
             errors: {},
             icalToken: null,
+            icalExportActive: false,
             formData: {
                 accommodationType: null,
                 accommodationOccupation: null,
@@ -732,6 +734,7 @@ export default {
 
         loadAccommodationData(accommodation) {
             this.icalToken = accommodation.ical_token ?? null;
+            this.icalExportActive = accommodation.ical_export_active ?? false;
             this.formData = {
                 accommodationType:
                     accommodation.accommodation_type?.value ??

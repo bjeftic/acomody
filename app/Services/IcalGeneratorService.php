@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\Accommodation;
+use Illuminate\Support\Facades\DB;
 
 class IcalGeneratorService
 {
-    public function generate(Accommodation $accommodation): string
+    public function generate(string $accommodationId, string $title): string
     {
         $lines = [
             'BEGIN:VCALENDAR',
@@ -14,10 +14,10 @@ class IcalGeneratorService
             'PRODID:-//Acomody//Acomody Calendar//EN',
             'CALSCALE:GREGORIAN',
             'METHOD:PUBLISH',
-            'X-WR-CALNAME:'.$this->escapeText($accommodation->title),
+            'X-WR-CALNAME:'.$this->escapeText($title),
         ];
 
-        foreach ($this->buildEvents($accommodation) as $event) {
+        foreach ($this->buildEvents($accommodationId) as $event) {
             array_push($lines, ...$event);
         }
 
@@ -29,23 +29,24 @@ class IcalGeneratorService
     /**
      * @return array<int, array<int, string>>
      */
-    private function buildEvents(Accommodation $accommodation): array
+    private function buildEvents(string $accommodationId): array
     {
         $events = [];
 
-        // Confirmed / pending bookings
-        $bookings = $accommodation->bookings()
+        $bookings = DB::table('bookings')
+            ->where('accommodation_id', $accommodationId)
             ->whereIn('status', ['confirmed', 'pending'])
             ->whereNotNull('check_in')
             ->whereNotNull('check_out')
-            ->get();
+            ->whereNull('deleted_at')
+            ->get(['id', 'check_in', 'check_out']);
 
         foreach ($bookings as $booking) {
             $events[] = [
                 'BEGIN:VEVENT',
                 'UID:booking-'.$booking->id.'@acomody.com',
-                'DTSTART;VALUE=DATE:'.$booking->check_in->format('Ymd'),
-                'DTEND;VALUE=DATE:'.$booking->check_out->format('Ymd'),
+                'DTSTART;VALUE=DATE:'.date('Ymd', strtotime($booking->check_in)),
+                'DTEND;VALUE=DATE:'.date('Ymd', strtotime($booking->check_out)),
                 'SUMMARY:Reserved',
                 'STATUS:CONFIRMED',
                 'TRANSP:OPAQUE',
@@ -53,20 +54,21 @@ class IcalGeneratorService
             ];
         }
 
-        // Manually blocked / closed periods (exclude imported ones to avoid loops)
-        $periods = $accommodation->availabilityPeriods()
+        $periods = DB::table('availability_periods')
+            ->where('available_id', $accommodationId)
+            ->where('available_type', 'App\\Models\\Accommodation')
             ->whereIn('status', ['blocked', 'booked', 'closed'])
             ->whereNull('ical_calendar_id')
-            ->get();
+            ->get(['id', 'start_date', 'end_date', 'status']);
 
         foreach ($periods as $period) {
+            $endDate = date('Ymd', strtotime($period->end_date.' +1 day'));
             $events[] = [
                 'BEGIN:VEVENT',
                 'UID:period-'.$period->id.'@acomody.com',
-                'DTSTART;VALUE=DATE:'.$period->start_date->format('Ymd'),
-                // iCal DTEND is exclusive for all-day events
-                'DTEND;VALUE=DATE:'.$period->end_date->copy()->addDay()->format('Ymd'),
-                'SUMMARY:'.$this->escapeText($period->status_label),
+                'DTSTART;VALUE=DATE:'.date('Ymd', strtotime($period->start_date)),
+                'DTEND;VALUE=DATE:'.$endDate,
+                'SUMMARY:'.$this->escapeText(ucfirst($period->status)),
                 'STATUS:CONFIRMED',
                 'TRANSP:OPAQUE',
                 'END:VEVENT',

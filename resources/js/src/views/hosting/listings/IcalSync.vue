@@ -27,6 +27,7 @@
 
                 <div v-if="exportActive" class="flex items-center gap-2">
                     <input
+                        ref="exportUrlInput"
                         :value="exportUrl"
                         readonly
                         class="flex-1 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-700 dark:text-gray-300 font-mono truncate"
@@ -343,11 +344,13 @@ export default {
         async copyUrl() {
             try {
                 await navigator.clipboard.writeText(this.exportUrl);
-                this.copied = true;
-                setTimeout(() => (this.copied = false), 2000);
             } catch {
-                // fallback: select input manually
+                const input = this.$refs.exportUrlInput;
+                input.select();
+                document.execCommand("copy");
             }
+            this.copied = true;
+            setTimeout(() => (this.copied = false), 2000);
         },
 
         formatDate(isoString) {
