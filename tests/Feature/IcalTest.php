@@ -100,7 +100,7 @@ describe('IcalGeneratorService', function () {
         $host = authenticatedUser();
         $accommodation = createAccommodation($host, ['title' => 'My Villa']);
 
-        $ics = (new IcalGeneratorService)->generate($accommodation);
+        $ics = (new IcalGeneratorService)->generate($accommodation->id, $accommodation->title);
 
         expect($ics)
             ->toContain('BEGIN:VCALENDAR')
@@ -121,7 +121,8 @@ describe('IcalGeneratorService', function () {
             'check_out' => '2024-07-05',
         ]);
 
-        $ics = (new IcalGeneratorService)->generate($accommodation->fresh());
+        $fresh = $accommodation->fresh();
+        $ics = (new IcalGeneratorService)->generate($fresh->id, $fresh->title);
 
         expect($ics)
             ->toContain('DTSTART;VALUE=DATE:20240701')
@@ -139,7 +140,8 @@ describe('IcalGeneratorService', function () {
             'end_date' => '2024-08-03',
         ]);
 
-        $ics = (new IcalGeneratorService)->generate($accommodation->fresh());
+        $fresh = $accommodation->fresh();
+        $ics = (new IcalGeneratorService)->generate($fresh->id, $fresh->title);
 
         expect($ics)
             ->toContain('DTSTART;VALUE=DATE:20240801')
@@ -164,7 +166,8 @@ describe('IcalGeneratorService', function () {
             'ical_calendar_id' => $calendar->id,
         ]);
 
-        $ics = (new IcalGeneratorService)->generate($accommodation->fresh());
+        $fresh = $accommodation->fresh();
+        $ics = (new IcalGeneratorService)->generate($fresh->id, $fresh->title);
 
         expect($ics)->not->toContain('20240901');
     });

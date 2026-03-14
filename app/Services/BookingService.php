@@ -313,12 +313,26 @@ class BookingService
      */
     public function getHostBookings(User $host, int $perPage = 15, ?string $status = null): LengthAwarePaginator
     {
-        return Booking::query()
+        $paginator = Booking::query()
             ->with(['accommodation.primaryPhoto'])
             ->where('host_user_id', $host->id)
             ->when($status, fn ($q) => $q->where('status', $status))
             ->orderByDesc('check_in')
             ->paginate($perPage);
+
+        $guestIds = collect($paginator->items())->pluck('user_id')->unique()->filter()->values();
+
+        $guestMap = DB::table('users')
+            ->leftJoin('user_profiles', 'user_profiles.user_id', '=', 'users.id')
+            ->whereIn('users.id', $guestIds)
+            ->get(['users.id', 'users.email', 'user_profiles.first_name', 'user_profiles.last_name'])
+            ->keyBy('id');
+
+        foreach ($paginator->items() as $booking) {
+            $booking->guest_info = $guestMap->get($booking->user_id);
+        }
+
+        return $paginator;
     }
 
     // ============================================
