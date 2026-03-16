@@ -72,7 +72,7 @@ class IcalGeneratorService
                 'UID:period-'.$period->id.'@acomody.com',
                 'DTSTAMP:'.$this->dtstamp,
                 'DTSTART;VALUE=DATE:'.date('Ymd', strtotime($period->start_date)),
-                'DTEND;VALUE=DATE:'.date('Ymd', strtotime($period->end_date)),
+                'DTEND;VALUE=DATE:'.date('Ymd', strtotime($period->end_date.' +1 day')),
                 'SUMMARY:'.$this->escapeText(ucfirst($period->status)),
                 'STATUS:CONFIRMED',
                 'TRANSP:OPAQUE',

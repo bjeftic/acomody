@@ -376,7 +376,7 @@ describe('SyncIcalCalendarJob', function () {
 
         Http::fake(['*' => Http::response($ics, 200)]);
 
-        (new SyncIcalCalendarJob($calendar))->handle(app(IcalSyncService::class));
+        (new SyncIcalCalendarJob($calendar->id))->handle(app(IcalSyncService::class));
 
         expect(
             AvailabilityPeriod::where('ical_calendar_id', $calendar->id)
@@ -423,7 +423,7 @@ describe('SyncIcalCalendarJob', function () {
 
         Http::fake(['*' => Http::response($ics, 200)]);
 
-        (new SyncIcalCalendarJob($calendar))->handle(app(IcalSyncService::class));
+        (new SyncIcalCalendarJob($calendar->id))->handle(app(IcalSyncService::class));
 
         expect(AvailabilityPeriod::where('ical_calendar_id', $calendar->id)->count())->toBe(1);
         expect(
@@ -451,7 +451,7 @@ describe('SyncIcalCalendarJob', function () {
 
         Http::fake(['*' => Http::response("BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR", 200)]);
 
-        (new SyncIcalCalendarJob($calendar))->handle(app(IcalSyncService::class));
+        (new SyncIcalCalendarJob($calendar->id))->handle(app(IcalSyncService::class));
 
         expect(AvailabilityPeriod::where('ical_calendar_id', $calendar->id)->count())->toBe(0);
     });
@@ -466,7 +466,7 @@ describe('SyncIcalCalendarJob', function () {
 
         Http::fake(['*' => Http::response('', 500)]);
 
-        (new SyncIcalCalendarJob($calendar))->handle(app(IcalSyncService::class));
+        (new SyncIcalCalendarJob($calendar->id))->handle(app(IcalSyncService::class));
 
         // last_synced_at should not be updated on failure
         expect($calendar->fresh()->last_synced_at)->toBeNull();

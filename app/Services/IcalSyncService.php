@@ -61,10 +61,27 @@ class IcalSyncService
             }
 
             $isAllDay = $event['is_all_day'] ?? false;
-            $startDate = $event['dtstart']->copy()->startOfDay();
-            $endDate = $event['dtend']->copy()->startOfDay();
-            $startTime = $isAllDay ? null : $event['dtstart']->format('H:i');
-            $endTime = $isAllDay ? null : $event['dtend']->format('H:i');
+
+            // Airbnb/Booking.com convention: UTC midnight events (e.g. T220000Z for UTC+2)
+            // represent local midnight. Convert to local timezone for correct date extraction.
+            $localTz = 'Europe/Belgrade';
+            $dtstart = $event['dtstart']->copy()->setTimezone($localTz);
+            $dtend = $event['dtend']->copy()->setTimezone($localTz);
+
+            // If local time is midnight, null out start/end times (treat as date-only for storage)
+            $isLocalMidnight = $dtstart->format('H:i:s') === '00:00:00' && $dtend->format('H:i:s') === '00:00:00';
+            $storeDateOnly = $isAllDay || $isLocalMidnight;
+
+            $startDate = $dtstart->copy()->startOfDay();
+            $endDate = $dtend->copy()->startOfDay();
+
+            // RFC 5545: DTEND is exclusive only for VALUE=DATE all-day events; subtract 1 day to store inclusive end date
+            if ($isAllDay) {
+                $endDate->subDay();
+            }
+
+            $startTime = $storeDateOnly ? null : $dtstart->format('H:i');
+            $endTime = $storeDateOnly ? null : $dtend->format('H:i');
 
             if ($endDate->lt($startDate)) {
                 continue;
