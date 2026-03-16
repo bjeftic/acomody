@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property Accommodation $accommodation
+ */
 class IcalCalendar extends Model
 {
     use HasUlids;
