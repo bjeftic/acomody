@@ -86,11 +86,11 @@
                             {{ cell.day }}
                         </span>
 
-                        <!-- Booking indicators -->
+                        <!-- Booking and period indicators -->
                         <div class="space-y-0.5">
                             <div
                                 v-for="booking in cell.bookings.slice(0, 2)"
-                                :key="booking.id"
+                                :key="'b-' + booking.id"
                                 :class="[
                                     'text-xs px-1.5 py-0.5 rounded truncate leading-tight',
                                     bookingChipClass(booking),
@@ -99,10 +99,17 @@
                                 {{ isCheckInDay(booking, cell.date) ? booking.guestName.split(' ')[0] : '\u00A0' }}
                             </div>
                             <div
-                                v-if="cell.bookings.length > 2"
+                                v-for="period in cell.periods.slice(0, 2 - Math.min(cell.bookings.length, 2))"
+                                :key="'p-' + period.id"
+                                class="text-xs px-1.5 py-0.5 rounded truncate leading-tight bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300"
+                            >
+                                {{ period.isIcalSynced ? (period.icalCalendarName ?? 'iCal') : 'Blocked' }}
+                            </div>
+                            <div
+                                v-if="cell.bookings.length + cell.periods.length > 2"
                                 class="text-xs text-gray-500 dark:text-gray-400 px-1"
                             >
-                                +{{ cell.bookings.length - 2 }}
+                                +{{ cell.bookings.length + cell.periods.length - 2 }}
                             </div>
                         </div>
                     </div>
@@ -122,6 +129,10 @@
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full bg-gray-400 flex-shrink-0"></span>
                     <span class="text-sm text-gray-600 dark:text-gray-400">Completed</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-orange-400 flex-shrink-0"></span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Blocked / iCal</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
@@ -248,7 +259,7 @@
 
                 <!-- Empty state -->
                 <div
-                    v-else
+                    v-else-if="!selectedDate || periodsForDate(selectedDate).length === 0"
                     class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-12 text-center"
                 >
                     <div class="flex justify-center mb-4 text-gray-300 dark:text-gray-600">
@@ -258,6 +269,43 @@
                         {{ selectedDate ? 'No bookings on this date.' : 'No upcoming bookings.' }}
                     </p>
                 </div>
+
+                <!-- Blocked periods for selected date -->
+                <template v-if="selectedDate && periodsForDate(selectedDate).length > 0">
+                    <h3 class="text-base font-semibold text-gray-700 dark:text-gray-300 mt-6 mb-3">
+                        Blocked dates
+                    </h3>
+                    <div class="space-y-3">
+                        <div
+                            v-for="period in periodsForDate(selectedDate)"
+                            :key="period.id"
+                            class="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded-xl p-4"
+                        >
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-500 dark:text-orange-400">
+                                    <icon-loader name="CalendarDaysIcon" :size="18" />
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white capitalize">
+                                            {{ period.status }}
+                                        </p>
+                                        <span class="text-xs px-2 py-0.5 rounded-full flex-shrink-0" :class="period.isIcalSynced ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' : 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300'">
+                                            {{ period.isIcalSynced ? (period.icalCalendarName ?? 'iCal sync') : 'Manual' }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                        <icon-loader name="CalendarIcon" :size="13" />
+                                        {{ formatDisplayDate(period.startDate) }} → {{ formatDisplayDate(period.endDate) }}
+                                    </div>
+                                    <p v-if="period.notes" class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+                                        {{ period.notes }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
         </template>
     </div>
@@ -287,6 +335,7 @@ export default {
             "calendarLoading",
             "calendarError",
             "bookings",
+            "blockedPeriods",
             "selectedDate",
             "currentYear",
             "currentMonth",
@@ -319,6 +368,7 @@ export default {
                     isCurrentMonth: false,
                     isToday: false,
                     bookings: [],
+                    periods: [],
                 });
             }
 
@@ -336,6 +386,7 @@ export default {
                     isCurrentMonth: true,
                     isToday,
                     bookings: this.bookingsForDate(dateStr),
+                    periods: this.periodsForDate(dateStr),
                 });
             }
 
@@ -352,6 +403,7 @@ export default {
                         isCurrentMonth: false,
                         isToday: false,
                         bookings: [],
+                        periods: [],
                     });
                 }
             }
@@ -391,6 +443,12 @@ export default {
         bookingsForDate(dateStr) {
             return this.bookings.filter(
                 (b) => b.checkIn <= dateStr && b.checkOut >= dateStr
+            );
+        },
+
+        periodsForDate(dateStr) {
+            return this.blockedPeriods.filter(
+                (p) => p.startDate <= dateStr && p.endDate >= dateStr
             );
         },
 

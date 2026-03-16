@@ -3,12 +3,32 @@ import apiClient from "@/services/apiClient";
 export const loadCalendarData = async ({ commit, dispatch }) => {
     commit("SET_CALENDAR_ERROR", null);
     try {
-        await dispatch("fetchBookings");
+        await Promise.all([
+            dispatch("fetchBookings"),
+            dispatch("fetchBlockedPeriods"),
+        ]);
     } catch (error) {
-        commit("SET_CALENDAR_ERROR", "Failed to load bookings. Please try again.");
+        commit("SET_CALENDAR_ERROR", "Failed to load calendar data. Please try again.");
     } finally {
         commit("SET_CALENDAR_LOADING", false);
     }
+};
+
+export const fetchBlockedPeriods = async ({ commit }) => {
+    const response = await apiClient.host["blocked-periods"].get();
+
+    const periods = (response.data?.data ?? []).map((item) => ({
+        id: item.id,
+        accommodationId: item.accommodation_id,
+        startDate: item.start_date,
+        endDate: item.end_date,
+        status: item.status,
+        notes: item.notes,
+        isIcalSynced: item.is_ical_synced,
+        icalCalendarName: item.ical_calendar_name ?? null,
+    }));
+
+    commit("SET_BLOCKED_PERIODS", periods);
 };
 
 export const fetchBookings = async ({ commit }) => {

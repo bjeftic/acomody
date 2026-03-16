@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
@@ -64,6 +65,11 @@ class AvailabilityPeriod extends Model
     public function available(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function icalCalendar(): BelongsTo
+    {
+        return $this->belongsTo(IcalCalendar::class, 'ical_calendar_id');
     }
 
     public function scopeBlocked($query)

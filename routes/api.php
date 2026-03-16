@@ -13,6 +13,7 @@ use App\Http\Controllers\BedTypeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FeeController;
+use App\Http\Controllers\Host\AvailabilityPeriodController as HostAvailabilityPeriodController;
 use App\Http\Controllers\Host\BookingController as HostBookingController;
 use App\Http\Controllers\Host\IcalCalendarController as HostIcalCalendarController;
 use App\Http\Controllers\IcalExportController;
@@ -172,6 +173,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('host/accommodations/{accommodation}/ical-token/regenerate', [HostIcalCalendarController::class, 'regenerateToken'])
         ->name('api.host.ical.token.regenerate');
+
+    // Host availability periods (blocked/closed dates)
+    Route::get('host/blocked-periods', [HostAvailabilityPeriodController::class, 'index'])
+        ->name('api.host.blocked-periods.index');
 
     // Host booking management
     Route::prefix('host/bookings')->name('api.host.bookings.')->group(function () {
