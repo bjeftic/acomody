@@ -10,6 +10,9 @@ export default {
     [types.SET_BOOKINGS](state, bookings) {
         state.bookings = bookings;
     },
+    [types.SET_BLOCKED_PERIODS](state, periods) {
+        state.blockedPeriods = periods;
+    },
     [types.SET_SELECTED_DATE](state, date) {
         state.selectedDate = date;
     },

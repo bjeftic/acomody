@@ -51,7 +51,7 @@ class DatabaseSeeder extends Seeder
 
             // Accommodations
             $this->command->info('Creating accommodations...');
-            $this->withProgressBar(5000, function () {
+            $this->withProgressBar(1000, function () {
                 Accommodation::withoutAuthorization(function () {
                     Accommodation::factory()->create();
                 });

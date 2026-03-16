@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * @property string $status
@@ -27,6 +28,8 @@ class AvailabilityPeriod extends Model
         'notes',
         'max_capacity',
         'current_bookings',
+        'external_uid',
+        'ical_calendar_id',
     ];
 
     protected $casts = [
@@ -64,6 +67,11 @@ class AvailabilityPeriod extends Model
         return $this->morphTo();
     }
 
+    public function icalCalendar(): BelongsTo
+    {
+        return $this->belongsTo(IcalCalendar::class, 'ical_calendar_id');
+    }
+
     public function scopeBlocked($query)
     {
         return $query->where('status', 'blocked');
@@ -87,21 +95,21 @@ class AvailabilityPeriod extends Model
     public function scopeForDate($query, Carbon $date)
     {
         return $query->where('start_date', '<=', $date)
-                     ->where('end_date', '>=', $date);
+            ->where('end_date', '>=', $date);
     }
 
     public function scopeForDateRange($query, Carbon $startDate, Carbon $endDate)
     {
         return $query->where(function ($q) use ($startDate, $endDate) {
             $q->where('start_date', '<=', $endDate)
-              ->where('end_date', '>=', $startDate);
+                ->where('end_date', '>=', $startDate);
         });
     }
 
     public function scopeForEntity($query, string $entityType, string $entityId)
     {
         return $query->where('available_type', $entityType)
-                     ->where('available_id', $entityId);
+            ->where('available_id', $entityId);
     }
 
     public function getStatusLabelAttribute(): string
@@ -119,7 +127,9 @@ class AvailabilityPeriod extends Model
 
     public function getReasonLabelAttribute(): string
     {
-        if (!$this->reason) return 'N/A';
+        if (! $this->reason) {
+            return 'N/A';
+        }
 
         return match ($this->reason) {
             'owner_blocked' => 'Blocked by Owner',
@@ -137,12 +147,15 @@ class AvailabilityPeriod extends Model
 
     public function getDateRangeAttribute(): string
     {
-        return $this->start_date->format('M d, Y') . ' - ' . $this->end_date->format('M d, Y');
+        return $this->start_date->format('M d, Y').' - '.$this->end_date->format('M d, Y');
     }
 
     public function getRemainingCapacityAttribute(): ?int
     {
-        if (!$this->max_capacity) return null;
+        if (! $this->max_capacity) {
+            return null;
+        }
+
         return max(0, $this->max_capacity - $this->current_bookings);
     }
 }

@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Acomody is a full-stack accommodation search and management platform. The backend is Laravel 12 (PHP 8.4) with PostgreSQL and Typesense for search. The frontend is a Vue 3 SPA served via Laravel's Blade entry point with Vite.
 
+## Project Overview details
+
+When someone creates accommodation for example in Serbia, base currency of that accommodation is RSD.
+
 ## Commands
 
 ### Development

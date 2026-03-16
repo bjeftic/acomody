@@ -41,7 +41,7 @@ return new class extends Migration
                 'booked',         // Already booked/reserved
                 'maintenance',    // Under maintenance
                 'closed',         // Closed (restaurant closed day, service unavailable)
-                'sold_out'        // Sold out (events, limited capacity)
+                'sold_out',        // Sold out (events, limited capacity)
             ])->default('blocked')->index();
 
             // Reason for blocking
@@ -55,11 +55,15 @@ return new class extends Migration
                 'capacity_reached',   // Capacity limit reached
                 'weather',            // Weather-related closure
                 'event',              // Private event
-                'other'
+                'other',
             ])->nullable();
 
             // Additional info
             $table->text('notes')->nullable();
+
+            // External iCal sync
+            $table->string('external_uid')->nullable();
+            $table->string('ical_calendar_id', 26)->nullable();
 
             // Capacity management (for restaurants, events)
             $table->integer('max_capacity')->nullable(); // Total capacity
@@ -71,6 +75,7 @@ return new class extends Migration
             $table->index(['available_type', 'available_id', 'status']);
             $table->index(['start_date', 'end_date']);
             $table->index(['available_type', 'available_id', 'start_date', 'end_date']);
+            $table->index(['ical_calendar_id', 'external_uid']);
         });
     }
 

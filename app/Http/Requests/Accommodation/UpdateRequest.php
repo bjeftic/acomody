@@ -28,6 +28,12 @@ class UpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        if (! $this->has('accommodation_type')) {
+            return [
+                'ical_export_active' => ['sometimes', 'boolean'],
+            ];
+        }
+
         return [
             'accommodation_type' => ['required', Rule::enum(AccommodationType::class)],
             'accommodation_occupation' => ['required', Rule::enum(AccommodationOccupation::class)],
@@ -66,6 +72,8 @@ class UpdateRequest extends FormRequest
             'house_rules.quietHoursFrom' => ['nullable', 'string', 'date_format:H:i'],
             'house_rules.quietHoursUntil' => ['nullable', 'string', 'date_format:H:i'],
             'house_rules.cancellationPolicy' => ['required', 'string', Rule::in(['flexible', 'moderate', 'firm', 'strict', 'non-refundable'])],
+
+            'ical_export_active' => ['sometimes', 'boolean'],
         ];
     }
 }

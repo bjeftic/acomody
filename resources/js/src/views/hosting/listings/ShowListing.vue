@@ -469,6 +469,14 @@
                     </div>
                 </edit-section>
 
+                <!-- iCal Sync -->
+                <ical-sync
+                    :accommodation-id="accommodationId"
+                    :ical-token="icalToken"
+                    :ical-export-active="icalExportActive"
+                    @token-updated="onTokenUpdated"
+                />
+
                 <!-- House Rules -->
                 <div
                     v-if="currentEditSection === 'houseRules'"
@@ -553,6 +561,7 @@ import Step7Title from "@/src/views/hosting/createAccommodation/steps/Step7Title
 import Step8Description from "@/src/views/hosting/createAccommodation/steps/Step8Description.vue";
 import Step9Pricing from "@/src/views/hosting/createAccommodation/steps/Step9Pricing.vue";
 import Step10HouseRules from "@/src/views/hosting/createAccommodation/steps/Step10HouseRules.vue";
+import IcalSync from "@/src/views/hosting/listings/IcalSync.vue";
 
 export default {
     name: "ShowListing",
@@ -568,6 +577,7 @@ export default {
         Step8Description,
         Step9Pricing,
         Step10HouseRules,
+        IcalSync,
     },
     data() {
         return {
@@ -575,6 +585,8 @@ export default {
             isSaving: false,
             savedSection: null,
             errors: {},
+            icalToken: null,
+            icalExportActive: false,
             formData: {
                 accommodationType: null,
                 accommodationOccupation: null,
@@ -690,6 +702,10 @@ export default {
             this.formData = { ...this.formData, ...updates };
         },
 
+        onTokenUpdated(newToken) {
+            this.icalToken = newToken;
+        },
+
         async saveSection(section) {
             this.isSaving = true;
             try {
@@ -717,6 +733,8 @@ export default {
         },
 
         loadAccommodationData(accommodation) {
+            this.icalToken = accommodation.ical_token ?? null;
+            this.icalExportActive = accommodation.ical_export_active ?? false;
             this.formData = {
                 accommodationType:
                     accommodation.accommodation_type?.value ??

@@ -89,7 +89,7 @@ export const loadInitialEditAccommodationData = async ({ dispatch }, accommodati
 
 export const updateAccommodation = async ({ commit }, { accommodationId, data }) => {
     try {
-        const response = await apiClient.accommodations[accommodationId].put(data);
+        const response = await apiClient.accommodations[accommodationId].patch(data);
 
         commit("SET_ACCOMMODATION", response.data);
         return response;

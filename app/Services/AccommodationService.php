@@ -7,9 +7,13 @@ use App\Models\AccommodationDraft;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Models\Currency;
+use App\Services\CurrencyService;
 
 class AccommodationService
 {
+    public function __construct(private readonly CurrencyService $currencyService) {}
+
     public function createAccommodationDraft(int $userId, array $data): AccommodationDraft
     {
         $accommodationDraft = AccommodationDraft::create([
@@ -147,9 +151,12 @@ class AccommodationService
             $accommodation->beds()->createMany($bedTypes);
         }
 
+        $currency = $this->currencyService->getCurrencyByCountry($accommodation->location->country->iso_code_2) ?? Currency::where('code', 'EUR')->first();
+
         if ($accommodation->pricing) {
             $accommodation->pricing->update([
                 'base_price' => $data['pricing']['basePrice'],
+                'base_price_eur' => calculatePriceInSettedCurrency($data['pricing']['basePrice'], $currency->code, 'EUR'),
                 'min_quantity' => $data['pricing']['minStay'],
             ]);
         }
