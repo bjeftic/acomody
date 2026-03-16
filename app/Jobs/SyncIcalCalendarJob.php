@@ -15,10 +15,14 @@ class SyncIcalCalendarJob implements ShouldQueue
 
     public int $backoff = 60;
 
-    public function __construct(public readonly IcalCalendar $calendar) {}
+    public function __construct(public readonly string $calendarId) {}
 
     public function handle(IcalSyncService $syncService): void
     {
-        $syncService->sync($this->calendar);
+        $calendar = IcalCalendar::withoutAuthorization(
+            fn () => IcalCalendar::query()->findOrFail($this->calendarId)
+        );
+
+        $syncService->sync($calendar);
     }
 }

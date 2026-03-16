@@ -16,16 +16,18 @@ class SyncIcalCalendarsCommand extends Command
     {
         $threshold = now()->subMinutes(5);
 
-        $calendars = IcalCalendar::query()
-            ->where('is_active', true)
-            ->where(function ($query) use ($threshold) {
-                $query->whereNull('last_synced_at')
-                    ->orWhere('last_synced_at', '<=', $threshold);
-            })
-            ->get();
+        $calendars = IcalCalendar::withoutAuthorization(function () use ($threshold) {
+            return IcalCalendar::query()
+                ->where('is_active', true)
+                ->where(function ($query) use ($threshold) {
+                    $query->whereNull('last_synced_at')
+                        ->orWhere('last_synced_at', '<=', $threshold);
+                })
+                ->get();
+        });
 
         foreach ($calendars as $calendar) {
-            SyncIcalCalendarJob::dispatch($calendar);
+            SyncIcalCalendarJob::dispatch($calendar->id);
         }
 
         $this->info("Dispatched {$calendars->count()} iCal sync job(s).");

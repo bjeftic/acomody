@@ -6,8 +6,12 @@ use Illuminate\Support\Facades\DB;
 
 class IcalGeneratorService
 {
+    private string $dtstamp;
+
     public function generate(string $accommodationId, string $title): string
     {
+        $this->dtstamp = gmdate('Ymd\THis\Z');
+
         $lines = [
             'BEGIN:VCALENDAR',
             'VERSION:2.0',
@@ -45,6 +49,7 @@ class IcalGeneratorService
             $events[] = [
                 'BEGIN:VEVENT',
                 'UID:booking-'.$booking->id.'@acomody.com',
+                'DTSTAMP:'.$this->dtstamp,
                 'DTSTART;VALUE=DATE:'.date('Ymd', strtotime($booking->check_in)),
                 'DTEND;VALUE=DATE:'.date('Ymd', strtotime($booking->check_out)),
                 'SUMMARY:Reserved',
@@ -57,17 +62,17 @@ class IcalGeneratorService
         $periods = DB::table('availability_periods')
             ->where('available_id', $accommodationId)
             ->where('available_type', 'App\\Models\\Accommodation')
-            ->whereIn('status', ['blocked', 'booked', 'closed'])
+            ->whereIn('status', ['blocked', 'closed'])
             ->whereNull('ical_calendar_id')
             ->get(['id', 'start_date', 'end_date', 'status']);
 
         foreach ($periods as $period) {
-            $endDate = date('Ymd', strtotime($period->end_date.' +1 day'));
             $events[] = [
                 'BEGIN:VEVENT',
                 'UID:period-'.$period->id.'@acomody.com',
+                'DTSTAMP:'.$this->dtstamp,
                 'DTSTART;VALUE=DATE:'.date('Ymd', strtotime($period->start_date)),
-                'DTEND;VALUE=DATE:'.$endDate,
+                'DTEND;VALUE=DATE:'.date('Ymd', strtotime($period->end_date)),
                 'SUMMARY:'.$this->escapeText(ucfirst($period->status)),
                 'STATUS:CONFIRMED',
                 'TRANSP:OPAQUE',

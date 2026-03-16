@@ -9,7 +9,7 @@ class IcalParserService
     /**
      * Parse ICS content and return a list of events.
      *
-     * @return array<int, array{uid: string, dtstart: Carbon, dtend: Carbon, summary: string}>
+     * @return array<int, array{uid: string, dtstart: Carbon, dtend: Carbon, summary: string, is_all_day: bool}>
      */
     public function parse(string $icsContent): array
     {
@@ -33,6 +33,7 @@ class IcalParserService
                     $currentEvent['uid'] = $value;
                 } elseif (str_starts_with($name, 'DTSTART')) {
                     $currentEvent['dtstart'] = $this->parseDate($name, $value);
+                    $currentEvent['is_all_day'] = str_contains($name, 'VALUE=DATE');
                 } elseif (str_starts_with($name, 'DTEND')) {
                     $currentEvent['dtend'] = $this->parseDate($name, $value);
                 } elseif ($name === 'SUMMARY') {

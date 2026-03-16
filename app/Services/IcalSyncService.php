@@ -27,10 +27,12 @@ class IcalSyncService
 
         $events = $this->parser->parse($icsContent);
 
-        $this->upsertPeriods($calendar, $events);
-        $this->removeStale($calendar, $events);
+        AvailabilityPeriod::withoutAuthorization(function () use ($calendar, $events): void {
+            $this->upsertPeriods($calendar, $events);
+            $this->removeStale($calendar, $events);
+        });
 
-        $calendar->update(['last_synced_at' => now()]);
+        IcalCalendar::withoutAuthorization(fn () => $calendar->update(['last_synced_at' => now()]));
     }
 
     private function fetchIcsContent(string $url): ?string
@@ -58,9 +60,11 @@ class IcalSyncService
                 continue;
             }
 
-            $startDate = $event['dtstart'];
-            // iCal DTEND is exclusive for all-day events — store last blocked night
-            $endDate = $event['dtend']->copy()->subDay();
+            $isAllDay = $event['is_all_day'] ?? false;
+            $startDate = $event['dtstart']->copy()->startOfDay();
+            $endDate = $event['dtend']->copy()->startOfDay();
+            $startTime = $isAllDay ? null : $event['dtstart']->format('H:i');
+            $endTime = $isAllDay ? null : $event['dtend']->format('H:i');
 
             if ($endDate->lt($startDate)) {
                 continue;
@@ -75,6 +79,8 @@ class IcalSyncService
                 $existing->update([
                     'start_date' => $startDate->toDateString(),
                     'end_date' => $endDate->toDateString(),
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
                     'notes' => $event['summary'] ?? null,
                 ]);
             } else {
@@ -83,6 +89,8 @@ class IcalSyncService
                     'reason' => 'external_booking',
                     'start_date' => $startDate->toDateString(),
                     'end_date' => $endDate->toDateString(),
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
                     'notes' => $event['summary'] ?? null,
                     'external_uid' => $uid,
                     'ical_calendar_id' => $calendar->id,
@@ -94,7 +102,7 @@ class IcalSyncService
     /**
      * Delete periods from this calendar that are no longer in the feed.
      *
-     * @param  array<int, array{uid: string, dtstart: Carbon, dtend: Carbon, summary: string}>  $events
+     * @param  array<int, array{uid: string, dtstart: Carbon, dtend: Carbon, summary: string, is_all_day: bool}>  $events
      */
     private function removeStale(IcalCalendar $calendar, array $events): void
     {
