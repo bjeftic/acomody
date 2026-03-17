@@ -113,6 +113,24 @@
 
         <hr class="border-gray-200 dark:border-gray-700 mb-10" />
 
+        <!-- Host Profile Section -->
+        <section v-if="isHost" class="mb-10">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                Host profile
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Manage the information guests see on your listings.
+            </p>
+            <fwb-button
+                color="alternative"
+                @click="$router.push({ name: 'page-host-profile' })"
+            >
+                Edit host profile
+            </fwb-button>
+        </section>
+
+        <hr v-if="isHost" class="border-gray-200 dark:border-gray-700 mb-10" />
+
         <!-- Security Section -->
         <section>
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
@@ -171,11 +189,78 @@
                 </fwb-button>
             </div>
         </section>
+
+        <!-- Danger Zone -->
+        <hr class="border-gray-200 dark:border-gray-700 mb-10 mt-10" />
+
+        <section>
+            <h2 class="text-xl font-semibold text-red-600 mb-6">
+                Danger zone
+            </h2>
+
+            <fwb-alert
+                v-if="deletionAlert.message"
+                :type="deletionAlert.type"
+                class="mb-6"
+                closable
+                @close="deletionAlert.message = ''"
+            >
+                {{ deletionAlert.message }}
+            </fwb-alert>
+
+            <div class="flex items-start justify-between gap-6 p-4 border border-red-200 rounded-lg">
+                <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">Delete account</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Permanently deletes your entire account including host profile, listings, and all data.
+                    </p>
+                </div>
+                <fwb-button color="red" size="sm" @click="deletionModal = true">
+                    Request deletion
+                </fwb-button>
+            </div>
+
+            <!-- Confirmation Modal -->
+            <fwb-modal v-if="deletionModal" @close="closeDeletionModal">
+                <template #header>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        Delete account
+                    </h3>
+                </template>
+                <template #body>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        This will request the permanent deletion of your entire account, including any host profile and listings. An admin will review and process your request.
+                    </p>
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Type <span class="font-bold text-red-600">DELETE</span> to confirm:
+                    </p>
+                    <fwb-input
+                        v-model="deletionConfirmWord"
+                        placeholder="Type DELETE"
+                    />
+                </template>
+                <template #footer>
+                    <div class="flex gap-3">
+                        <fwb-button
+                            color="red"
+                            :disabled="deletionConfirmWord !== 'DELETE' || deletionRequesting"
+                            :loading="deletionRequesting"
+                            @click="submitDeletionRequest"
+                        >
+                            Submit deletion request
+                        </fwb-button>
+                        <fwb-button color="alternative" @click="closeDeletionModal">
+                            Cancel
+                        </fwb-button>
+                    </div>
+                </template>
+            </fwb-modal>
+        </section>
     </div>
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 
 export default {
     name: "AccountView",
@@ -198,6 +283,10 @@ export default {
             avatarError: "",
             profileAlert: { type: "success", message: "" },
             passwordAlert: { type: "success", message: "" },
+            deletionAlert: { type: "success", message: "" },
+            deletionModal: false,
+            deletionConfirmWord: "",
+            deletionRequesting: false,
         };
     },
 
@@ -205,6 +294,7 @@ export default {
         ...mapState({
             currentUser: (state) => state.user.currentUser,
         }),
+        ...mapGetters("user", ["isHost"]),
     },
 
     watch: {
@@ -221,7 +311,7 @@ export default {
     },
 
     methods: {
-        ...mapActions("user", ["updateProfile", "updatePassword", "uploadAvatar"]),
+        ...mapActions("user", ["updateProfile", "updatePassword", "uploadAvatar", "requestUserAccountDeletion"]),
 
         triggerAvatarUpload() {
             this.$refs.avatarInput.click();
@@ -297,6 +387,33 @@ export default {
                 };
             } finally {
                 this.passwordSaving = false;
+            }
+        },
+
+        closeDeletionModal() {
+            this.deletionModal = false;
+            this.deletionConfirmWord = "";
+        },
+
+        async submitDeletionRequest() {
+            this.deletionRequesting = true;
+            this.deletionAlert = { type: "success", message: "" };
+
+            try {
+                await this.requestUserAccountDeletion();
+                this.closeDeletionModal();
+                this.deletionAlert = {
+                    type: "success",
+                    message: "Your deletion request has been submitted. Our team will review and process it shortly.",
+                };
+            } catch (error) {
+                this.closeDeletionModal();
+                this.deletionAlert = {
+                    type: "danger",
+                    message: error?.error?.message || "Failed to submit deletion request. Please try again.",
+                };
+            } finally {
+                this.deletionRequesting = false;
             }
         },
     },

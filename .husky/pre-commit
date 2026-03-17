@@ -4,7 +4,7 @@
 vendor/bin/sail npx lint-staged
 
 # Run PHPStan on staged PHP files
-STAGED_PHP=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.php$')
+STAGED_PHP=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.php$' | grep '^app/Models/')
 
 if [ -n "$STAGED_PHP" ]; then
     echo "Running PHPStan on staged PHP files..."

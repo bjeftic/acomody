@@ -31,18 +31,36 @@
                             </span>
                         </nav>
                     </fwb-dropdown>
+                    <!-- Host CTA — adapts based on host status -->
+                    <template v-if="isLoggedIn">
+                        <!-- No draft, no listing yet → go to info page -->
+                        <fwb-button
+                            v-if="hostingCtaStatus === 'not_host' && $route.name !== 'page-become-a-host'"
+                            color="default"
+                            @click="$router.push({ name: 'page-become-a-host' })"
+                        >
+                            Become a host
+                        </fwb-button>
+                        <!-- Draft in progress -->
+                        <fwb-button
+                            v-else-if="hostingCtaStatus === 'continue_listing'"
+                            color="default"
+                            @click="$router.push({ name: 'page-listing-create' })"
+                        >
+                            Continue listing registration
+                        </fwb-button>
+                        <!-- Active host -->
+                        <fwb-button
+                            v-else-if="hostingCtaStatus === 'hosting' && $route.name !== 'page-hosting-home'"
+                            color="alternative"
+                            @click="$router.push({ name: 'page-hosting-home' })"
+                        >
+                            Hosting
+                        </fwb-button>
+                    </template>
+                    <!-- Not logged in → go to info page -->
                     <fwb-button
-                        v-if="isLoggedIn && $route.name !== 'page-hosting-home'"
-                        color="alternative"
-                        @click="$router.push({ name: 'page-hosting-home' })"
-                    >
-                        Hosting
-                    </fwb-button>
-                    <!-- Become a host button -->
-                    <fwb-button
-                        v-if="
-                            !isLoggedIn && $route.name !== 'page-become-a-host'
-                        "
+                        v-else-if="$route.name !== 'page-become-a-host'"
                         color="default"
                         @click="$router.push({ name: 'page-become-a-host' })"
                     >
@@ -118,6 +136,7 @@ export default {
     name: "Navbar",
     computed: {
         ...mapGetters("auth", ["isLoggedIn"]),
+        ...mapGetters("user", ["hostingCtaStatus"]),
         ...mapState("ui", ["currencies", "selectedCurrency"]),
     },
     data() {
@@ -130,14 +149,10 @@ export default {
         ...mapActions("auth", ["logOut"]),
         ...mapActions("ui", ["setCurrency"]),
         openLogInModal() {
-            this.openModal({
-                modalName: "logInModal",
-            });
+            this.openModal({ modalName: "logInModal" });
         },
         openSignUpModal() {
-            this.openModal({
-                modalName: "signUpModal",
-            });
+            this.openModal({ modalName: "signUpModal" });
         },
     },
 };

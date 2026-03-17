@@ -21,7 +21,7 @@ describe('POST /api/log-in (login)', function () {
 
         $this->postJson(route('api.login'), [
             'email' => $user->email,
-            'password' => 'password',
+            'password' => 'Password123!',
         ])->assertSuccessful()
             ->assertJson([
                 'success' => true,
@@ -40,7 +40,7 @@ describe('POST /api/log-in (login)', function () {
 
         $this->postJson(route('api.login'), [
             'email' => $user->email,
-            'password' => 'password',
+            'password' => 'Password123!',
         ])->assertSuccessful()
             ->assertJsonPath('meta.refresh_page', false);
     });
@@ -50,7 +50,7 @@ describe('POST /api/log-in (login)', function () {
 
         $this->postJson(route('api.login'), [
             'email' => $user->email,
-            'password' => 'password',
+            'password' => 'Password123!',
         ])->assertSuccessful()
             ->assertJsonPath('meta.refresh_page', true);
     });
@@ -60,7 +60,7 @@ describe('POST /api/log-in (login)', function () {
 
         $this->postJson(route('api.login'), [
             'email' => $user->email,
-            'password' => 'password',
+            'password' => 'Password123!',
         ])->assertSuccessful();
 
         expect($user->fresh()->last_login_at)->not->toBeNull();
@@ -79,13 +79,13 @@ describe('POST /api/log-in (login)', function () {
     it('returns 422 for non-existent email', function () {
         $this->postJson(route('api.login'), [
             'email' => 'nobody@example.com',
-            'password' => 'password',
+            'password' => 'Password123!',
         ])->assertUnprocessable();
     });
 
     it('returns 422 for missing email', function () {
         $this->postJson(route('api.login'), [
-            'password' => 'password',
+            'password' => 'Password123!',
         ])->assertUnprocessable()
             ->assertJsonFragment(['field' => 'email']);
     });
@@ -100,7 +100,7 @@ describe('POST /api/log-in (login)', function () {
     it('returns 422 for invalid email format', function () {
         $this->postJson(route('api.login'), [
             'email' => 'not-an-email',
-            'password' => 'password',
+            'password' => 'Password123!',
         ])->assertUnprocessable()
             ->assertJsonFragment(['field' => 'email']);
     });
@@ -110,7 +110,7 @@ describe('POST /api/log-in (login)', function () {
 
         $this->postJson(route('api.login'), [
             'email' => $user->email,
-            'password' => 'password',
+            'password' => 'Password123!',
             'remember_me' => true,
         ])->assertSuccessful();
     });
@@ -120,7 +120,7 @@ describe('POST /api/log-in (login)', function () {
 
         $this->postJson(route('api.login'), [
             'email' => 'USER@EXAMPLE.COM',
-            'password' => 'password',
+            'password' => 'Password123!',
         ])->assertSuccessful();
     });
 
@@ -429,7 +429,7 @@ describe('POST /api/reset-password', function () {
         $this->postJson(route('api.password.store'), [
             'token' => $token,
             'email' => $user->email,
-            'password' => 'password', // same as factory default
+            'password' => 'Password123!', // same as factory default
             'password_confirmation' => 'password',
         ])->assertUnprocessable()
             ->assertJsonFragment(['field' => 'password']);

@@ -46,6 +46,8 @@ use Illuminate\Support\Facades\Storage;
  *     @OA\Property(property="views_count", type="integer", example=142),
  *     @OA\Property(property="favorites_count", type="integer", example=17),
  * )
+ *
+ * @mixin \App\Models\Accommodation
  */
 class AccommodationResource extends JsonResource
 {
@@ -100,8 +102,8 @@ class AccommodationResource extends JsonResource
             ),
             'host' => $this->host_profile ? [
                 'id' => $this->host_profile->id,
-                'first_name' => $this->host_profile->first_name,
-                'last_name' => $this->host_profile->last_name,
+                'display_name' => $this->host_profile->display_name,
+                'bio' => $this->host_profile->bio,
                 'avatar_url' => $this->host_profile->avatar
                     ? Storage::disk('user_profile_photos')->url($this->host_profile->avatar)
                     : null,

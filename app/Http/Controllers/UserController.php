@@ -7,24 +7,24 @@ use App\Http\Requests\User\UpdatePasswordRequest;
 use App\Http\Requests\User\UpdateUserProfileRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Support\ApiResponse;
+use App\Services\DeletionRequestService;
+use App\Services\UserService;
+use Exception;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use App\Services\UserService;
-use Exception;
 
 class UserController extends Controller
 {
-    protected UserService $userService;
+    public function __construct(
+        private readonly UserService $userService,
+        private readonly DeletionRequestService $deletionRequestService,
+    ) {}
 
-    public function __construct(UserService $userService)
-    {
-        $this->userService = $userService;
-    }
     /**
      * Get authenticated user profile
      *
@@ -35,10 +35,13 @@ class UserController extends Controller
      *     summary="Get authenticated user profile",
      *     description="Returns the profile information of the currently authenticated user",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="User profile retrieved successfully",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="User profile retrieved successfully."),
      *             @OA\Property(
@@ -66,27 +69,29 @@ class UserController extends Controller
         try {
             $user = Auth::user();
 
-            if (!$user) {
+            if (! $user) {
                 throw new AuthenticationException('User not authenticated.');
             }
+
+            $user->load(['userProfile', 'hostProfile']);
 
             // Log profile access
             Log::info('User profile accessed', [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'ip' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
             // Check if profile is complete (adjust fields as needed)
-            $profileComplete = !empty($user->userProfile->first_name) &&
-                !empty($user->userProfile->last_name) &&
-                !empty($user->userProfile->phone);
+            $profileComplete = ! empty($user->userProfile->first_name) &&
+                ! empty($user->userProfile->last_name) &&
+                ! empty($user->userProfile->phone);
 
             $meta = [
                 'email_verified' => $user->hasVerifiedEmail(),
                 'profile_complete' => $profileComplete,
-                'account_status' => $user->status ?? 'active'
+                'account_status' => $user->status ?? 'active',
             ];
 
             return ApiResponse::success(
@@ -100,7 +105,7 @@ class UserController extends Controller
                 'error' => $e->getMessage(),
                 'user_id' => Auth::id() ?? 'unknown',
                 'ip' => $request->ip(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             throw new HttpException(500, 'Failed to retrieve user profile. Please try again later.');
@@ -110,6 +115,7 @@ class UserController extends Controller
     public function update(UpdateUserProfileRequest $request): JsonResponse
     {
         $user = $this->userService->updateProfile(Auth::user(), $request->validated());
+        $user->load(['userProfile', 'hostProfile']);
 
         return ApiResponse::success('Profile updated successfully.', new UserResource($user));
     }
@@ -128,7 +134,15 @@ class UserController extends Controller
     public function uploadAvatar(AvatarUploadRequest $request): JsonResponse
     {
         $user = $this->userService->uploadAvatar(Auth::user(), $request->file('avatar'));
+        $user->load(['userProfile', 'hostProfile']);
 
         return ApiResponse::success('Avatar updated successfully.', new UserResource($user));
+    }
+
+    public function requestAccountDeletion(): JsonResponse
+    {
+        $this->deletionRequestService->requestUserAccountDeletion(Auth::user());
+
+        return ApiResponse::success('Account deletion request submitted. Our team will process it shortly.');
     }
 }

@@ -15,6 +15,8 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FeeController;
 use App\Http\Controllers\Host\AvailabilityPeriodController as HostAvailabilityPeriodController;
 use App\Http\Controllers\Host\BookingController as HostBookingController;
+use App\Http\Controllers\Host\DeletionRequestController as HostDeletionRequestController;
+use App\Http\Controllers\Host\HostProfileController;
 use App\Http\Controllers\Host\IcalCalendarController as HostIcalCalendarController;
 use App\Http\Controllers\IcalExportController;
 use App\Http\Controllers\Public\AccommodationController as PublicAccommodationController;
@@ -161,6 +163,27 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('', [BookingController::class, 'store'])->name('store');
         Route::get('{booking}', [BookingController::class, 'show'])->name('show');
         Route::post('{booking}/cancel', [BookingController::class, 'cancel'])->name('cancel');
+    });
+
+    // User account deletion request
+    Route::post('users/deletion-request', [UserController::class, 'requestAccountDeletion'])
+        ->name('api.users.deletion-request');
+
+    // Host account deletion request
+    Route::post('host/deletion-request', [HostDeletionRequestController::class, 'requestHostAccountDeletion'])
+        ->name('api.host.deletion-request');
+
+    // Accommodation deletion request
+    Route::post('host/accommodations/{accommodation}/deletion-request', [HostDeletionRequestController::class, 'requestAccommodationDeletion'])
+        ->name('api.host.accommodations.deletion-request');
+
+    // Host profile
+    Route::prefix('host/profile')->name('api.host.profile.')->group(function () {
+        Route::get('', [HostProfileController::class, 'show'])->name('show');
+        Route::post('initialize', [HostProfileController::class, 'initialize'])->name('initialize');
+        Route::post('', [HostProfileController::class, 'store'])->name('store');
+        Route::put('', [HostProfileController::class, 'update'])->name('update');
+        Route::post('avatar', [HostProfileController::class, 'uploadAvatar'])->name('avatar');
     });
 
     // Host iCal calendar management

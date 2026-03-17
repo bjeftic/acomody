@@ -4,6 +4,7 @@ use App\Http\Controllers\SuperAdmin\AccommodationController;
 use App\Http\Controllers\SuperAdmin\AccommodationDraftController;
 use App\Http\Controllers\SuperAdmin\AuthController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
+use App\Http\Controllers\SuperAdmin\DeletionRequestController;
 use App\Http\Controllers\SuperAdmin\LocationController;
 use App\Http\Controllers\SuperAdmin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -31,5 +32,9 @@ Route::middleware(['auth', 'super.admin'])->group(function () {
 
         Route::get('locations/search', [LocationController::class, 'search'])->name('locations.search');
         Route::resource('locations', LocationController::class)->names('locations');
+
+        Route::get('deletion-requests', [DeletionRequestController::class, 'index'])->name('deletion-requests.index');
+        Route::post('deletion-requests/{id}/approve', [DeletionRequestController::class, 'approve'])->name('deletion-requests.approve');
+        Route::post('deletion-requests/{id}/reject', [DeletionRequestController::class, 'reject'])->name('deletion-requests.reject');
     });
 });

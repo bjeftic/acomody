@@ -256,7 +256,12 @@ export default {
                     });
                 })
                 .then(() => {
-                    this.$router.push({ name: "page-welcome" });
+                    const redirectTo = this.options?.redirectTo;
+                    if (redirectTo) {
+                        this.$router.push(redirectTo);
+                    } else {
+                        this.$router.push({ name: "page-welcome" });
+                    }
                     this.ok();
                 })
                 .catch((e) => {

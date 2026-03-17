@@ -108,7 +108,13 @@ class Accommodation extends Model
 
     public function isSearchable(): bool
     {
-        return $this->is_active;
+        if (! $this->is_active) {
+            return false;
+        }
+
+        return HostProfile::where('user_id', $this->user_id)
+            ->where('is_complete', true)
+            ->exists();
     }
 
     public function typesenseQueryBy(): array
