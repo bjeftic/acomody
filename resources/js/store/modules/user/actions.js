@@ -28,3 +28,15 @@ export const uploadAvatar = async ({ commit }, file) => {
     commit("SET_CURRENT_USER", response.data);
     return response;
 };
+
+export const requestUserAccountDeletion = async () => {
+    return await apiClient.users.deletionRequest.post();
+};
+
+export const requestHostAccountDeletion = async () => {
+    return await apiClient.host.deletionRequest.post();
+};
+
+export const initializeHostProfile = async () => {
+    return await apiClient.host.profile.initialize.post();
+};

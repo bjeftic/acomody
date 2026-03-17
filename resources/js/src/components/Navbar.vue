@@ -31,18 +31,28 @@
                             </span>
                         </nav>
                     </fwb-dropdown>
+                    <!-- Host CTA — adapts based on host status -->
+                    <template v-if="isLoggedIn">
+                        <!-- No draft, no listing yet → go to info page -->
+                        <fwb-button
+                            v-if="hostingCtaStatus === 'not_host' && $route.name !== 'page-become-a-host'"
+                            color="default"
+                            @click="$router.push({ name: 'page-become-a-host' })"
+                        >
+                            Become a host
+                        </fwb-button>
+                        <!-- Has host profile → Hosting dashboard -->
+                        <fwb-button
+                            v-else-if="hostingCtaStatus !== 'not_host' && $route.name !== 'page-hosting-home'"
+                            color="alternative"
+                            @click="$router.push({ name: 'page-hosting-home' })"
+                        >
+                            Hosting
+                        </fwb-button>
+                    </template>
+                    <!-- Not logged in → go to info page -->
                     <fwb-button
-                        v-if="isLoggedIn && $route.name !== 'page-hosting-home'"
-                        color="alternative"
-                        @click="$router.push({ name: 'page-hosting-home' })"
-                    >
-                        Hosting
-                    </fwb-button>
-                    <!-- Become a host button -->
-                    <fwb-button
-                        v-if="
-                            !isLoggedIn && $route.name !== 'page-become-a-host'
-                        "
+                        v-else-if="$route.name !== 'page-become-a-host'"
                         color="default"
                         @click="$router.push({ name: 'page-become-a-host' })"
                     >
@@ -51,11 +61,17 @@
 
                     <!-- Auth buttons or Account dropdown -->
                     <template v-if="!isLoggedIn">
-                        <fwb-button outline @click="openLogInModal">
+                        <fwb-button
+outline
+@click="openLogInModal"
+>
                             Log in
                         </fwb-button>
 
-                        <fwb-button outline @click="openSignUpModal">
+                        <fwb-button
+outline
+@click="openSignUpModal"
+>
                             Sign up
                         </fwb-button>
                     </template>
@@ -116,28 +132,25 @@ import { mapActions, mapGetters, mapState } from "vuex";
 
 export default {
     name: "Navbar",
-    computed: {
-        ...mapGetters("auth", ["isLoggedIn"]),
-        ...mapState("ui", ["currencies", "selectedCurrency"]),
-    },
     data() {
         return {
             currentCurrency: null,
         };
+    },
+    computed: {
+        ...mapGetters("auth", ["isLoggedIn"]),
+        ...mapGetters("user", ["hostingCtaStatus"]),
+        ...mapState("ui", ["currencies", "selectedCurrency"]),
     },
     methods: {
         ...mapActions(["openModal"]),
         ...mapActions("auth", ["logOut"]),
         ...mapActions("ui", ["setCurrency"]),
         openLogInModal() {
-            this.openModal({
-                modalName: "logInModal",
-            });
+            this.openModal({ modalName: "logInModal" });
         },
         openSignUpModal() {
-            this.openModal({
-                modalName: "signUpModal",
-            });
+            this.openModal({ modalName: "signUpModal" });
         },
     },
 };

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
  * @OA\Schema(
  *     schema="User",
  *     type="object",
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="email", type="string", example="user@example.com"),
  *     @OA\Property(property="email_verified_at", type="string", format="date-time", nullable=true, example=null),
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Storage;
  *     @OA\Property(property="created_at", type="string", format="date-time", example="2025-08-27T21:30:27.000000Z"),
  *     @OA\Property(property="updated_at", type="string", format="date-time", example="2025-08-31T21:47:00.000000Z")
  * )
+ *
+ * @mixin \App\Models\User
  */
 class UserResource extends JsonResource
 {
@@ -29,6 +32,17 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $isHost = $this->isHost();
+        $hasInProgressDraft = $this->accommodationDrafts()
+            ->where('status', 'draft')
+            ->exists();
+        $hasSubmittedDraft = $this->accommodationDrafts()
+            ->where('status', 'waiting_for_approval')
+            ->exists();
+        $hasActiveListing = $this->accommodations()
+            ->where('is_active', true)
+            ->exists();
+
         return [
             'id' => $this->id,
             'email' => $this->email,
@@ -42,6 +56,12 @@ class UserResource extends JsonResource
             'avatar_url' => $this->userProfile?->avatar
                 ? Storage::disk('user_profile_photos')->url($this->userProfile->avatar)
                 : null,
+            'is_host' => $isHost,
+            'host_profile' => $isHost ? new HostProfileResource($this->hostProfile) : null,
+            'host_profile_complete' => $this->hasCompleteHostProfile(),
+            'has_in_progress_draft' => $hasInProgressDraft,
+            'has_submitted_draft' => $hasSubmittedDraft,
+            'has_active_listing' => $hasActiveListing,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

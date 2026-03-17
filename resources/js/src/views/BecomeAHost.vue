@@ -10,8 +10,13 @@
           <p class="text-xl mb-8 text-blue-50">
             List your property on Acomody and open your doors to millions of travelers worldwide. Start earning today!
           </p>
-          <fwb-button color="default" size="xl" class="bg-white text-blue-600 hover:bg-gray-50">
-            Start now
+          <fwb-button
+              color="default"
+              size="xl"
+              class="bg-white text-blue-600 hover:bg-gray-50"
+              @click="handleBecomAHostCta"
+          >
+              {{ heroCta }}
           </fwb-button>
         </div>
       </div>
@@ -292,8 +297,13 @@
         <p class="text-xl mb-8 text-blue-50">
           Pridružite se hiljadama zadovoljnih domaćina koji zarađuju sa Acomody
         </p>
-        <fwb-button color="default" size="xl" class="bg-white text-blue-600 hover:bg-gray-50">
-          Započnite oglašavanje danas
+        <fwb-button
+            color="default"
+            size="xl"
+            class="bg-white text-blue-600 hover:bg-gray-50"
+            @click="handleBecomAHostCta"
+        >
+            {{ heroCta }}
         </fwb-button>
       </div>
     </template>
@@ -301,8 +311,44 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+
 export default {
-  name: 'BecomeAHost',
+    name: 'BecomeAHost',
+    computed: {
+        ...mapGetters("auth", ["isLoggedIn"]),
+        ...mapGetters("user", ["hostingCtaStatus"]),
+        heroCta() {
+            if (!this.isLoggedIn) return "Start now — it's free";
+            if (this.hostingCtaStatus === 'not_host') return "Create host profile";
+            if (this.hostingCtaStatus === 'continue_listing') return "Continue listing registration";
+            return "Go to hosting dashboard";
+        },
+    },
+    mounted() {
+        if (this.isLoggedIn && this.hostingCtaStatus !== 'not_host') {
+            this.$router.replace({ name: "page-hosting-home" });
+        }
+    },
+    methods: {
+        ...mapActions(["openModal"]),
+        handleBecomAHostCta() {
+            if (!this.isLoggedIn) {
+                this.openModal({
+                    modalName: "logInModal",
+                    options: { redirectTo: "/hosting/profile?next=listing-create" },
+                });
+                return;
+            }
+            if (this.hostingCtaStatus === 'not_host') {
+                this.$router.push({ name: "page-host-profile", query: { next: "listing-create" } });
+            } else if (this.hostingCtaStatus === 'continue_listing') {
+                this.$router.push({ name: "page-listing-create" });
+            } else {
+                this.$router.push({ name: "page-hosting-home" });
+            }
+        },
+    },
 }
 </script>
 

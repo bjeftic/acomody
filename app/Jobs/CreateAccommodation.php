@@ -111,8 +111,12 @@ class CreateAccommodation implements ShouldQueue
         $accommodation->searchable();
 
         if ($draft->user) {
-            Mail::to($draft->user->email)
-                ->queue(new AccommodationApprovedMail($draft));
+            /** @var \App\Models\User $draftUser */
+            $draftUser = $draft->user;
+            $hostProfileComplete = $draftUser->hasCompleteHostProfile();
+
+            Mail::to($draftUser->email)
+                ->queue(new AccommodationApprovedMail($draft, $hostProfileComplete));
         }
     }
 
@@ -140,6 +144,7 @@ class CreateAccommodation implements ShouldQueue
         $photos = $draft->photos()->get();
 
         foreach ($photos as $photo) {
+            /** @var Photo $photo */
             $newPaths = $this->copyPhotoFiles($photo, $draftDisk, $accommodationDisk, $accommodation->id);
 
             Photo::create([

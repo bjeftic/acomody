@@ -21,3 +21,20 @@ export const userInitials = (state) => {
 
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 };
+
+export const isHost = (state) => state.currentUser?.is_host ?? false;
+
+export const hostProfileComplete = (state) => state.currentUser?.host_profile_complete ?? false;
+
+/**
+ * Returns the current hosting CTA status:
+ * - 'not_host'          → no host_profile yet → show "Become a host" → /become-a-host
+ * - 'continue_listing'  → has host_profile + in-progress draft → show "Continue listing"
+ * - 'hosting'           → has host_profile, no active draft → show "Hosting"
+ */
+export const hostingCtaStatus = (state) => {
+  const user = state.currentUser;
+  if (!user || !user.is_host) return 'not_host';
+  if (user.has_in_progress_draft) return 'continue_listing';
+  return 'hosting';
+};

@@ -26,7 +26,7 @@ class UserFactory extends Factory
         return [
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => static::$password ??= Hash::make('Password123!'),
             'email_verification_token' => Str::random(32),
             'email_verification_token_expires_at' => now()->addHours(2),
             'terms_accepted_at' => now(),

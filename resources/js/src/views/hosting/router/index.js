@@ -1,5 +1,13 @@
 const routes = [
     {
+        path: 'profile',
+        name: 'page-host-profile',
+        meta: {
+            requiresAuth: true,
+        },
+        component: () => import('@/src/views/hosting/HostProfilePage.vue'),
+    },
+    {
         path: 'dashboard',
         name: 'page-dashboard',
         meta: {

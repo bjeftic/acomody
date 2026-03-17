@@ -235,11 +235,12 @@ export default {
             this.isLoading = true;
             await this.logIn(this.formData)
                 .then((res) => {
-
-                    // Just close modal and resolve promise
-                    // Middleware will handle the redirect
+                    const redirectTo = this.options?.redirectTo;
+                    if (redirectTo) {
+                        this.$router.push(redirectTo);
+                    }
                     this.ok();
-                    if(res.data.meta.refresh_page) {
+                    if (res.data.meta.refresh_page) {
                         window.location.reload();
                     }
                 })

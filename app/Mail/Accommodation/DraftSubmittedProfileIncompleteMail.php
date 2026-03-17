@@ -8,22 +8,21 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 
-class AccommodationApprovedMail extends Mailable
+class DraftSubmittedProfileIncompleteMail extends Mailable
 {
     use Queueable;
 
     public function __construct(
         public readonly AccommodationDraft $draft,
-        public readonly bool $hostProfileComplete = true,
     ) {}
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your Accommodation Has Been Approved');
+        return new Envelope(subject: 'Your Accommodation Is Under Review — Complete Your Host Profile');
     }
 
     public function content(): Content
     {
-        return new Content(view: 'mail.accommodation.approved');
+        return new Content(view: 'mail.accommodation.draft-submitted-profile-incomplete');
     }
 }

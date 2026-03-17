@@ -123,6 +123,7 @@
                                     <li {{ (Request::is('admin/locations') ? 'class=active' : '') }}><a href="{{ url('/admin/locations') }}">Locations</a></li>
                                     <li {{ (Request::is('admin/accommodation-drafts') ? 'class=active' : '') }}><a href="{{ url('/admin/accommodation-drafts') }}">Accommodation Drafts</a></li>
                                     <li {{ (Request::is('admin/accommodations') ? 'class=active' : '') }}><a href="{{ url('/admin/accommodations') }}">Accommodations</a></li>
+                                    <li {{ (Request::is('admin/deletion-requests*') ? 'class=active' : '') }}><a href="{{ url('/admin/deletion-requests') }}">Deletion Requests</a></li>
                                     <li {{ (Request::is('admin/horizon') ? 'class=active' : '') }}><a href="{{ url('/admin/horizon') }}">Horizon</a></li>
                                 @endif
                             </ul>

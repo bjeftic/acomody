@@ -12,6 +12,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
@@ -99,6 +100,34 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function userProfile(): HasOne
     {
         return $this->hasOne(UserProfile::class);
+    }
+
+    public function hostProfile(): HasOne
+    {
+        return $this->hasOne(HostProfile::class);
+    }
+
+    public function accommodations(): HasMany
+    {
+        return $this->hasMany(Accommodation::class);
+    }
+
+    public function accommodationDrafts(): HasMany
+    {
+        return $this->hasMany(AccommodationDraft::class);
+    }
+
+    public function isHost(): bool
+    {
+        return $this->hostProfile !== null;
+    }
+
+    public function hasCompleteHostProfile(): bool
+    {
+        /** @var HostProfile|null $hostProfile */
+        $hostProfile = $this->hostProfile;
+
+        return $hostProfile !== null && $hostProfile->is_complete;
     }
 
     public function passwordHistories()

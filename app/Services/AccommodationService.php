@@ -2,13 +2,15 @@
 
 namespace App\Services;
 
+use App\Mail\Accommodation\DraftSubmittedMail;
+use App\Mail\Accommodation\DraftSubmittedProfileIncompleteMail;
 use App\Models\Accommodation;
 use App\Models\AccommodationDraft;
+use App\Models\Currency;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-use App\Models\Currency;
-use App\Services\CurrencyService;
+use Illuminate\Support\Facades\Mail;
 
 class AccommodationService
 {
@@ -29,12 +31,27 @@ class AccommodationService
 
     public static function updateAccommodationDraft(AccommodationDraft $accommodationDraft, array $data, int $currentStep, string $status): AccommodationDraft
     {
+        $previousStatus = $accommodationDraft->status;
+
         $accommodationDraft->update([
             'data' => json_encode($data),
             'current_step' => $currentStep,
             'status' => $status,
             'last_saved_at' => now(),
         ]);
+
+        if ($previousStatus !== 'waiting_for_approval' && $status === 'waiting_for_approval') {
+            /** @var \App\Models\User|null $user */
+            $user = $accommodationDraft->user;
+
+            if ($user) {
+                $mail = $user->hasCompleteHostProfile()
+                    ? new DraftSubmittedMail($accommodationDraft)
+                    : new DraftSubmittedProfileIncompleteMail($accommodationDraft);
+
+                Mail::to($user->email)->queue($mail);
+            }
+        }
 
         return $accommodationDraft;
     }
@@ -91,9 +108,10 @@ class AccommodationService
             ->find($accommodationId);
 
         if ($accommodation) {
-            $accommodation->host_profile = DB::table('user_profiles')
+            // @phpstan-ignore-next-line
+            $accommodation->host_profile = DB::table('host_profiles')
                 ->where('user_id', $accommodation->user_id)
-                ->select('id', 'first_name', 'last_name', 'avatar', 'bio')
+                ->select('id', 'display_name', 'bio', 'avatar')
                 ->first();
         }
 
@@ -151,7 +169,11 @@ class AccommodationService
             $accommodation->beds()->createMany($bedTypes);
         }
 
-        $currency = $this->currencyService->getCurrencyByCountry($accommodation->location->country->iso_code_2) ?? Currency::where('code', 'EUR')->first();
+        /** @var \App\Models\Location $location */
+        $location = $accommodation->location;
+        /** @var \App\Models\Country $country */
+        $country = $location->country;
+        $currency = $this->currencyService->getCurrencyByCountry($country->iso_code_2) ?? Currency::where('code', 'EUR')->first();
 
         if ($accommodation->pricing) {
             $accommodation->pricing->update([
