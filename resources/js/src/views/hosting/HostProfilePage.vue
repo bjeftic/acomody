@@ -13,54 +13,26 @@
         <!-- Avatar -->
         <section class="mb-8">
             <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-Profile photo
-</h2>
+                Profile photo
+            </h2>
             <div class="flex items-center gap-6">
-                <div
-class="relative w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 cursor-pointer flex-shrink-0"
-                    @click="triggerAvatarUpload"
->
-                    <img
-v-if="avatarPreview || form.avatar_url"
-:src="avatarPreview || form.avatar_url"
-                        alt="Host avatar"
-class="w-full h-full object-cover"
-/>
-                    <div
-v-else
-class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500"
->
-                        <svg
-class="w-12 h-12"
-fill="currentColor"
-viewBox="0 0 24 24"
->
+                <div class="relative w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 cursor-pointer flex-shrink-0"
+                    @click="triggerAvatarUpload">
+                    <img v-if="avatarPreview || form.avatar_url" :src="avatarPreview || form.avatar_url"
+                        alt="Host avatar" class="w-full h-full object-cover" />
+                    <div v-else class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                        <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
                             <path
-                                d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
-/>
+                                d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                         </svg>
                     </div>
                     <div
-                        class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
->
-                        <svg
-class="w-6 h-6 text-white"
-fill="none"
-stroke="currentColor"
-viewBox="0 0 24 24"
->
-                            <path
-stroke-linecap="round"
-stroke-linejoin="round"
-stroke-width="2"
-                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-/>
-                            <path
-stroke-linecap="round"
-stroke-linejoin="round"
-stroke-width="2"
-                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-/>
+                        class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                     </div>
                 </div>
@@ -71,37 +43,20 @@ stroke-width="2"
                     <p class="text-xs text-gray-500 mt-1">
                         JPEG, PNG or WebP — max 5MB
                     </p>
-                    <p
-v-if="avatarUploading"
-class="text-xs text-blue-500 mt-1"
->
+                    <p v-if="avatarUploading" class="text-xs text-blue-500 mt-1">
                         Uploading...
                     </p>
-                    <p
-v-if="avatarError"
-class="text-xs text-red-500 mt-1"
->
+                    <p v-if="avatarError" class="text-xs text-red-500 mt-1">
                         {{ avatarError }}
                     </p>
                 </div>
-                <input
-ref="avatarInput"
-type="file"
-accept="image/jpeg,image/jpg,image/png,image/webp"
-class="hidden"
-                    @change="onAvatarSelected"
-/>
+                <input ref="avatarInput" type="file" accept="image/jpeg,image/jpg,image/png,image/webp" class="hidden"
+                    @change="onAvatarSelected" />
             </div>
         </section>
 
         <!-- Alert -->
-        <fwb-alert
-v-if="alert.message"
-:type="alert.type"
-class="mb-6"
-closable
-@close="alert.message = ''"
->
+        <fwb-alert v-if="alert.message" :type="alert.type" class="mb-6" closable @close="alert.message = ''">
             {{ alert.message }}
         </fwb-alert>
 
@@ -117,15 +72,9 @@ closable
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Display name <span class="text-red-500">*</span>
                         </label>
-                        <fwb-input
-v-model="form.display_name"
-placeholder="Your name or business name shown to guests"
-                            :class="{ 'border-red-500': errors.display_name }"
-/>
-                        <p
-v-if="errors.display_name"
-class="text-xs text-red-500 mt-1"
->
+                        <fwb-input v-model="form.display_name" placeholder="Your name or business name shown to guests"
+                            :class="{ 'border-red-500': errors.display_name }" />
+                        <p v-if="errors.display_name" class="text-xs text-red-500 mt-1">
                             {{ errors.display_name[0] }}
                         </p>
                     </div>
@@ -134,16 +83,9 @@ class="text-xs text-red-500 mt-1"
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Contact email <span class="text-red-500">*</span>
                         </label>
-                        <fwb-input
-v-model="form.contact_email"
-type="email"
-placeholder="Email for guest communication"
-                            :class="{ 'border-red-500': errors.contact_email }"
-/>
-                        <p
-v-if="errors.contact_email"
-class="text-xs text-red-500 mt-1"
->
+                        <fwb-input v-model="form.contact_email" type="email" placeholder="Email for guest communication"
+                            :class="{ 'border-red-500': errors.contact_email }" />
+                        <p v-if="errors.contact_email" class="text-xs text-red-500 mt-1">
                             {{ errors.contact_email[0] }}
                         </p>
                     </div>
@@ -152,16 +94,9 @@ class="text-xs text-red-500 mt-1"
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Phone <span class="text-red-500">*</span>
                         </label>
-                        <fwb-input
-v-model="form.phone"
-type="tel"
-placeholder="+381 60 000 0000"
-                            :class="{ 'border-red-500': errors.phone }"
-/>
-                        <p
-v-if="errors.phone"
-class="text-xs text-red-500 mt-1"
->
+                        <fwb-input v-model="form.phone" type="tel" placeholder="+381 60 000 0000"
+                            :class="{ 'border-red-500': errors.phone }" />
+                        <p v-if="errors.phone" class="text-xs text-red-500 mt-1">
                             {{ errors.phone[0] }}
                         </p>
                     </div>
@@ -178,10 +113,7 @@ class="text-xs text-red-500 mt-1"
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Business name
                         </label>
-                        <fwb-input
-v-model="form.business_name"
-placeholder="Optional — if you operate as a company"
-/>
+                        <fwb-input v-model="form.business_name" placeholder="Optional — if you operate as a company" />
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -189,19 +121,13 @@ placeholder="Optional — if you operate as a company"
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Tax ID
                             </label>
-                            <fwb-input
-v-model="form.tax_id"
-placeholder="Optional"
-/>
+                            <fwb-input v-model="form.tax_id" placeholder="Optional" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 VAT number
                             </label>
-                            <fwb-input
-v-model="form.vat_number"
-placeholder="Optional"
-/>
+                            <fwb-input v-model="form.vat_number" placeholder="Optional" />
                         </div>
                     </div>
                 </div>
@@ -216,19 +142,13 @@ placeholder="Optional"
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Address
                         </label>
-                        <fwb-input
-v-model="form.address"
-placeholder="Street address (optional)"
-/>
+                        <fwb-input v-model="form.address" placeholder="Street address (optional)" />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             City
                         </label>
-                        <fwb-input
-v-model="form.city"
-placeholder="City (optional)"
-/>
+                        <fwb-input v-model="form.city" placeholder="City (optional)" />
                     </div>
                 </div>
             </section>
@@ -241,11 +161,8 @@ placeholder="City (optional)"
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Bio
                     </label>
-                    <fwb-textarea
-v-model="form.bio"
-placeholder="Tell guests a bit about yourself as a host (optional)"
-                        :rows="4"
-/>
+                    <fwb-textarea v-model="form.bio" placeholder="Tell guests a bit about yourself as a host (optional)"
+                        :rows="4" />
                     <p class="text-xs text-gray-500 mt-1">
                         {{ (form.bio || '').length }} / 2000 characters
                     </p>
@@ -253,28 +170,16 @@ placeholder="Tell guests a bit about yourself as a host (optional)"
             </section>
 
             <div class="flex items-center gap-3">
-                <fwb-button
-type="submit"
-:disabled="submitting"
-color="default"
-size="lg"
->
+                <fwb-button type="submit" :disabled="submitting" color="default" size="lg">
                     {{ submitting ? 'Saving...' : 'Save changes' }}
                 </fwb-button>
-                <fwb-button
-v-if="isEditing"
-color="alternative"
-size="lg"
-                    @click="$router.push({ name: 'page-dashboard' })"
->
+                <fwb-button v-if="isEditing" color="alternative" size="lg"
+                    @click="$router.push({ name: 'page-dashboard' })">
                     Cancel
                 </fwb-button>
-                <button
-v-if="$route.query.next === 'listing-create'"
-type="button"
+                <button v-if="$route.query.next === 'listing-create'" type="button"
                     class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline ml-2"
-                    @click="$router.push({ name: 'page-listing-create' })"
->
+                    @click="$router.push({ name: 'page-listing-create' })">
                     Skip — create accommodation first
                 </button>
             </div>
@@ -289,13 +194,8 @@ type="button"
                     Danger zone
                 </h2>
 
-                <fwb-alert
-v-if="deletionAlert.message"
-:type="deletionAlert.type"
-class="mb-6"
-closable
-                    @close="deletionAlert.message = ''"
->
+                <fwb-alert v-if="deletionAlert.message" :type="deletionAlert.type" class="mb-6" closable
+                    @close="deletionAlert.message = ''">
                     {{ deletionAlert.message }}
                 </fwb-alert>
 
@@ -308,20 +208,13 @@ closable
                             Removes your host profile and all accommodation listings. Your user account stays active.
                         </p>
                     </div>
-                    <fwb-button
-color="red"
-size="sm"
-@click="deletionModal = true"
->
+                    <fwb-button color="red" size="sm" @click="deletionModal = true">
                         Request deletion
                     </fwb-button>
                 </div>
 
                 <!-- Confirmation Modal -->
-                <fwb-modal
-v-if="deletionModal"
-@close="closeDeletionModal"
->
+                <fwb-modal v-if="deletionModal" @close="closeDeletionModal">
                     <template #header>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                             Delete hosting account
@@ -335,25 +228,15 @@ v-if="deletionModal"
                         <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Type <span class="font-bold text-red-600">DELETE</span> to confirm:
                         </p>
-                        <fwb-input
-v-model="deletionConfirmWord"
-placeholder="Type DELETE"
-/>
+                        <fwb-input v-model="deletionConfirmWord" placeholder="Type DELETE" />
                     </template>
                     <template #footer>
                         <div class="flex gap-3">
-                            <fwb-button
-color="red"
-:disabled="deletionConfirmWord !== 'DELETE' || deletionRequesting"
-                                :loading="deletionRequesting"
-@click="submitDeletionRequest"
->
+                            <fwb-button color="red" :disabled="deletionConfirmWord !== 'DELETE' || deletionRequesting"
+                                :loading="deletionRequesting" @click="submitDeletionRequest">
                                 Submit deletion request
                             </fwb-button>
-                            <fwb-button
-color="alternative"
-@click="closeDeletionModal"
->
+                            <fwb-button color="alternative" @click="closeDeletionModal">
                                 Cancel
                             </fwb-button>
                         </div>
