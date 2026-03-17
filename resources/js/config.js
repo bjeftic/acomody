@@ -1,6 +1,7 @@
 import runtimeConstants from "@/runtime-constants";
 
 export default {
+    features: runtimeConstants.featureFlags ?? {},
     modals: {
         logInModal: "log-in-modal",
         signUpModal: "sign-up-modal",

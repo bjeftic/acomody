@@ -6,12 +6,15 @@ use App\Http\Resources\CountryResource;
 use App\Http\Resources\CurrencyResource;
 use App\Services\CountryService;
 use App\Services\CurrencyService;
+use App\Services\FeatureFlagService;
 use Illuminate\Support\Arr;
 
 class RuntimeConstants
 {
     const RUNTIME_CONST_LIST = 'runtimeConstList';
+
     const CSRF_TOKEN = 'csrfToken';
+
     // const SENTRY_DSN = 'sentryDsn';
     // const SENTRY_TRACE_RATE = 'sentryTraceRate';
     // const SENTRY_ENABLED = 'sentryEnabled';
@@ -19,14 +22,23 @@ class RuntimeConstants
     // const PUSHER_CLUSTER = 'pusherCluster';
     // const PUSHER_ENCRYPTED = 'pusherEncrypted';
     const APP_ENVIRONMENT = 'appEnvironment';
+
     const APP_VERSION = 'appVersion';
+
     const COUNTRIES = 'countries';
+
     const COUNTRY_CURRENCY_MAP = 'countryCurrencyMap';
+
     const CURRENCIES = 'currencies';
+
     const SELECTED_CURRENCY = 'selectedCurrency';
+
     const LANGUAGES = 'languages';
+
     const SORT_OPTIONS = 'sortOptions';
+
     const DAYS_OF_WEEK = 'DAYS_OF_WEEK';
+
     // const ANNOUNCEMENTS = 'announcements';
     // const SCOUT_DRIVER = 'scoutDriver';
     // const FEATURES = 'features';
@@ -34,7 +46,7 @@ class RuntimeConstants
     // const DATA_FORMATS = 'dataFormats';
     // const DATE_FORMATS = 'dateFormats';
     // const DEFAULT_FIELD_ORDER = 'defaultFieldOrder';
-    // const FEATURE_FLAGS = 'featureFlags';
+    const FEATURE_FLAGS = 'featureFlags';
     // const REGION = 'region';
     // const AVAILABLE_REGIONS = 'availableRegions';
 
@@ -67,12 +79,13 @@ class RuntimeConstants
                     // self::DATA_FORMATS => config('constants.default_data_formats'),
                     // self::DATE_FORMATS => config('constants.date_formats'),
                     // self::DEFAULT_FIELD_ORDER => config('constants.default_field_order'),
-                    // self::FEATURE_FLAGS => FlagService::getEnabledFlags(),
+                    self::FEATURE_FLAGS => FeatureFlagService::getEnabledFlags(),
                     // self::REGION => config('app.region'),
                     // self::AVAILABLE_REGIONS => config('app.regions'),
                 ];
 
                 $constants[self::RUNTIME_CONST_LIST] = array_keys($constants);
+
                 return $constants;
             }
         );
@@ -107,15 +120,16 @@ class RuntimeConstants
                 $filteredMap[$countryCode] = $currencyCode;
             }
         }
+
         return $filteredMap;
     }
 
     protected static function getUIConstants($constant)
     {
-        return collect(config('constants.ui_constants.' . $constant))
-            ->map(fn($opt) => [
+        return collect(config('constants.ui_constants.'.$constant))
+            ->map(fn ($opt) => [
                 'id' => $opt['id'],
-                'name' => __($opt['name'])
+                'name' => __($opt['name']),
             ]);
     }
 }
