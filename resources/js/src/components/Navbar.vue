@@ -41,17 +41,9 @@
                         >
                             Become a host
                         </fwb-button>
-                        <!-- Draft in progress -->
+                        <!-- Has host profile → Hosting dashboard -->
                         <fwb-button
-                            v-else-if="hostingCtaStatus === 'continue_listing'"
-                            color="default"
-                            @click="$router.push({ name: 'page-listing-create' })"
-                        >
-                            Continue listing registration
-                        </fwb-button>
-                        <!-- Active host -->
-                        <fwb-button
-                            v-else-if="hostingCtaStatus === 'hosting' && $route.name !== 'page-hosting-home'"
+                            v-else-if="hostingCtaStatus !== 'not_host' && $route.name !== 'page-hosting-home'"
                             color="alternative"
                             @click="$router.push({ name: 'page-hosting-home' })"
                         >
@@ -69,11 +61,17 @@
 
                     <!-- Auth buttons or Account dropdown -->
                     <template v-if="!isLoggedIn">
-                        <fwb-button outline @click="openLogInModal">
+                        <fwb-button
+outline
+@click="openLogInModal"
+>
                             Log in
                         </fwb-button>
 
-                        <fwb-button outline @click="openSignUpModal">
+                        <fwb-button
+outline
+@click="openSignUpModal"
+>
                             Sign up
                         </fwb-button>
                     </template>
@@ -134,15 +132,15 @@ import { mapActions, mapGetters, mapState } from "vuex";
 
 export default {
     name: "Navbar",
-    computed: {
-        ...mapGetters("auth", ["isLoggedIn"]),
-        ...mapGetters("user", ["hostingCtaStatus"]),
-        ...mapState("ui", ["currencies", "selectedCurrency"]),
-    },
     data() {
         return {
             currentCurrency: null,
         };
+    },
+    computed: {
+        ...mapGetters("auth", ["isLoggedIn"]),
+        ...mapGetters("user", ["hostingCtaStatus"]),
+        ...mapState("ui", ["currencies", "selectedCurrency"]),
     },
     methods: {
         ...mapActions(["openModal"]),
