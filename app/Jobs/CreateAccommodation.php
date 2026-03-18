@@ -9,6 +9,7 @@ use App\Models\Accommodation;
 use App\Models\AccommodationDraft;
 use App\Models\Currency;
 use App\Models\Photo;
+use App\Notifications\AccommodationApprovedNotification;
 use App\Services\CurrencyService;
 use App\Services\FeeService;
 use App\Services\PricingService;
@@ -117,6 +118,8 @@ class CreateAccommodation implements ShouldQueue
 
             Mail::to($draftUser->email)
                 ->queue(new AccommodationApprovedMail($draft, $hostProfileComplete));
+
+            $draftUser->notify(new AccommodationApprovedNotification($accommodation));
         }
     }
 

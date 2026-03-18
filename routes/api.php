@@ -19,6 +19,7 @@ use App\Http\Controllers\Host\DeletionRequestController as HostDeletionRequestCo
 use App\Http\Controllers\Host\HostProfileController;
 use App\Http\Controllers\Host\IcalCalendarController as HostIcalCalendarController;
 use App\Http\Controllers\IcalExportController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Public\AccommodationController as PublicAccommodationController;
 use App\Http\Controllers\Public\FilterController as PublicFilterController;
 use App\Http\Controllers\SearchController;
@@ -200,6 +201,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Host availability periods (blocked/closed dates)
     Route::get('host/blocked-periods', [HostAvailabilityPeriodController::class, 'index'])
         ->name('api.host.blocked-periods.index');
+
+    // Notifications
+    Route::prefix('notifications')->name('api.notifications.')->group(function () {
+        Route::get('', [NotificationController::class, 'index'])->name('index');
+        Route::post('{id}/read', [NotificationController::class, 'markAsRead'])->name('read');
+        Route::post('read-all', [NotificationController::class, 'markAllRead'])->name('read-all');
+    });
 
     // Host booking management
     Route::prefix('host/bookings')->name('api.host.bookings.')->group(function () {

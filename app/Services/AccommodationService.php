@@ -7,6 +7,7 @@ use App\Mail\Accommodation\DraftSubmittedProfileIncompleteMail;
 use App\Models\Accommodation;
 use App\Models\AccommodationDraft;
 use App\Models\Currency;
+use App\Notifications\AccommodationUnderReviewNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -50,6 +51,7 @@ class AccommodationService
                     : new DraftSubmittedProfileIncompleteMail($accommodationDraft);
 
                 Mail::to($user->email)->queue($mail);
+                $user->notify(new AccommodationUnderReviewNotification($accommodationDraft));
             }
         }
 

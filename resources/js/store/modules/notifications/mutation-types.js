@@ -1,0 +1,4 @@
+export const SET_NOTIFICATIONS = "SET_NOTIFICATIONS";
+export const SET_UNREAD_COUNT = "SET_UNREAD_COUNT";
+export const MARK_READ = "MARK_READ";
+export const MARK_ALL_READ = "MARK_ALL_READ";
