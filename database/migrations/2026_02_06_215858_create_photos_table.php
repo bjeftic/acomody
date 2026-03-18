@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->ulidMorphs('photoable');
+            // photoable_id stored as string to support both ULID-keyed models
+            // (AccommodationDraft, Accommodation) and integer-keyed models (Location, User)
+            $table->string('photoable_type');
+            $table->string('photoable_id');
+            $table->index(['photoable_type', 'photoable_id']);
 
             // Storage paths
             $table->string('disk')->default('minio'); // Storage disk (minio/s3)
@@ -50,6 +54,14 @@ return new class extends Migration
             $table->index('status');
             $table->index('deleted_at');
         });
+
+        // Enforce at most one primary photo per model at the DB level.
+        // The WHERE clause makes this a partial index (only rows where is_primary = true are indexed).
+        \DB::statement('
+            CREATE UNIQUE INDEX unique_primary_photo_per_model
+            ON photos (photoable_type, photoable_id)
+            WHERE is_primary = true AND deleted_at IS NULL
+        ');
     }
 
     /**

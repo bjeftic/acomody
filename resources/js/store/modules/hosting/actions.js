@@ -28,3 +28,7 @@ export const getFeeChargeTypes = async ({ commit }) => {
     const response = await apiClient.fees.chargeTypes.get();
     commit("SET_FEE_CHARGE_TYPES", response.data);
 }
+
+export const requestAccommodationDeletion = async (_, accommodationId) => {
+    return await apiClient.host.accommodations[accommodationId].deletionRequest.post();
+};

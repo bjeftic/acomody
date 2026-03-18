@@ -48,6 +48,11 @@ import ValidationAlertBox from "@/src/components/ValidationAlertBox.vue";
 //Common Components
 import ActionCard from "@/src/components/common/ActionCard.vue";
 import SelectActionCard from "@/src/components/common/SelectActionCard.vue";
+import BaseButton from "@/src/components/common/BaseButton.vue";
+import BaseInput from "@/src/components/common/BaseInput.vue";
+import BaseTextarea from "@/src/components/common/BaseTextarea.vue";
+import BaseDropdown from "@/src/components/common/BaseDropdown.vue";
+import BaseModal from "@/src/components/common/BaseModal.vue";
 import FormSkeleton from "@/src/components/common/skeletons/FormSkeleton.vue";
 import FilterSkeleton from "@/src/components/common/skeletons/FilterSkeleton.vue";
 import MainSkeleton from "@/src/components/common/skeletons/MainSkeleton.vue";
@@ -96,6 +101,11 @@ app.component("ValidationAlertBox", ValidationAlertBox);
 //Common Components
 app.component("ActionCard", ActionCard);
 app.component("SelectActionCard", SelectActionCard);
+app.component("BaseButton", BaseButton);
+app.component("BaseInput", BaseInput);
+app.component("BaseTextarea", BaseTextarea);
+app.component("BaseDropdown", BaseDropdown);
+app.component("BaseModal", BaseModal);
 app.component("FormSkeleton", FormSkeleton);
 app.component("FilterSkeleton", FilterSkeleton);
 app.component("MainSkeleton", MainSkeleton);

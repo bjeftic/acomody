@@ -25,7 +25,7 @@ class IndexRequest extends FormRequest
             'status' => [
                 'sometimes',
                 'string',
-                'in:draft,waiting_for_approval,published'
+                'in:draft,waiting_for_approval,published,rejected',
             ],
         ];
     }
@@ -66,7 +66,7 @@ class IndexRequest extends FormRequest
         // Normalize status to lowercase
         if ($this->has('status')) {
             $this->merge([
-                'status' => strtolower($this->query('status'))
+                'status' => strtolower($this->query('status')),
             ]);
         }
     }

@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AccommodationDraft\UpdateRequest;
 use App\Http\Requests\AccommodationDraft\CreateRequest;
 use App\Http\Requests\AccommodationDraft\IndexRequest;
 use App\Http\Requests\AccommodationDraft\PhotoUploadRequest;
-use Illuminate\Http\Request;
+use App\Http\Requests\AccommodationDraft\UpdateRequest;
 use App\Http\Resources\AccommodationDraftResource;
 use App\Http\Resources\PhotoResource;
 use App\Http\Support\ApiResponse;
@@ -14,14 +13,16 @@ use App\Models\AccommodationDraft;
 use App\Models\Photo;
 use App\Services\AccommodationService;
 use App\Services\PhotoService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class AccommodationDraftController extends Controller
 {
     protected AccommodationService $accommodationService;
+
     protected PhotoService $photoService;
 
     public function __construct(AccommodationService $accommodationService, PhotoService $photoService)
@@ -32,6 +33,7 @@ class AccommodationDraftController extends Controller
 
     /**
      * Create accommodation draft
+     *
      * @OA\Post(
      *     path="/accommodation-draft",
      *     operationId="createAccommodationDraft",
@@ -39,11 +41,14 @@ class AccommodationDraftController extends Controller
      *     summary="Create accommodation draft",
      *     description="Creates a new draft for an accommodation listing",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\RequestBody(
      *         required=true,
      *         description="Accommodation draft data",
+     *
      *         @OA\JsonContent(
      *             required={"data"},
+     *
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
@@ -52,11 +57,14 @@ class AccommodationDraftController extends Controller
      *             ),
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="Accommodation draft created successfully",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/AccommodationDraft")
      *     ),
+     *
      *     @OA\Response(
      *         response=400,
      *         description="Bad request"
@@ -83,7 +91,6 @@ class AccommodationDraftController extends Controller
         );
     }
 
-
     /**
      * Update accommodation draft
      *
@@ -94,18 +101,23 @@ class AccommodationDraftController extends Controller
      *     summary="Update accommodation draft",
      *     description="Updates a draft for an accommodation listing",
      *     security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="accommodationDraft",
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
+     *
      *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
      *     ),
+     *
      *     @OA\RequestBody(
      *         required=true,
      *         description="Accommodation draft data",
+     *
      *         @OA\JsonContent(
      *             required={"current_step","data"},
+     *
      *             @OA\Property(
      *                 property="current_step",
      *                 type="integer",
@@ -120,11 +132,14 @@ class AccommodationDraftController extends Controller
      *             ),
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Accommodation draft saved successfully",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/AccommodationDraft")
      *     ),
+     *
      *     @OA\Response(
      *         response=400,
      *         description="Bad request"
@@ -135,6 +150,16 @@ class AccommodationDraftController extends Controller
      *     )
      * )
      */
+    public function show(AccommodationDraft $accommodationDraft): JsonResponse
+    {
+        $accommodationDraft->load('reviewComments');
+
+        return ApiResponse::success(
+            'Accommodation draft retrieved successfully',
+            new AccommodationDraftResource($accommodationDraft)
+        );
+    }
+
     public function updateDraft(UpdateRequest $request, AccommodationDraft $accommodationDraft): JsonResponse
     {
         $data = $request->validated();
@@ -153,6 +178,7 @@ class AccommodationDraftController extends Controller
 
     /**
      * Get accommodation drafts
+     *
      * @OA\Get(
      *     path="/accommodation-draft",
      *     operationId="getAccommodationDrafts",
@@ -160,25 +186,31 @@ class AccommodationDraftController extends Controller
      *     summary="Get accommodation drafts",
      *     description="Retrieves a list of accommodation drafts for the authenticated user",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
      *         description="Filter by draft status",
      *         required=false,
+     *
      *         @OA\Schema(
      *             type="string",
      *             enum={"draft", "waiting_for_approval", "published"},
      *             default="draft"
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Accommodation drafts retrieved successfully",
+     *
      *         @OA\JsonContent(
      *             type="array",
+     *
      *             @OA\Items(ref="#/components/schemas/AccommodationDraft")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized"
@@ -210,11 +242,14 @@ class AccommodationDraftController extends Controller
      *     summary="Get accommodation draft",
      *     description="Retrieves the saved draft for an accommodation listing",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Accommodation draft retrieved successfully",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/AccommodationDraft")
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized"
@@ -248,10 +283,13 @@ class AccommodationDraftController extends Controller
      *     summary="Get accommodation draft statistics",
      *     description="Retrieves statistics about accommodation drafts",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Accommodation draft statistics retrieved successfully",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
@@ -270,6 +308,7 @@ class AccommodationDraftController extends Controller
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthorized"
@@ -288,7 +327,7 @@ class AccommodationDraftController extends Controller
             'data' => $accommodationDraftStats,
             'meta' => [
                 'total_drafts' => array_sum($accommodationDraftStats),
-            ]
+            ],
         ]);
     }
 
@@ -302,37 +341,49 @@ class AccommodationDraftController extends Controller
      *     summary="Upload photos for accommodation draft (queued processing)",
      *     description="Initiates async photo upload. Returns immediately with batch_id for progress tracking.",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="accommodationDraftId",
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
+     *
      *         @OA\Schema(type="string", format="ulid")
      *     ),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\MediaType(
      *             mediaType="multipart/form-data",
+     *
      *             @OA\Schema(
      *                 required={"photos"},
+     *
      *                 @OA\Property(
      *                     property="photos[]",
      *                     type="array",
      *                     description="Array of photo files (max 20 files, 10MB each)",
+     *
      *                     @OA\Items(type="string", format="binary")
      *                 )
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=202,
      *         description="Photos queued for processing",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Photos queued for processing"),
      *             @OA\Property(property="data", type="array",
+     *
      *                 @OA\Items(ref="#/components/schemas/Photo")
      *             ),
+     *
      *             @OA\Property(property="meta", type="object",
      *                 @OA\Property(property="batch_id", type="string", example="9a5e89c0-1234-5678-9abc-123456789012"),
      *                 @OA\Property(property="queued_count", type="integer", example=5),
@@ -340,6 +391,7 @@ class AccommodationDraftController extends Controller
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(response=422, description="Validation error"),
      *     @OA\Response(response=500, description="Server error")
      * )
@@ -404,20 +456,26 @@ class AccommodationDraftController extends Controller
      *     tags={"Accommodation"},
      *     summary="Get all photos for accommodation draft",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="accommodationDraftId",
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
+     *
      *         @OA\Schema(type="string", format="ulid")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Photos retrieved successfully",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Photos retrieved successfully"),
      *             @OA\Property(property="data", type="array",
+     *
      *                 @OA\Items(ref="#/components/schemas/Photo")
      *             )
      *         )
@@ -454,20 +512,25 @@ class AccommodationDraftController extends Controller
      *     tags={"Accommodation"},
      *     summary="Delete a photo from accommodation draft",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="accommodationDraftId",
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
+     *
      *         @OA\Schema(type="string", format="ulid")
      *     ),
+     *
      *     @OA\Parameter(
      *         name="photoId",
      *         in="path",
      *         required=true,
      *         description="Photo ID",
+     *
      *         @OA\Schema(type="string", format="ulid")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Photo deleted successfully"
@@ -521,34 +584,44 @@ class AccommodationDraftController extends Controller
      *     tags={"Accommodation"},
      *     summary="Reorder photos for accommodation draft",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="accommodationDraftId",
      *         in="path",
      *         required=true,
      *         description="Accommodation draft ID",
+     *
      *         @OA\Schema(type="string", format="ulid", example="019a4b7b-3481-738a-a2ff-d93fc45bac01")
      *     ),
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"photo_ids"},
+     *
      *             @OA\Property(
      *                 property="photo_ids",
      *                 type="array",
      *                 description="Array of photo IDs in desired order",
+     *
      *                 @OA\Items(type="string", format="ulid"),
      *                 example={"019a4b7b-3481-738a-a2ff-d93fc45bac01", "019a4b7b-3481-738a-a2ff-d93fc45bac02"}
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Photos reordered successfully",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Photos reordered successfully."),
      *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Photo"))
      *         )
      *     ),
+     *
      *     @OA\Response(response=422, description="Validation error"),
      *     @OA\Response(response=500, description="Failed to reorder photos")
      * )

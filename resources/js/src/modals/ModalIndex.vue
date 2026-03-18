@@ -5,6 +5,7 @@ import SignUpModal from './auth/SignUpModal.vue';
 import ForgotPasswordModal from './auth/ForgotPasswordModal.vue';
 import FiltersModal from './search/FiltersModal.vue';
 import PhotoGalleryModal from './PhotoGalleryModal.vue';
+import ConfirmModal from './ConfirmModal.vue';
 
 export default defineComponent({
   render() {
@@ -14,6 +15,7 @@ export default defineComponent({
         h(ForgotPasswordModal),
         h(FiltersModal),
         h(PhotoGalleryModal),
+        h(ConfirmModal),
     ];
   }
 });

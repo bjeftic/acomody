@@ -124,12 +124,16 @@ class PhotoService
         $jobs = [];
         $order = $startOrder;
 
-        // Determine if first photo should be primary
-        $hasPrimaryPhoto = $model->photos()->where('is_primary', true)->exists();
-
         DB::beginTransaction();
 
         try {
+            // Check inside the transaction with a lock to prevent race conditions
+            // between concurrent upload batches both marking their first photo as primary.
+            $hasPrimaryPhoto = $model->photos()
+                ->where('is_primary', true)
+                ->lockForUpdate()
+                ->exists();
+
             foreach ($files as $file) {
                 // Validate file before queueing
                 $this->validateFile($file);
@@ -217,7 +221,11 @@ class PhotoService
         $failedPhotos = [];
         $order = $startOrder;
 
-        $hasPrimaryPhoto = $model->photos()->where('is_primary', true)->exists();
+        $hasPrimaryPhoto = DB::transaction(fn () => $model->photos()
+            ->where('is_primary', true)
+            ->lockForUpdate()
+            ->exists()
+        );
 
         foreach ($files as $file) {
             try {
@@ -385,6 +393,7 @@ class PhotoService
             'App\\Models\\AccommodationDraft' => config('images.presets.accommodation_draft.disk'),
             'App\\Models\\Accommodation' => config('images.presets.accommodation.disk'),
             'App\\Models\\User' => config('images.presets.user_profile.disk'),
+            'App\\Models\\Location' => config('images.presets.location.disk'),
             default => 'accommodation_draft_photos',
         };
     }
@@ -400,6 +409,7 @@ class PhotoService
             'App\\Models\\AccommodationDraft' => "draft-{$model->id}",
             'App\\Models\\Accommodation' => "property-{$model->id}",
             'App\\Models\\User' => "user-{$model->id}",
+            'App\\Models\\Location' => "location-{$model->id}",
             default => "unknown-{$model->id}",
         };
     }

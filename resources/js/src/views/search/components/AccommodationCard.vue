@@ -18,7 +18,8 @@
                     prevEl: `.swiper-prev-${uniqueId}`,
                     nextEl: `.swiper-next-${uniqueId}`,
                 }"
-                :effect="'flip'"
+                :effect="'fade'"
+                :fadeEffect="{ crossFade: true }"
                 class="h-full accommodation-swiper"
                 @swiper="onSwiper"
                 @slideChange="onSlideChange"

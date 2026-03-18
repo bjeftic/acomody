@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Acomody is a full-stack accommodation search and management platform. The backend is Laravel 12 (PHP 8.4) with PostgreSQL and Typesense for search. The frontend is a Vue 3 SPA served via Laravel's Blade entry point with Vite.
 
+## Project Overview details
+
+When someone creates accommodation for example in Serbia, base currency of that accommodation is RSD.
+
 ## Commands
 
 ### Development
@@ -58,6 +62,20 @@ Key service classes in `app/Services/`:
 
 Enums in `app/Enums/` are namespace-grouped by domain (e.g., `App\Enums\Accommodation\BookingType`, `App\Enums\Fee\ChargeType`). Use enums for any typed status or type values.
 
+### Typesense searchability rules
+
+An `Accommodation` is indexed in Typesense only when **both** conditions are met:
+1. `is_active = true` (accommodation is approved)
+2. The owner's `HostProfile` exists and `is_complete = true` (display_name + contact_email + phone all filled)
+
+This is enforced in `Accommodation::isSearchable()`. Two triggers re-index accommodations:
+- **Draft approved** (`CreateAccommodation` job) — calls `$accommodation->searchable()` after creation. Scout calls `isSearchable()` so it only indexes if host profile is already complete. The approval email includes a warning if the profile is not yet complete.
+- **Host profile completed** (`HostProfile::booted()` saved hook) — when `is_complete` changes to `true`, re-indexes all active accommodations and sends a "listings are now live" email.
+
+Emails involved:
+- `AccommodationApprovedMail` — sent on approval; `$hostProfileComplete` bool controls whether it shows a warning or "you're live" message
+- `AccommodationsNowSearchableMail` (`app/Mail/Host/`) — sent when host profile completion triggers indexing of existing accommodations
+
 API routes in `routes/api.php` are split into:
 - **Public** — auth endpoints, `/public/*`, `/search/*`
 - **Protected** — `auth:sanctum` middleware group for user-specific resources
@@ -97,6 +115,8 @@ resources/js/
 Each module follows the pattern: `index.js`, `state.js`, `mutations.js`, `mutation-types.js`, `actions.js`, `getters.js`.
 
 **API client:** `resources/js/services/apiClient.js` wraps `EnhancedFluentApiClient`. It auto-adds CSRF and auth headers. Public endpoints (no auth token) are declared by pattern in `apiClient.js`. Use `createApiCall()` wrapper for consistent error handling in store actions.
+
+**All `apiClient` calls must live in Vuex `actions.js` files** — never call `apiClient` directly from Vue components. Components dispatch actions; actions call the API.
 
 **Router auth guard:** `resources/js/router/index.js` — routes with `meta: { requiresAuth: true }` trigger a login modal and redirect back after auth. The hosting section (`/hosting/*`) requires auth.
 

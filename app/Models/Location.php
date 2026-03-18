@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Enums\Location\LocationType;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Laravel\Scout\Searchable;
 use Spatie\Translatable\HasTranslations;
 
@@ -14,15 +17,16 @@ use Spatie\Translatable\HasTranslations;
  */
 class Location extends Model
 {
-    use HasFactory, Searchable, HasTranslations;
+    use HasFactory, HasTranslations, HasUlids, Searchable;
 
-    protected $fillable = ['name', 'location_type', 'country_id', 'parent_id', 'latitude', 'longitude', 'user_id'];
+    protected $fillable = ['name', 'location_type', 'country_id', 'parent_id', 'latitude', 'longitude', 'is_active', 'user_id'];
 
     public $translatable = ['name'];
 
     protected $casts = [
         'latitude' => 'float',
         'longitude' => 'float',
+        'is_active' => 'boolean',
         'location_type' => LocationType::class,
     ];
 
@@ -44,6 +48,14 @@ class Location extends Model
     public function canBeDeletedBy($user): bool
     {
         return $user !== null && $user->is_superadmin;
+    }
+
+    /**
+     * Only active locations are indexed in Typesense.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->is_active;
     }
 
     /**
@@ -88,14 +100,14 @@ class Location extends Model
         if ($this->latitude !== null && $this->longitude !== null) {
             $array['location'] = [
                 (float) $this->latitude,
-                (float) $this->longitude
+                (float) $this->longitude,
             ];
         }
 
         return $array;
     }
 
-     /**
+    /**
      * Get the Typesense search parameters
      * Define which fields should be searched by default
      */
@@ -204,5 +216,15 @@ class Location extends Model
     public function locationType(): array
     {
         return $this->location_type?->toArray() ?? [];
+    }
+
+    public function photos(): MorphMany
+    {
+        return $this->morphMany(Photo::class, 'photoable')->orderBy('order');
+    }
+
+    public function primaryPhoto(): MorphOne
+    {
+        return $this->morphOne(Photo::class, 'photoable')->where('is_primary', true);
     }
 }

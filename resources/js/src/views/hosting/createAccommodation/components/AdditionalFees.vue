@@ -8,7 +8,7 @@
                 class="text-base font-semibold text-gray-900 dark:text-white mb-2 flex items-center"
             >
                 <svg
-                    class="w-5 h-5 mr-2 text-blue-500"
+                    class="w-5 h-5 mr-2 text-primary-500"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -37,7 +37,7 @@
                 </h4>
                 <button
                     @click="addStandardFee"
-                    class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium"
+                    class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium"
                 >
                     + Add Standard Fee
                 </button>
@@ -47,7 +47,7 @@
             <div
                 v-for="(standard, index) in standardFees"
                 :key="standard.id"
-                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg space-x-3"
+                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl space-x-3"
             >
                 <div class="flex items-center flex-1 bg-white-select">
                     <fwb-select
@@ -59,13 +59,12 @@
                     </fwb-select>
                 </div>
 
-                <fwb-input
-                    v-model.number="standardFees[index].amount"
-                    size="sm"
+                <BaseInput
+                    v-model="standardFees[index].amount"
                     type="number"
                     min="0"
                     step="0.01"
-                    class="w-24 bg-white text-right"
+                    class="w-24"
                 />
                 <!-- <div v-else class="text-sm font-semibold text-gray-900 dark:text-white">
                         {{ currency }}{{ fee.amount }}
@@ -103,7 +102,7 @@
                 </h4>
                 <button
                     @click="addAmenityFee"
-                    class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium"
+                    class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium"
                 >
                     + Add Amenity Fee
                 </button>
@@ -113,7 +112,7 @@
             <div
                 v-for="(amenity, index) in amenityFees"
                 :key="amenity.id"
-                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg space-x-3"
+                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl space-x-3"
             >
                 <div class="flex items-center flex-1 bg-white-select">
                     <fwb-select
@@ -125,13 +124,12 @@
                     </fwb-select>
                 </div>
 
-                <fwb-input
-                    v-model.number="amenityFees[index].amount"
-                    size="sm"
+                <BaseInput
+                    v-model="amenityFees[index].amount"
                     type="number"
                     min="0"
                     step="0.01"
-                    class="w-24 bg-white text-right"
+                    class="w-24"
                 />
                 <!-- <div v-else class="text-sm font-semibold text-gray-900 dark:text-white">
                         {{ currency }}{{ fee.amount }}
@@ -169,7 +167,7 @@
                 </h4>
                 <button
                     @click="addCustomFee"
-                    class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium"
+                    class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium"
                 >
                     + Add Custom Fee
                 </button>
@@ -179,27 +177,23 @@
             <div
                 v-for="(fee, index) in customFees"
                 :key="index"
-                class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-3"
+                class="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl space-y-3"
             >
                 <!-- Fee Name -->
                 <div>
-                    <fwb-input
+                    <BaseInput
                         v-model="fee.name"
                         type="text"
-                        size="sm"
                         placeholder="Fee name, e.g., Pool heating, Pet fee"
-                        class="bg-white"
                     />
                 </div>
 
                 <!-- Fee Description -->
                 <div>
-                    <fwb-input
+                    <BaseInput
                         v-model="fee.description"
                         type="text"
-                        size="sm"
                         placeholder="Brief description of this fee"
-                        class="bg-white"
                     />
                 </div>
 
@@ -213,18 +207,11 @@
                             >
                                 {{ currency }}
                             </span>
-                            <fwb-input
-                                v-model.number="fee.amount"
-                                size="sm"
+                            <BaseInput
+                                v-model="fee.amount"
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                class="bg-white"
-                                :class="
-                                    fee.chargeType === 'fixed'
-                                        ? 'rounded-r-lg'
-                                        : 'rounded-lg'
-                                "
                             />
                             <span
                                 v-if="fee.chargeType === 'percentage'"
@@ -273,7 +260,7 @@
         <!-- Total Additional Fees Preview -->
         <div
             v-if="totalAdditionalFees > 0"
-            class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+            class="mt-4 p-3 bg-primary-50 dark:bg-primary-900/20 rounded-xl"
         >
             <div class="flex justify-between items-center">
                 <span class="text-sm text-gray-600 dark:text-gray-400">

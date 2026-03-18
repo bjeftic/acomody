@@ -2,6 +2,7 @@
 
 use App\Models\AccommodationDraft;
 use App\Models\Photo;
+use App\Models\ReviewComment;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
@@ -218,6 +219,324 @@ describe('PUT /api/accommodation-drafts/{id} (updateDraft)', function () {
             ])
             ->assertUnprocessable()
             ->assertJsonFragment(['field' => 'status']);
+    });
+
+    it('accepts partial data in draft mode', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'draft',
+                'current_step' => 2,
+                'data' => [
+                    'accommodation_type' => 'apartment',
+                ],
+            ])
+            ->assertSuccessful();
+    });
+
+    it('rejects an invalid accommodation_type', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'draft',
+                'current_step' => 2,
+                'data' => [
+                    'accommodation_type' => 'igloo_cave_hybrid',
+                ],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'data.accommodation_type']);
+    });
+
+    it('rejects an invalid accommodation_occupation', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'draft',
+                'current_step' => 3,
+                'data' => [
+                    'accommodation_occupation' => 'penthouse_suite',
+                ],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'data.accommodation_occupation']);
+    });
+
+    it('rejects coordinates outside valid range', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'draft',
+                'current_step' => 4,
+                'data' => [
+                    'coordinates' => ['latitude' => 999, 'longitude' => 20.4],
+                ],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'data.coordinates.latitude']);
+    });
+
+    it('rejects an invalid country code', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'draft',
+                'current_step' => 4,
+                'data' => [
+                    'address' => [
+                        'country' => 'XX',
+                        'street' => '123 Main St',
+                        'city' => 'Belgrade',
+                    ],
+                ],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'data.address.country']);
+    });
+
+    it('rejects an invalid bed_type value', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'draft',
+                'current_step' => 5,
+                'data' => [
+                    'floor_plan' => [
+                        'guests' => 2,
+                        'bedrooms' => 1,
+                        'bathrooms' => 1,
+                        'bed_types' => [
+                            ['bed_type' => 'waterbed', 'quantity' => 1],
+                        ],
+                    ],
+                ],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'data.floor_plan.bed_types.0.bed_type']);
+    });
+
+    it('rejects a basePrice below the minimum', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'draft',
+                'current_step' => 10,
+                'data' => [
+                    'pricing' => [
+                        'basePrice' => 5,
+                        'bookingType' => 'instant_booking',
+                        'minStay' => 1,
+                    ],
+                ],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'data.pricing.basePrice']);
+    });
+
+    it('rejects house_rules with an invalid time format', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'draft',
+                'current_step' => 11,
+                'data' => [
+                    'house_rules' => [
+                        'checkInFrom' => '25:00',
+                        'checkInUntil' => '20:00',
+                        'checkOutUntil' => '11:00',
+                        'hasQuietHours' => false,
+                        'cancellationPolicy' => 'moderate',
+                    ],
+                ],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'data.house_rules.checkInFrom']);
+    });
+
+    it('rejects an invalid cancellation policy', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'draft',
+                'current_step' => 11,
+                'data' => [
+                    'house_rules' => [
+                        'checkInFrom' => '15:00',
+                        'checkInUntil' => '20:00',
+                        'checkOutUntil' => '11:00',
+                        'hasQuietHours' => false,
+                        'cancellationPolicy' => 'super_strict',
+                    ],
+                ],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'data.house_rules.cancellationPolicy']);
+    });
+
+    it('requires all data fields when submitting for approval', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'waiting_for_approval',
+                'current_step' => 12,
+                'data' => [],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment(['field' => 'data.accommodation_type']);
+    });
+
+    it('accepts a complete and valid data payload on submission', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
+                'status' => 'waiting_for_approval',
+                'current_step' => 12,
+                'data' => [
+                    'accommodation_type' => 'apartment',
+                    'accommodation_occupation' => 'entire_place',
+                    'address' => [
+                        'country' => 'RS',
+                        'street' => '123 Main St',
+                        'city' => 'Belgrade',
+                        'state' => null,
+                        'zip_code' => '11000',
+                    ],
+                    'coordinates' => ['latitude' => 44.8, 'longitude' => 20.4],
+                    'floor_plan' => [
+                        'guests' => 4,
+                        'bedrooms' => 2,
+                        'bathrooms' => 1,
+                        'bed_types' => [
+                            ['bed_type' => 'double', 'quantity' => 2],
+                        ],
+                    ],
+                    'amenities' => [],
+                    'title' => 'Cozy Apartment in Belgrade',
+                    'description' => 'A beautiful and cozy apartment located in the heart of Belgrade, perfect for any traveler.',
+                    'pricing' => [
+                        'basePrice' => 75,
+                        'bookingType' => 'instant_booking',
+                        'minStay' => 1,
+                    ],
+                    'house_rules' => [
+                        'checkInFrom' => '15:00',
+                        'checkInUntil' => '20:00',
+                        'checkOutUntil' => '11:00',
+                        'hasQuietHours' => false,
+                        'quietHoursFrom' => '22:00',
+                        'quietHoursUntil' => '08:00',
+                        'cancellationPolicy' => 'moderate',
+                    ],
+                ],
+            ])
+            ->assertSuccessful();
+    });
+
+    it('returns 403 when draft status is waiting_for_approval', function () {
+        $pendingDraft = AccommodationDraft::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'waiting_for_approval',
+        ]);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $pendingDraft), [
+                'status' => 'draft',
+                'current_step' => 1,
+                'data' => [],
+            ])
+            ->assertForbidden();
+    });
+
+    it('returns 403 when draft status is published', function () {
+        $publishedDraft = AccommodationDraft::factory()->create([
+            'user_id' => $this->user->id,
+            'status' => 'published',
+        ]);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $publishedDraft), [
+                'status' => 'draft',
+                'current_step' => 1,
+                'data' => [],
+            ])
+            ->assertForbidden();
+    });
+
+    it('returns 200 when draft status is rejected', function () {
+        // Use a fresh user without an existing 'draft'-status draft to avoid unique constraint
+        $freshUser = authenticatedUser();
+        $rejectedDraft = AccommodationDraft::factory()->create([
+            'user_id' => $freshUser->id,
+            'status' => 'rejected',
+        ]);
+
+        $this->actingAs($freshUser, 'sanctum')
+            ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $rejectedDraft), [
+                'status' => 'draft',
+                'current_step' => 2,
+                'data' => ['accommodation_type' => 'apartment'],
+            ])
+            ->assertSuccessful();
+    });
+});
+
+// ============================================================
+// GET /api/accommodation-drafts/{id} (show)
+// ============================================================
+
+describe('GET /api/accommodation-drafts/{id} (show)', function () {
+
+    it('returns 401 for unauthenticated requests', function () {
+        Auth::logout();
+        $this->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertUnauthorized();
+    });
+
+    it('returns 200 with the draft for the owner', function () {
+        $this->actingAs($this->user, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertSuccessful()
+            ->assertJson(['success' => true, 'message' => 'Accommodation draft retrieved successfully']);
+    });
+
+    it('returns the correct draft id', function () {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertSuccessful();
+
+        expect($response->json('data.id'))->toBe($this->draft->id);
+    });
+
+    it('returns 403 when a different user tries to view the draft', function () {
+        $otherUser = authenticatedUser();
+
+        $this->actingAs($otherUser, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertForbidden();
+    });
+
+    it('returns the draft when status is rejected', function () {
+        $this->draft->update(['status' => 'rejected']);
+
+        $this->actingAs($this->user, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertSuccessful()
+            ->assertJsonFragment(['status' => 'rejected']);
+    });
+
+    it('includes review_comments in the response', function () {
+        $superadmin = superadmin();
+        $comment = ReviewComment::factory()->create([
+            'commentable_type' => AccommodationDraft::class,
+            'commentable_id' => $this->draft->id,
+            'user_id' => $superadmin->id,
+            'body' => 'Please fix the description.',
+        ]);
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertSuccessful();
+
+        expect($response->json('data.review_comments'))->toHaveCount(1)
+            ->and($response->json('data.review_comments.0.id'))->toBe($comment->id)
+            ->and($response->json('data.review_comments.0.body'))->toBe('Please fix the description.');
+    });
+
+    it('returns an empty review_comments array when there are none', function () {
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson(route('api.accommodation.drafts.accommodation-draft.show', $this->draft))
+            ->assertSuccessful();
+
+        expect($response->json('data.review_comments'))->toBeArray()->toHaveCount(0);
     });
 });
 

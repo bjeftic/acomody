@@ -5,11 +5,41 @@ export const loadInitialCreateAccommodationData = async ({ dispatch }) => {
         dispatch("fetchAccommodationDraft"),
         dispatch("fetchAccommodationTypes"),
         dispatch("fetchAmenities"),
+        dispatch("fetchBedTypes"),
     ];
 
     await Promise.all(actions).finally(() => {
         dispatch("setCreateAccommodationLoading", false);
     });
+};
+
+export const loadInitialEditDraftData = async ({ dispatch }, draftId) => {
+    const actions = [
+        dispatch("fetchDraftById", draftId),
+        dispatch("fetchAccommodationTypes"),
+        dispatch("fetchAmenities"),
+        dispatch("fetchBedTypes"),
+    ];
+
+    await Promise.all(actions).finally(() => {
+        dispatch("setCreateAccommodationLoading", false);
+    });
+};
+
+export const fetchDraftById = async ({ commit }, draftId) => {
+    try {
+        const response = await apiClient.accommodationDrafts[draftId].get();
+
+        commit("SET_ACCOMMODATION_DRAFT_ID", response.data);
+        commit("SET_ACCOMMODATION_DRAFT", response.data);
+        commit("SET_CREATE_ACCOMMODATION_STEP", response.data);
+        commit("SET_ACCOMMODATION_DRAFT_STATUS", response.data);
+        commit("SET_ACCOMMODATION_DRAFT_REVIEW_COMMENTS", response.data);
+
+        return response;
+    } catch (error) {
+        throw error;
+    }
 };
 
 export const fetchAccommodationDraft = async ({ commit }) => {
@@ -44,6 +74,13 @@ export const fetchAmenities = async ({ commit }) => {
     const response = await apiClient.amenities.get();
 
     commit("SET_AMENITIES", response.data);
+    return response;
+};
+
+export const fetchBedTypes = async ({ commit }) => {
+    const response = await apiClient.bedTypes.get();
+
+    commit("SET_BED_TYPES", response.data);
     return response;
 };
 
@@ -88,6 +125,7 @@ export const updateAccommodationDraft = async (
         commit("SET_ACCOMMODATION_DRAFT_ID", response.data);
         commit("SET_ACCOMMODATION_DRAFT", response.data);
         commit("SET_CREATE_ACCOMMODATION_STEP", response.data);
+        commit("SET_ACCOMMODATION_DRAFT_STATUS", response.data);
 
         return response;
     } catch (error) {

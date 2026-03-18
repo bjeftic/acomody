@@ -9,15 +9,15 @@
 
         <!-- Status filter -->
         <div class="flex flex-wrap gap-2 mb-6">
-            <fwb-button
+            <BaseButton
                 v-for="filter in statusFilters"
                 :key="filter.value"
-                :color="activeStatus === filter.value ? 'blue' : 'alternative'"
+                :variant="activeStatus === filter.value ? 'primary' : 'secondary'"
                 size="sm"
                 @click="setStatus(filter.value)"
             >
                 {{ filter.label }}
-            </fwb-button>
+            </BaseButton>
         </div>
 
         <!-- Loading -->
@@ -89,15 +89,15 @@
 
         <!-- Pagination -->
         <div v-if="meta.last_page > 1" class="mt-6 flex justify-center gap-2 flex-wrap">
-            <fwb-button
+            <BaseButton
                 v-for="page in meta.last_page"
                 :key="page"
-                :color="page === meta.current_page ? 'blue' : 'alternative'"
+                :variant="page === meta.current_page ? 'primary' : 'secondary'"
                 size="sm"
                 @click="fetchBookings(page)"
             >
                 {{ page }}
-            </fwb-button>
+            </BaseButton>
         </div>
     </div>
 </template>

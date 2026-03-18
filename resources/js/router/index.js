@@ -127,9 +127,7 @@ router.beforeEach((to, from, next) => {
                 }
             }).then(() => {
                 authModalShowing = false;
-                router.push(to.fullPath).then(() => {
-                    state.mainLoading = true;
-                }).finally(() => {
+                router.push(to.fullPath).finally(() => {
                     window.location.reload();
                 });
             }).catch(() => {

@@ -56,7 +56,7 @@ return new class extends Migration
                 'riad',
                 'ryokan',
                 'shepherd_house',
-                'igloo'
+                'igloo',
             ]);
             $table->enum('accommodation_occupation', ['entire_place', 'private_room', 'shared_room']);
             $table->string('title');
@@ -66,7 +66,7 @@ return new class extends Migration
             $table->unsignedBigInteger('views_count')->default(0);
             $table->unsignedBigInteger('favorites_count')->default(0);
             $table->boolean('is_featured')->default(false);
-            $table->foreignId('location_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('location_id')->constrained()->cascadeOnDelete();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->string('street_address')->nullable();
@@ -78,11 +78,20 @@ return new class extends Migration
             $table->time('quiet_hours_until')->nullable();
             $table->enum('cancellation_policy', ['flexible', 'moderate', 'firm', 'strict', 'non_refundable'])->default('moderate');
             $table->integer('bedrooms')->default(1);
-            $table->integer('beds')->default(1);
             $table->integer('bathrooms')->default(1);
             $table->boolean('is_active')->default(false);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('ical_token', 64)->nullable()->unique();
+            $table->boolean('ical_export_active')->default(false);
             $table->timestamps();
+        });
+
+        Schema::create('accommodation_beds', function (Blueprint $table) {
+            $table->id();
+            $table->foreignUlid('accommodation_id')->constrained()->cascadeOnDelete();
+            $table->string('bed_type');
+            $table->unsignedSmallInteger('quantity')->default(1);
+            $table->unique(['accommodation_id', 'bed_type']);
         });
     }
 
@@ -91,6 +100,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('accommodation_beds');
         Schema::dropIfExists('accommodations');
     }
 };

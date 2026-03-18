@@ -1,5 +1,13 @@
 const routes = [
     {
+        path: 'profile',
+        name: 'page-host-profile',
+        meta: {
+            requiresAuth: true,
+        },
+        component: () => import('@/src/views/hosting/HostProfilePage.vue'),
+    },
+    {
         path: 'dashboard',
         name: 'page-dashboard',
         meta: {
@@ -30,6 +38,14 @@ const routes = [
             requiresAuth: true,
         },
         component: () => import('@/src/views/hosting/listings/ShowListing.vue'),
+    },
+    {
+        path: 'drafts/:draftId/edit',
+        name: 'page-draft-edit',
+        meta: {
+            requiresAuth: true,
+        },
+        component: () => import('@/src/views/hosting/listings/EditAccommodationDraft.vue'),
     },
     {
         path: 'calendar',

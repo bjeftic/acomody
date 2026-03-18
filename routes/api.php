@@ -9,10 +9,17 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\BedTypeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FeeController;
+use App\Http\Controllers\Host\AvailabilityPeriodController as HostAvailabilityPeriodController;
 use App\Http\Controllers\Host\BookingController as HostBookingController;
+use App\Http\Controllers\Host\DeletionRequestController as HostDeletionRequestController;
+use App\Http\Controllers\Host\HostProfileController;
+use App\Http\Controllers\Host\IcalCalendarController as HostIcalCalendarController;
+use App\Http\Controllers\IcalExportController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Public\AccommodationController as PublicAccommodationController;
 use App\Http\Controllers\Public\FilterController as PublicFilterController;
 use App\Http\Controllers\Public\LocationController as PublicLocationController;
@@ -48,8 +55,14 @@ Route::prefix('public')->name('api.public')->group(function () {
             ->name('.index');
         Route::get('{accommodation}', [PublicAccommodationController::class, 'show'])
             ->name('show');
+        Route::get('{accommodationId}/blocked-dates', [PublicAccommodationController::class, 'blockedDates'])
+            ->name('blocked-dates');
     });
 });
+
+// iCal export — public
+Route::get('/{accommodationId}/ical/{token}', [IcalExportController::class, 'export'])
+    ->name('api.ical.export');
 
 Route::prefix('search')->name('api.search')->group(function () {
     Route::get('locations', [SearchController::class, 'searchLocations'])
@@ -85,6 +98,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/accommodation-types', [AccommodationTypeController::class, 'index'])
         ->name('api.accommodation.types');
 
+    Route::get('/bed-types', [BedTypeController::class, 'index'])
+        ->name('api.bed.types');
+
     Route::get('/amenities', [AmenityController::class, 'index'])
         ->name('api.amenities');
 
@@ -111,6 +127,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('stats', [AccommodationDraftController::class, 'getDraftStats'])
             ->name('accommodation-draft.stats');
 
+        Route::get('{accommodationDraft}', [AccommodationDraftController::class, 'show'])
+            ->name('accommodation-draft.show');
+
         Route::prefix('{accommodationDraft}')->group(function () {
             Route::get('photos', [AccommodationDraftController::class, 'getPhotos'])
                 ->name('accommodation-draft.photos.index');
@@ -136,6 +155,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ->name('accommodations.index');
         Route::get('{accommodation}', [AccommodationController::class, 'show'])
             ->name('accommodations.show');
+        Route::patch('{accommodation}', [AccommodationController::class, 'update'])
+            ->name('accommodations.update');
         Route::post('{accommodation}/check-availability', [AccommodationController::class, 'checkAvailability'])
             ->name('accommodations.check-availability');
         Route::post('{accommodation}/calculate-price', [AccommodationController::class, 'calculatePrice'])
@@ -148,6 +169,49 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('', [BookingController::class, 'store'])->name('store');
         Route::get('{booking}', [BookingController::class, 'show'])->name('show');
         Route::post('{booking}/cancel', [BookingController::class, 'cancel'])->name('cancel');
+    });
+
+    // User account deletion request
+    Route::post('users/deletion-request', [UserController::class, 'requestAccountDeletion'])
+        ->name('api.users.deletion-request');
+
+    // Host account deletion request
+    Route::post('host/deletion-request', [HostDeletionRequestController::class, 'requestHostAccountDeletion'])
+        ->name('api.host.deletion-request');
+
+    // Accommodation deletion request
+    Route::post('host/accommodations/{accommodation}/deletion-request', [HostDeletionRequestController::class, 'requestAccommodationDeletion'])
+        ->name('api.host.accommodations.deletion-request');
+
+    // Host profile
+    Route::prefix('host/profile')->name('api.host.profile.')->group(function () {
+        Route::get('', [HostProfileController::class, 'show'])->name('show');
+        Route::post('initialize', [HostProfileController::class, 'initialize'])->name('initialize');
+        Route::post('', [HostProfileController::class, 'store'])->name('store');
+        Route::put('', [HostProfileController::class, 'update'])->name('update');
+        Route::post('avatar', [HostProfileController::class, 'uploadAvatar'])->name('avatar');
+    });
+
+    // Host iCal calendar management
+    Route::prefix('host/accommodations/{accommodation}/ical-calendars')->name('api.host.ical.')->group(function () {
+        Route::get('', [HostIcalCalendarController::class, 'index'])->name('index');
+        Route::post('', [HostIcalCalendarController::class, 'store'])->name('store');
+        Route::put('{icalCalendar}', [HostIcalCalendarController::class, 'update'])->name('update');
+        Route::delete('{icalCalendar}', [HostIcalCalendarController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::post('host/accommodations/{accommodation}/ical-token/regenerate', [HostIcalCalendarController::class, 'regenerateToken'])
+        ->name('api.host.ical.token.regenerate');
+
+    // Host availability periods (blocked/closed dates)
+    Route::get('host/blocked-periods', [HostAvailabilityPeriodController::class, 'index'])
+        ->name('api.host.blocked-periods.index');
+
+    // Notifications
+    Route::prefix('notifications')->name('api.notifications.')->group(function () {
+        Route::get('', [NotificationController::class, 'index'])->name('index');
+        Route::post('{id}/read', [NotificationController::class, 'markAsRead'])->name('read');
+        Route::post('read-all', [NotificationController::class, 'markAllRead'])->name('read-all');
     });
 
     // Host booking management

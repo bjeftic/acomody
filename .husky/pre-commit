@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Run PHPStan on staged PHP files
+STAGED_PHP=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.php$' | grep '^app/Models/') || true
+
+if [ -n "$STAGED_PHP" ]; then
+    echo "Running PHPStan on staged PHP files..."
+    vendor/bin/sail bin phpstan analyse --no-progress $STAGED_PHP
+fi

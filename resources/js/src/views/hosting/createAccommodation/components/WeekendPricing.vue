@@ -34,7 +34,7 @@
                     @change="handleToggle"
                 />
                 <div
-                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"
                 ></div>
             </label>
         </div>
@@ -59,7 +59,7 @@
                     step="1"
                     @input="handlePriceChange"
                     @focus="$event.target.select()"
-                    class="pl-12 w-full px-4 py-3 text-lg font-semibold border-2 border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                    class="pl-12 w-full px-4 py-3 text-lg font-semibold border-2 border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 dark:bg-gray-900 dark:text-white"
                     placeholder="0"
                 />
             </div>
@@ -70,7 +70,7 @@
             <!-- Weekend Price Preview -->
             <div
                 v-if="localPricing.weekendPrice > 0"
-                class="mt-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg"
+                class="mt-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl"
             >
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
                     Guest price on weekends (before taxes)
@@ -83,7 +83,7 @@
             <!-- Price Comparison -->
             <div
                 v-if="localPricing.weekendPrice > 0 && pricing.basePrice > 0"
-                class="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                class="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
             >
                 <div class="flex items-center justify-between text-sm">
                     <span class="text-gray-600 dark:text-gray-400">
@@ -106,7 +106,7 @@
         <!-- Info Note -->
         <div
             v-else
-            class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+            class="mt-4 p-3 bg-primary-50 dark:bg-primary-900/20 rounded-xl"
         >
             <p class="text-sm text-gray-600 dark:text-gray-400">
                 💡 If not set, the base price will apply to all nights including
@@ -121,7 +121,7 @@
                 pricing.basePrice > 0 &&
                 localPricing.weekendPrice === 0
             "
-            class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg"
+            class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl"
         >
             <div class="flex items-start space-x-3">
                 <svg
@@ -147,14 +147,14 @@
                     <div class="flex space-x-2">
                         <button
                             @click="applySuggestion(1.25)"
-                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                             +25% ({{ currency
                             }}{{ Math.round(pricing.basePrice * 1.25) }})
                         </button>
                         <button
                             @click="applySuggestion(1.3)"
-                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                             +30% ({{ currency
                             }}{{ Math.round(pricing.basePrice * 1.3) }})

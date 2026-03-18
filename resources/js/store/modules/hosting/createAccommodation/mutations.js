@@ -7,6 +7,12 @@ export default {
     [types.SET_ACCOMMODATION_DRAFT](state, accommodationDraft) {
         state.accommodationDraft = accommodationDraft.data.data;
     },
+    [types.SET_ACCOMMODATION_DRAFT_STATUS](state, accommodationDraft) {
+        state.accommodationDraftStatus = accommodationDraft.data.status;
+    },
+    [types.SET_ACCOMMODATION_DRAFT_REVIEW_COMMENTS](state, accommodationDraft) {
+        state.accommodationDraftReviewComments = accommodationDraft.data.review_comments ?? [];
+    },
     [types.SET_ACCOMMODATION_DRAFT_PHOTOS](state, photos) {
         state.accommodationDraft.photos = photos.data;
     },
@@ -20,6 +26,9 @@ export default {
     },
     [types.SET_AMENITIES](state, amenities) {
         state.amenities = amenities.data;
+    },
+    [types.SET_BED_TYPES](state, bedTypes) {
+        state.bedTypes = bedTypes.data;
     },
     [types.SET_CREATE_ACCOMMODATION_STEP](state, accommodationDraft) {
         state.currentStep = accommodationDraft.data.current_step;
@@ -36,6 +45,8 @@ export default {
     [types.RESET_ACCOMMODATION_DRAFT](state) {
         state.accommodationDraftId = null;
         state.accommodationDraft = {};
+        state.accommodationDraftStatus = null;
+        state.accommodationDraftReviewComments = [];
         state.currentStep = 1;
     },
 };

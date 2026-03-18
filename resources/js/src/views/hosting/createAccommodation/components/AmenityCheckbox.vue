@@ -1,10 +1,10 @@
 <template>
   <div
-    class="px-4 py-2 border-2 rounded-2xl cursor-pointer transition-all duration-200 select-none"
+    class="px-4 py-2 border-2 rounded-xl cursor-pointer transition-all duration-200 select-none"
     :class="[
       isSelected
-        ? 'border-gray-900 dark:border-white bg-gray-50 dark:bg-gray-800'
-        : 'border-gray-300 dark:border-gray-700 hover:border-gray-900 dark:hover:border-white'
+        ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20'
+        : 'border-gray-200 dark:border-gray-700 hover:border-primary-400 dark:hover:border-primary-500'
     ]"
     @click="handleToggle"
     role="checkbox"
@@ -13,17 +13,27 @@
     @keyup.enter.space="handleToggle"
   >
     <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center gap-3">
         <!-- Icon -->
-        <IconLoader :name="amenity.icon" :size="24" />
+        <IconLoader
+          :name="amenity.icon"
+          :size="20"
+          :class="isSelected ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'"
+        />
         <!-- Text -->
-        <h4 class="text-base font-medium text-gray-900 dark:text-white">
+        <span class="text-sm font-medium" :class="isSelected ? 'text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-200'">
           {{ amenity.name }}
-        </h4>
+        </span>
       </div>
 
       <!-- Checkbox -->
-      <fwb-checkbox :model-value="isSelected" @update:model-value="handleToggle" />
+      <div class="w-5 h-5 rounded flex items-center justify-center border-2 transition-all"
+        :class="isSelected ? 'border-primary-600 bg-primary-600 dark:border-primary-400 dark:bg-primary-400' : 'border-gray-300 dark:border-gray-600'"
+      >
+        <svg v-if="isSelected" class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
     </div>
   </div>
 </template>

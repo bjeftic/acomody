@@ -19,6 +19,9 @@
 
             <div class="panel-body">
                 <a href="{{ url('/admin/locations/create') }}" class="btn btn-default">Add Location</a>
+                @if(Session::has('success'))
+                    <p class="alert alert-success">{{ Session::get('success') }}</p>
+                @endif
                 @foreach (['danger', 'warning', 'success', 'info'] as $msg)
                     @if(Session::has('alert-' . $msg))
                         <p class="alert alert-{{ $msg }}">{{ Session::get('alert-' . $msg) }} <a href="#"
@@ -33,11 +36,13 @@
                     <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Image</th>
                         <th>Country</th>
                         <th>Parent</th>
                         <th>Name</th>
+                        <th>Type</th>
+                        <th>Active</th>
                         <th>Created at</th>
-                        <th>Updated at</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -45,15 +50,37 @@
                     @foreach ($locations as $location)
                         <tr>
                             <td>{{ $location->id }}</td>
+                            <td>
+                                @if($location->primaryPhoto?->status === 'completed')
+                                    <img src="{{ $location->primaryPhoto->thumbnail_url }}"
+                                         alt="{{ $location->name }}"
+                                         style="width: 50px; height: 40px; object-fit: cover; border-radius: 3px;">
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
                             <td>{{ $location->country?->name }}</td>
-                            <td>{{ $location->parent?->name ?? '' }}</td>
+                            <td>{{ $location->parent?->name ?? '—' }}</td>
                             <td>{{ $location->name }}</td>
-                            <td>{{ $location->created_at }}</td>
-                            <td>{{ $location->updated_at }}</td>
+                            <td>{{ $location->location_type?->label() ?? '—' }}</td>
+                            <td>
+                                @if($location->is_active)
+                                    <span class="label label-success">Yes</span>
+                                @else
+                                    <span class="label label-default">No</span>
+                                @endif
+                            </td>
+                            <td>{{ $location->created_at->format('Y-m-d') }}</td>
                             <td align="right">
                                 <div class="btn-group">
-                                    <a href='/admin/locations/{{ $location->id }}' class="btn btn-default btn-xs">View</a>
-                                    <a href='/admin/locations/{{ $location->id }}/edit' class="btn btn-default btn-xs">Edit</a>
+                                    <a href="{{ route('admin.locations.edit', $location) }}" class="btn btn-default btn-xs">Edit</a>
+                                    <form method="POST" action="{{ route('admin.locations.destroy', $location) }}"
+                                          style="display:inline;"
+                                          onsubmit="return confirm('Delete this location? This cannot be undone.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-xs">Delete</button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

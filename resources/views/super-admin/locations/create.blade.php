@@ -25,8 +25,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ url('/admin/locations') }}"
-                  onsubmit="document.getElementById('configuration').value = JSON.stringify(window.editor.get()); return true;">
+            <form method="POST" action="{{ url('/admin/locations') }}" enctype="multipart/form-data">
                 @csrf
                 @include('super-admin.partials.forms.location')
             </form>

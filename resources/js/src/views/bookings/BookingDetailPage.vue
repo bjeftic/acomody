@@ -1,7 +1,7 @@
 <template>
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="min-h-screen bg-white dark:bg-gray-900">
         <!-- Loading State -->
-        <div v-if="loading" class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div v-if="loading" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="animate-pulse space-y-6">
                 <div class="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
                 <div class="h-48 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
@@ -10,12 +10,14 @@
         </div>
 
         <!-- Error State -->
-        <div v-else-if="error" class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <fwb-alert type="danger">{{ error }}</fwb-alert>
+        <div v-else-if="error" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="px-4 py-3 rounded-xl text-sm border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">
+                {{ error }}
+            </div>
         </div>
 
         <!-- Main Content -->
-        <div v-else-if="booking" class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div v-else-if="booking" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
             <!-- Back -->
             <button
                 @click="$router.back()"
@@ -33,23 +35,23 @@
                     'rounded-xl p-6 border',
                     isConfirmed
                         ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                        : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
+                        : 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800',
                 ]"
             >
                 <div class="flex items-start gap-4">
-                    <div :class="['rounded-full p-2', isConfirmed ? 'bg-green-100 dark:bg-green-800' : 'bg-blue-100 dark:bg-blue-800']">
+                    <div :class="['rounded-full p-2', isConfirmed ? 'bg-green-100 dark:bg-green-800' : 'bg-primary-100 dark:bg-primary-800']">
                         <svg v-if="isConfirmed" class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        <svg v-else class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg v-else class="w-6 h-6 text-primary-600 dark:text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                     <div>
-                        <h1 :class="['text-xl font-bold', isConfirmed ? 'text-green-900 dark:text-green-100' : 'text-blue-900 dark:text-blue-100']">
+                        <h1 :class="['text-xl font-bold', isConfirmed ? 'text-green-900 dark:text-green-100' : 'text-primary-900 dark:text-primary-100']">
                             {{ isConfirmed ? 'Booking confirmed!' : 'Booking request sent!' }}
                         </h1>
-                        <p :class="['text-sm mt-1', isConfirmed ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300']">
+                        <p :class="['text-sm mt-1', isConfirmed ? 'text-green-700 dark:text-green-300' : 'text-primary-700 dark:text-primary-300']">
                             {{ isConfirmed
                                 ? 'Your reservation is confirmed. Check your email for details.'
                                 : 'Your request has been sent to the host. You\'ll hear back soon.' }}
@@ -192,7 +194,7 @@
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         Need to cancel? Please review the cancellation policy before proceeding.
                     </p>
-                    <fwb-button color="red" @click="showCancelConfirm = true">Cancel booking</fwb-button>
+                    <BaseButton variant="danger" @click="showCancelConfirm = true">Cancel booking</BaseButton>
                 </div>
 
                 <div v-else class="space-y-4">
@@ -206,17 +208,19 @@
                             rows="3"
                             maxlength="500"
                             placeholder="Let the host know why you're cancelling..."
-                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                            class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:outline-none resize-none"
                         ></textarea>
                     </div>
-                    <fwb-alert v-if="cancelError" type="danger" class="text-sm">{{ cancelError }}</fwb-alert>
+                    <div v-if="cancelError" class="px-4 py-3 rounded-xl text-sm border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">
+                        {{ cancelError }}
+                    </div>
                     <div class="flex gap-3">
-                        <fwb-button color="red" :disabled="cancelling" @click="cancelBooking">
+                        <BaseButton variant="danger" :disabled="cancelling" @click="cancelBooking">
                             {{ cancelling ? 'Cancelling…' : 'Yes, cancel booking' }}
-                        </fwb-button>
-                        <fwb-button color="alternative" :disabled="cancelling" @click="showCancelConfirm = false">
+                        </BaseButton>
+                        <BaseButton variant="secondary" :disabled="cancelling" @click="showCancelConfirm = false">
                             Keep booking
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
             </div>

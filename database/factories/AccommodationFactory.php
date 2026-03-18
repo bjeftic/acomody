@@ -2,19 +2,21 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Accommodation;
-use App\Models\AccommodationDraft;
-use App\Models\Location;
-use App\Enums\Accommodation\AccommodationType;
-use App\Models\Amenity;
-use App\Models\User;
-use App\Models\Currency;
 use App\Enums\Accommodation\AccommodationOccupation;
+use App\Enums\Accommodation\AccommodationType;
+use App\Enums\Accommodation\BedType;
 use App\Enums\Accommodation\BookingType;
-use App\Models\PriceableItem;
 use App\Enums\PriceableItem\PricingType;
+use App\Models\Accommodation;
+use App\Models\AccommodationBed;
+use App\Models\AccommodationDraft;
+use App\Models\Amenity;
+use App\Models\Currency;
+use App\Models\Location;
 use App\Models\Photo;
+use App\Models\PriceableItem;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Accommodation>
@@ -51,7 +53,6 @@ class AccommodationFactory extends Factory
             'favorites_count' => fake()->numberBetween(0, 5000),
             'is_featured' => fake()->boolean(10),
             'bedrooms' => fake()->numberBetween(1, 4),
-            'beds' => fake()->numberBetween(1, 10),
             'bathrooms' => fake()->numberBetween(1, 2),
             'check_in_from' => fake()->time(),
             'check_in_until' => fake()->time(),
@@ -63,7 +64,7 @@ class AccommodationFactory extends Factory
     public function configure()
     {
         return $this->afterMaking(function (Accommodation $accommodation) {
-            if (!isset($accommodation->user_id)) {
+            if (! isset($accommodation->user_id)) {
                 $accommodation->user_id = User::factory()->create()->id;
             }
 
@@ -109,6 +110,15 @@ class AccommodationFactory extends Factory
                 );
 
             $accommodation->amenities()->attach($amenityIds);
+
+            collect(BedType::cases())
+                ->shuffle()
+                ->take(fake()->numberBetween(1, 3))
+                ->each(fn (BedType $bedType) => AccommodationBed::create([
+                    'accommodation_id' => $accommodation->id,
+                    'bed_type' => $bedType->value,
+                    'quantity' => fake()->numberBetween(1, 4),
+                ]));
 
             // Create photos (5-12 photos per accommodation)
             $photoCount = fake()->numberBetween(5, 12);

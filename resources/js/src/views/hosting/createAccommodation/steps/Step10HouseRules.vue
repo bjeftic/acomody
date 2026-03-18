@@ -65,7 +65,7 @@
                                 @change="emitUpdate"
                             />
                             <div
-                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-200 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"
                             ></div>
                         </label>
                     </div>
@@ -78,7 +78,7 @@
                             <select
                                 v-model="localHouseRules.quietHoursFrom"
                                 @change="emitUpdate"
-                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-900 dark:text-white text-sm"
                             >
                                 <option v-for="time in config.timeSlots" :key="time" :value="time">
                                     {{ time }}
@@ -92,7 +92,7 @@
                             <select
                                 v-model="localHouseRules.quietHoursUntil"
                                 @change="emitUpdate"
-                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-900 dark:text-white text-sm"
                             >
                                 <option v-for="time in config.timeSlots" :key="time" :value="time">
                                     {{ time }}
@@ -121,13 +121,13 @@
 
             <!-- Info Box -->
             <div
-                class="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800"
+                class="p-6 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800"
             >
                 <h4
                     class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center"
                 >
                     <svg
-                        class="w-5 h-5 mr-2 text-blue-500"
+                        class="w-5 h-5 mr-2 text-primary-500"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                     >
@@ -142,7 +142,7 @@
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <li class="flex items-start">
                         <svg
-                            class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-blue-500"
+                            class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-primary-500"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                         >
@@ -156,7 +156,7 @@
                     </li>
                     <li class="flex items-start">
                         <svg
-                            class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-blue-500"
+                            class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-primary-500"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                         >
@@ -170,7 +170,7 @@
                     </li>
                     <li class="flex items-start">
                         <svg
-                            class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-blue-500"
+                            class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-primary-500"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                         >

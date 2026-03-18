@@ -9,6 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @OA\Schema(
  *     schema="AccommodationDraft",
  *     type="object",
+ *
  *     @OA\Property(property="id", type="string", format="ulid", example="3fa85f64-5717-4562-b3fc-2c963f66afa6"),
  *     @OA\Property(property="current_step", type="integer", example=2),
  *     @OA\Property(property="status", type="string", example="draft"),
@@ -31,6 +32,14 @@ class AccommodationDraftResource extends JsonResource
             'status' => $this->status,
             'data' => json_decode($this->data, true),
             'last_saved_at' => $this->last_saved_at,
+            'review_comments' => $this->when(
+                $this->relationLoaded('reviewComments'),
+                fn () => $this->reviewComments->map(fn ($comment) => [
+                    'id' => $comment->id,
+                    'body' => $comment->body,
+                    'created_at' => $comment->created_at,
+                ])->values()
+            ),
         ];
     }
 }

@@ -1,87 +1,82 @@
 @extends('layouts.superadmin')
 
 @section('content')
-    <section>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-              Users
-              @if ($users instanceof \Illuminate\Database\Eloquent\Collection)
-                <a href="/superadmin/users">(paginated users)</a>
-              @else
-                <a href="/superadmin/users/all">(all users)</a>
-              @endif
-            </div>
+<section>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Accommodations
+        </div>
 
-            <div style="display:flex; padding: 16px;" id="triggerByEnter">
-              <input type="test" style="max-width:300px" class="form-control" id="search" value="{{$search}}" />
-              <button type="button" class="btn btn-primary mb-2" style="margin-left: 10px;" onclick="search()">Search</button>
-            </div>
+        <div style="display:flex; padding: 16px;" id="triggerByEnter">
+            <input type="text" style="max-width:300px" class="form-control" id="search" value="{{ $search }}" placeholder="Search by title…" />
+            <button type="button" class="btn btn-primary mb-2" style="margin-left: 10px;" onclick="doSearch()">Search</button>
+        </div>
 
-            <div class="panel-body">
-                @foreach (['danger', 'warning', 'success', 'info'] as $msg)
-                    @if(Session::has('alert-' . $msg))
-                        <p class="alert alert-{{ $msg }}">{{ Session::get('alert-' . $msg) }} <a href="#"
-                                                                                                 class="close"
-                                                                                                 data-dismiss="alert"
-                                                                                                 aria-label="close">&times;</a>
-                        </p>
-                    @endif
-                @endforeach
+        <div class="panel-body">
+            @foreach (['danger', 'warning', 'success', 'info'] as $msg)
+                @if (Session::has('alert-' . $msg))
+                    <p class="alert alert-{{ $msg }}">{{ Session::get('alert-' . $msg) }}</p>
+                @endif
+            @endforeach
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
 
-                <table class="table table-hover table-striped table-condensed">
-                    <thead>
+            <table class="table table-hover table-striped table-condensed">
+                <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>E-mail</th>
-                        <th>Verified email</th>
+                        <th>Title</th>
+                        <th>Host</th>
+                        <th>Location</th>
+                        <th>Type</th>
+                        <th>Active</th>
                         <th>Created at</th>
-                        <th>Updated at</th>
                         <th></th>
                     </tr>
-                    </thead>
-                    <tbody>
-                    @foreach ($users as $user)
+                </thead>
+                <tbody>
+                    @forelse ($accommodations as $accommodation)
                         <tr>
-                            <td>{{ $user->id }}</td>
-                            <td>{{ $user->name ?? '' }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>{{ $user->email_verified_at }}</td>
-                            <td>{{ $user->created_at }}</td>
-                            <td>{{ $user->updated_at }}</td>
+                            <td>{{ $accommodation->title }}</td>
+                            <td>{{ $accommodation->user->name ?? '-' }}</td>
+                            <td>{{ $accommodation->location->name ?? '-' }}</td>
+                            <td>{{ $accommodation->accommodation_type }}</td>
+                            <td>
+                                @if ($accommodation->is_active)
+                                    <span class="label label-success">Yes</span>
+                                @else
+                                    <span class="label label-default">No</span>
+                                @endif
+                            </td>
+                            <td>{{ $accommodation->created_at->format('d M Y') }}</td>
                             <td align="right">
                                 <div class="btn-group">
-                                    <a href='/admin/users/{{ $user->id }}' class="btn btn-default btn-xs">View</a>
-                                    <a href='/admin/users/{{ $user->id }}/edit' class="btn btn-default btn-xs">Edit</a>
+                                    <a href="/admin/accommodations/{{ $accommodation->id }}" class="btn btn-default btn-xs">View</a>
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
+                    @empty
+                        <tr>
+                            <td colspan="7" style="text-align:center; color:#888;">No accommodations found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-    </section>
-    @if (!$users instanceof \Illuminate\Database\Eloquent\Collection)
-      {!! $users->render() !!}
-    @endif
-    <script>
-      function loadFrame(src, to, subject) {
-        document.getElementById('iframe').src = src
-        document.getElementById('to').innerHTML = to
-        document.getElementById('subject').innerHTML = subject
-      }
+    </div>
 
-      function search() {
-        window.location.assign('/superadmin/users?page={{$page}}&search=' + document.getElementById('search').value)
-      }
+    {!! $accommodations->render() !!}
+</section>
 
-      document.getElementById('triggerByEnter').onkeyup = function(e) {
-      if (e.keyCode === 13) {
-        window.location.assign('/superadmin/users?page={{$page}}&search=' + document.getElementById('search').value)
-      }
-      return true;
-      }
-    </script>
+<script>
+    function doSearch() {
+        window.location.assign('/admin/accommodations?page=1&search=' + document.getElementById('search').value);
+    }
+
+    document.getElementById('triggerByEnter').onkeyup = function (e) {
+        if (e.keyCode === 13) {
+            doSearch();
+        }
+    };
+</script>
 @endsection
-

@@ -93,7 +93,19 @@ class BookingService
             );
         }
 
-        // Guard: availability
+        // Guard: overlapping active bookings (pending or confirmed)
+        $overlappingBooking = DB::table('bookings')
+            ->where('accommodation_id', $accommodation->id)
+            ->whereIn('status', [BookingStatus::PENDING->value, BookingStatus::CONFIRMED->value])
+            ->where('check_in', '<', $checkOut->toDateString())
+            ->where('check_out', '>', $checkIn->toDateString())
+            ->exists();
+
+        if ($overlappingBooking) {
+            throw new \RuntimeException('The selected dates are not available.');
+        }
+
+        // Guard: availability (blocked/closed periods)
         $availability = $this->availabilityService->checkAvailability(
             Accommodation::class,
             $accommodation->id,
@@ -103,7 +115,7 @@ class BookingService
 
         if (! $availability['available']) {
             throw new \RuntimeException(
-                'The selected dates are not available: ' . implode(', ', $availability['reasons'])
+                'The selected dates are not available: '.implode(', ', $availability['reasons'])
             );
         }
 
@@ -142,7 +154,7 @@ class BookingService
                 'bulk_discount' => $breakdown['bulk_discount'] ?? null,
                 'fees' => $breakdown['fees'] ?? null,
                 'taxes' => $breakdown['taxes'] ?? null,
-            ], fn($v) => $v !== null);
+            ], fn ($v) => $v !== null);
 
             $booking = Booking::create([
                 'accommodation_id' => $accommodation->id,
@@ -204,7 +216,7 @@ class BookingService
 
         if (! $availability['available']) {
             throw new \RuntimeException(
-                'The requested dates are no longer available: ' . implode(', ', $availability['reasons'])
+                'The requested dates are no longer available: '.implode(', ', $availability['reasons'])
             );
         }
 
@@ -299,15 +311,28 @@ class BookingService
     /**
      * All bookings across the host's properties.
      */
-
     public function getHostBookings(User $host, int $perPage = 15, ?string $status = null): LengthAwarePaginator
     {
-        return Booking::query()
+        $paginator = Booking::query()
             ->with(['accommodation.primaryPhoto'])
             ->where('host_user_id', $host->id)
             ->when($status, fn ($q) => $q->where('status', $status))
             ->orderByDesc('check_in')
             ->paginate($perPage);
+
+        $guestIds = collect($paginator->items())->pluck('user_id')->unique()->filter()->values();
+
+        $guestMap = DB::table('users')
+            ->leftJoin('user_profiles', 'user_profiles.user_id', '=', 'users.id')
+            ->whereIn('users.id', $guestIds)
+            ->get(['users.id', 'users.email', 'user_profiles.first_name', 'user_profiles.last_name'])
+            ->keyBy('id');
+
+        foreach ($paginator->items() as $booking) {
+            $booking->guest_info = $guestMap->get($booking->user_id);
+        }
+
+        return $paginator;
     }
 
     // ============================================

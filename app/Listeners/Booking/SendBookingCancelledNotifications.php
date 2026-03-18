@@ -4,7 +4,7 @@ namespace App\Listeners\Booking;
 
 use App\Events\Booking\BookingCancelled;
 use App\Mail\Booking\BookingCancelledMail;
-use App\Models\User;
+use App\Notifications\BookingCancelledNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -23,6 +23,9 @@ class SendBookingCancelledNotifications implements ShouldQueue
             if ($event->cancelledByUserId !== $booking->host_user_id) {
                 Mail::to($booking->host->email)->queue(new BookingCancelledMail($booking, forHost: true));
             }
+
+            $booking->guest->notify(new BookingCancelledNotification($booking));
+            $booking->host->notify(new BookingCancelledNotification($booking));
         } catch (\Throwable $e) {
             Log::error('Booking cancellation notification failed', ['booking_id' => $booking->id, 'error' => $e->getMessage()]);
         }
