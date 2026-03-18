@@ -20,7 +20,7 @@ class FeaturedAccommodationsRequest extends FormRequest
             'sortBy' => 'string|in:rating,reviews,price_asc,price_desc,newest',
             'page' => 'integer|min:1',
             'perPage' => 'integer|min:1|max:100',
-            'location_id' => 'integer|exists:locations,id',
+            'location_id' => 'string|exists:locations,id',
         ];
     }
 }

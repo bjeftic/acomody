@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Location\LocationType;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Laravel\Scout\Searchable;
@@ -196,6 +197,11 @@ class Location extends Model
             'fields' => $fields,
             'default_sorting_field' => 'created_at',
         ];
+    }
+
+    public function accommodations(): HasMany
+    {
+        return $this->hasMany(Accommodation::class);
     }
 
     public function country()

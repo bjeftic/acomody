@@ -1,9 +1,9 @@
 <template>
-    <div v-if="totalPages > 1" class="flex items-center justify-center gap-2">
+    <div v-if="totalPages > 1" class="flex items-center justify-center gap-1">
         <button
             :disabled="modelValue === 1"
             @click="$emit('update:modelValue', modelValue - 1)"
-            class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300"
+            class="px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-primary-400 transition-colors"
         >
             Previous
         </button>
@@ -13,10 +13,10 @@
             :key="page"
             @click="$emit('update:modelValue', page)"
             :class="[
-                'px-3 py-2 text-sm font-medium rounded-lg border',
+                'px-3 py-2 text-sm font-medium rounded-lg border transition-colors',
                 page === modelValue
-                    ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900'
-                    : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300',
+                    ? 'bg-primary border-primary text-white shadow-sm'
+                    : 'text-gray-600 bg-white border-gray-200 hover:bg-gray-50 hover:text-primary dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-primary-400',
             ]"
         >
             {{ page }}
@@ -25,7 +25,7 @@
         <button
             :disabled="modelValue === totalPages"
             @click="$emit('update:modelValue', modelValue + 1)"
-            class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300"
+            class="px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-primary-400 transition-colors"
         >
             Next
         </button>
