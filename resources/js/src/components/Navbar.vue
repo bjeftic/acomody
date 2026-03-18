@@ -59,6 +59,9 @@
                         Become a host
                     </fwb-button>
 
+                    <!-- Notifications bell (logged in only) -->
+                    <notification-dropdown v-if="isLoggedIn" />
+
                     <!-- Auth buttons or Account dropdown -->
                     <template v-if="!isLoggedIn">
                         <fwb-button
@@ -129,28 +132,72 @@ outline
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
+import NotificationDropdown from "@/src/components/NotificationDropdown.vue";
+
+const POLL_INTERVAL_MS = 60_000;
 
 export default {
     name: "Navbar",
+
+    components: { NotificationDropdown },
+
     data() {
         return {
             currentCurrency: null,
+            pollTimer: null,
         };
     },
+
     computed: {
         ...mapGetters("auth", ["isLoggedIn"]),
         ...mapGetters("user", ["hostingCtaStatus"]),
         ...mapState("ui", ["currencies", "selectedCurrency"]),
     },
+
+    watch: {
+        isLoggedIn(loggedIn) {
+            if (loggedIn) {
+                this.startPolling();
+            } else {
+                this.stopPolling();
+            }
+        },
+    },
+
+    mounted() {
+        if (this.isLoggedIn) {
+            this.startPolling();
+        }
+    },
+
+    beforeUnmount() {
+        this.stopPolling();
+    },
+
     methods: {
         ...mapActions(["openModal"]),
         ...mapActions("auth", ["logOut"]),
         ...mapActions("ui", ["setCurrency"]),
+        ...mapActions("notifications", ["fetchNotifications"]),
+
         openLogInModal() {
             this.openModal({ modalName: "logInModal" });
         },
+
         openSignUpModal() {
             this.openModal({ modalName: "signUpModal" });
+        },
+
+        startPolling() {
+            this.fetchNotifications();
+            this.pollTimer = setInterval(this.fetchNotifications, POLL_INTERVAL_MS);
+        },
+
+        stopPolling() {
+            if (this.pollTimer) {
+                clearInterval(this.pollTimer);
+                this.pollTimer = null;
+            }
         },
     },
 };
