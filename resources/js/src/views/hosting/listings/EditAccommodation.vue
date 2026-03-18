@@ -121,15 +121,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection('property')"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -177,15 +177,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection('location')"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -222,15 +222,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection('floorPlan')"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -288,15 +288,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection('amenities')"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -325,15 +325,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection('title')"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -364,15 +364,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection('description')"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -403,15 +403,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection('pricing')"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -469,15 +469,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection('houseRules')"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section

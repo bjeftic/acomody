@@ -44,7 +44,7 @@
                     <div
                         v-for="comment in accommodationDraftReviewComments"
                         :key="comment.id"
-                        class="p-4 bg-white dark:bg-gray-800 rounded-lg border border-red-100 dark:border-red-900"
+                        class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-red-100 dark:border-red-900"
                     >
                         <p class="text-sm text-gray-700 dark:text-gray-300">
                             {{ comment.body }}
@@ -71,9 +71,9 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button color="light" @click="cancelEdit">
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Done
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <div v-else class="relative aspect-video bg-gray-100 dark:bg-gray-900 group cursor-pointer" @click="startEdit('photos')">
@@ -171,15 +171,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -227,15 +227,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -272,15 +272,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -338,15 +338,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -375,15 +375,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -414,15 +414,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -453,15 +453,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -519,15 +519,15 @@
                         @update:form-data="updateFormData"
                     />
                     <div class="flex gap-3 mt-6">
-                        <fwb-button
+                        <BaseButton
                             :disabled="isSaving"
                             @click="saveSection"
                         >
                             Save
-                        </fwb-button>
-                        <fwb-button color="light" @click="cancelEdit">
+                        </BaseButton>
+                        <BaseButton variant="secondary" @click="cancelEdit">
                             Cancel
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
                 <edit-section
@@ -573,7 +573,7 @@
 
             <!-- Submit for Approval -->
             <div
-                class="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800"
+                class="mt-8 p-6 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800"
             >
                 <h4
                     class="text-sm font-semibold text-gray-900 dark:text-white mb-2"
@@ -584,12 +584,12 @@
                     Once submitted, our team will review your listing within 24
                     hours.
                 </p>
-                <fwb-button
+                <BaseButton
                     :disabled="isSaving"
                     @click="submitForApproval"
                 >
                     Submit for approval
-                </fwb-button>
+                </BaseButton>
             </div>
         </template>
     </div>

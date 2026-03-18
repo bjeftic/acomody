@@ -1,12 +1,12 @@
 <template>
     <div
-        class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl"
+        class="p-6 bg-gradient-to-br from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20 border border-primary-200 dark:border-primary-800 rounded-xl"
     >
         <h3
             class="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center"
         >
             <svg
-                class="w-5 h-5 mr-2 text-blue-500"
+                class="w-5 h-5 mr-2 text-primary-500"
                 fill="currentColor"
                 viewBox="0 0 20 20"
             >
@@ -21,7 +21,7 @@
             <!-- Tip 1: Research -->
             <div class="flex items-start space-x-3">
                 <div
-                    class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                    class="flex-shrink-0 w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
                 >
                     1
                 </div>
@@ -42,7 +42,7 @@
             <!-- Tip 2: Start Higher -->
             <div class="flex items-start space-x-3">
                 <div
-                    class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                    class="flex-shrink-0 w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
                 >
                     2
                 </div>
@@ -62,7 +62,7 @@
             <!-- Tip 3: Seasonal Pricing -->
             <div class="flex items-start space-x-3">
                 <div
-                    class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                    class="flex-shrink-0 w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
                 >
                     3
                 </div>
@@ -83,7 +83,7 @@
             <!-- Tip 4: Discounts -->
             <div class="flex items-start space-x-3">
                 <div
-                    class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                    class="flex-shrink-0 w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
                 >
                     4
                 </div>
@@ -103,7 +103,7 @@
             <!-- Tip 5: Value Add -->
             <div class="flex items-start space-x-3">
                 <div
-                    class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                    class="flex-shrink-0 w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
                 >
                     5
                 </div>
@@ -124,7 +124,7 @@
             <!-- Tip 6: Monitor & Adjust -->
             <div class="flex items-start space-x-3">
                 <div
-                    class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                    class="flex-shrink-0 w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-bold text-sm"
                 >
                     6
                 </div>
@@ -144,7 +144,7 @@
 
         <!-- Pricing Strategy Guide -->
         <div
-            class="mt-6 pt-6 border-t border-blue-200 dark:border-blue-800"
+            class="mt-6 pt-6 border-t border-primary-200 dark:border-primary-800"
         >
             <h4
                 class="text-sm font-semibold text-gray-900 dark:text-white mb-3"
@@ -206,7 +206,7 @@
                 <div class="p-3 bg-white dark:bg-gray-900/50 rounded-lg">
                     <div class="flex items-center mb-2">
                         <svg
-                            class="w-4 h-4 mr-2 text-blue-500"
+                            class="w-4 h-4 mr-2 text-primary-500"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                         >
@@ -258,7 +258,7 @@
 
         <!-- Benchmarks -->
         <div
-            class="mt-6 pt-6 border-t border-blue-200 dark:border-blue-800"
+            class="mt-6 pt-6 border-t border-primary-200 dark:border-primary-800"
         >
             <h4
                 class="text-sm font-semibold text-gray-900 dark:text-white mb-3"
@@ -268,7 +268,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="text-center">
                     <div
-                        class="text-2xl font-bold text-blue-600 dark:text-blue-400"
+                        class="text-2xl font-bold text-primary-600 dark:text-primary-400"
                     >
                         65%
                     </div>

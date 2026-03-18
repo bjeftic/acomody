@@ -27,9 +27,9 @@
                             type="checkbox"
                             :checked="isSelected(option.value)"
                             @change="toggleOption(option.value)"
-                            class="w-5 h-5 text-blue-600 border-gray-300 dark:border-gray-700 rounded focus:ring-blue-500 dark:focus:ring-blue-600"
+                            class="w-5 h-5 text-primary-600 border-gray-300 dark:border-gray-700 rounded focus:ring-primary-500"
                         />
-                        <div class="ml-3 flex items-center space-x-2">
+                        <div class="ml-3 flex items-center gap-2">
                             <span
                                 class="text-sm text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-300"
                             >
@@ -76,9 +76,9 @@
                             type="checkbox"
                             :checked="isSelected(option.value)"
                             @change="toggleOption(option.value)"
-                            class="w-5 h-5 text-blue-600 border-gray-300 dark:border-gray-700 rounded focus:ring-blue-500"
+                            class="w-5 h-5 text-primary-600 border-gray-300 dark:border-gray-700 rounded focus:ring-primary-500"
                         />
-                        <div class="ml-3 flex items-center space-x-2">
+                        <div class="ml-3 flex items-center gap-2">
                             <span
                                 class="text-sm text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-300"
                             >

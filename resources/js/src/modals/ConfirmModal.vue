@@ -1,26 +1,24 @@
 <template>
-    <fwb-modal v-if="show" @close="cancel" size="md" :persistent="false">
+    <BaseModal v-if="show" @close="cancel" size="md">
         <template #header>
-            <h3 class="text-base font-semibold text-gray-900 dark:text-white">
-                {{ options.title || 'Are you sure?' }}
-            </h3>
+            {{ options.title || "Are you sure?" }}
         </template>
         <template #body>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-                {{ options.message || 'Do you want to proceed?' }}
+                {{ options.message || "Do you want to proceed?" }}
             </p>
         </template>
         <template #footer>
             <div class="flex justify-end gap-3">
-                <fwb-button color="light" @click="cancel">
-                    {{ options.cancelText || 'Cancel' }}
-                </fwb-button>
-                <fwb-button :color="options.confirmColor || 'red'" @click="confirm">
-                    {{ options.confirmText || 'Confirm' }}
-                </fwb-button>
+                <BaseButton variant="secondary" @click="cancel">
+                    {{ options.cancelText || "Cancel" }}
+                </BaseButton>
+                <BaseButton :variant="options.confirmVariant || 'danger'" @click="confirm">
+                    {{ options.confirmText || "Confirm" }}
+                </BaseButton>
             </div>
         </template>
-    </fwb-modal>
+    </BaseModal>
 </template>
 
 <script>

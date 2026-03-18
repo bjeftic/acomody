@@ -17,7 +17,7 @@
                         type="checkbox"
                         :checked="exportActive"
                         :disabled="togglingExport"
-                        class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 cursor-pointer"
+                        class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 cursor-pointer"
                         @change="toggleExport"
                     />
                     <span class="text-sm text-gray-700 dark:text-gray-300">
@@ -30,21 +30,21 @@
                         ref="exportUrlInput"
                         :value="exportUrl"
                         readonly
-                        class="flex-1 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-700 dark:text-gray-300 font-mono truncate"
+                        class="flex-1 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-gray-700 dark:text-gray-300 font-mono truncate"
                     />
-                    <fwb-button color="light" size="sm" @click="copyUrl">
+                    <BaseButton variant="secondary" size="sm" @click="copyUrl">
                         {{ copied ? 'Copied!' : 'Copy' }}
-                    </fwb-button>
+                    </BaseButton>
                 </div>
                 <div v-if="exportActive" class="flex items-center gap-3">
-                    <fwb-button
-                        color="light"
+                    <BaseButton
+                        variant="secondary"
                         size="sm"
                         :disabled="regenerating"
                         @click="regenerateToken"
                     >
                         {{ regenerating ? 'Regenerating…' : 'Regenerate URL' }}
-                    </fwb-button>
+                    </BaseButton>
                     <span class="text-xs text-gray-400 dark:text-gray-500">
                         Regenerating will break any existing subscriptions.
                     </span>
@@ -68,7 +68,7 @@
                 <div
                     v-for="cal in calendars"
                     :key="cal.id"
-                    class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg"
+                    class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl"
                 >
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 mb-0.5">
@@ -110,7 +110,7 @@
                     <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Platform</label>
                     <select
                         v-model="newCalendar.source"
-                        class="w-full text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-700 dark:text-gray-300"
+                        class="w-full text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-gray-700 dark:text-gray-300"
                     >
                         <option value="airbnb">Airbnb</option>
                         <option value="booking">Booking.com</option>
@@ -128,7 +128,7 @@
                         v-model="newCalendar.name"
                         type="text"
                         placeholder="e.g. My Airbnb listing"
-                        class="w-full text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-700 dark:text-gray-300"
+                        class="w-full text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-gray-700 dark:text-gray-300"
                     />
                 </div>
 
@@ -138,7 +138,7 @@
                         v-model="newCalendar.ical_url"
                         type="url"
                         placeholder="https://www.airbnb.com/calendar/ical/..."
-                        class="w-full text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-700 dark:text-gray-300"
+                        class="w-full text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-gray-700 dark:text-gray-300"
                     />
                     <p v-if="formErrors.ical_url" class="text-xs text-red-500 mt-1">
                         {{ formErrors.ical_url[0] }}
@@ -146,22 +146,22 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <fwb-button :disabled="saving" @click="addCalendar">
+                    <BaseButton :disabled="saving" @click="addCalendar">
                         {{ saving ? 'Saving…' : 'Add calendar' }}
-                    </fwb-button>
-                    <fwb-button color="light" @click="cancelAdd">
+                    </BaseButton>
+                    <BaseButton variant="secondary" @click="cancelAdd">
                         Cancel
-                    </fwb-button>
+                    </BaseButton>
                 </div>
             </div>
 
-            <fwb-button
+            <BaseButton
                 v-else
-                color="light"
+                variant="secondary"
                 @click="showAddForm = true"
             >
                 + Add calendar
-            </fwb-button>
+            </BaseButton>
         </div>
     </div>
 </template>

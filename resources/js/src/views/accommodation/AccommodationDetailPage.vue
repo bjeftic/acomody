@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="min-h-screen bg-white dark:bg-gray-900">
         <!-- Loading State -->
         <div v-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="animate-pulse space-y-8">
@@ -244,7 +244,7 @@
                             Location
                         </h2>
                         <div
-                            class="aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center"
+                            class="aspect-video bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center"
                         >
                             <div class="text-center text-gray-500 dark:text-gray-400">
                                 <svg
@@ -357,9 +357,9 @@
             v-else-if="error"
             class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         >
-            <fwb-alert type="danger">
+            <div class="px-4 py-3 rounded-xl text-sm border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">
                 {{ error }}
-            </fwb-alert>
+            </div>
         </div>
     </div>
 </template>

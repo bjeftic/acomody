@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-2xl mx-auto py-12 px-4">
+    <div class="max-w-4xl mx-auto py-12 px-4">
         <div class="mb-8">
             <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
                 Host Profile
@@ -43,7 +43,7 @@
                     <p class="text-xs text-gray-500 mt-1">
                         JPEG, PNG or WebP — max 5MB
                     </p>
-                    <p v-if="avatarUploading" class="text-xs text-blue-500 mt-1">
+                    <p v-if="avatarUploading" class="text-xs text-primary-500 mt-1">
                         Uploading...
                     </p>
                     <p v-if="avatarError" class="text-xs text-red-500 mt-1">
@@ -56,50 +56,48 @@
         </section>
 
         <!-- Alert -->
-        <fwb-alert v-if="alert.message" :type="alert.type" class="mb-6" closable @close="alert.message = ''">
+        <div
+            v-if="alert.message"
+            class="mb-6 px-4 py-3 rounded-xl text-sm border"
+            :class="alert.type === 'success'
+                ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800 text-primary-700 dark:text-primary-300'
+                : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'"
+        >
             {{ alert.message }}
-        </fwb-alert>
+        </div>
 
         <!-- Form -->
         <form @submit.prevent="submit">
             <!-- Required fields -->
             <section class="mb-8">
                 <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                    Contact information <span class="text-sm font-normal text-red-500 ml-1">* required</span>
+                    Contact information
+                    <span class="text-sm font-normal text-gray-400 ml-1">* required</span>
                 </h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Display name <span class="text-red-500">*</span>
-                        </label>
-                        <fwb-input v-model="form.display_name" placeholder="Your name or business name shown to guests"
-                            :class="{ 'border-red-500': errors.display_name }" />
-                        <p v-if="errors.display_name" class="text-xs text-red-500 mt-1">
-                            {{ errors.display_name[0] }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Contact email <span class="text-red-500">*</span>
-                        </label>
-                        <fwb-input v-model="form.contact_email" type="email" placeholder="Email for guest communication"
-                            :class="{ 'border-red-500': errors.contact_email }" />
-                        <p v-if="errors.contact_email" class="text-xs text-red-500 mt-1">
-                            {{ errors.contact_email[0] }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Phone <span class="text-red-500">*</span>
-                        </label>
-                        <fwb-input v-model="form.phone" type="tel" placeholder="+381 60 000 0000"
-                            :class="{ 'border-red-500': errors.phone }" />
-                        <p v-if="errors.phone" class="text-xs text-red-500 mt-1">
-                            {{ errors.phone[0] }}
-                        </p>
-                    </div>
+                <div class="flex flex-col gap-4">
+                    <BaseInput
+                        v-model="form.display_name"
+                        label="Display name"
+                        placeholder="Your name or business name shown to guests"
+                        :error="errors.display_name ? errors.display_name[0] : null"
+                        required
+                    />
+                    <BaseInput
+                        v-model="form.contact_email"
+                        type="email"
+                        label="Contact email"
+                        placeholder="Email for guest communication"
+                        :error="errors.contact_email ? errors.contact_email[0] : null"
+                        required
+                    />
+                    <BaseInput
+                        v-model="form.phone"
+                        type="tel"
+                        label="Phone"
+                        placeholder="+381 60 000 0000"
+                        :error="errors.phone ? errors.phone[0] : null"
+                        required
+                    />
                 </div>
             </section>
 
@@ -108,27 +106,23 @@
                 <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
                     Business details
                 </h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Business name
-                        </label>
-                        <fwb-input v-model="form.business_name" placeholder="Optional — if you operate as a company" />
-                    </div>
-
+                <div class="flex flex-col gap-4">
+                    <BaseInput
+                        v-model="form.business_name"
+                        label="Business name"
+                        placeholder="Optional — if you operate as a company"
+                    />
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Tax ID
-                            </label>
-                            <fwb-input v-model="form.tax_id" placeholder="Optional" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                VAT number
-                            </label>
-                            <fwb-input v-model="form.vat_number" placeholder="Optional" />
-                        </div>
+                        <BaseInput
+                            v-model="form.tax_id"
+                            label="Tax ID"
+                            placeholder="Optional"
+                        />
+                        <BaseInput
+                            v-model="form.vat_number"
+                            label="VAT number"
+                            placeholder="Optional"
+                        />
                     </div>
                 </div>
             </section>
@@ -137,19 +131,17 @@
                 <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
                     Location
                 </h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Address
-                        </label>
-                        <fwb-input v-model="form.address" placeholder="Street address (optional)" />
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            City
-                        </label>
-                        <fwb-input v-model="form.city" placeholder="City (optional)" />
-                    </div>
+                <div class="flex flex-col gap-4">
+                    <BaseInput
+                        v-model="form.address"
+                        label="Address"
+                        placeholder="Street address (optional)"
+                    />
+                    <BaseInput
+                        v-model="form.city"
+                        label="City"
+                        placeholder="City (optional)"
+                    />
                 </div>
             </section>
 
@@ -157,31 +149,35 @@
                 <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
                     About you
                 </h2>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Bio
-                    </label>
-                    <fwb-textarea v-model="form.bio" placeholder="Tell guests a bit about yourself as a host (optional)"
-                        :rows="4" />
-                    <p class="text-xs text-gray-500 mt-1">
-                        {{ (form.bio || '').length }} / 2000 characters
-                    </p>
-                </div>
+                <BaseTextarea
+                    v-model="form.bio"
+                    label="Bio"
+                    placeholder="Tell guests a bit about yourself as a host (optional)"
+                    :rows="4"
+                    :maxlength="2000"
+                />
             </section>
 
             <div class="flex items-center gap-3">
-                <fwb-button type="submit" :disabled="submitting" color="default" size="lg">
+                <BaseButton type="submit" size="lg" :loading="submitting" :disabled="submitting">
                     {{ submitting ? 'Saving...' : 'Save changes' }}
-                </fwb-button>
-                <fwb-button v-if="isEditing" color="alternative" size="lg"
-                    @click="$router.push({ name: 'page-dashboard' })">
+                </BaseButton>
+                <BaseButton
+                    v-if="isEditing"
+                    variant="secondary"
+                    size="lg"
+                    @click="$router.push({ name: 'page-dashboard' })"
+                >
                     Cancel
-                </fwb-button>
-                <button v-if="$route.query.next === 'listing-create'" type="button"
-                    class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline ml-2"
-                    @click="$router.push({ name: 'page-listing-create' })">
+                </BaseButton>
+                <BaseButton
+                    v-if="$route.query.next === 'listing-create'"
+                    variant="link"
+                    size="sm"
+                    @click="$router.push({ name: 'page-listing-create' })"
+                >
                     Skip — create accommodation first
-                </button>
+                </BaseButton>
             </div>
         </form>
 
@@ -194,12 +190,17 @@
                     Danger zone
                 </h2>
 
-                <fwb-alert v-if="deletionAlert.message" :type="deletionAlert.type" class="mb-6" closable
-                    @close="deletionAlert.message = ''">
+                <div
+                    v-if="deletionAlert.message"
+                    class="mb-6 px-4 py-3 rounded-xl text-sm border"
+                    :class="deletionAlert.type === 'success'
+                        ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800 text-primary-700 dark:text-primary-300'
+                        : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'"
+                >
                     {{ deletionAlert.message }}
-                </fwb-alert>
+                </div>
 
-                <div class="flex items-start justify-between gap-6 p-4 border border-red-200 rounded-lg">
+                <div class="flex items-start justify-between gap-6 p-4 border border-rose-200 dark:border-rose-900 rounded-xl">
                     <div>
                         <p class="text-sm font-medium text-gray-900 dark:text-white">
                             Delete hosting account
@@ -208,9 +209,9 @@
                             Removes your host profile and all accommodation listings. Your user account stays active.
                         </p>
                     </div>
-                    <fwb-button color="red" size="sm" @click="deletionModal = true">
+                    <BaseButton variant="danger" size="sm" @click="deletionModal = true">
                         Request deletion
-                    </fwb-button>
+                    </BaseButton>
                 </div>
 
                 <!-- Confirmation Modal -->
@@ -226,19 +227,23 @@
                             user account will remain active. An admin will review and process your request.
                         </p>
                         <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Type <span class="font-bold text-red-600">DELETE</span> to confirm:
+                            Type <span class="font-bold text-rose-600">DELETE</span> to confirm:
                         </p>
-                        <fwb-input v-model="deletionConfirmWord" placeholder="Type DELETE" />
+                        <BaseInput v-model="deletionConfirmWord" placeholder="Type DELETE" />
                     </template>
                     <template #footer>
                         <div class="flex gap-3">
-                            <fwb-button color="red" :disabled="deletionConfirmWord !== 'DELETE' || deletionRequesting"
-                                :loading="deletionRequesting" @click="submitDeletionRequest">
+                            <BaseButton
+                                variant="danger"
+                                :disabled="deletionConfirmWord !== 'DELETE' || deletionRequesting"
+                                :loading="deletionRequesting"
+                                @click="submitDeletionRequest"
+                            >
                                 Submit deletion request
-                            </fwb-button>
-                            <fwb-button color="alternative" @click="closeDeletionModal">
+                            </BaseButton>
+                            <BaseButton variant="secondary" @click="closeDeletionModal">
                                 Cancel
-                            </fwb-button>
+                            </BaseButton>
                         </div>
                     </template>
                 </fwb-modal>

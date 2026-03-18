@@ -43,7 +43,7 @@
                         step="1"
                         @input="handleGeneralChange"
                         @focus="$event.target.select()"
-                        class="w-full px-4 py-2 pr-16 border-2 border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                        class="w-full px-4 py-2 pr-16 border-2 border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 dark:bg-gray-900 dark:text-white"
                         placeholder="1"
                     />
                     <span
@@ -61,7 +61,7 @@
         <!-- Day-Specific Minimum Stay Toggle -->
         <!-- <div class="mb-4">
             <div
-                class="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+                class="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
             >
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
@@ -85,7 +85,7 @@
                             @change="handleDaySpecificToggle"
                         />
                         <div
-                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"
                         ></div>
                     </label>
                 </div>
@@ -106,7 +106,7 @@
             <div
                 v-for="day in daysOfWeek"
                 :key="day.id"
-                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
             >
                 <div class="flex items-center space-x-3">
                     <input
@@ -114,7 +114,7 @@
                         v-model="localMinStay.daySpecific[day.id].enabled"
                         type="checkbox"
                         @change="handleDayToggle(day.id)"
-                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                     />
                     <label
                         :for="`day-${day.id}`"
@@ -135,7 +135,7 @@
                         max="365"
                         @input="handleDayNightsChange(day.id)"
                         @focus="$event.target.select()"
-                        class="w-20 px-3 py-1 text-sm border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                        class="w-20 px-3 py-1 text-sm border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 dark:bg-gray-900 dark:text-white"
                     />
                     <span class="text-xs text-gray-500">
                         {{ localMinStay.daySpecific[day.id].nights === 1 ? "night" : "nights" }}
@@ -145,7 +145,7 @@
 
             <!-- Quick Presets -->
             <!-- <div
-                class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+                class="mt-4 p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl"
             >
                 <h5
                     class="text-sm font-semibold text-gray-900 dark:text-white mb-2"
@@ -155,25 +155,25 @@
                 <div class="flex flex-wrap gap-2">
                     <button
                         @click="applyWeekendPreset(2)"
-                        class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
                         Weekend 2-night minimum
                     </button>
                     <button
                         @click="applyWeekendPreset(3)"
-                        class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
                         Weekend 3-night minimum
                     </button>
                     <button
                         @click="applyAllDaysPreset(3)"
-                        class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
                         All days 3-night minimum
                     </button>
                     <button
                         @click="clearDaySpecific"
-                        class="px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-900 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        class="px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-900 border border-red-300 dark:border-red-700 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     >
                         Clear all
                     </button>
@@ -184,13 +184,13 @@
         <!-- Summary -->
         <div
             v-if="hasAnyDaySpecificRules"
-            class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+            class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl"
         >
             <h4
                 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center"
             >
                 <svg
-                    class="w-4 h-4 mr-2 text-blue-500"
+                    class="w-4 h-4 mr-2 text-primary-500"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                 >
@@ -225,10 +225,10 @@
         </div>
 
         <!-- Info -->
-        <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+        <div class="mt-6 p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl">
             <div class="flex items-start space-x-3">
                 <svg
-                    class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5"
+                    class="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                 >

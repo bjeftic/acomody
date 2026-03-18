@@ -69,7 +69,7 @@
                 <!-- Range Bar -->
                 <div class="relative">
                     <div
-                        class="h-12 bg-gradient-to-r from-green-100 via-yellow-100 to-red-100 dark:from-green-900/30 dark:via-yellow-900/30 dark:to-red-900/30 rounded-lg"
+                        class="h-12 bg-gradient-to-r from-green-100 via-yellow-100 to-red-100 dark:from-green-900/30 dark:via-yellow-900/30 dark:to-red-900/30 rounded-xl"
                     ></div>
 
                     <!-- Min/Max Labels -->
@@ -101,11 +101,11 @@
                     <!-- Your Price Marker (if set) -->
                     <div
                         v-if="yourPrice > 0"
-                        class="absolute top-0 h-12 w-1 bg-blue-600 dark:bg-blue-400"
+                        class="absolute top-0 h-12 w-1 bg-primary-600 dark:bg-primary-400"
                         :style="{ left: yourPriceMarkerPosition }"
                     >
                         <div
-                            class="absolute -bottom-7 left-1/2 -translate-x-1/2 px-2 py-1 bg-blue-600 dark:bg-blue-400 text-white text-xs font-bold rounded whitespace-nowrap"
+                            class="absolute -bottom-7 left-1/2 -translate-x-1/2 px-2 py-1 bg-primary-600 dark:bg-primary-400 text-white text-xs font-bold rounded whitespace-nowrap"
                         >
                             Your Price
                         </div>
@@ -175,13 +175,13 @@
 
                 <!-- Positioning Recommendation -->
                 <div
-                    class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+                    class="p-4 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-xl"
                 >
                     <h4
                         class="text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center"
                     >
                         <svg
-                            class="w-4 h-4 mr-2 text-blue-500"
+                            class="w-4 h-4 mr-2 text-primary-500"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                         >
@@ -202,7 +202,7 @@
             <!-- No Price Set -->
             <div
                 v-else
-                class="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-center"
+                class="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-center"
             >
                 <svg
                     class="w-12 h-12 mx-auto mb-3 text-gray-400"
@@ -233,7 +233,7 @@
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div
-                    class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
+                    class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl"
                 >
                     <div class="text-xs font-semibold text-green-700 dark:text-green-400 mb-1">
                         Budget Range
@@ -246,9 +246,9 @@
                     </div>
                 </div>
                 <div
-                    class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+                    class="p-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-xl"
                 >
-                    <div class="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">
+                    <div class="text-xs font-semibold text-primary-700 dark:text-primary-400 mb-1">
                         Mid Range
                     </div>
                     <div class="text-sm text-gray-700 dark:text-gray-300">
@@ -259,7 +259,7 @@
                     </div>
                 </div>
                 <div
-                    class="p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg"
+                    class="p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl"
                 >
                     <div class="text-xs font-semibold text-purple-700 dark:text-purple-400 mb-1">
                         Premium Range
@@ -380,10 +380,10 @@ export default {
                 };
             }
             return {
-                border: "border-blue-200 dark:border-blue-800",
-                bg: "bg-blue-50 dark:bg-blue-900/20",
-                dot: "bg-blue-500",
-                badge: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
+                border: "border-primary-200 dark:border-primary-800",
+                bg: "bg-primary-50 dark:bg-primary-900/20",
+                dot: "bg-primary-500",
+                badge: "bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300",
             };
         },
 

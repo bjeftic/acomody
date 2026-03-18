@@ -11,31 +11,14 @@
 
         <div class="max-w-2xl mx-auto py-4 pr-4 overflow-auto h-[60vh] space-y-6">
             <!-- Description Textarea -->
-            <div class="relative">
-                <fwb-textarea
-                    :model-value="formData.description"
-                    :label="'Description of your ' + formData.title"
-                    @update:model-value="updateDescription"
-                    :rows="10"
-                    :maxlength="500"
-                    placeholder="Describe your space, the neighborhood, and what guests will love about staying here..."
-                    class="resize-none"
-                />
-
-                <!-- Character Counter -->
-                <div class="flex items-center justify-between mt-2">
-                    <p
-                        :class="[
-                            'text-sm font-medium',
-                            formData.description.length >= 500
-                                ? 'text-red-600 dark:text-red-400'
-                                : 'text-gray-500 dark:text-gray-400',
-                        ]"
-                    >
-                        {{ formData.description.length }}/500
-                    </p>
-                </div>
-            </div>
+            <BaseTextarea
+                :model-value="formData.description"
+                :label="'Description of your ' + formData.title"
+                :rows="10"
+                :maxlength="500"
+                placeholder="Describe your space, the neighborhood, and what guests will love about staying here..."
+                @update:model-value="updateDescription"
+            />
 
             <!-- Quick Templates -->
             <div class="space-y-4">
@@ -45,7 +28,7 @@
                     </h3>
                     <button
                         @click="showTemplates = !showTemplates"
-                        class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        class="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
                     >
                         {{ showTemplates ? "Hide templates" : "Show templates" }}
                     </button>
@@ -96,7 +79,7 @@
                     class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center"
                 >
                     <svg
-                        class="w-5 h-5 mr-2 text-blue-500"
+                        class="w-5 h-5 mr-2 text-primary-500"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                     >
@@ -184,7 +167,7 @@
 
             <!-- Structure Guide -->
             <div
-                class="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800"
+                class="p-6 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800"
             >
                 <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">
                     Suggested structure

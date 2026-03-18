@@ -7,7 +7,7 @@
             <!-- Host profile incomplete banner -->
             <div
                 v-if="!hostProfileComplete"
-                class="flex gap-4 p-5 mb-8 bg-amber-50 border border-amber-200 rounded-lg"
+                class="flex gap-4 p-5 mb-8 bg-amber-50 border border-amber-200 rounded-xl"
             >
                 <div class="flex-shrink-0 text-amber-500 mt-0.5">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -23,7 +23,7 @@
                     </p>
                     <router-link
                         :to="{ name: 'page-host-profile' }"
-                        class="inline-block px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded hover:bg-amber-700 transition"
+                        class="inline-block px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-xl hover:bg-amber-700 transition"
                     >
                         Complete host profile →
                     </router-link>

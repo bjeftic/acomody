@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-6">
         <!-- Loading -->
         <div v-if="loading" class="animate-pulse space-y-6">
             <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
@@ -8,7 +8,7 @@
         </div>
 
         <!-- Error -->
-        <fwb-alert v-else-if="error" type="danger">{{ error }}</fwb-alert>
+        <div v-else-if="error" class="px-4 py-3 rounded-xl text-sm border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">{{ error }}</div>
 
         <template v-else-if="booking">
             <!-- Back -->
@@ -121,20 +121,20 @@
             <div v-if="booking.status === 'pending'" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 space-y-4">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Actions</h3>
 
-                <fwb-alert v-if="actionError" type="danger" class="text-sm">{{ actionError }}</fwb-alert>
+                <div v-if="actionError" class="px-4 py-3 rounded-xl text-sm border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">{{ actionError }}</div>
 
                 <!-- Confirm -->
                 <div v-if="!showDeclineForm && !showCancelForm">
                     <div class="flex flex-wrap gap-3">
-                        <fwb-button color="green" :disabled="actionLoading" @click="confirmBooking">
+                        <BaseButton variant="primary" :disabled="actionLoading" @click="confirmBooking">
                             {{ actionLoading === 'confirm' ? 'Confirming…' : 'Confirm booking' }}
-                        </fwb-button>
-                        <fwb-button color="alternative" :disabled="actionLoading" @click="showDeclineForm = true">
+                        </BaseButton>
+                        <BaseButton variant="secondary" :disabled="actionLoading" @click="showDeclineForm = true">
                             Decline
-                        </fwb-button>
-                        <fwb-button color="red" :disabled="actionLoading" @click="showCancelForm = true">
+                        </BaseButton>
+                        <BaseButton variant="danger" :disabled="actionLoading" @click="showCancelForm = true">
                             Cancel booking
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
 
@@ -146,15 +146,15 @@
                         rows="3"
                         maxlength="500"
                         placeholder="Reason for declining (optional)"
-                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                        class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:outline-none resize-none"
                     ></textarea>
                     <div class="flex gap-3">
-                        <fwb-button color="red" :disabled="actionLoading" @click="declineBooking">
+                        <BaseButton variant="danger" :disabled="actionLoading" @click="declineBooking">
                             {{ actionLoading === 'decline' ? 'Declining…' : 'Yes, decline' }}
-                        </fwb-button>
-                        <fwb-button color="alternative" :disabled="actionLoading" @click="showDeclineForm = false">
+                        </BaseButton>
+                        <BaseButton variant="secondary" :disabled="actionLoading" @click="showDeclineForm = false">
                             Back
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
 
@@ -166,15 +166,15 @@
                         rows="3"
                         maxlength="500"
                         placeholder="Reason for cancellation (optional)"
-                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                        class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:outline-none resize-none"
                     ></textarea>
                     <div class="flex gap-3">
-                        <fwb-button color="red" :disabled="actionLoading" @click="cancelBooking">
+                        <BaseButton variant="danger" :disabled="actionLoading" @click="cancelBooking">
                             {{ actionLoading === 'cancel' ? 'Cancelling…' : 'Yes, cancel' }}
-                        </fwb-button>
-                        <fwb-button color="alternative" :disabled="actionLoading" @click="showCancelForm = false">
+                        </BaseButton>
+                        <BaseButton variant="secondary" :disabled="actionLoading" @click="showCancelForm = false">
                             Back
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
             </div>
@@ -183,15 +183,15 @@
             <div v-if="booking.status === 'confirmed'" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 space-y-4">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Cancel booking</h3>
 
-                <fwb-alert v-if="actionError" type="danger" class="text-sm">{{ actionError }}</fwb-alert>
+                <div v-if="actionError" class="px-4 py-3 rounded-xl text-sm border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">{{ actionError }}</div>
 
                 <div v-if="!showCancelForm">
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         You can cancel this confirmed booking. The guest will be notified.
                     </p>
-                    <fwb-button color="red" :disabled="actionLoading" @click="showCancelForm = true">
+                    <BaseButton variant="danger" :disabled="actionLoading" @click="showCancelForm = true">
                         Cancel booking
-                    </fwb-button>
+                    </BaseButton>
                 </div>
 
                 <div v-else class="space-y-3">
@@ -201,15 +201,15 @@
                         rows="3"
                         maxlength="500"
                         placeholder="Reason for cancellation (optional)"
-                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                        class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:outline-none resize-none"
                     ></textarea>
                     <div class="flex gap-3">
-                        <fwb-button color="red" :disabled="actionLoading" @click="cancelBooking">
+                        <BaseButton variant="danger" :disabled="actionLoading" @click="cancelBooking">
                             {{ actionLoading === 'cancel' ? 'Cancelling…' : 'Yes, cancel' }}
-                        </fwb-button>
-                        <fwb-button color="alternative" :disabled="actionLoading" @click="showCancelForm = false">
+                        </BaseButton>
+                        <BaseButton variant="secondary" :disabled="actionLoading" @click="showCancelForm = false">
                             Keep booking
-                        </fwb-button>
+                        </BaseButton>
                     </div>
                 </div>
             </div>

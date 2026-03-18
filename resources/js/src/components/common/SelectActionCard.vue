@@ -2,46 +2,41 @@
     <button
         @click="$emit('select', id)"
         :class="[
-            'group relative p-6 h-36 border border-gray-200 rounded-xl text-left hover:shadow-lg transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600',
+            'group relative p-6 h-36 border-2 border-gray-200 rounded-xl text-left hover:shadow-card transition-all duration-200 dark:border-gray-700',
             selected
-                ? 'dark:border-white bg-gray-50 dark:bg-gray-800'
-                : 'dark:border-gray-700 dark:hover:border-white',
+                ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20'
+                : 'hover:border-primary-400 dark:hover:border-primary-500',
         ]"
     >
         <div class="mb-8">
             <div
-                class="relative flex-shrink-0 w-12 h-12 flex items-center justify-center mb-2 bg-gray-100 dark:bg-gray-700 rounded-lg group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors"
-                :class="[selected ? 'bg-gray-200' : 'bg-gray-100']"
+                class="relative flex-shrink-0 w-12 h-12 flex items-center justify-center mb-2 bg-gray-100 dark:bg-gray-700 rounded-xl transition-colors"
             >
-                <div v-if="tooltip" class="absolute left-9 bottom-7">
-                    <div class="inline-block group">
-                        <fwb-tooltip>
-                            <template #trigger>
-                                <svg
-                                    class="w-6 h-6 text-gray-400 cursor-pointer"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                >
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                        clip-rule="evenodd"
-                                    />
-                                </svg>
-                            </template>
-                            <template #content> {{ tooltip }} </template>
-                        </fwb-tooltip>
+                <div v-if="tooltip" class="absolute left-9 bottom-7 group/tip">
+                    <svg
+                        class="w-5 h-5 text-gray-400 cursor-pointer"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                    <div class="absolute left-6 bottom-0 hidden group-hover/tip:block z-10 w-48 px-3 py-2 text-xs text-white bg-gray-900 dark:bg-gray-700 rounded-xl shadow-dropdown">
+                        {{ tooltip }}
                     </div>
                 </div>
                 <slot name="icon"></slot>
             </div>
-            <h3 class="text-base font-medium text-gray-900 dark:text-white">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
                 {{ title }}
             </h3>
         </div>
         <div v-if="selected" class="absolute top-4 right-4">
             <svg
-                class="w-6 h-6 text-gray-900 dark:text-white"
+                class="w-6 h-6 text-primary-600 dark:text-primary-400"
                 fill="currentColor"
                 viewBox="0 0 20 20"
             >

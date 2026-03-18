@@ -14,7 +14,7 @@
                 <select
                     :value="fromValue"
                     @change="$emit('update:from', $event.target.value)"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 dark:bg-gray-900 dark:text-white"
                 >
                     <option v-for="time in timeSlots" :key="time" :value="time">
                         {{ time }}
@@ -30,7 +30,7 @@
                 <select
                     :value="untilValue"
                     @change="$emit('update:until', $event.target.value)"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 dark:bg-gray-900 dark:text-white"
                 >
                     <option v-for="time in timeSlots" :key="time" :value="time">
                         {{ time }}
@@ -43,7 +43,7 @@
                 <select
                     :value="singleValue"
                     @change="$emit('update:value', $event.target.value)"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 dark:bg-gray-900 dark:text-white"
                 >
                     <option v-for="time in timeSlots" :key="time" :value="time">
                         {{ time }}

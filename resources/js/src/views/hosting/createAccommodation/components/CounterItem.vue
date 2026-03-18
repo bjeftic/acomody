@@ -3,14 +3,14 @@
         class="flex items-center justify-between py-6 border-b border-gray-200 dark:border-gray-700"
     >
         <div>
-            <h3 class="text-base font-medium text-gray-900 dark:text-white">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
                 {{ label }}
             </h3>
             <p v-if="subLabel" class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                 {{ subLabel }}
             </p>
         </div>
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center gap-4">
             <button
                 @click="decrement"
                 :disabled="value <= min"
@@ -18,7 +18,7 @@
                     'w-8 h-8 rounded-full border flex items-center justify-center transition-all',
                     value <= min
                         ? 'border-gray-200 dark:border-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                        : 'border-gray-400 dark:border-gray-500 text-gray-700 dark:text-gray-300 hover:border-gray-900 dark:hover:border-white',
+                        : 'border-gray-300 dark:border-gray-500 text-gray-600 dark:text-gray-300 hover:border-primary-600 dark:hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400',
                 ]"
             >
                 <svg
@@ -37,7 +37,7 @@
             </button>
             <span
                 :class="[
-                    'text-base font-medium text-gray-900 dark:text-white text-center',
+                    'text-sm font-semibold text-gray-900 dark:text-white text-center',
                     step === 0.5 ? 'w-12' : 'w-8',
                 ]"
             >
@@ -50,7 +50,7 @@
                     'w-8 h-8 rounded-full border flex items-center justify-center transition-all',
                     value >= max
                         ? 'border-gray-200 dark:border-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                        : 'border-gray-400 dark:border-gray-500 text-gray-700 dark:text-gray-300 hover:border-gray-900 dark:hover:border-white',
+                        : 'border-gray-300 dark:border-gray-500 text-gray-600 dark:text-gray-300 hover:border-primary-600 dark:hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400',
                 ]"
             >
                 <svg
