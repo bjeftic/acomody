@@ -9,11 +9,11 @@
             :class="[
                 'border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 h-72',
                 isDragging
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600',
+                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                    : 'border-gray-300 dark:border-gray-700 hover:border-primary-400 dark:hover:border-primary-500',
             ]"
         >
-            <div class="flex flex-col items-center space-y-4">
+            <div class="flex flex-col items-center gap-4">
                 <!-- Upload Icon -->
                 <svg
                     class="w-16 h-10 text-gray-400"
@@ -32,7 +32,7 @@
                 <!-- Text -->
                 <div>
                     <p
-                        class="text-lg font-medium text-gray-900 dark:text-white mb-2"
+                        class="text-sm font-semibold text-gray-900 dark:text-white mb-2"
                     >
                         Drag your photos here
                     </p>
@@ -44,7 +44,7 @@
                 <!-- Upload Button -->
                 <label
                     for="photo-upload"
-                    class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-900 dark:border-white text-gray-900 dark:text-white font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                    class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 text-sm font-semibold rounded-xl hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer"
                 >
                     Upload from your device
                 </label>
@@ -205,7 +205,7 @@
             <div
                 v-for="(error, index) in uploadErrors"
                 :key="index"
-                class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start space-x-3"
+                class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3"
             >
                 <svg
                     class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"

@@ -18,39 +18,30 @@
                         <div class="flex items-center space-x-4 ml-auto">
                             <!-- Sort Dropdown -->
                             <div class="relative flex gap-2">
-                                <fwb-button
-                                    color="default"
-                                    outline
-                                    @click="openFiltersModal"
-                                >
-                                    <template #prefix>
-                                        <IconLoader
-                                            name="SlidersHorizontal"
-                                            :size="20"
-                                        />
-                                    </template>
+                                <BaseButton variant="secondary" @click="openFiltersModal">
+                                    <IconLoader name="SlidersHorizontal" :size="18" />
                                     Filters
-                                </fwb-button>
-                                <fwb-dropdown
-                                    :text="currentSortOption.name"
-                                    size="lg"
-                                    color="alternative"
-                                    align-to-end
-                                    close-inside
-                                >
-                                    <nav
-                                        class="py-2 text-sm rounded-lg text-gray-700 border border-gray-200 dark:text-gray-200 dark:border-gray-700 flex flex-col"
-                                    >
+                                </BaseButton>
+                                <BaseDropdown align="end" close-inside>
+                                    <template #trigger="{ isOpen }">
+                                        <BaseButton variant="secondary">
+                                            {{ currentSortOption.name }}
+                                            <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': isOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </BaseButton>
+                                    </template>
+                                    <nav class="bg-white dark:bg-gray-800 py-1 text-sm rounded-xl text-gray-700 dark:text-gray-200 flex flex-col shadow-dropdown border border-gray-100 dark:border-gray-700">
                                         <span
                                             v-for="sortOption in config.ui.sortOptions"
                                             :key="sortOption.id"
-                                            class="cursor-pointer px-4 py-2 min-w-24 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                            @click="handleSortChange({ route: $route, router: $router, newSortBy: sortOption.id})"
+                                            class="cursor-pointer px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                            @click="handleSortChange({ route: $route, router: $router, newSortBy: sortOption.id })"
                                         >
                                             {{ sortOption.name }}
                                         </span>
                                     </nav>
-                                </fwb-dropdown>
+                                </BaseDropdown>
                             </div>
                         </div>
                     </div>

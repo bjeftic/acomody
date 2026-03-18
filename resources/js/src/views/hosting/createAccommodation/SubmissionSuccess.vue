@@ -36,7 +36,7 @@
         <div class="mt-4">
             <router-link
                 to="/hosting/dashboard"
-                class="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition"
+                class="inline-block px-6 py-3 bg-primary-600 text-white font-medium rounded-xl hover:bg-primary-700 transition"
             >
                 Go to Hosting Dashboard
             </router-link>

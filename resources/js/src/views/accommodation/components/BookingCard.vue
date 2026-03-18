@@ -111,15 +111,14 @@
             </div>
 
             <!-- Book Button -->
-            <fwb-button
+            <BaseButton
                 type="submit"
-                color="blue"
                 size="lg"
-                class="w-full"
+                :full="true"
                 :disabled="!isFormValid"
             >
                 Reserve
-            </fwb-button>
+            </BaseButton>
 
             <!-- Notice -->
             <p class="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
@@ -131,7 +130,7 @@
         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
                 @click="contactHost"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors"
             >
                 <svg
                     class="w-5 h-5"

@@ -48,7 +48,7 @@
                             :min="facetPriceRange.min"
                             :max="facetPriceRange.max"
                             @input="handleMinChange"
-                            class="w-full pl-12 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500"
+                            class="w-full pl-12 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary-500"
                         />
                     </div>
                 </div>
@@ -70,7 +70,7 @@
                             :min="facetPriceRange.min"
                             :max="facetPriceRange.max"
                             @input="handleMaxChange"
-                            class="w-full pl-12 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500"
+                            class="w-full pl-12 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:ring-2 focus:ring-primary-500"
                         />
                     </div>
                 </div>
@@ -85,7 +85,7 @@
 
                 <!-- Active Range -->
                 <div
-                    class="absolute top-1/2 -translate-y-1/2 h-1 bg-gray-900 dark:bg-white rounded-full pointer-events-none"
+                    class="absolute top-1/2 -translate-y-1/2 h-1 bg-primary-600 dark:bg-primary-400 rounded-full pointer-events-none"
                     :style="{
                         left: minPercent + '%',
                         width: maxPercent - minPercent + '%',
@@ -480,7 +480,7 @@ export default {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #1f2937;
+    background: #E11D48;
     cursor: pointer;
     border: 3px solid white;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -503,7 +503,7 @@ export default {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #1f2937;
+    background: #E11D48;
     cursor: pointer;
     border: 3px solid white;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -524,12 +524,12 @@ export default {
 /* Dark mode thumb styling */
 .dark .range-slider::-webkit-slider-thumb {
     background: #f9fafb;
-    border-color: #1f2937;
+    border-color: #111827;
 }
 
 .dark .range-slider::-moz-range-thumb {
     background: #f9fafb;
-    border-color: #1f2937;
+    border-color: #111827;
 }
 
 /* Remove default track styling */
@@ -549,11 +549,11 @@ export default {
 }
 
 .range-slider:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25);
 }
 
 .range-slider:focus::-moz-range-thumb {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25);
 }
 
 /* Ensure max slider is always on top when needed */

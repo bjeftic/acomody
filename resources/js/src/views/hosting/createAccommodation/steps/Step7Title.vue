@@ -11,31 +11,14 @@
 
         <div class="max-w-2xl mx-auto overflow-auto py-4 pr-4 h-[60vh] space-y-6">
             <!-- Title Input -->
-            <div class="relative">
-                <fwb-textarea
-                    :model-value="formData.title"
-                    label="Title"
-                    @update:model-value="updateTitle"
-                    :rows="3"
-                    :maxlength="50"
-                    placeholder="Example: Cozy studio in the heart of the city"
-                    class="text-xl resize-none"
-                />
-
-                <!-- Character Counter -->
-                <div class="flex items-center justify-between mt-2">
-                    <p
-                        :class="[
-                            'text-sm font-medium',
-                            formData.title.length >= 50
-                                ? 'text-red-600 dark:text-red-400'
-                                : 'text-gray-500 dark:text-gray-400',
-                        ]"
-                    >
-                        {{ formData.title.length }}/50
-                    </p>
-                </div>
-            </div>
+            <BaseTextarea
+                :model-value="formData.title"
+                label="Title"
+                :rows="3"
+                :maxlength="50"
+                placeholder="Example: Cozy studio in the heart of the city"
+                @update:model-value="updateTitle"
+            />
 
             <!-- Quick Suggestions -->
             <div v-if="titleSuggestions.length > 0" class="space-y-4">
@@ -57,7 +40,7 @@
                     class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center"
                 >
                     <svg
-                        class="w-5 h-5 mr-2 text-blue-500"
+                        class="w-5 h-5 mr-2 text-primary-500"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                     >
@@ -131,7 +114,7 @@
 
             <!-- Examples based on accommodation type -->
             <div
-                class="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800"
+                class="p-6 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800"
             >
                 <h4
                     class="text-sm font-semibold text-gray-900 dark:text-white mb-3"
@@ -145,7 +128,7 @@
                         class="text-sm text-gray-700 dark:text-gray-300 flex items-center"
                     >
                         <svg
-                            class="w-4 h-4 mr-2 text-blue-500 flex-shrink-0"
+                            class="w-4 h-4 mr-2 text-primary-500 flex-shrink-0"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                         >

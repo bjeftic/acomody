@@ -1,6 +1,6 @@
 <template>
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="min-h-screen bg-white dark:bg-gray-900">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Bookings</h1>
 
             <!-- Loading -->
@@ -13,7 +13,9 @@
             </div>
 
             <!-- Error -->
-            <fwb-alert v-else-if="error" type="danger">{{ error }}</fwb-alert>
+            <div v-else-if="error" class="px-4 py-3 rounded-xl text-sm border bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">
+                {{ error }}
+            </div>
 
             <!-- Empty state -->
             <div
@@ -39,7 +41,7 @@
                 </p>
                 <router-link
                     :to="{ name: 'page-search' }"
-                    class="mt-4 inline-block text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                    class="mt-4 inline-block text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline"
                 >
                     Find a place to stay
                 </router-link>
@@ -107,15 +109,15 @@
 
             <!-- Pagination -->
             <div v-if="meta.last_page > 1" class="mt-6 flex justify-center gap-2 flex-wrap">
-                <fwb-button
+                <BaseButton
                     v-for="page in meta.last_page"
                     :key="page"
-                    :color="page === meta.current_page ? 'blue' : 'alternative'"
+                    :variant="page === meta.current_page ? 'primary' : 'secondary'"
                     size="sm"
                     @click="fetchBookings(page)"
                 >
                     {{ page }}
-                </fwb-button>
+                </BaseButton>
             </div>
         </div>
     </div>

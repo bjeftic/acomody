@@ -92,7 +92,7 @@
                         class="text-base font-semibold text-gray-900 dark:text-white mb-2 flex items-center"
                     >
                         <svg
-                            class="w-5 h-5 mr-2 text-blue-500"
+                            class="w-5 h-5 mr-2 text-primary-500"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -122,7 +122,7 @@
                 </div>
 
                 <!-- Info Note -->
-                <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div class="mt-4 p-3 bg-primary-50 dark:bg-primary-900/20 rounded-xl">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         <strong>Tip:</strong> Instant booking typically results
                         in 3x more reservations compared to request-only
@@ -151,7 +151,7 @@
             <!-- Service Fee Info -->
             <div
                 v-if="showServiceFeeInfo"
-                class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+                class="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl"
             >
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     This fee helps us run our platform and provide 24/7 customer

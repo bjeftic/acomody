@@ -37,22 +37,22 @@ export default {
 
 .marker-price {
     background: white;
-    border: 1px solid #e5e7eb;
+    border: 1.5px solid #e5e7eb;
     border-radius: 20px;
     padding: 6px 12px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #1f2937;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     white-space: nowrap;
     transition: all 0.2s ease;
 }
 
 .marker-pin-hovered .marker-price {
-    background: #1f2937;
+    background: #E11D48;
     color: white;
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35);
     z-index: 1000;
 }
 </style>

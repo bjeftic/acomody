@@ -65,7 +65,7 @@
                                 ? 'bg-white dark:bg-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750'
                                 : 'bg-gray-50 dark:bg-gray-900/50 cursor-default',
                             selectedDate === cell.date
-                                ? 'ring-2 ring-inset ring-blue-500 dark:ring-blue-400'
+                                ? 'ring-2 ring-inset ring-primary-500 dark:ring-primary-400'
                                 : '',
                         ]"
                     >
@@ -74,12 +74,12 @@
                             :class="[
                                 'inline-flex items-center justify-center w-7 h-7 text-sm rounded-full mb-1',
                                 cell.isToday
-                                    ? 'bg-blue-600 text-white font-bold'
+                                    ? 'bg-primary-600 text-white font-bold'
                                     : cell.isCurrentMonth
                                     ? 'text-gray-900 dark:text-gray-100'
                                     : 'text-gray-400 dark:text-gray-600',
                                 selectedDate === cell.date && !cell.isToday
-                                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-semibold'
+                                    ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 font-semibold'
                                     : '',
                             ]"
                         >
@@ -135,7 +135,7 @@
                     <span class="text-sm text-gray-600 dark:text-gray-400">Blocked / iCal</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    <span class="w-6 h-6 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                         {{ new Date().getDate() }}
                     </span>
                     <span class="text-sm text-gray-600 dark:text-gray-400">Today</span>
@@ -156,7 +156,7 @@
                     <button
                         v-if="selectedDate"
                         @click="clearSelectedDate"
-                        class="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                        class="text-sm text-primary-600 dark:text-primary-400 hover:underline"
                     >
                         Show all upcoming
                     </button>
@@ -290,7 +290,7 @@
                                         <p class="text-sm font-semibold text-gray-900 dark:text-white capitalize">
                                             {{ period.status }}
                                         </p>
-                                        <span class="text-xs px-2 py-0.5 rounded-full flex-shrink-0" :class="period.isIcalSynced ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' : 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300'">
+                                        <span class="text-xs px-2 py-0.5 rounded-full flex-shrink-0" :class="period.isIcalSynced ? 'bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300' : 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300'">
                                             {{ period.isIcalSynced ? (period.icalCalendarName ?? 'iCal sync') : 'Manual' }}
                                         </span>
                                     </div>

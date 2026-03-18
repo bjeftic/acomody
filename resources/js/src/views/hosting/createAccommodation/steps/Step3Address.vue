@@ -25,147 +25,70 @@
                     />
 
                     <!-- Street Address -->
-                    <fwb-input
+                    <BaseInput
                         :model-value="formData.address.street"
                         @update:model-value="handleAddressChange('street', $event)"
                         @blur="onAddressFieldBlur"
-                        placeholder="Street address"
                         label="Street address"
+                        placeholder="Street address"
                     />
 
                     <!-- City -->
-                    <fwb-input
+                    <BaseInput
                         :model-value="formData.address.city"
                         @update:model-value="handleAddressChange('city', $event)"
                         @blur="onAddressFieldBlur"
-                        placeholder="City"
                         label="City"
+                        placeholder="City"
                     />
 
                     <!-- State/Province & Zip Code -->
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <fwb-input
-                                :model-value="formData.address.state"
-                                @update:model-value="handleAddressChange('state', $event)"
-                                @blur="onAddressFieldBlur"
-                                placeholder="State"
-                                label="State"
-                            />
-                        </div>
-                        <div>
-                            <fwb-input
-                                :model-value="formData.address.zipCode"
-                                @update:model-value="handleAddressChange('zipCode', $event)"
-                                @blur="onAddressFieldBlur"
-                                placeholder="Zip code"
-                                label="Zip code"
-                            />
-                        </div>
+                        <BaseInput
+                            :model-value="formData.address.state"
+                            @update:model-value="handleAddressChange('state', $event)"
+                            @blur="onAddressFieldBlur"
+                            label="State"
+                            placeholder="State"
+                        />
+                        <BaseInput
+                            :model-value="formData.address.zipCode"
+                            @update:model-value="handleAddressChange('zipCode', $event)"
+                            @blur="onAddressFieldBlur"
+                            label="Zip code"
+                            placeholder="Zip code"
+                        />
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap gap-2">
-                        <fwb-button
-                            @click="searchAddressOnMap"
-                            color="alternative"
+                        <BaseButton
+                            variant="secondary"
                             size="sm"
                             :disabled="!hasCompleteAddress || isGeocoding"
+                            :loading="isGeocoding"
+                            @click="searchAddressOnMap"
                         >
-                            <template #prefix>
-                                <svg
-                                    v-if="!isGeocoding"
-                                    class="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                    />
-                                </svg>
-                                <svg
-                                    v-else
-                                    class="w-4 h-4 animate-spin"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle
-                                        class="opacity-25"
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                        stroke="currentColor"
-                                        stroke-width="4"
-                                    ></circle>
-                                    <path
-                                        class="opacity-75"
-                                        fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                    ></path>
-                                </svg>
-                            </template>
+                            <svg v-if="!isGeocoding" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
                             {{ isGeocoding ? "Searching..." : "Search on Map" }}
-                        </fwb-button>
+                        </BaseButton>
 
-                        <fwb-button
+                        <BaseButton
                             v-if="supportsGeolocation"
-                            @click="useCurrentLocation"
-                            color="alternative"
+                            variant="secondary"
                             size="sm"
                             :disabled="gettingLocation"
+                            :loading="gettingLocation"
+                            @click="useCurrentLocation"
                         >
-                            <template #prefix>
-                                <svg
-                                    v-if="!gettingLocation"
-                                    class="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                    />
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                    />
-                                </svg>
-                                <svg
-                                    v-else
-                                    class="w-4 h-4 animate-spin"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle
-                                        class="opacity-25"
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                        stroke="currentColor"
-                                        stroke-width="4"
-                                    ></circle>
-                                    <path
-                                        class="opacity-75"
-                                        fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                    ></path>
-                                </svg>
-                            </template>
-                            {{
-                                gettingLocation
-                                    ? "Getting Location..."
-                                    : "Use My Location"
-                            }}
-                        </fwb-button>
+                            <svg v-if="!gettingLocation" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            {{ gettingLocation ? "Getting Location..." : "Use My Location" }}
+                        </BaseButton>
                     </div>
 
                     <!-- Coordinates Display -->

@@ -17,23 +17,21 @@
                 >
                     {{ categoryName }}
                 </h4>
-                <div class="space-x-2 space-y-2">
-                    <fwb-button
+                <div class="flex flex-wrap gap-2">
+                    <button
                         v-for="option in categoryOptions"
-                        class="m-2 focus:ring-0 text-gray-500 border-gray-300"
                         :key="option.value"
                         @click="toggleOption(option.value)"
-                        color="dark"
-                        :class="{ 'border-black text-gray-900': isSelected(option.value) }"
-                        outline
-                        pill
-                        square
+                        :class="[
+                            'inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 text-sm font-medium transition-all duration-200',
+                            isSelected(option.value)
+                                ? 'border-primary-600 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+                                : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-primary-400 dark:hover:border-primary-500',
+                        ]"
                     >
-                        <template v-if="option.icon" #prefix>
-                            <IconLoader :name="option.icon" :size="24" />
-                        </template>
+                        <IconLoader v-if="option.icon" :name="option.icon" :size="16" />
                         {{ option.title }}
-                    </fwb-button>
+                    </button>
                 </div>
             </div>
         </div>
@@ -73,7 +71,7 @@
                             type="checkbox"
                             :checked="isSelected(option.value)"
                             @change="toggleOption(option.value)"
-                            class="w-5 h-5 text-blue-600 border-gray-300 dark:border-gray-700 rounded focus:ring-blue-500"
+                            class="w-5 h-5 text-primary-600 border-gray-300 dark:border-gray-700 rounded focus:ring-primary-500"
                         />
                         <div class="ml-3 flex items-center space-x-2">
                             <span

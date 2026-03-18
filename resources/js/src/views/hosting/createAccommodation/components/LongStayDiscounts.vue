@@ -44,7 +44,7 @@
                             step="1"
                             @input="handleWeeklyChange"
                             @focus="$event.target.select()"
-                            class="w-full px-4 py-2 pr-12 border-2 border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                            class="w-full px-4 py-2 pr-12 border-2 border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 dark:bg-gray-900 dark:text-white"
                             placeholder="0"
                         />
                         <span
@@ -82,7 +82,7 @@
                             step="1"
                             @input="handleMonthlyChange"
                             @focus="$event.target.select()"
-                            class="w-full px-4 py-2 pr-12 border-2 border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                            class="w-full px-4 py-2 pr-12 border-2 border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary-500 dark:bg-gray-900 dark:text-white"
                             placeholder="0"
                         />
                         <span
@@ -106,7 +106,7 @@
             <!-- Validation Error -->
             <div
                 v-if="validationError"
-                class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+                class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl"
             >
                 <div class="flex items-start space-x-2">
                     <svg
@@ -134,7 +134,7 @@
                     localDiscounts.monthlyDiscount > 0) &&
                 basePrice > 0
             "
-            class="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg"
+            class="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl"
         >
             <h4
                 class="text-sm font-semibold text-gray-900 dark:text-white mb-3"
@@ -212,11 +212,11 @@
                 localDiscounts.weeklyDiscount === 0 &&
                 localDiscounts.monthlyDiscount === 0
             "
-            class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+            class="mt-6 p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl"
         >
             <div class="flex items-start space-x-3">
                 <svg
-                    class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5"
+                    class="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                 >
@@ -239,25 +239,25 @@
                     <div class="flex flex-wrap gap-2">
                         <button
                             @click="applyWeeklyRecommendation(10)"
-                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                             Weekly: 10%
                         </button>
                         <button
                             @click="applyWeeklyRecommendation(15)"
-                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                             Weekly: 15%
                         </button>
                         <button
                             @click="applyMonthlyRecommendation(20)"
-                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                             Monthly: 20%
                         </button>
                         <button
                             @click="applyMonthlyRecommendation(25)"
-                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            class="px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                             Monthly: 25%
                         </button>

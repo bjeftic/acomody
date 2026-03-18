@@ -18,21 +18,13 @@
             </button>
         </slot>
 
-        <transition
-            enter-active-class="transition ease-out duration-100"
-            enter-from-class="transform opacity-0 scale-95"
-            enter-to-class="transform opacity-100 scale-100"
-            leave-active-class="transition ease-in duration-75"
-            leave-from-class="transform opacity-100 scale-100"
-            leave-to-class="transform opacity-0 scale-95"
+        <div
+            v-if="isOpen"
+            ref="dropdown"
+            class="absolute z-30 bg-white dark:bg-gray-800 rounded-xl shadow-dropdown border border-gray-100 dark:border-gray-700 p-4"
+            :class="dropdownClass"
+            @click.stop
         >
-            <div
-                v-if="isOpen"
-                ref="dropdown"
-                class="absolute z-30 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4"
-                :class="dropdownClass"
-                @click.stop
-            >
                 <!-- Adults -->
                 <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-700">
                     <div>
@@ -44,7 +36,7 @@
                             type="button"
                             @click="decrement('adults', 1)"
                             :disabled="modelValue.adults <= 1"
-                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center hover:border-gray-900 dark:hover:border-white transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center text-base font-medium hover:border-primary-600 dark:hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 dark:text-gray-300"
                         >
                             −
                         </button>
@@ -55,7 +47,7 @@
                             type="button"
                             @click="increment('adults', maxAdults)"
                             :disabled="modelValue.adults >= maxAdults"
-                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center hover:border-gray-900 dark:hover:border-white transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center text-base font-medium hover:border-primary-600 dark:hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 dark:text-gray-300"
                         >
                             +
                         </button>
@@ -73,7 +65,7 @@
                             type="button"
                             @click="decrement('children', 0)"
                             :disabled="modelValue.children <= 0"
-                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center hover:border-gray-900 dark:hover:border-white transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center text-base font-medium hover:border-primary-600 dark:hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 dark:text-gray-300"
                         >
                             −
                         </button>
@@ -84,7 +76,7 @@
                             type="button"
                             @click="increment('children', maxChildren)"
                             :disabled="modelValue.children >= maxChildren"
-                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center hover:border-gray-900 dark:hover:border-white transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center text-base font-medium hover:border-primary-600 dark:hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 dark:text-gray-300"
                         >
                             +
                         </button>
@@ -102,7 +94,7 @@
                             type="button"
                             @click="decrement('infants', 0)"
                             :disabled="modelValue.infants <= 0"
-                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center hover:border-gray-900 dark:hover:border-white transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center text-base font-medium hover:border-primary-600 dark:hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 dark:text-gray-300"
                         >
                             −
                         </button>
@@ -113,14 +105,13 @@
                             type="button"
                             @click="increment('infants', maxInfants)"
                             :disabled="modelValue.infants >= maxInfants"
-                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center hover:border-gray-900 dark:hover:border-white transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+                            class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center text-base font-medium hover:border-primary-600 dark:hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 transition disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 dark:text-gray-300"
                         >
                             +
                         </button>
                     </div>
                 </div>
-            </div>
-        </transition>
+        </div>
     </div>
 </template>
 

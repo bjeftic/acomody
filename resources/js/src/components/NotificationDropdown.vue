@@ -1,59 +1,56 @@
 <template>
-    <div class="relative" ref="dropdownRef">
-        <!-- Bell button -->
-        <button
-            class="relative p-2 text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 focus:outline-none"
-            @click="toggle"
-        >
-            <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                viewBox="0 0 24 24"
+    <BaseDropdown ref="dropdown" align="end">
+        <!-- Bell trigger -->
+        <template #trigger>
+            <button
+                class="relative p-2 text-primary-700 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-950 transition-all duration-150 focus:outline-none"
             >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                />
-            </svg>
+                <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                    />
+                </svg>
+                <span
+                    v-if="hasUnread"
+                    class="absolute top-1 right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full leading-none"
+                >
+                    {{ unreadBadge }}
+                </span>
+            </button>
+        </template>
 
-            <span
-                v-if="hasUnread"
-                class="absolute top-1 right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full leading-none"
-            >
-                {{ unreadBadge }}
-            </span>
-        </button>
-
-        <!-- Dropdown panel -->
-        <div
-            v-if="isOpen"
-            class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
-        >
+        <!-- Panel -->
+        <div class="w-80 bg-white dark:bg-gray-800 rounded-xl shadow-dropdown border border-gray-100 dark:border-gray-700">
             <!-- Header -->
-            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                <h6 class="font-semibold text-gray-800 text-sm">Notifications</h6>
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                <h6 class="font-semibold text-gray-900 dark:text-white text-sm">Notifications</h6>
                 <button
                     v-if="hasUnread"
-                    class="text-xs text-green-600 hover:text-green-800 font-medium"
-                    @click="markAllRead"
+                    class="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 font-medium"
+                    @click.stop="markAllRead"
                 >
                     Mark all as read
                 </button>
             </div>
 
             <!-- Notification list -->
-            <ul class="max-h-96 overflow-y-auto divide-y divide-gray-50">
-                <li v-if="notifications.length === 0" class="px-4 py-6 text-center text-sm text-gray-400">
+            <ul class="max-h-96 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-700">
+                <li v-if="notifications.length === 0" class="px-4 py-6 text-center text-sm text-gray-400 dark:text-gray-500">
                     No notifications yet
                 </li>
                 <li
                     v-for="notification in notifications"
                     :key="notification.id"
-                    class="flex gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                    :class="{ 'bg-green-50 hover:bg-green-100': !notification.read }"
+                    class="flex gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    :class="{ 'bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30': !notification.read }"
                     @click="handleClick(notification)"
                 >
                     <span class="mt-0.5 flex-shrink-0">
@@ -69,24 +66,24 @@
                         </svg>
                     </span>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-800 leading-snug">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white leading-snug">
                             {{ titleFor(notification) }}
                         </p>
-                        <p class="text-xs text-gray-500 mt-0.5 truncate">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">
                             {{ subtitleFor(notification) }}
                         </p>
-                        <p class="text-xs text-gray-400 mt-1">
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
                             {{ timeAgo(notification.created_at) }}
                         </p>
                     </div>
                     <span
                         v-if="!notification.read"
-                        class="flex-shrink-0 mt-1.5 w-2 h-2 rounded-full bg-green-500"
+                        class="flex-shrink-0 mt-1.5 w-2 h-2 rounded-full bg-primary-500"
                     />
                 </li>
             </ul>
         </div>
-    </div>
+    </BaseDropdown>
 </template>
 
 <script>
@@ -94,43 +91,19 @@ import { mapActions, mapGetters, mapState } from "vuex";
 export default {
     name: "NotificationDropdown",
 
-    data() {
-        return {
-            isOpen: false,
-        };
-    },
-
     computed: {
         ...mapState("notifications", ["notifications"]),
         ...mapGetters("notifications", ["unreadBadge", "hasUnread"]),
     },
 
-    mounted() {
-        document.addEventListener("click", this.onOutsideClick);
-    },
-
-    beforeUnmount() {
-        document.removeEventListener("click", this.onOutsideClick);
-    },
-
     methods: {
         ...mapActions("notifications", ["markAsRead", "markAllRead"]),
-
-        toggle() {
-            this.isOpen = !this.isOpen;
-        },
-
-        onOutsideClick(event) {
-            if (this.$refs.dropdownRef && !this.$refs.dropdownRef.contains(event.target)) {
-                this.isOpen = false;
-            }
-        },
 
         async handleClick(notification) {
             if (!notification.read) {
                 await this.markAsRead(notification.id);
             }
-            this.isOpen = false;
+            this.$refs.dropdown.close();
             this.navigateTo(notification);
         },
 
@@ -192,7 +165,7 @@ export default {
             const colors = {
                 accommodation_under_review: "text-yellow-500",
                 accommodation_approved: "text-green-500",
-                booking_received: "text-blue-500",
+                booking_received: "text-primary-500",
                 booking_confirmed: "text-green-500",
                 booking_cancelled: "text-red-500",
             };
@@ -209,3 +182,12 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+ul {
+    scrollbar-width: none;
+}
+ul::-webkit-scrollbar {
+    display: none;
+}
+</style>

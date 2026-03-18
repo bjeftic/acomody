@@ -1,23 +1,16 @@
 <template>
-    <fwb-modal v-if="show" @close="close">
-        <template #header>
-            <div class="flex items-center justify-between">
-                <h3 class="text-xl font-semibold text-gray-900">Filters</h3>
-            </div>
-        </template>
+    <BaseModal v-if="show" @close="close" size="xl">
+        <template #header>Filters</template>
         <template #body>
-            <div class="p-2 overflow-auto max-h-[70vh]">
+            <div class="overflow-y-auto max-h-[65vh] scrollbar-hide">
                 <price-filter
                     v-if="facetPriceRange"
                     :facet-price-range="facetPriceRange"
                     :price-range="localActiveFilters.priceRange"
                     :average-price="averagePrice"
-                    @update:price-range="
-                        handleFilterUpdate('priceRange', $event)
-                    "
+                    @update:price-range="handleFilterUpdate('priceRange', $event)"
                 />
 
-                <!-- Checkbox filters -->
                 <filter-check
                     v-for="(element, index) in accommodationFilters"
                     :key="element.field_name"
@@ -34,23 +27,21 @@
         </template>
         <template #footer>
             <div class="flex justify-between">
-                <fwb-button @click="handleClearAll" color="alternative">
+                <BaseButton variant="secondary" @click="handleClearAll">
                     Clear all
-                </fwb-button>
-                <fwb-button
-                    class="min-w-36 flex items-center justify-center"
+                </BaseButton>
+                <BaseButton
+                    class="min-w-36"
                     :loading="isLoading"
                     @click="handleApplyFilters"
-                    color="green"
                 >
-                    <template v-if="!isLoading"
-                        >Show {{ resultsFound > 100 ? 100 : resultsFound }}
-                        {{ resultsFound > 100 ? "+" : "" }} places</template
-                    >
-                </fwb-button>
+                    <template v-if="!isLoading">
+                        Show {{ resultsFound > 100 ? 100 : resultsFound }}{{ resultsFound > 100 ? "+" : "" }} places
+                    </template>
+                </BaseButton>
             </div>
         </template>
-    </fwb-modal>
+    </BaseModal>
 </template>
 
 <script>
@@ -65,6 +56,10 @@ const modalNameCamelCase = toCamelCase(modalName);
 
 export default {
     name: "FiltersModal",
+    components: {
+        PriceFilter,
+        FilterCheck,
+    },
     computed: {
         ...mapState({
             show: (state) =>
@@ -124,10 +119,6 @@ export default {
             }
             return "N/A";
         },
-    },
-    components: {
-        PriceFilter,
-        FilterCheck,
     },
     data() {
         return {
@@ -192,10 +183,7 @@ export default {
         },
         handleClearAll() {
             this.localActiveFilters = {
-                priceRange: {
-                    min: null,
-                    max: null,
-                },
+                priceRange: { min: null, max: null },
                 accommodation_categories: [],
                 accommodation_occupations: [],
                 amenities: [],
@@ -233,16 +221,13 @@ export default {
                     this.isLoading = false;
                 });
         },
-
         ok() {
             if (this.resolve !== null) {
                 this.resolve({ formData: this.formData });
             }
             this.close();
         },
-
         close() {
-            // Reset form data
             Object.assign(this.$data, this.$options.data.call(this));
             this.closeModal({ modalName: this.modalName });
         },
@@ -252,3 +237,12 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+.scrollbar-hide {
+    scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+</style>
