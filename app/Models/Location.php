@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Location\LocationType;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Laravel\Scout\Searchable;
@@ -77,6 +78,7 @@ class Location extends Model
             'id' => (string) $this->id,
             'type' => 'location',
             'country_id' => (string) $this->country_id,
+            'country_code' => $this->country->iso_code_2 ?? '',
             'location_type' => $this->location_type,
             'parent_id' => $this->parent_id ? (string) $this->parent_id : null,
             'created_at' => $this->created_at->timestamp,
@@ -169,6 +171,11 @@ class Location extends Model
                 'optional' => true,
             ],
             [
+                'name' => 'country_code',
+                'type' => 'string',
+                'optional' => true,
+            ],
+            [
                 'name' => 'location',
                 'type' => 'geopoint',
                 'optional' => true,
@@ -196,6 +203,11 @@ class Location extends Model
             'fields' => $fields,
             'default_sorting_field' => 'created_at',
         ];
+    }
+
+    public function accommodations(): HasMany
+    {
+        return $this->hasMany(Accommodation::class);
     }
 
     public function country()

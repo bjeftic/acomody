@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\AccommodationDraft;
 use App\Models\Accommodation;
+use App\Models\AccommodationDraft;
 use App\Models\Location;
+use App\Models\User;
 use App\Services\TypesenseCollectionService;
 use Illuminate\Database\Seeder;
 
@@ -56,6 +56,11 @@ class DatabaseSeeder extends Seeder
                     Accommodation::factory()->create();
                 });
             });
+            $this->command->newLine();
+
+            // Home Sections
+            $this->command->info('Creating home sections...');
+            $this->call(HomeSectionSeeder::class);
             $this->command->newLine();
 
             $this->command->info('Seeding completed!');

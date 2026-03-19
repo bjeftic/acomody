@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Enums\Location\LocationType;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Location>
@@ -24,8 +24,8 @@ class LocationFactory extends Factory
                 ? \App\Models\Location::inRandomOrder()->first()?->id
                 : null,
             'location_type' => LocationType::cases()[array_rand(LocationType::cases())]->value,
-            'longitude' => fake()->longitude(41, 44),
-            'latitude' => fake()->latitude(19, 22),
+            'latitude' => fake()->latitude(42, 46),
+            'longitude' => fake()->longitude(18, 23),
             'is_active' => true,
             'user_id' => \App\Models\User::inRandomOrder()->first()->id,
         ];

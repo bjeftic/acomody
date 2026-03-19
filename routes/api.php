@@ -22,6 +22,8 @@ use App\Http\Controllers\IcalExportController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Public\AccommodationController as PublicAccommodationController;
 use App\Http\Controllers\Public\FilterController as PublicFilterController;
+use App\Http\Controllers\Public\HomeSectionController as PublicHomeSectionController;
+use App\Http\Controllers\Public\LocationController as PublicLocationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -47,7 +49,13 @@ Route::post('/currency/set', [CurrencyController::class, 'set'])
 Route::prefix('public')->name('api.public')->group(function () {
     Route::get('filters', [PublicFilterController::class, 'index'])
         ->name('filters');
+    Route::get('locations', [PublicLocationController::class, 'index'])
+        ->name('locations.index');
+    Route::get('home-sections', [PublicHomeSectionController::class, 'index'])
+        ->name('home-sections.index');
     Route::prefix('accommodations')->name('accommodations')->group(function () {
+        Route::get('', [PublicAccommodationController::class, 'index'])
+            ->name('.index');
         Route::get('{accommodation}', [PublicAccommodationController::class, 'show'])
             ->name('show');
         Route::get('{accommodationId}/blocked-dates', [PublicAccommodationController::class, 'blockedDates'])

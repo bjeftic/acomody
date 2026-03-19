@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="sticky top-0">
+        <div class="sticky top-0 z-20">
             <search-bar class="mt-12" @search="handleSearch"></search-bar>
         </div>
         <div class="max-w-[1280px] mx-auto">

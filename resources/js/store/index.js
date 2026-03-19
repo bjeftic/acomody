@@ -7,6 +7,7 @@ import user from "@/store/modules/user";
 import hosting from "@/store/modules/hosting";
 import search from "@/store/modules/search";
 import accommodation from "@/store/modules/accommodation";
+import home from "@/store/modules/home";
 import notifications from "@/store/modules/notifications";
 import ui from "@/store/modules/ui";
 
@@ -21,6 +22,7 @@ const store = createStore({
         hosting,
         search,
         accommodation,
+        home,
         notifications,
         ui,
     }

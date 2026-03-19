@@ -107,8 +107,8 @@
         <div>
             <!-- Location & Rating -->
             <div class="flex items-start justify-between mb-1">
-                <div class="flex-1">
-                    <h3 class="font-semibold text-gray-900 dark:text-white truncate">
+                <div class="flex-1 truncate">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">
                         {{ accommodation.location || accommodation.title }}
                     </h3>
                 </div>
@@ -136,8 +136,8 @@
             </p>
 
             <!-- Price -->
-            <div class="mt-2">
-                <span class="font-semibold text-gray-900 dark:text-white">
+            <div class="mt-1">
+                <span class="text-sm font-semibold text-gray-900 dark:text-white">
                     {{ formatPrice(accommodation.rounded_price || accommodation.regular_price) }}
                 </span>
                 <span class="text-sm text-gray-600 dark:text-gray-400">
