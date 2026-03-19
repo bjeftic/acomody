@@ -22,7 +22,7 @@ class PhotoFactory extends Factory
         $ulid = Str::ulid()->toBase32();
 
         // Default je draft, ali će biti overridden u forAccommodation()
-        $folderPrefix = 'draft-' . Str::ulid()->toBase32();
+        $folderPrefix = 'draft-'.Str::ulid()->toBase32();
 
         // Generate date_taken safely
         $dateTaken = fake()->optional(0.7)->dateTime();
@@ -40,7 +40,7 @@ class PhotoFactory extends Factory
             'large_path' => "{$folderPrefix}/large/{$ulid}.jpg",
 
             // File information
-            'original_filename' => fake()->word() . '-' . fake()->word() . '.jpg',
+            'original_filename' => fake()->word().'-'.fake()->word().'.jpg',
             'mime_type' => 'image/jpeg',
             'file_size' => $fileSize,
             'width' => $width,
@@ -141,10 +141,29 @@ class PhotoFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $ulid = Str::ulid()->toBase32();
-            $folderPrefix = 'property-' . Str::ulid()->toBase32(); // <-- property prefix
+            $folderPrefix = 'property-'.Str::ulid()->toBase32(); // <-- property prefix
 
             return [
                 'disk' => 'accommodation_photos',
+                'path' => "{$folderPrefix}/original/{$ulid}.jpg",
+                'thumbnail_path' => "{$folderPrefix}/thumbnail/{$ulid}.jpg",
+                'medium_path' => "{$folderPrefix}/medium/{$ulid}.jpg",
+                'large_path' => "{$folderPrefix}/large/{$ulid}.jpg",
+            ];
+        });
+    }
+
+    /**
+     * Use location photos disk with proper location- prefix
+     */
+    public function forLocation(): static
+    {
+        return $this->state(function (array $attributes) {
+            $ulid = Str::ulid()->toBase32();
+            $folderPrefix = 'location-'.Str::ulid()->toBase32();
+
+            return [
+                'disk' => 'location_photos',
                 'path' => "{$folderPrefix}/original/{$ulid}.jpg",
                 'thumbnail_path' => "{$folderPrefix}/thumbnail/{$ulid}.jpg",
                 'medium_path' => "{$folderPrefix}/medium/{$ulid}.jpg",
@@ -160,7 +179,7 @@ class PhotoFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $ulid = Str::ulid()->toBase32();
-            $folderPrefix = 'draft-' . Str::ulid()->toBase32(); // <-- draft prefix
+            $folderPrefix = 'draft-'.Str::ulid()->toBase32(); // <-- draft prefix
 
             return [
                 'disk' => 'accommodation_draft_photos',

@@ -78,6 +78,7 @@ class Location extends Model
             'id' => (string) $this->id,
             'type' => 'location',
             'country_id' => (string) $this->country_id,
+            'country_code' => $this->country->iso_code_2 ?? '',
             'location_type' => $this->location_type,
             'parent_id' => $this->parent_id ? (string) $this->parent_id : null,
             'created_at' => $this->created_at->timestamp,
@@ -167,6 +168,11 @@ class Location extends Model
                 'name' => 'parent_id',
                 'type' => 'string',
                 'facet' => true,
+                'optional' => true,
+            ],
+            [
+                'name' => 'country_code',
+                'type' => 'string',
                 'optional' => true,
             ],
             [

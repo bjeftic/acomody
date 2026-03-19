@@ -6,6 +6,7 @@ use App\Http\Controllers\SuperAdmin\AuthController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\DeletionRequestController;
 use App\Http\Controllers\SuperAdmin\FeatureFlagController;
+use App\Http\Controllers\SuperAdmin\HomeSectionController;
 use App\Http\Controllers\SuperAdmin\LocationController;
 use App\Http\Controllers\SuperAdmin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,11 @@ Route::middleware(['auth', 'super.admin'])->group(function () {
 
         Route::get('locations/search', [LocationController::class, 'search'])->name('locations.search');
         Route::resource('locations', LocationController::class)->names('locations');
+
+        Route::get('home-sections/search-locations', [HomeSectionController::class, 'searchLocations'])->name('home-sections.search-locations');
+        Route::post('home-sections/{homeSection}/locations', [HomeSectionController::class, 'addLocation'])->name('home-sections.locations.store');
+        Route::delete('home-sections/{homeSection}/locations/{sectionLocation}', [HomeSectionController::class, 'removeLocation'])->name('home-sections.locations.destroy');
+        Route::resource('home-sections', HomeSectionController::class)->names('home-sections');
 
         Route::get('deletion-requests', [DeletionRequestController::class, 'index'])->name('deletion-requests.index');
         Route::post('deletion-requests/{id}/approve', [DeletionRequestController::class, 'approve'])->name('deletion-requests.approve');

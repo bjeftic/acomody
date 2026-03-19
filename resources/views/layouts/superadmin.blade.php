@@ -121,6 +121,7 @@
                                     <li {{ (Request::is('admin/users') ? 'class=active' : '') }}><a href="{{ url('/admin/users') }}">Users</a></li>
                                     <li {{ (Request::is('admin/superadmin-users') ? 'class=active' : '') }}><a href="{{ url('/admin/superadmin-users') }}">Superadmin users</a></li>
                                     <li {{ (Request::is('admin/locations') ? 'class=active' : '') }}><a href="{{ url('/admin/locations') }}">Locations</a></li>
+                                    <li {{ (Request::is('admin/home-sections*') ? 'class=active' : '') }}><a href="{{ route('admin.home-sections.index') }}">Home Sections</a></li>
                                     <li {{ (Request::is('admin/accommodation-drafts') ? 'class=active' : '') }}><a href="{{ url('/admin/accommodation-drafts') }}">Accommodation Drafts</a></li>
                                     <li {{ (Request::is('admin/accommodations') ? 'class=active' : '') }}><a href="{{ url('/admin/accommodations') }}">Accommodations</a></li>
                                     <li {{ (Request::is('admin/deletion-requests*') ? 'class=active' : '') }}><a href="{{ url('/admin/deletion-requests') }}">Deletion Requests</a></li>

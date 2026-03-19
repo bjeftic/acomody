@@ -4,7 +4,7 @@
         <div class="flex items-center justify-between mb-4">
             <div>
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    {{ location.name }}
+                    {{ title || location.name }}
                 </h2>
             </div>
             <button
@@ -60,6 +60,10 @@ export default {
         location: {
             type: Object,
             required: true,
+        },
+        title: {
+            type: String,
+            default: null,
         },
     },
     data() {

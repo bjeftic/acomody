@@ -1,4 +1,4 @@
-# Home Page — Most Frequent Accommodations
+# Home Page — Dynamic Sections System
 
 Branch: `61-home-page---most-frequent-accommodations`
 
@@ -6,160 +6,261 @@ Branch: `61-home-page---most-frequent-accommodations`
 
 ## Overview
 
-Implemented a home page section that displays accommodations grouped by location, similar to Airbnb. Each location is shown as a separate segment with a 2-row grid of top-rated accommodations and a "See all" button linking to the search page filtered by that location.
+Implemented a fully dynamic home page sections system managed from the SuperAdmin panel. Admins can create, reorder and configure sections that appear on the welcome page. Each section has a type (`locations` or `accommodations`), a multilingual title, optional country targeting, and a list of associated locations.
+
+The old approach (hardcoded featured locations, `is_featured` flag, `NearbyLocations`) has been **removed** and replaced entirely.
 
 ---
 
-## Backend Changes
+## Database
 
-### New endpoint: `GET /api/public/accommodations`
+### `home_sections`
 
-Returns top-rated accommodations from Typesense, optionally filtered by location.
+| Column | Type | Notes |
+|---|---|---|
+| `id` | ULID | Primary key |
+| `title` | JSON | Translatable (EN/SR/DE) |
+| `type` | string | Enum: `locations`, `accommodations` |
+| `sort_order` | integer | Lower = first on page |
+| `is_active` | boolean | Whether shown on home page |
+| `country_codes` | JSON (nullable) | ISO-2 codes; `null` = all countries |
+| `created_at` / `updated_at` | timestamps | |
 
-- **Controller:** `app/Http/Controllers/Public/AccommodationController::index()`
-- **Request:** `app/Http/Requests/Public/FeaturedAccommodationsRequest`
-- **Route name:** `api.publicaccommodations.index`
+### `home_section_locations`
 
-**Query parameters:**
+| Column | Type | Notes |
+|---|---|---|
+| `id` | bigint | Primary key |
+| `home_section_id` | char(26) | FK → `home_sections` |
+| `location_id` | char(26) | FK → `locations` |
+| `sort_order` | integer | Order within section |
+| `created_at` / `updated_at` | timestamps | |
 
-| Param | Type | Default | Description |
-|---|---|---|---|
-| `sortBy` | string | `rating` | One of: `rating`, `reviews`, `price_asc`, `price_desc`, `newest` |
-| `page` | integer | `1` | Page number |
-| `perPage` | integer | `12` | Max 100 |
-| `location_id` | integer | — | Filter by location (must exist in `locations` table) |
+---
 
-**Response:**
-```json
-{
-  "hits": [ { "id": "...", "title": "...", "rating": 4.9, "photos": [], ... } ],
-  "found": 24,
-  "page": 1,
-  "per_page": 12
+## Backend
+
+### Models
+
+**`app/Models/HomeSection.php`**
+
+- Traits: `HasFactory`, `HasTranslations`, `HasUlids`
+- Translatable: `title`
+- Casts: `type` → `SectionType` enum, `country_codes` → array
+- Relationship: `sectionLocations()` → `HasMany(HomeSectionLocation)` ordered by `sort_order`
+- `booted()` hook: calls `Cache::forget('home_sections')` on `saved` and `deleted`
+
+**`app/Models/HomeSectionLocation.php`**
+
+- Relationships: `homeSection()`, `location()`
+- `booted()` hook: calls `Cache::forget('home_sections')` on `saved` and `deleted`
+
+### Enum
+
+**`app/Enums/HomeSection/SectionType.php`**
+
+```php
+enum SectionType: string {
+    case Locations = 'locations';        // horizontal strip of location cards
+    case Accommodations = 'accommodations'; // grid of accommodations for one location
 }
 ```
 
----
+### Public API
 
-### New endpoint: `GET /api/public/locations`
+**`GET /api/public/home-sections`**
 
-Returns up to 10 active locations with translated names.
-
-- **Controller:** `app/Http/Controllers/Public/LocationController::index()`
-- **Route name:** `api.publiclocations.index`
+- **Controller:** `app/Http/Controllers/Public/HomeSectionController`
+- **Route name:** `api.publichome-sections.index`
+- No authentication required
+- Detects user's country from IP (cached 24h per IP via `stevebauman/location`)
+- All active sections are cached forever under key `home_sections`
+- Sections are filtered per-request by `country_codes` (null = visible to all)
+- Cache is invalidated automatically via model hooks on any save/delete
 
 **Response:**
 ```json
 [
-  { "id": 1, "name": "Belgrade" },
-  { "id": 2, "name": "Novi Sad" }
+  {
+    "id": "01JTXXX...",
+    "title": { "en": "Top Destinations", "sr": "Najpopularnije destinacije" },
+    "type": "locations",
+    "sort_order": 0,
+    "country_codes": null,
+    "locations": [
+      {
+        "id": "01JTYYY...",
+        "name": { "en": "Belgrade", "sr": "Beograd" },
+        "photo_url": "https://...",
+        "country_code": "RS"
+      }
+    ]
+  }
 ]
 ```
 
-> **Note:** `name` is a translatable field (Spatie). The controller resolves it via `getTranslation()` using the current app locale with fallback — avoids returning raw `{"en": "..."}` JSON objects.
+### SuperAdmin CRUD
+
+**`app/Http/Controllers/SuperAdmin/HomeSectionController`**
+
+| Method | Route | Action |
+|---|---|---|
+| `GET` | `/admin/home-sections` | List all sections |
+| `GET` | `/admin/home-sections/create` | Create form |
+| `POST` | `/admin/home-sections` | Store new section |
+| `GET` | `/admin/home-sections/{id}/edit` | Edit form |
+| `PUT` | `/admin/home-sections/{id}` | Update section |
+| `DELETE` | `/admin/home-sections/{id}` | Delete section |
+| `GET` | `/admin/home-sections/search-locations` | Select2 AJAX search |
+| `POST` | `/admin/home-sections/{id}/locations` | Add location to section |
+| `DELETE` | `/admin/home-sections/{id}/locations/{sectionLocation}` | Remove location |
+
+### Removed from `LocationController`
+
+- `nearby()` method (IP geolocation + Typesense geo search) — removed
+- Corresponding route `GET /api/public/nearby-locations` — removed
 
 ---
 
-## Frontend Changes
+## SuperAdmin UI (Blade)
 
-### Component tree
+Views in `resources/views/super-admin/home-sections/`:
 
-```
-Welcome.vue
-└── RecomendedAccommodations.vue   (orchestrator — fetches/receives locations)
-    └── LocationSection.vue        (one per location — fetches & displays accommodations)
-        └── AccommodationCard.vue  (existing search card, reused)
-```
+- **`index.blade.php`** — table listing all sections with sort order, type, countries, location count, active status
+- **`create.blade.php`** / **`edit.blade.php`** — standard form wrappers
+- **`partials/forms/home-section.blade.php`** — shared form partial:
+  - Tabbed multilingual title input (EN required, SR/DE optional)
+  - Section type dropdown
+  - Sort order input
+  - Country targeting multi-select (Select2, empty = all countries)
+  - Active checkbox
 
----
+The edit page additionally has a **Locations panel**:
+- Select2 AJAX search to find and add a location
+- Table of current locations with Remove button
 
-### `Welcome.vue`
-
-Hardcodes 5 featured locations and passes them to `RecomendedAccommodations` via the `locations` prop.
-
-```js
-// TODO: Replace with dynamic logic (e.g. most accommodations, admin-curated, etc.)
-const FEATURED_LOCATIONS = [
-  { id: 1, name: 'Belgrade' },
-  { id: 2, name: 'Novi Sad' },
-  { id: 3, name: 'Zlatibor' },
-  { id: 4, name: 'Kopaonik' },
-  { id: 5, name: 'Niš' },
-];
-```
-
-Update the IDs to match your actual `locations` table rows.
+Nav link added to `layouts/superadmin.blade.php`.
 
 ---
 
-### `RecomendedAccommodations.vue`
+## Country Targeting
 
-Orchestrator component. Accepts an optional `locations` prop.
+Admins can restrict a section to specific countries via ISO-2 codes (e.g. `RS`, `BA`, `DE`).
 
-- If `locations` is passed and non-empty → renders those directly
-- If `locations` is empty `[]`, `null`, or not provided → fetches from `GET /api/public/locations` and uses the first 5
-
-Renders a `LocationSection` for each location. Shows full skeleton loading state while locations are being fetched.
-
----
-
-### `LocationSection.vue`
-
-Self-contained section for a single location.
-
-- Fetches 12 accommodations on mount (`sortBy=rating`, `location_id=X`)
-- Displays in a `grid-cols-2 sm:grid-cols-3 lg:grid-cols-6` grid (2 rows of 6 at desktop)
-- **"See all"** button → navigates to `page-search` with `locationId` + `locationName` query params
-- Card click → navigates to `accommodation-detail`
-- Graceful skeleton loading, empty, and error states per section
+**How it works:**
+1. All active sections are cached once in `home_sections` (includes `country_codes`)
+2. On each request to `/api/public/home-sections`, the user's IP is resolved to a country code (cached 24h)
+3. Sections are filtered: `country_codes = null` → shown to all; otherwise only matching countries
+4. If IP detection fails (local/VPN), country-targeted sections are hidden; global sections still show
+5. In non-production environments, falls back to `config('location.testing.ip')` if IP resolves to nothing
 
 ---
 
-### `Paginator.vue` (new reusable component)
+## Frontend
 
-Extracted from `RecomendedAccommodations` and made reusable.
+### Vuex Module — `store/modules/home/`
 
-- **Path:** `resources/js/src/components/common/Paginator.vue`
-- **Props:** `modelValue` (current page), `totalItems`, `perPage` (default 12)
-- **Emits:** `update:modelValue` — compatible with `v-model`
-- Only renders when `totalPages > 1`
-- Used in both `RecomendedAccommodations.vue` (home) and `SearchResults.vue` (search), replacing `fwb-pagination` in the latter
-
----
-
-## Z-index Stack
-
-Fixed cards bleeding over the sticky search bar and navbar dropdowns hiding behind it.
-
-| Element | z-index |
+| File | Purpose |
 |---|---|
-| Navbar (`fwb-navbar`) | `z-30` |
-| Sticky search bar (`SearchWrapper`) | `z-20` |
-| Card badges / Swiper controls | `z-10` |
+| `state.js` | `sections: []`, `loading: false` |
+| `mutation-types.js` | `SET_SECTIONS`, `SET_LOADING` |
+| `mutations.js` | Sets state |
+| `actions.js` | `fetchHomeSections` → `GET /api/public/home-sections` |
+| `getters.js` | `sections`, `loading` |
+| `index.js` | Registered as `home` module (namespaced) |
+
+### Components
+
+**`Welcome.vue`** (updated)
+
+- Dispatches `home/fetchHomeSections` on mount
+- Shows skeleton while loading
+- Renders `<home-section-component>` for each section
+
+**`HomeSectionComponent.vue`** (new)
+
+- Accepts `section` prop
+- `type === 'locations'` → renders `<locations-row>`
+- `type === 'accommodations'` → renders `<location-section>` with the first location in the section
+- Resolves multilingual `title` and `name` objects: prefers `en`, falls back to first available key
+
+**`LocationsRow.vue`** (new)
+
+- Props: `title` (string), `locations` (array)
+- Horizontal scrollable strip of circular location cards with photo + country flag emoji
+- Click navigates to search filtered by location
+
+**`LocationSection.vue`** (existing, updated)
+
+- Added optional `title` prop — if provided, overrides `location.name` in the section header
+- Used for `accommodations` type sections
+
+### Deleted Components
+
+- `NearbyLocations.vue` — removed (nearby/geo feature removed)
+- `FeaturedLocations.vue` — removed (replaced by dynamic system)
+- `RecomendedAccommodations.vue` — removed (replaced by `HomeSectionComponent`)
+- `DestinationsGrid.vue` — removed (was unused)
 
 ---
 
-## Tests
+## Seeder
 
-**File:** `tests/Feature/Api/FeaturedAccommodationsTest.php` — 12 tests
+**`database/seeders/HomeSectionSeeder.php`**
 
-- Returns 200 without authentication
-- Correct JSON structure (`hits`, `found`, `page`, `per_page`)
-- Each hit has required keys
-- Accepts all valid `sortBy` values
-- Rejects invalid `sortBy` with 422
-- Rejects `page < 1` and `perPage > 100` with 422
-- Returns empty hits when no results found
-- Passes `location_id` filter through to `SearchService`
+Creates 3 example sections:
 
-`SearchService` is mocked in all tests — Typesense is not required to be running.
+| Section | Type | Countries | Locations |
+|---|---|---|---|
+| Top Destinations | `locations` | All | First 9 from DB |
+| Stay in Belgrade | `accommodations` | All | First location from DB |
+| Discover Serbia | `locations` | `RS` only | First 9 from DB |
+
+Called automatically from `DatabaseSeeder`.
 
 ---
 
-## Future Work
+## Cache Strategy
 
-- Replace hardcoded `FEATURED_LOCATIONS` in `Welcome.vue` with dynamic logic:
-  - Most accommodations per location
-  - Admin-curated `is_featured` flag on `locations` table
-  - Most bookings / most searched
-- `GET /api/public/locations` currently returns first 10 by insertion order — add ordering by accommodation count or a featured flag
+| Cache Key | Content | TTL | Invalidated by |
+|---|---|---|---|
+| `home_sections` | All active sections with resolved locations | Forever | `HomeSection` / `HomeSectionLocation` save or delete |
+| `geo_ip:{ip}` | IP → country position object | 24 hours | Natural expiry |
+
+---
+
+## Files Changed / Created
+
+### New
+- `database/migrations/..._create_home_sections_table.php`
+- `database/migrations/..._create_home_section_locations_table.php`
+- `database/migrations/..._add_country_codes_to_home_sections_table.php`
+- `app/Enums/HomeSection/SectionType.php`
+- `app/Models/HomeSection.php`
+- `app/Models/HomeSectionLocation.php`
+- `app/Http/Controllers/Public/HomeSectionController.php`
+- `app/Http/Controllers/SuperAdmin/HomeSectionController.php`
+- `resources/views/super-admin/home-sections/index.blade.php`
+- `resources/views/super-admin/home-sections/create.blade.php`
+- `resources/views/super-admin/home-sections/edit.blade.php`
+- `resources/views/super-admin/partials/forms/home-section.blade.php`
+- `resources/js/store/modules/home/` (index, state, mutations, mutation-types, actions, getters)
+- `resources/js/src/views/welcome/components/LocationsRow.vue`
+- `resources/js/src/views/welcome/components/HomeSectionComponent.vue`
+- `database/seeders/HomeSectionSeeder.php`
+
+### Updated
+- `routes/api.php` — added `home-sections`, removed `nearby-locations`
+- `routes/admin.php` — added home-sections resource + location sub-routes
+- `resources/views/layouts/superadmin.blade.php` — added nav link
+- `resources/js/store/index.js` — registered `home` module
+- `resources/js/src/views/welcome/Welcome.vue` — rewritten
+- `resources/js/src/views/welcome/components/LocationSection.vue` — added `title` prop
+- `database/seeders/DatabaseSeeder.php` — calls `HomeSectionSeeder`
+- `app/Http/Controllers/Public/LocationController.php` — removed `nearby()` method
+
+### Deleted
+- `resources/js/src/views/welcome/components/NearbyLocations.vue`
+- `resources/js/src/views/welcome/components/FeaturedLocations.vue`
+- `resources/js/src/views/welcome/components/RecomendedAccommodations.vue`
+- `resources/js/src/views/welcome/components/DestinationsGrid.vue`

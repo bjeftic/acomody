@@ -64,7 +64,7 @@ class SearchService
         if (empty($config['query_by'])) {
             // Try to get from model
             if (method_exists($modelClass, 'typesenseQueryBy')) {
-                $model = new $modelClass();
+                $model = new $modelClass;
                 $queryBy = $model->typesenseQueryBy();
                 $config['query_by'] = is_array($queryBy) ? implode(',', $queryBy) : $queryBy;
             }
@@ -77,7 +77,7 @@ class SearchService
             }
         }
 
-        Log::info("SearchService: Building query", [
+        Log::info('SearchService: Building query', [
             'collection' => $collection,
             'model' => $modelClass,
             'query' => $query,
@@ -95,7 +95,7 @@ class SearchService
             // Get raw results to access highlights and facets
             return $builder->raw();
         } catch (\Exception $e) {
-            Log::error("Search execution failed", [
+            Log::error('Search execution failed', [
                 'collection' => $collection,
                 'error' => $e->getMessage(),
                 'config' => $config,
@@ -122,14 +122,14 @@ class SearchService
             switch ($key) {
                 case 'filters':
                     // Legacy support - convert to filter_by
-                    if (!isset($options['filter_by'])) {
+                    if (! isset($options['filter_by'])) {
                         $scoutOptions['filter_by'] = $this->buildFilterBy($value);
                     }
                     break;
 
                 case 'limit':
                     // Convert limit to per_page if per_page not set
-                    if (!isset($options['per_page'])) {
+                    if (! isset($options['per_page'])) {
                         $scoutOptions['per_page'] = $value;
                     }
                     break;
@@ -140,12 +140,12 @@ class SearchService
         }
 
         // Log what we're sending to Scout
-        Log::info("SearchService: Applying Scout options", [
+        Log::info('SearchService: Applying Scout options', [
             'options' => $scoutOptions,
         ]);
 
         // Apply all options at once
-        if (!empty($scoutOptions)) {
+        if (! empty($scoutOptions)) {
             $builder->options($scoutOptions);
         }
     }
@@ -159,10 +159,10 @@ class SearchService
 
         foreach ($filters as $field => $value) {
             if (is_array($value)) {
-                $values = array_map(fn($v) => $this->escapeFilterValue($v), $value);
-                $conditions[] = "{$field}:[" . implode(', ', $values) . "]";
+                $values = array_map(fn ($v) => $this->escapeFilterValue($v), $value);
+                $conditions[] = "{$field}:[".implode(', ', $values).']';
             } else {
-                $conditions[] = "{$field}:" . $this->escapeFilterValue($value);
+                $conditions[] = "{$field}:".$this->escapeFilterValue($value);
             }
         }
 
@@ -175,7 +175,7 @@ class SearchService
     protected function escapeFilterValue($value): string
     {
         if (is_string($value) && (str_contains($value, ' ') || str_contains($value, ','))) {
-            return '`' . $value . '`';
+            return '`'.$value.'`';
         }
 
         return (string) $value;
@@ -194,8 +194,8 @@ class SearchService
     ): array {
         $geoField = $options['geo_field'] ?? 'location';
 
-        $options['filter_by'] = ($options['filter_by'] ?? '') .
-            ($options['filter_by'] ? ' && ' : '') .
+        $existing = $options['filter_by'] ?? '';
+        $options['filter_by'] = ($existing ? $existing.' && ' : '').
             "{$geoField}:({$lat}, {$lng}, {$radius})";
 
         $options['sort_by'] = $options['sort_by'] ?? "{$geoField}({$lat}, {$lng}):asc";
@@ -218,7 +218,7 @@ class SearchService
         return $this->searchCollection($collection, $query, $options);
     }
 
-    public function getSortByFilter(String $sortBy)
+    public function getSortByFilter(string $sortBy)
     {
         return $sortBy ? $this->sortingOptions[$sortBy] : $this->sortingOptions['price_asc'];
     }
