@@ -82,14 +82,24 @@
                         :error="errors.display_name ? errors.display_name[0] : null"
                         required
                     />
-                    <BaseInput
-                        v-model="form.contact_email"
-                        type="email"
-                        label="Contact email"
-                        placeholder="Email for guest communication"
-                        :error="errors.contact_email ? errors.contact_email[0] : null"
-                        required
-                    />
+                    <div>
+                        <BaseInput
+                            v-model="form.contact_email"
+                            type="email"
+                            label="Contact email"
+                            placeholder="Email for guest communication"
+                            :error="errors.contact_email ? errors.contact_email[0] : null"
+                            required
+                        />
+                        <button
+                            v-if="!form.contact_email && currentUser?.email"
+                            type="button"
+                            class="mt-1.5 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                            @click="form.contact_email = currentUser.email"
+                        >
+                            Apply login email — {{ currentUser.email }}
+                        </button>
+                    </div>
                     <BaseInput
                         v-model="form.phone"
                         type="tel"
