@@ -1,14 +1,14 @@
 <template>
-    <fwb-navbar class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-        <div class="w-full px-4 sm:px-0 max-w-7xl mx-auto">
+    <header class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <div class="w-full px-4 max-w-7xl mx-auto">
             <div class="flex justify-between items-center h-14">
                 <!-- Logo -->
                 <router-link :to="{ name: 'page-welcome' }" class="flex items-center">
                     <img src="/images/acomody.png" alt="Acomody" class="h-7" />
                 </router-link>
 
-                <!-- Navigation Items -->
-                <div class="flex items-center gap-2">
+                <!-- Desktop Navigation Items -->
+                <div class="hidden md:flex items-center gap-2">
                     <!-- Currency selector -->
                     <BaseDropdown align="end" close-inside>
                         <template #trigger="{ isOpen }">
@@ -114,9 +114,113 @@
                         </BaseDropdown>
                     </template>
                 </div>
+
+                <!-- Mobile: Notifications + Hamburger -->
+                <div class="flex md:hidden items-center gap-2">
+                    <notification-dropdown v-if="isLoggedIn" />
+                    <button
+                        class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                        @click="mobileMenuOpen = !mobileMenuOpen"
+                    >
+                        <svg v-if="!mobileMenuOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Drawer -->
+            <div
+                v-if="mobileMenuOpen"
+                class="md:hidden border-t border-gray-200 dark:border-gray-700 py-3 space-y-1"
+                @click="mobileMenuOpen = false"
+            >
+                <!-- Currency selector -->
+                <div class="px-2 py-1">
+                    <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Currency</p>
+                    <div class="flex flex-wrap gap-1">
+                        <button
+                            v-for="currency in currencies"
+                            :key="currency.code"
+                            class="px-3 py-1.5 text-sm rounded-lg border transition"
+                            :class="(currentCurrency || selectedCurrency.code) === currency.code
+                                ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-700 text-primary-700 dark:text-primary-300 font-medium'
+                                : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'"
+                            @click.stop="setCurrency(currency.code); currentCurrency = currency.code"
+                        >
+                            {{ currency.code }}
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 dark:border-gray-700 mx-2" />
+
+                <!-- Host CTA -->
+                <template v-if="isLoggedIn">
+                    <button
+                        v-if="hostingCtaStatus === 'not_host' && $route.name !== 'page-become-a-host'"
+                        class="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
+                        @click="$router.push({ name: 'page-become-a-host' })"
+                    >
+                        Become a host
+                    </button>
+                    <button
+                        v-else-if="hostingCtaStatus !== 'not_host' && $route.name !== 'page-hosting-home'"
+                        class="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
+                        @click="$router.push({ name: 'page-hosting-home' })"
+                    >
+                        Hosting dashboard
+                    </button>
+                </template>
+                <button
+                    v-else-if="$route.name !== 'page-become-a-host'"
+                    class="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
+                    @click="$router.push({ name: 'page-become-a-host' })"
+                >
+                    Become a host
+                </button>
+
+                <!-- Auth / Account links -->
+                <template v-if="!isLoggedIn">
+                    <button
+                        class="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
+                        @click="openLogInModal"
+                    >
+                        Log in
+                    </button>
+                    <button
+                        class="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
+                        @click="openSignUpModal"
+                    >
+                        Sign up
+                    </button>
+                </template>
+                <template v-else>
+                    <router-link
+                        :to="{ name: 'page-account' }"
+                        class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
+                    >
+                        My account
+                    </router-link>
+                    <router-link
+                        :to="{ name: 'bookings-list' }"
+                        class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
+                    >
+                        Bookings
+                    </router-link>
+                    <button
+                        class="w-full text-left px-4 py-3 text-sm text-primary-600 dark:text-primary-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
+                        @click="logOut"
+                    >
+                        Log out
+                    </button>
+                </template>
             </div>
         </div>
-    </fwb-navbar>
+    </header>
 </template>
 
 <script>
@@ -134,6 +238,7 @@ export default {
         return {
             currentCurrency: null,
             pollTimer: null,
+            mobileMenuOpen: false,
         };
     },
 
@@ -150,6 +255,9 @@ export default {
             } else {
                 this.stopPolling();
             }
+        },
+        $route() {
+            this.mobileMenuOpen = false;
         },
     },
 

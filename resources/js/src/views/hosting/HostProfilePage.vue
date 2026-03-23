@@ -210,7 +210,7 @@
                     {{ deletionAlert.message }}
                 </div>
 
-                <div class="flex items-start justify-between gap-6 p-4 border border-rose-200 dark:border-rose-900 rounded-xl">
+                <div class="flex flex-wrap items-start justify-between gap-4 p-4 border border-rose-200 dark:border-rose-900 rounded-xl">
                     <div>
                         <p class="text-sm font-medium text-gray-900 dark:text-white">
                             Delete hosting account

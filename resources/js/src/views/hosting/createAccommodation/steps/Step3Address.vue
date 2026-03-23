@@ -43,7 +43,7 @@
                     />
 
                     <!-- State/Province & Zip Code -->
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <BaseInput
                             :model-value="formData.address.state"
                             @update:model-value="handleAddressChange('state', $event)"

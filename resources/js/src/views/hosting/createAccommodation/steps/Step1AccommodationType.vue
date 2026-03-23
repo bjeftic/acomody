@@ -12,7 +12,7 @@
 
         <div class="flex items-center justify-center">
             <div
-                class="max-w-2xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 overflow-auto h-[60vh] py-4 pr-4"
+                class="max-w-2xl grid grid-cols-2 md:grid-cols-3 gap-4 overflow-auto h-[60vh] py-4 pr-4"
             >
                 <select-action-card
                     v-for="type in accommodationTypes"

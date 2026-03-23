@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div class="sticky top-0 z-20">
-            <search-bar class="mt-12" @search="handleSearch"></search-bar>
+        <div class="sticky top-0 z-20 bg-white dark:bg-gray-900">
+            <search-bar class="mt-4 md:mt-12" @search="handleSearch"></search-bar>
         </div>
         <div class="max-w-[1280px] mx-auto">
             <slot name="content"></slot>

@@ -142,8 +142,8 @@
                 {{ deletionAlert.message }}
             </div>
 
-            <div class="flex items-start justify-between gap-6 p-4 border border-red-200 dark:border-red-900 rounded-xl">
-                <div>
+            <div class="flex flex-wrap items-start justify-between gap-4 p-4 border border-red-200 dark:border-red-900 rounded-xl">
+                <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-gray-900 dark:text-white">Delete account</p>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         Permanently deletes your entire account including host profile, listings, and all data.

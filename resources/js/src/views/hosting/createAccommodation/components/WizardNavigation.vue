@@ -1,6 +1,6 @@
 <template>
     <div class="border-t border-gray-200 dark:border-gray-800">
-        <div class="max-w-7xl mx-auto py-4">
+        <div class="max-w-7xl mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <!-- Back Button -->
                 <BaseButton

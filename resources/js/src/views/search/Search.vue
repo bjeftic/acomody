@@ -6,7 +6,7 @@
             <main class="flex-1">
                 <!-- Results Header -->
                 <div
-                    class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4"
+                    class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 py-2 md:py-4"
                 >
                     <div class="flex items-center justify-between">
                         <search-bar

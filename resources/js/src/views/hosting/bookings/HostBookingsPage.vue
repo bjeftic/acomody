@@ -1,6 +1,6 @@
 <template>
-    <div class="max-w-4xl mx-auto py-12">
-        <div class="mb-8 flex items-center justify-between">
+    <div class="max-w-4xl mx-auto px-4 pt-6 md:py-12">
+        <div class="mb-6 md:mb-8 flex items-start md:items-center justify-between gap-3">
             <div>
                 <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">Bookings</h1>
                 <p class="text-base text-gray-600 dark:text-gray-400">Manage reservations across your properties.</p>

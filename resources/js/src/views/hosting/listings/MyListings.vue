@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-4xl mx-auto py-12">
+    <div class="max-w-4xl mx-auto px-4 pt-6 md:py-12">
         <template v-if="myListingsLoading">
             <form-skeleton />
         </template>
