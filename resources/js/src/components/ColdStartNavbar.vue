@@ -56,7 +56,7 @@
                                 </router-link>
                                 <hr class="my-1 border-gray-100 dark:border-gray-700" />
                                 <span
-                                    class="px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-rose-600 dark:text-rose-400"
+                                    class="px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-primary-600 dark:text-primary-400"
                                     @click="logOut"
                                 >
                                     Log out

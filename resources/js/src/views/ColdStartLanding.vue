@@ -136,7 +136,7 @@
                 <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">Founding host perks</span>
                 <h2 class="text-4xl font-bold text-gray-900 dark:text-white mt-3">Why list now?</h2>
                 <p class="text-gray-500 dark:text-gray-400 mt-3 max-w-xl mx-auto">
-                    These perks are exclusive to our first 50 hosts. Once the spots are gone, they're gone.
+                    These perks are exclusive to our first 100 hosts. Once the spots are gone, they're gone.
                 </p>
             </div>
 
@@ -247,7 +247,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-2">
-                        <span class="font-bold text-white text-lg">Acomody</span>
+                        <img src="/images/acomody.png" alt="Acomody" class="h-7 brightness-0 invert" />
                         <span class="text-gray-500 text-sm">— Platform in early access phase</span>
                     </div>
                     <div class="flex items-center gap-6 text-sm text-gray-400">

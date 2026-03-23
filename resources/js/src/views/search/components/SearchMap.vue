@@ -791,8 +791,8 @@ export default {
 }
 
 .spinner {
-    border: 3px solid #fecdd3;
-    border-top: 3px solid #E11D48;
+    border: 3px solid #FFCDC5;
+    border-top: 3px solid #F05035;
     border-radius: 50%;
     width: 40px;
     height: 40px;
