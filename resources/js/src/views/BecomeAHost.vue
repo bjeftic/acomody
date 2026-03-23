@@ -2,12 +2,12 @@
     <base-wrapper>
         <template v-slot:content>
             <!-- Hero Section -->
-            <div class="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl p-12 mb-12">
+            <div class="bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl p-6 md:p-12 mb-8 md:mb-12">
                 <div class="max-w-3xl">
-                    <h1 class="text-5xl font-bold mb-6">
+                    <h1 class="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
                         Become a Host on Acomody
                     </h1>
-                    <p class="text-xl mb-8 text-primary-100">
+                    <p class="text-base md:text-xl mb-6 md:mb-8 text-primary-100">
                         List your property on Acomody and open your doors to millions of travelers worldwide. Start earning today!
                     </p>
                     <button
@@ -20,8 +20,8 @@
             </div>
 
             <!-- Benefits Section -->
-            <div class="mb-16">
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+            <div class="mb-10 md:mb-16">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6 md:mb-8 text-center">
                     Why host with Acomody?
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -108,8 +108,8 @@
             </div>
 
             <!-- How It Works Section -->
-            <div class="mb-16">
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+            <div class="mb-10 md:mb-16">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6 md:mb-8 text-center">
                     Kako funkcioniše?
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -146,10 +146,10 @@
             </div>
 
             <!-- Pricing Section -->
-            <div class="bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-xl p-12 mb-16">
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-xl p-6 md:p-12 mb-10 md:mb-16">
                 <div class="max-w-3xl mx-auto text-center">
-                    <h2 class="text-3xl font-bold mb-4">Provizija samo po rezervaciji</h2>
-                    <p class="text-lg mb-8 text-gray-300">
+                    <h2 class="text-2xl md:text-3xl font-bold mb-4">Provizija samo po rezervaciji</h2>
+                    <p class="text-base md:text-lg mb-6 md:mb-8 text-gray-300">
                         Acomody naplaćuje proviziju tek kada dođe do prvih rezervacija.
                         U zavisnosti od destinacije na kojoj se smeštaj nalazi.
                     </p>
@@ -171,8 +171,8 @@
             </div>
 
             <!-- FAQ Section -->
-            <div class="mb-16">
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+            <div class="mb-10 md:mb-16">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6 md:mb-8 text-center">
                     Često postavljana pitanja
                 </h2>
                 <div class="max-w-3xl mx-auto space-y-2">
@@ -204,9 +204,9 @@
             </div>
 
             <!-- Final CTA -->
-            <div class="bg-primary-600 text-white rounded-xl p-12 text-center mb-8">
-                <h2 class="text-4xl font-bold mb-4">Spremni da započnete?</h2>
-                <p class="text-lg mb-8 text-primary-100">
+            <div class="bg-primary-600 text-white rounded-xl p-6 md:p-12 text-center mb-8">
+                <h2 class="text-2xl md:text-4xl font-bold mb-4">Spremni da započnete?</h2>
+                <p class="text-base md:text-lg mb-6 md:mb-8 text-primary-100">
                     Pridružite se hiljadama zadovoljnih domaćina koji zarađuju sa Acomody
                 </p>
                 <button

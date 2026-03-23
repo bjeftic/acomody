@@ -1,11 +1,11 @@
 <template>
-    <fwb-navbar class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+    <header class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
         <div class="w-full px-4 sm:px-0 max-w-7xl mx-auto">
             <div class="flex justify-between items-center h-14">
                 <!-- Logo -->
                 <router-link :to="{ name: 'page-welcome' }" class="flex items-center gap-2">
                     <img src="/images/acomody.png" alt="Acomody" class="h-12" />
-                    <span class="text-xs font-medium text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700 rounded-full px-2 py-0.5">
+                    <span class="hidden sm:inline-flex text-xs font-medium text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700 rounded-full px-2 py-0.5">
                         Early Access
                     </span>
                 </router-link>
@@ -17,7 +17,8 @@
                             Log in
                         </BaseButton>
                         <BaseButton variant="primary" size="sm" @click="handleCta">
-                            List your property
+                            <span class="sm:hidden">List property</span>
+                            <span class="hidden sm:inline">List your property</span>
                         </BaseButton>
                     </template>
                     <template v-else>
@@ -67,7 +68,7 @@
                 </div>
             </div>
         </div>
-    </fwb-navbar>
+    </header>
 </template>
 
 <script>

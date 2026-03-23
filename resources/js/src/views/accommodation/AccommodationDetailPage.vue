@@ -40,7 +40,7 @@
             </div>
 
             <!-- Main Grid Layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-24 lg:pb-0">
                 <!-- Left Column - Main Info -->
                 <div class="lg:col-span-2 space-y-8">
                     <!-- Header Section -->
@@ -48,7 +48,7 @@
                         <div class="flex items-start justify-between mb-4">
                             <div class="flex-1">
                                 <h1
-                                    class="text-3xl font-bold text-gray-900 dark:text-white mb-2"
+                                    class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2"
                                 >
                                     {{ accommodation.title }}
                                 </h1>
@@ -341,12 +341,54 @@
                     </div>
                 </div>
 
-                <!-- Right Column - Booking Card (Sticky) -->
-                <div class="lg:col-span-1">
+                <!-- Right Column - Booking Card (Sticky, desktop only) -->
+                <div class="hidden lg:block lg:col-span-1">
                     <div class="sticky top-8 space-y-4">
                         <booking-card
                             :accommodation="accommodation"
                         />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Sticky Booking Bar -->
+            <div
+                v-if="accommodation.pricing"
+                class="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-4 pt-3 pb-5"
+            >
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-lg font-bold text-gray-900 dark:text-white">
+                            {{ formatPrice(accommodation.pricing.base_price_in_user_currency.base_price, accommodation.pricing.base_price_in_user_currency.currency) }}
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">per night</div>
+                    </div>
+                    <button
+                        class="flex-1 max-w-[200px] bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-xl transition"
+                        @click="showMobileBooking = true"
+                    >
+                        Reserve
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Booking Slide-up -->
+            <div
+                v-if="showMobileBooking"
+                class="lg:hidden fixed inset-0 z-40 flex flex-col justify-end"
+            >
+                <div class="absolute inset-0 bg-black/50" @click="showMobileBooking = false"></div>
+                <div class="relative bg-white dark:bg-gray-900 rounded-t-2xl max-h-[90vh] overflow-y-auto">
+                    <div class="flex items-center justify-between px-4 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Book this place</h3>
+                        <button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition" @click="showMobileBooking = false">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <booking-card :accommodation="accommodation" />
                     </div>
                 </div>
             </div>
@@ -368,6 +410,7 @@
 import { mapState, mapActions } from 'vuex';
 import PhotoGallery from "./components/PhotoGallery.vue";
 import BookingCard from "./components/BookingCard.vue";
+import { formatPrice } from "@/utils/helpers";
 
 export default {
     name: "AccommodationDetailPage",
@@ -379,6 +422,7 @@ export default {
         return {
             error: null,
             isFavorite: false,
+            showMobileBooking: false,
         };
     },
     computed: {
@@ -401,6 +445,7 @@ export default {
         },
     },
     methods: {
+        formatPrice,
         ...mapActions("accommodation", ["fetchAccommodation"]),
         async checkFavoriteStatus() {
             // TODO: Implement favorite status check from API

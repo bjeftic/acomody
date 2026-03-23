@@ -1,5 +1,5 @@
 <template>
-    <div v-if="totalPages > 1" class="flex items-center justify-center gap-1">
+    <div v-if="totalPages > 1" class="flex flex-wrap items-center justify-center gap-1">
         <button
             :disabled="modelValue === 1"
             @click="$emit('update:modelValue', modelValue - 1)"

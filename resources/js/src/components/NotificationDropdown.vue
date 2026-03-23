@@ -28,7 +28,7 @@
         </template>
 
         <!-- Panel -->
-        <div class="w-80 bg-white dark:bg-gray-800 rounded-xl shadow-dropdown border border-gray-100 dark:border-gray-700">
+        <div class="w-80 max-w-[calc(100vw-1rem)] bg-white dark:bg-gray-800 rounded-xl shadow-dropdown border border-gray-100 dark:border-gray-700">
             <!-- Header -->
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
                 <h6 class="font-semibold text-gray-900 dark:text-white text-sm">Notifications</h6>

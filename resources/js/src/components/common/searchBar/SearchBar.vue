@@ -1,9 +1,8 @@
 <template>
-    <div>
-        <div class="w-full max-w-6xl mx-auto p-4">
-            <div
-                class="flex items-center gap-0 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl p-1 shadow-card"
-            >
+    <div class="w-full">
+        <div class="w-full max-w-6xl mx-auto px-4 py-2 md:p-4">
+            <!-- Desktop: Single row layout -->
+            <div class="hidden md:flex items-center gap-0 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl p-1 shadow-card">
                 <!-- Location Autocomplete -->
                 <div
                     ref="autocompleteField"
@@ -21,7 +20,6 @@
                         placeholder="Search destinations"
                         class="w-full p-0 bg-transparent text-sm leading-none text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 font-medium custom-input"
                     />
-
                     <!-- Location results dropdown -->
                     <div
                         v-if="showLocationDropdown && localSearchResults.length > 0"
@@ -60,7 +58,7 @@
                     </div>
                     <div v-else class="text-sm leading-none font-medium text-gray-400 dark:text-gray-500">Add dates</div>
 
-                    <!-- Calendar dropdown -->
+                    <!-- Desktop calendar dropdown (2 months) -->
                     <div
                         v-if="showCalendar"
                         ref="calendarDropdown"
@@ -68,118 +66,52 @@
                         style="width: 660px"
                         @click.stop
                     >
-                        <!-- Calendar Header -->
                         <div class="flex items-center justify-between mb-6">
-                            <button
-                                @click="previousMonth"
-                                class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300"
-                            >
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-                                </svg>
+                            <button @click="previousMonth" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" /></svg>
                             </button>
                             <div class="flex gap-20 font-semibold text-gray-800 dark:text-white">
                                 <span>{{ getMonthYear(currentMonth) }}</span>
                                 <span>{{ getMonthYear(nextMonth) }}</span>
                             </div>
-                            <button
-                                @click="nextMonthNav"
-                                class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300"
-                            >
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-                                </svg>
+                            <button @click="nextMonthNav" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
                             </button>
                         </div>
-
-                        <!-- Calendar Body -->
                         <div class="flex gap-6">
-                            <!-- First Month -->
                             <div class="flex-1">
                                 <div class="grid grid-cols-7 gap-1 mb-2">
-                                    <div
-                                        v-for="day in weekDays"
-                                        :key="day"
-                                        class="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-2"
-                                    >
-                                        {{ day }}
-                                    </div>
+                                    <div v-for="day in weekDays" :key="day" class="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-2">{{ day }}</div>
                                 </div>
                                 <div class="grid grid-cols-7 gap-1">
-                                    <div
-                                        v-for="day in getMonthDays(currentMonth)"
-                                        :key="`current-${day.timestamp}`"
-                                        :class="getDayClasses(day)"
-                                        @click="selectDate(day)"
-                                    >
-                                        {{ day.date }}
-                                    </div>
+                                    <div v-for="day in getMonthDays(currentMonth)" :key="`current-${day.timestamp}`" :class="getDayClasses(day)" @click="selectDate(day)">{{ day.date }}</div>
                                 </div>
                             </div>
-
-                            <!-- Second Month -->
                             <div class="flex-1">
                                 <div class="grid grid-cols-7 gap-1 mb-2">
-                                    <div
-                                        v-for="day in weekDays"
-                                        :key="day"
-                                        class="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-2"
-                                    >
-                                        {{ day }}
-                                    </div>
+                                    <div v-for="day in weekDays" :key="day" class="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-2">{{ day }}</div>
                                 </div>
                                 <div class="grid grid-cols-7 gap-1">
-                                    <div
-                                        v-for="day in getMonthDays(nextMonth)"
-                                        :key="`next-${day.timestamp}`"
-                                        :class="getDayClasses(day)"
-                                        @click="selectDate(day)"
-                                    >
-                                        {{ day.date }}
-                                    </div>
+                                    <div v-for="day in getMonthDays(nextMonth)" :key="`next-${day.timestamp}`" :class="getDayClasses(day)" @click="selectDate(day)">{{ day.date }}</div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Calendar Footer -->
                         <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
-                            <button
-                                @click="clearDates"
-                                class="px-4 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm font-medium text-gray-700 dark:text-gray-300"
-                            >
-                                Clear dates
-                            </button>
-                            <button
-                                @click="closeCalendar"
-                                class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition text-sm font-medium"
-                            >
-                                Close
-                            </button>
+                            <button @click="clearDates" class="px-4 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm font-medium text-gray-700 dark:text-gray-300">Clear dates</button>
+                            <button @click="closeCalendar" class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition text-sm font-medium">Close</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Guests -->
                 <div class="flex-1 min-w-[160px] px-4 py-1.5">
-                    <guests-dropdown
-                        v-model="guests"
-                        dropdown-class="right-0 w-80"
-                    >
+                    <guests-dropdown v-model="guests" dropdown-class="right-0 w-80">
                         <template #trigger="{ toggle, displayText }">
-                            <div
-                                class="cursor-pointer"
-                                @click="toggle"
-                            >
+                            <div class="cursor-pointer" @click="toggle">
                                 <div class="text-[10px] font-semibold leading-none text-gray-500 dark:text-gray-400 mb-1">Guests</div>
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm leading-none font-medium text-gray-800 dark:text-gray-100">{{ displayText }}</span>
-                                    <svg
-                                        class="w-4 h-4 text-gray-400"
-                                        fill="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M7.41 8.84L12 13.42l4.59-4.58L18 10.25l-6 6-6-6z" />
-                                    </svg>
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M7.41 8.84L12 13.42l4.59-4.58L18 10.25l-6 6-6-6z" /></svg>
                                 </div>
                             </div>
                         </template>
@@ -201,10 +133,140 @@
                 </div>
             </div>
 
+            <!-- Mobile: Collapsed pill -->
+            <div
+                v-if="!mobileExpanded"
+                class="md:hidden w-full flex items-center gap-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-card cursor-pointer"
+                @click="expandMobile"
+            >
+                <div class="flex-1 min-w-0">
+                    <div class="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
+                        {{ locationSearchName || 'Where to?' }}
+                    </div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                        <template v-if="searchForm.checkIn && searchForm.checkOut">{{ formatDate(searchForm.checkIn) }} – {{ formatDate(searchForm.checkOut) }} · </template>
+                        {{ totalGuests }} guest{{ totalGuests !== 1 ? 's' : '' }}
+                    </div>
+                </div>
+                <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-primary-600 rounded-xl">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Mobile: Expanded stacked -->
+            <div v-if="mobileExpanded" class="md:hidden space-y-2">
+                <!-- Location -->
+                <div ref="autocompleteFieldMobile" class="relative border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl px-4 py-3 shadow-card">
+                    <div class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1">Where to?</div>
+                    <input
+                        v-model="locationSearchName"
+                        @input="handleLocationInput"
+                        @focus="showLocationDropdown = true"
+                        @keydown.down.prevent="navigateDown"
+                        @keydown.up.prevent="navigateUp"
+                        @keydown.enter.prevent="selectHighlighted"
+                        type="text"
+                        placeholder="Search destinations"
+                        class="w-full p-0 bg-transparent text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 font-medium custom-input"
+                    />
+                    <div
+                        v-if="showLocationDropdown && localSearchResults.length > 0"
+                        class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-xl shadow-dropdown border border-gray-100 dark:border-gray-700 max-h-48 overflow-y-auto z-20"
+                    >
+                        <div
+                            v-for="(option, index) in localSearchResults"
+                            :key="option.data.id"
+                            :class="[
+                                'px-4 py-3 cursor-pointer transition text-sm text-gray-700 dark:text-gray-200',
+                                highlightedIndex === index ? 'bg-primary-50 dark:bg-primary-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700',
+                            ]"
+                            @click="selectLocation(option)"
+                        >
+                            {{ option.data.name }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dates -->
+                <div
+                    ref="dateFieldMobile"
+                    class="relative border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl px-4 py-3 shadow-card cursor-pointer"
+                    @click="toggleCalendar"
+                >
+                    <div class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1">Dates</div>
+                    <div v-if="searchForm.checkIn && searchForm.checkOut" class="text-sm font-medium text-gray-800 dark:text-gray-100">
+                        {{ formatDate(searchForm.checkIn) }} – {{ formatDate(searchForm.checkOut) }}
+                    </div>
+                    <div v-else class="text-sm font-medium text-gray-400 dark:text-gray-500">Add dates</div>
+
+                    <!-- Mobile calendar (single month, fixed position) -->
+                    <div
+                        v-if="showCalendar"
+                        ref="calendarDropdownMobile"
+                        class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-xl shadow-dropdown border border-gray-100 dark:border-gray-700 p-4 z-30"
+                        @click.stop
+                    >
+                        <div class="flex items-center justify-between mb-4">
+                            <button @click="previousMonth" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" /></svg>
+                            </button>
+                            <span class="font-semibold text-gray-800 dark:text-white text-sm">{{ getMonthYear(currentMonth) }}</span>
+                            <button @click="nextMonthNav" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-7 gap-0.5 mb-1">
+                            <div v-for="day in weekDays" :key="day" class="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-1">{{ day }}</div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-0.5">
+                            <div
+                                v-for="day in getMonthDays(currentMonth)"
+                                :key="`mobile-${day.timestamp}`"
+                                :class="getMobileDayClasses(day)"
+                                @click="selectDate(day)"
+                            >{{ day.date }}</div>
+                        </div>
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                            <button @click="clearDates" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm font-medium text-gray-700 dark:text-gray-300">Clear</button>
+                            <button @click="closeCalendar" class="px-4 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition text-sm font-medium">Done</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guests -->
+                <div class="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl px-4 py-3 shadow-card">
+                    <guests-dropdown v-model="guests" dropdown-class="left-0 right-0 w-full">
+                        <template #trigger="{ toggle, displayText }">
+                            <div class="cursor-pointer" @click="toggle">
+                                <div class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1">Guests</div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-gray-800 dark:text-gray-100">{{ displayText }}</span>
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M7.41 8.84L12 13.42l4.59-4.58L18 10.25l-6 6-6-6z" /></svg>
+                                </div>
+                            </div>
+                        </template>
+                    </guests-dropdown>
+                </div>
+
+                <!-- Search Button -->
+                <button
+                    @click="handleSearch"
+                    :disabled="!isFormValid"
+                    class="w-full flex items-center justify-center gap-2 bg-primary-600 text-white px-5 py-3 rounded-xl hover:bg-primary-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                    </svg>
+                    Search
+                </button>
+            </div>
+
             <!-- Validation Message -->
             <div
                 v-if="validationMessage"
-                class="mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl"
+                class="mt-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm"
             >
                 {{ validationMessage }}
             </div>
@@ -262,6 +324,7 @@ export default {
     data() {
         return {
             validationMessage: "",
+            mobileExpanded: false,
             showCalendar: false,
             showLocationDropdown: false,
             locationSearchName: "",
@@ -310,16 +373,22 @@ export default {
                 this.searchForm.checkOut > this.searchForm.checkIn
             );
         },
+
+        totalGuests() {
+            return (this.guestsData.adults || 0) + (this.guestsData.children || 0);
+        },
     },
 
     mounted() {
         document.addEventListener("click", this.handleClickOutside);
+        window.addEventListener("scroll", this.handleScroll, { passive: true });
         this.updateNextMonth();
         this.initializeFromProps();
     },
 
     beforeDestroy() {
         document.removeEventListener("click", this.handleClickOutside);
+        window.removeEventListener("scroll", this.handleScroll);
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
         }
@@ -539,6 +608,7 @@ export default {
             }
 
             this.validationMessage = "";
+            this.mobileExpanded = false;
             this.$emit("search", {
                 location: {
                     id: this.searchForm.location.id,
@@ -550,24 +620,60 @@ export default {
             });
         },
 
+        getMobileDayClasses(day) {
+            const classes = [
+                "flex", "items-center", "justify-center",
+                "w-9", "h-9", "text-xs", "transition",
+            ];
+
+            if (!day.isCurrentMonth || day.isPast) {
+                classes.push("text-gray-300", "dark:text-gray-600", "cursor-not-allowed");
+                return classes.join(" ");
+            }
+
+            classes.push("cursor-pointer");
+
+            const { timestamp } = day;
+            const { checkIn, checkOut } = this.searchForm;
+
+            if (checkIn && timestamp === checkIn) {
+                classes.push("bg-primary-600", "text-white", "rounded-l-full");
+            } else if (checkOut && timestamp === checkOut) {
+                classes.push("bg-primary-600", "text-white", "rounded-r-full");
+            } else if (checkIn && checkOut && timestamp > checkIn && timestamp < checkOut) {
+                classes.push("bg-primary-50", "dark:bg-primary-900/20", "text-primary-700", "dark:text-primary-300");
+            } else {
+                classes.push("hover:bg-primary-50", "dark:hover:bg-primary-900/20", "hover:rounded-full", "text-gray-700", "dark:text-gray-200");
+            }
+
+            return classes.join(" ");
+        },
+
+        expandMobile() {
+            this._ignoreScroll = true;
+            this.mobileExpanded = true;
+            clearTimeout(this._ignoreScrollTimer);
+            this._ignoreScrollTimer = setTimeout(() => {
+                this._ignoreScroll = false;
+            }, 400);
+        },
+
+        handleScroll() {
+            if (window.innerWidth >= 768) return;
+            if (this._ignoreScroll) return;
+            if (window.scrollY > 80 && this.mobileExpanded) {
+                this.mobileExpanded = false;
+            }
+        },
+
         handleClickOutside(event) {
-            if (
-                this.showLocationDropdown &&
-                this.$refs.locationDropdown &&
-                this.$refs.autocompleteField &&
-                !this.$refs.locationDropdown.contains(event.target) &&
-                !this.$refs.autocompleteField.contains(event.target)
-            ) {
+            const locationRefs = [this.$refs.locationDropdown, this.$refs.autocompleteField, this.$refs.autocompleteFieldMobile];
+            if (this.showLocationDropdown && !locationRefs.some(r => r && r.contains(event.target))) {
                 this.showLocationDropdown = false;
             }
 
-            if (
-                this.showCalendar &&
-                this.$refs.calendarDropdown &&
-                this.$refs.dateField &&
-                !this.$refs.calendarDropdown.contains(event.target) &&
-                !this.$refs.dateField.contains(event.target)
-            ) {
+            const calendarRefs = [this.$refs.calendarDropdown, this.$refs.dateField, this.$refs.calendarDropdownMobile, this.$refs.dateFieldMobile];
+            if (this.showCalendar && !calendarRefs.some(r => r && r.contains(event.target))) {
                 this.showCalendar = false;
             }
         },
@@ -590,4 +696,5 @@ export default {
     border: none !important;
     box-shadow: none !important;
 }
+
 </style>

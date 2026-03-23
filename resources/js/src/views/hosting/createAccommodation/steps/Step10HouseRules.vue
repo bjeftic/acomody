@@ -70,7 +70,7 @@
                         </label>
                     </div>
 
-                    <div v-if="localHouseRules.hasQuietHours" class="grid grid-cols-2 gap-4">
+                    <div v-if="localHouseRules.hasQuietHours" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
                                 From

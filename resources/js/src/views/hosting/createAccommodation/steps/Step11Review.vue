@@ -56,7 +56,7 @@
 
                     <!-- Quick Stats -->
                     <div
-                        class="flex items-center space-x-6 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700"
+                        class="flex flex-wrap items-center gap-4 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700"
                     >
                         <div class="flex items-center space-x-2">
                             <svg

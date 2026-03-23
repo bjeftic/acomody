@@ -10,6 +10,18 @@ Acomody is a full-stack accommodation search and management platform. The backen
 
 When someone creates accommodation for example in Serbia, base currency of that accommodation is RSD.
 
+## Frontend — Mobile Responsiveness
+
+All frontend Vue components must support both desktop and mobile. When creating or modifying any component:
+- Use Tailwind responsive prefixes (`md:`, `lg:`, `sm:`) for all layouts
+- Mobile-first: default classes apply to mobile, prefixed classes override for larger screens
+- Never use fixed widths that would overflow on small screens — use `w-full`, `max-w-*`, `flex-wrap`, `min-w-0` as needed
+- Use `gap-*` for spacing between siblings instead of margins
+- Test layouts at both mobile (< 768px) and desktop (≥ 768px) breakpoints
+- Horizontal `flex` rows with multiple items should have `flex-wrap` or collapse to stacked layout on mobile (`flex-col md:flex-row`)
+- Typography: use responsive sizes where appropriate (`text-2xl md:text-3xl`)
+- The app uses `md:` as the main mobile/desktop breakpoint (768px)
+
 ## Commands
 
 ### Development
