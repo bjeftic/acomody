@@ -2,12 +2,28 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import hostingRoutes from '@/src/views/hosting/router';
 import store from '@/store';
+import config from '@/config.js';
+
+const isColdStart = config.features.cold_start === true;
+
+// Routes blocked during cold start — guests can only create listings
+const COLD_START_BLOCKED_ROUTES = new Set([
+    'page-search',
+    'accommodation-detail',
+    'accommodation-reserve',
+    'bookings-list',
+    'booking-detail',
+    'page-become-a-host',
+    'page-calendar',
+]);
 
 const routes = [
     {
         path: '/',
         name: 'page-welcome',
-        component: () => import('@/src/views/welcome/Welcome.vue'),
+        component: isColdStart
+            ? () => import('@/src/views/ColdStartLanding.vue')
+            : () => import('@/src/views/welcome/Welcome.vue'),
     },
     {
         path: '/hosting',
@@ -69,6 +85,16 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
+        path: '/terms',
+        name: 'page-terms',
+        component: () => import('@/src/views/legal/TermsView.vue'),
+    },
+    {
+        path: '/privacy-policy',
+        name: 'page-privacy-policy',
+        component: () => import('@/src/views/legal/PrivacyView.vue'),
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'page-not-found',
         component: () => import('@/src/views/Page404.vue'),
@@ -102,6 +128,11 @@ router.afterEach((to) => {
 // GLOBAL BEFORE EACH - CHECK AUTH
 // ============================================
 router.beforeEach((to, from, next) => {
+
+    // COLD START: block guest-facing routes, redirect to landing page
+    if (isColdStart && COLD_START_BLOCKED_ROUTES.has(to.name)) {
+        return next({ name: 'page-welcome', replace: true });
+    }
 
     // CHECK AUTH
     if (to.meta.requiresAuth && !store.getters['auth/isLoggedIn']) {

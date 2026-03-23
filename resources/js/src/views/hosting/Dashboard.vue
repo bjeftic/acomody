@@ -109,6 +109,7 @@
                     </action-card>
 
                     <action-card
+                        v-if="!isColdStart"
                         title="Calendar"
                         @click="$router.push({ name: 'page-calendar' })"
                     >
@@ -133,6 +134,7 @@
 
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
+import config from "@/config.js";
 
 export default {
     name: "Dashboard",
@@ -143,7 +145,7 @@ export default {
         ...mapState("hosting", ["hostingLoading", "accommodationDraftStats"]),
         ...mapGetters("user", ["hostProfileComplete"]),
         userName() {
-            return this.currentUser?.first_name || "Guest";
+            return this.currentUser?.first_name || this.currentUser?.email || "Guest";
         },
         accommodationDraftExists() {
             return this.accommodationDraftStats?.draft > 0 ?? false;
@@ -153,6 +155,9 @@ export default {
         },
         accommodationDraftPublished() {
             return this.accommodationDraftStats?.published > 0 ?? false;
+        },
+        isColdStart() {
+            return config.features.cold_start === true;
         },
     },
     methods: {

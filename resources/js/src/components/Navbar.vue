@@ -4,9 +4,7 @@
             <div class="flex justify-between items-center h-14">
                 <!-- Logo -->
                 <router-link :to="{ name: 'page-welcome' }" class="flex items-center">
-                    <span class="text-xl font-bold text-primary-600 dark:text-primary-400 tracking-tight">
-                        Acomody
-                    </span>
+                    <img src="/images/acomody.png" alt="Acomody" class="h-7" />
                 </router-link>
 
                 <!-- Navigation Items -->
@@ -107,7 +105,7 @@
                                 </span>
                                 <hr class="my-1 border-gray-100 dark:border-gray-700" />
                                 <span
-                                    class="px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-rose-600 dark:text-rose-400"
+                                    class="px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-primary-600 dark:text-primary-400"
                                     @click="logOut"
                                 >
                                     Log out

@@ -7,11 +7,17 @@ export default {
     "./node_modules/flowbite/**/*.js",
     "./node_modules/flowbite-vue/**/*.{js,jsx,ts,tsx,vue}",
   ],
+
+  darkMode: 'class',
+
   theme: {
     extend: {
+
+      // Typography
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
+
       fontSize: {
         'xs':   ['0.75rem',  { lineHeight: '1rem' }],
         'sm':   ['0.875rem', { lineHeight: '1.25rem' }],
@@ -23,55 +29,80 @@ export default {
         '4xl':  ['2.25rem',  { lineHeight: '2.5rem' }],
         '5xl':  ['3rem',     { lineHeight: '1.1' }],
       },
+
       colors: {
         white: "#ffffff",
-        "white-20": "rgba(255, 255, 255, 0.2)",
-        "white-60": "rgba(255, 255, 255, 0.6)",
+        "white-20": "rgba(255,255,255,0.2)",
+        "white-60": "rgba(255,255,255,0.6)",
 
-        // Acomody Brand — Primary: Coral Rose
+        // Neutral grays
+        neutral: {
+          50:  '#FAFAFA',
+          100: '#F5F5F5',
+          200: '#E5E5E5',
+          300: '#D4D4D4',
+          400: '#A3A3A3',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
+        },
+
+        // ─── PRIMARY ──────────────────────────────────────────
+        // Coral-Red — CTAs, buttons, links, badges
+        // Anchor: #F05035 (warmer/more orange than Airbnb's pink #FF5A5F)
         primary: {
-          50:  '#FFF1F2',
-          100: '#FFE4E6',
-          200: '#FECDD3',
-          300: '#FDA4AF',
-          400: '#FB7185',
-          500: '#F43F5E',
-          600: '#E11D48',
-          700: '#BE123C',
-          800: '#9F1239',
-          900: '#881337',
-          950: '#4C0519',
-          DEFAULT: '#E11D48',
+          50:  '#FFF4F2',
+          100: '#FFE6E2',
+          200: '#FFCDC5',
+          300: '#FFA898',
+          400: '#FF7D68',
+          500: '#F05035',
+          600: '#D93D24',
+          700: '#B52D19',
+          800: '#8F2113',
+          900: '#62160C',
+          950: '#380B06',
+          DEFAULT: '#F05035',
         },
 
-        // Acomody Brand — Accent: Warm Amber
-        accent: {
-          50:  '#FFFBEB',
-          100: '#FEF3C7',
-          200: '#FDE68A',
-          300: '#FCD34D',
-          400: '#FBBF24',
-          500: '#F59E0B',
-          600: '#D97706',
-          700: '#B45309',
-          DEFAULT: '#F59E0B',
+        // ─── SURFACE ──────────────────────────────────────────
+        // Dark surfaces for dark mode
+        surface: {
+          DEFAULT: '#1A0A08',
+          light:   '#2E130E',
         },
       },
-      boxShadow: {
-        'card': '0 1px 3px 0 rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,0.06)',
-        'card-hover': '0 4px 12px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.08)',
-        'dropdown': '0 8px 30px rgba(0,0,0,0.12)',
+
+      // Gradients
+      backgroundImage: {
+        'brand-gradient': 'linear-gradient(135deg, #F05035 0%, #FF7D68 100%)',
+        'hero-gradient':  'linear-gradient(135deg, #1A0A08 0%, #F05035 100%)',
       },
+
+      // Shadows
+      boxShadow: {
+        'card':       '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,0.06)',
+        'card-hover': '0 6px 20px rgba(0,0,0,0.12)',
+        'dropdown':   '0 10px 40px rgba(0,0,0,0.15)',
+      },
+
+      // Radius
       borderRadius: {
-        'xl': '0.75rem',
+        'xl':  '0.75rem',
         '2xl': '1rem',
         '3xl': '1.5rem',
       },
+
+      // Transitions
+      transitionTimingFunction: {
+        DEFAULT: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
     },
   },
-  darkMode: 'class',
+
   plugins: [
     require('flowbite/plugin')
   ],
 }
-

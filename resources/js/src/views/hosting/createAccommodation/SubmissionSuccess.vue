@@ -4,7 +4,12 @@
             Congratulations!
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Your accommodation listing has been successfully submitted and is now under review. We will notify you once it has been approved and is live on our platform.
+            <template v-if="isColdStart">
+                Your accommodation listing has been successfully submitted and is now under review. Once approved, your listing will be ready — and when the platform launches, guests will be able to start booking right away.
+            </template>
+            <template v-else>
+                Your accommodation listing has been successfully submitted and is now under review. We will notify you once it has been approved and is live on our platform.
+            </template>
         </p>
 
         <!-- Host profile incomplete prompt -->
@@ -46,11 +51,15 @@
 
 <script>
 import { mapGetters } from "vuex";
+import config from "@/config.js";
 
 export default {
     name: "SubmissionSuccess",
     computed: {
         ...mapGetters("user", ["hostProfileComplete"]),
+        isColdStart() {
+            return config.features.cold_start === true;
+        },
     },
 };
 </script>
