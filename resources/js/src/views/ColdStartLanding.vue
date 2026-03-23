@@ -251,8 +251,8 @@
                         <span class="text-gray-500 text-sm">— Platform in early access phase</span>
                     </div>
                     <div class="flex items-center gap-6 text-sm text-gray-400">
-                        <a href="#" class="hover:text-white transition-colors">Terms</a>
-                        <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                        <router-link :to="{ name: 'page-terms' }" class="hover:text-white transition-colors">Terms</router-link>
+                        <router-link :to="{ name: 'page-privacy-policy' }" class="hover:text-white transition-colors">Privacy</router-link>
                         <a href="mailto:hello@acomody.com" class="hover:text-white transition-colors">hello@acomody.com</a>
                     </div>
                 </div>

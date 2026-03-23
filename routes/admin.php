@@ -7,6 +7,7 @@ use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\DeletionRequestController;
 use App\Http\Controllers\SuperAdmin\FeatureFlagController;
 use App\Http\Controllers\SuperAdmin\HomeSectionController;
+use App\Http\Controllers\SuperAdmin\LegalDocumentController;
 use App\Http\Controllers\SuperAdmin\LocationController;
 use App\Http\Controllers\SuperAdmin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,9 @@ Route::middleware(['auth', 'super.admin'])->group(function () {
         Route::get('deletion-requests', [DeletionRequestController::class, 'index'])->name('deletion-requests.index');
         Route::post('deletion-requests/{id}/approve', [DeletionRequestController::class, 'approve'])->name('deletion-requests.approve');
         Route::post('deletion-requests/{id}/reject', [DeletionRequestController::class, 'reject'])->name('deletion-requests.reject');
+
+        Route::post('legal-documents/{legalDocument}/publish', [LegalDocumentController::class, 'publish'])->name('legal-documents.publish');
+        Route::resource('legal-documents', LegalDocumentController::class)->only(['index', 'create', 'store', 'show', 'destroy'])->names('legal-documents');
 
         Route::post('feature-flags/{featureFlag}/toggle', [FeatureFlagController::class, 'toggle'])->name('feature-flags.toggle');
         Route::resource('feature-flags', FeatureFlagController::class)->except(['show'])->names('feature-flags');

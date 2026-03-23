@@ -63,6 +63,11 @@ class DatabaseSeeder extends Seeder
             $this->call(HomeSectionSeeder::class);
             $this->command->newLine();
 
+            // Legal Documents
+            $this->command->info('Creating legal documents...');
+            $this->call(LegalDocumentSeeder::class);
+            $this->command->newLine();
+
             $this->command->info('Seeding completed!');
         }
     }

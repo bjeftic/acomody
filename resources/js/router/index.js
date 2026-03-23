@@ -85,6 +85,16 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
+        path: '/terms',
+        name: 'page-terms',
+        component: () => import('@/src/views/legal/TermsView.vue'),
+    },
+    {
+        path: '/privacy-policy',
+        name: 'page-privacy-policy',
+        component: () => import('@/src/views/legal/PrivacyView.vue'),
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'page-not-found',
         component: () => import('@/src/views/Page404.vue'),

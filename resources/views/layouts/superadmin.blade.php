@@ -125,6 +125,7 @@
                                     <li {{ (Request::is('admin/accommodation-drafts') ? 'class=active' : '') }}><a href="{{ url('/admin/accommodation-drafts') }}">Accommodation Drafts</a></li>
                                     <li {{ (Request::is('admin/accommodations') ? 'class=active' : '') }}><a href="{{ url('/admin/accommodations') }}">Accommodations</a></li>
                                     <li {{ (Request::is('admin/deletion-requests*') ? 'class=active' : '') }}><a href="{{ url('/admin/deletion-requests') }}">Deletion Requests</a></li>
+                                    <li {{ (Request::is('admin/legal-documents*') ? 'class=active' : '') }}><a href="{{ route('admin.legal-documents.index') }}">Legal Documents</a></li>
                                     <li {{ (Request::is('admin/feature-flags*') ? 'class=active' : '') }}><a href="{{ route('admin.feature-flags.index') }}">Feature Flags</a></li>
                                     <li {{ (Request::is('admin/horizon') ? 'class=active' : '') }}><a href="{{ url('/admin/horizon') }}">Horizon</a></li>
                                 @endif

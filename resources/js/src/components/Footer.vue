@@ -34,8 +34,16 @@
                     <div>
                         <h3 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Legal</h3>
                         <ul class="flex flex-col gap-3">
-                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">Privacy policy</a></li>
-                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">Terms of service</a></li>
+                            <li>
+                                <router-link :to="{ name: 'page-privacy-policy' }" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">
+                                    Privacy policy
+                                </router-link>
+                            </li>
+                            <li>
+                                <router-link :to="{ name: 'page-terms' }" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">
+                                    Terms of service
+                                </router-link>
+                            </li>
                             <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">Cookie policy</a></li>
                         </ul>
                     </div>
