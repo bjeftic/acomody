@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden" style="width: 280px;">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden w-[280px]">
         <!-- Swiper Carousel -->
         <div class="relative aspect-[4/3] bg-gray-200 dark:bg-gray-700">
             <!-- Close Button -->
@@ -128,13 +128,13 @@
                 class="flex items-center flex-wrap gap-2 mb-2 text-xs text-gray-600 dark:text-gray-400"
             >
                 <span v-if="accommodation.bedrooms" class="flex items-center">
-                    🛏️ {{ accommodation.bedrooms }} bed{{ accommodation.bedrooms > 1 ? 's' : '' }}
+                    🛏️ {{ accommodation.bedrooms }} {{ accommodation.bedrooms > 1 ? $t('bedrooms') : $t('bedroom') }}
                 </span>
                 <span v-if="accommodation.bathrooms">
-                    🚿 {{ accommodation.bathrooms }} bath{{ accommodation.bathrooms > 1 ? 's' : '' }}
+                    🚿 {{ accommodation.bathrooms }} {{ accommodation.bathrooms > 1 ? $t('baths') : $t('bath') }}
                 </span>
                 <span v-if="accommodation.max_guests">
-                    👥 {{ accommodation.max_guests }} guest{{ accommodation.max_guests > 1 ? 's' : '' }}
+                    👥 {{ accommodation.max_guests }} {{ accommodation.max_guests > 1 ? $t('guests') : $t('guest') }}
                 </span>
             </div>
 
@@ -146,7 +146,7 @@
                         {{ currency.symbol }}{{ formatPrice(accommodation.rounded_price || accommodation.regular_price || accommodation.base_price_eur) }}
                     </span>
                     <span class="text-xs text-gray-600 dark:text-gray-400 ml-1">
-                        /night
+                        {{ $t('per_night') }}
                     </span>
                 </div>
 
@@ -175,7 +175,7 @@
                 @click.stop="viewDetails"
                 class="w-full px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg"
             >
-                View Details
+                {{ $t('view_details') }}
             </button>
         </div>
     </div>
@@ -331,22 +331,56 @@ export default {
     -webkit-user-drag: none;
 }
 
-/* Line clamp for title */
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* Make sure buttons are clickable */
-button {
-    pointer-events: auto !important;
-    cursor: pointer !important;
-}
-
 /* Disable touch on swiper so buttons work */
 .swiper-no-swiping {
     touch-action: pan-y !important;
 }
 </style>
+
+<i18n lang="yaml">
+en:
+  per_night: /night
+  bedroom: bedroom
+  bedrooms: bedrooms
+  bath: bath
+  baths: baths
+  guest: guest
+  guests: guests
+  view_details: View Details
+sr:
+  per_night: /noć
+  bedroom: spavaća soba
+  bedrooms: spavaće sobe
+  bath: kupatilo
+  baths: kupatila
+  guest: gost
+  guests: gostiju
+  view_details: Pogledaj detalje
+hr:
+  per_night: /noć
+  bedroom: spavaća soba
+  bedrooms: spavaće sobe
+  bath: kupaonica
+  baths: kupaonice
+  guest: gost
+  guests: gostiju
+  view_details: Pogledaj detalje
+mk:
+  per_night: /ноќ
+  bedroom: спална соба
+  bedrooms: спални соби
+  bath: бања
+  baths: бањи
+  guest: гостин
+  guests: гости
+  view_details: Погледај детали
+sl:
+  per_night: /noč
+  bedroom: spalnica
+  bedrooms: spalnice
+  bath: kopalnica
+  baths: kopalnice
+  guest: gost
+  guests: gostov
+  view_details: Oglej si podrobnosti
+</i18n>

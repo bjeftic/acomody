@@ -19,6 +19,7 @@ use App\Http\Controllers\Host\DeletionRequestController as HostDeletionRequestCo
 use App\Http\Controllers\Host\HostProfileController;
 use App\Http\Controllers\Host\IcalCalendarController as HostIcalCalendarController;
 use App\Http\Controllers\IcalExportController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Public\AccommodationController as PublicAccommodationController;
 use App\Http\Controllers\Public\FilterController as PublicFilterController;
@@ -46,6 +47,9 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])
 
 Route::post('/currency/set', [CurrencyController::class, 'set'])
     ->name('api.currency.set');
+
+Route::post('/language/set', [LanguageController::class, 'set'])
+    ->name('api.language.set');
 
 Route::prefix('public')->name('api.public')->group(function () {
     Route::get('filters', [PublicFilterController::class, 'index'])

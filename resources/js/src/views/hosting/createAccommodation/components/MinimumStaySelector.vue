@@ -19,10 +19,10 @@
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                 </svg>
-                Minimum Stay Requirements
+                {{ $t('heading') }}
             </h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-                Set the minimum number of nights guests must book
+                {{ $t('subtitle') }}
             </p>
         </div>
 
@@ -31,7 +31,7 @@
             <label
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-                General minimum stay
+                {{ $t('general_min_label') }}
             </label>
             <div class="flex items-center space-x-3">
                 <div class="relative max-w-xs">
@@ -49,12 +49,12 @@
                     <span
                         class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500 font-medium"
                     >
-                        {{ localMinStay.general === 1 ? "night" : "nights" }}
+                        {{ localMinStay.general === 1 ? $t('night') : $t('nights') }}
                     </span>
                 </div>
             </div>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Applies to all nights unless you set specific rules below
+                {{ $t('applies_info') }}
             </p>
         </div>
 
@@ -200,13 +200,13 @@
                         clip-rule="evenodd"
                     />
                 </svg>
-                Active minimum stay rules
+                {{ $t('active_rules') }}
             </h4>
             <div class="space-y-1 text-sm">
                 <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Default:</span>
+                    <span class="text-gray-600 dark:text-gray-400">{{ $t('default_label') }}</span>
                     <span class="font-medium text-gray-900 dark:text-white">
-                        {{ localMinStay.general }} {{ localMinStay.general === 1 ? "night" : "nights" }}
+                        {{ localMinStay.general }} {{ localMinStay.general === 1 ? $t('night') : $t('nights') }}
                     </span>
                 </div>
                 <div
@@ -218,7 +218,7 @@
                         {{ day.name }}:
                     </span>
                     <span class="font-medium text-gray-900 dark:text-white">
-                        {{ day.nights }} {{ day.nights === 1 ? "night" : "nights" }}
+                        {{ day.nights }} {{ day.nights === 1 ? $t('night') : $t('nights') }}
                     </span>
                 </div>
             </div>
@@ -240,11 +240,11 @@
                 </svg>
                 <div class="text-sm text-gray-600 dark:text-gray-400">
                     <p class="font-medium text-gray-900 dark:text-white mb-1">
-                        💡 Tips for minimum stays
+                        💡 {{ $t('tips_heading') }}
                     </p>
                     <ul class="space-y-1 text-xs">
-                        <li>• Lower minimums = more bookings, but more turnovers</li>
-                        <li>• Higher minimums = fewer bookings, but longer stays</li>
+                        <li>• {{ $t('tip1') }}</li>
+                        <li>• {{ $t('tip2') }}</li>
                         <!-- <li>• Weekend minimums help reduce single-night bookings</li>
                         <li>• You can always adjust these later</li> -->
                     </ul>
@@ -391,3 +391,66 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: Minimum Stay Requirements
+  subtitle: Set the minimum number of nights guests must book
+  general_min_label: General minimum stay
+  night: night
+  nights: nights
+  applies_info: Applies to all nights unless you set specific rules below
+  active_rules: Active minimum stay rules
+  default_label: "Default:"
+  tips_heading: Tips for minimum stays
+  tip1: Lower minimums = more bookings, but more turnovers
+  tip2: Higher minimums = fewer bookings, but longer stays
+sr:
+  heading: Minimalni period boravka
+  subtitle: Postavite minimalni broj noći koje gosti moraju rezervisati
+  general_min_label: Opšti minimalni boravak
+  night: noć
+  nights: noći
+  applies_info: Vrijedi za sve noći osim ako ne postavite specifična pravila ispod
+  active_rules: Aktivna pravila minimalnog boravka
+  default_label: "Zadano:"
+  tips_heading: Saveti za minimalni boravak
+  tip1: Niži minimumi = više rezervacija, ali više izmena
+  tip2: Viši minimumi = manje rezervacija, ali duži boravci
+hr:
+  heading: Minimalni period boravka
+  subtitle: Postavite minimalni broj noći koje gosti moraju rezervirati
+  general_min_label: Opći minimalni boravak
+  night: noć
+  nights: noći
+  applies_info: Vrijedi za sve noći osim ako ne postavite specifična pravila ispod
+  active_rules: Aktivna pravila minimalnog boravka
+  default_label: "Zadano:"
+  tips_heading: Savjeti za minimalni boravak
+  tip1: Niži minimumi = više rezervacija, ali više izmjena
+  tip2: Viši minimumi = manje rezervacija, ali duži boravci
+mk:
+  heading: Минимален период на престој
+  subtitle: Поставете минимален број ноќи кои гостите мора да ги резервираат
+  general_min_label: Општ минимален престој
+  night: ноќ
+  nights: ноќи
+  applies_info: Важи за сите ноќи освен ако не поставите специфични правила подолу
+  active_rules: Активни правила за минимален престој
+  default_label: "Стандардно:"
+  tips_heading: Совети за минимален престој
+  tip1: Пониски минимуми = повеќе резервации, но повеќе промени
+  tip2: Повисоки минимуми = помалку резервации, но подолги престои
+sl:
+  heading: Zahteve glede minimalnega bivanja
+  subtitle: Nastavite minimalno število noči, ki jih morajo gostje rezervirati
+  general_min_label: Splošno minimalno bivanje
+  night: noč
+  nights: noči
+  applies_info: Velja za vse noči, razen če spodaj nastavite posebna pravila
+  active_rules: Aktivna pravila minimalnega bivanja
+  default_label: "Privzeto:"
+  tips_heading: Nasveti za minimalno bivanje
+  tip1: Nižji minimumi = več rezervacij, a več menjavanj
+  tip2: Višji minimumi = manj rezervacij, a daljša bivanja
+</i18n>

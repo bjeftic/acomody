@@ -1,12 +1,11 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Step: 3 - Where's your place located?
+            {{ $t('heading') }}
         </h1>
 
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Your address is only shared with guests after they've made a
-            reservation.
+            {{ $t('subtitle') }}
         </p>
 
         <hr />
@@ -20,8 +19,8 @@
                         :model-value="formData.address.country"
                         @update:model-value="handleAddressChange('country', $event)"
                         :options="countryOptions"
-                        label="Country"
-                        placeholder="Select a country"
+                        :label="$t('country')"
+                        :placeholder="$t('select_country')"
                     />
 
                     <!-- Street Address -->
@@ -29,8 +28,8 @@
                         :model-value="formData.address.street"
                         @update:model-value="handleAddressChange('street', $event)"
                         @blur="onAddressFieldBlur"
-                        label="Street address"
-                        placeholder="Street address"
+                        :label="$t('street')"
+                        :placeholder="$t('street')"
                     />
 
                     <!-- City -->
@@ -38,8 +37,8 @@
                         :model-value="formData.address.city"
                         @update:model-value="handleAddressChange('city', $event)"
                         @blur="onAddressFieldBlur"
-                        label="City"
-                        placeholder="City"
+                        :label="$t('city')"
+                        :placeholder="$t('city')"
                     />
 
                     <!-- State/Province & Zip Code -->
@@ -48,15 +47,15 @@
                             :model-value="formData.address.state"
                             @update:model-value="handleAddressChange('state', $event)"
                             @blur="onAddressFieldBlur"
-                            label="State"
-                            placeholder="State"
+                            :label="$t('state')"
+                            :placeholder="$t('state')"
                         />
                         <BaseInput
                             :model-value="formData.address.zipCode"
                             @update:model-value="handleAddressChange('zipCode', $event)"
                             @blur="onAddressFieldBlur"
-                            label="Zip code"
-                            placeholder="Zip code"
+                            :label="$t('zip_code')"
+                            :placeholder="$t('zip_code')"
                         />
                     </div>
 
@@ -72,7 +71,7 @@
                             <svg v-if="!isGeocoding" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            {{ isGeocoding ? "Searching..." : "Search on Map" }}
+                            {{ isGeocoding ? $t('searching') : $t('search_on_map') }}
                         </BaseButton>
 
                         <BaseButton
@@ -87,7 +86,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            {{ gettingLocation ? "Getting Location..." : "Use My Location" }}
+                            {{ gettingLocation ? $t('getting_location') : $t('use_my_location') }}
                         </BaseButton>
                     </div>
 
@@ -100,7 +99,7 @@
                         class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                     >
                         <div class="text-xs text-gray-600 dark:text-gray-400">
-                            <strong>Coordinates:</strong>
+                            <strong>{{ $t('coordinates') }}</strong>
                             {{ formData.coordinates.latitude.toFixed(6) }},
                             {{ formData.coordinates.longitude.toFixed(6) }}
                         </div>
@@ -367,7 +366,7 @@ export default {
 
         async useCurrentLocation() {
             if (!this.supportsGeolocation) {
-                alert("Geolocation is not supported by your browser");
+                alert(this.$t('error_no_geolocation'));
                 return;
             }
 
@@ -395,19 +394,17 @@ export default {
                 await this.reverseGeocode(latitude, longitude, true);
             } catch (error) {
                 console.error("Error getting location:", error);
-                let errorMessage = "Unable to get your location";
+                let errorMessage = this.$t('error_location_generic');
 
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
-                        errorMessage =
-                            "Location permission denied. Please allow location access in your browser settings.";
+                        errorMessage = this.$t('error_location_denied');
                         break;
                     case error.POSITION_UNAVAILABLE:
-                        errorMessage = "Location information is unavailable.";
+                        errorMessage = this.$t('error_location_unavailable');
                         break;
                     case error.TIMEOUT:
-                        errorMessage =
-                            "Location request timed out. Please try again.";
+                        errorMessage = this.$t('error_location_timeout');
                         break;
                 }
 
@@ -502,3 +499,101 @@ export default {
     }
 }
 </style>
+
+<i18n lang="yaml">
+en:
+  heading: "Step 3 — Where's your place located?"
+  subtitle: "Your address is only shared with guests after they've made a reservation."
+  country: Country
+  select_country: Select a country
+  street: Street address
+  city: City
+  state: State
+  zip_code: Zip code
+  searching: Searching...
+  search_on_map: Search on Map
+  getting_location: Getting Location...
+  use_my_location: Use My Location
+  coordinates: "Coordinates:"
+  error_no_geolocation: Geolocation is not supported by your browser
+  error_location_denied: Location permission denied. Please allow location access in your browser settings.
+  error_location_unavailable: Location information is unavailable.
+  error_location_timeout: Location request timed out. Please try again.
+  error_location_generic: Unable to get your location
+sr:
+  heading: "Korak 3 — Gde se nalazi vaš smeštaj?"
+  subtitle: Vaša adresa se deli samo s gostima nakon što su napravili rezervaciju.
+  country: Zemlja
+  select_country: Odaberite zemlju
+  street: Ulica i broj
+  city: Grad
+  state: Država / Pokrajina
+  zip_code: Poštanski broj
+  searching: Pretraživanje...
+  search_on_map: Pretraži na mapi
+  getting_location: Dobijanje lokacije...
+  use_my_location: Koristi moju lokaciju
+  coordinates: "Koordinate:"
+  error_no_geolocation: Geolokacija nije podržana u vašem pregledaču
+  error_location_denied: Pristup lokaciji je odbijen. Dozvolite pristup lokaciji u postavkama pregledača.
+  error_location_unavailable: Informacije o lokaciji nisu dostupne.
+  error_location_timeout: Zahtev za lokacijom je istekao. Pokušajte ponovo.
+  error_location_generic: Nije moguće dobiti vašu lokaciju
+hr:
+  heading: "Korak 3 — Gdje se nalazi vaš smještaj?"
+  subtitle: Vaša adresa se dijeli samo s gostima nakon što su napravili rezervaciju.
+  country: Zemlja
+  select_country: Odaberite zemlju
+  street: Ulica i broj
+  city: Grad
+  state: Država / Pokrajina
+  zip_code: Poštanski broj
+  searching: Pretraživanje...
+  search_on_map: Pretraži na karti
+  getting_location: Dobivanje lokacije...
+  use_my_location: Koristi moju lokaciju
+  coordinates: "Koordinate:"
+  error_no_geolocation: Geolokacija nije podržana u vašem pregledniku
+  error_location_denied: Pristup lokaciji je odbijen. Dopustite pristup lokaciji u postavkama preglednika.
+  error_location_unavailable: Informacije o lokaciji nisu dostupne.
+  error_location_timeout: Zahtjev za lokacijom je istekao. Pokušajte ponovo.
+  error_location_generic: Nije moguće dobiti vašu lokaciju
+mk:
+  heading: "Чекор 3 — Каде се наоѓа вашиот простор?"
+  subtitle: Вашата адреса се споделува само со гостите откако ќе направат резервација.
+  country: Земја
+  select_country: Одберете земја
+  street: Улица и број
+  city: Град
+  state: Држава / Покраина
+  zip_code: Поштенски број
+  searching: Пребарување...
+  search_on_map: Пребарај на карта
+  getting_location: Добивање на локација...
+  use_my_location: Користи ја мојата локација
+  coordinates: "Координати:"
+  error_no_geolocation: Геолокацијата не е поддржана во вашиот прелистувач
+  error_location_denied: Пристапот до локацијата е одбиен. Дозволете пристап до локацијата во поставките на прелистувачот.
+  error_location_unavailable: Информациите за локацијата не се достапни.
+  error_location_timeout: Барањето за локација истече. Обидете се повторно.
+  error_location_generic: Не е можно да се добие вашата локација
+sl:
+  heading: "Korak 3 — Kje se nahaja vaš prostor?"
+  subtitle: Vaš naslov se deli z gosti šele po tem, ko so opravili rezervacijo.
+  country: Država
+  select_country: Izberite državo
+  street: Ulica in hišna številka
+  city: Mesto
+  state: Regija / Pokrajina
+  zip_code: Poštna številka
+  searching: Iskanje...
+  search_on_map: Poišči na zemljevidu
+  getting_location: Pridobivanje lokacije...
+  use_my_location: Uporabi mojo lokacijo
+  coordinates: "Koordinate:"
+  error_no_geolocation: Vaš brskalnik ne podpira geolokacije
+  error_location_denied: Dostop do lokacije je zavrnjen. Dovolite dostop do lokacije v nastavitvah brskalnika.
+  error_location_unavailable: Informacije o lokaciji niso na voljo.
+  error_location_timeout: Zahteva za lokacijo je potekla. Poskusite znova.
+  error_location_generic: Vaše lokacije ni mogoče pridobiti
+</i18n>

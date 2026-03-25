@@ -1,19 +1,19 @@
 <?php
 
+use App\Exceptions\ApiExceptionHandler;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use App\Exceptions\ApiExceptionHandler;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Auth\Access\AuthorizationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
-        api: __DIR__ . '/../routes/api.php',
-        commands: __DIR__ . '/../routes/console.php',
+        web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
+        commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -28,15 +28,27 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Stateful API for Sanctum - handles EncryptCookies, StartSession, CSRF, AuthenticateSession
         $middleware->statefulApi();
+
+        // DetectLanguage must append AFTER statefulApi() so it runs after EnsureFrontendRequestsAreStateful
+        // has started the session — otherwise $request->hasSession() returns false and locale is never set.
+        $middleware->api(append: [
+            \App\Http\Middleware\DetectLanguage::class,
+        ]);
+
+        // DetectLanguage must also run on web routes so that RuntimeConstants (injected into Blade
+        // meta tags on page load) are rendered with the correct locale — e.g. BookingType labels.
+        $middleware->web(append: [
+            \App\Http\Middleware\DetectLanguage::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->renderable(function (Throwable $e, Request $request) {
             // Only for API requests
-            if (!$request->is('api/*') && !$request->expectsJson()) {
+            if (! $request->is('api/*') && ! $request->expectsJson()) {
                 return null;
             }
 
-            $apiHandler = new ApiExceptionHandler();
+            $apiHandler = new ApiExceptionHandler;
 
             // Handle specific exception types with proper order
             // Order matters - check most specific first!

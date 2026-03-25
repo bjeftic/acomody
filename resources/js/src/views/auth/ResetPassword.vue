@@ -7,14 +7,14 @@
         >
             <div>
                 <h2 class="text-center text-3xl font-bold text-gray-900">
-                    Reset Password
+                    {{ $t('title') }}
                 </h2>
             </div>
 
             <div
                 v-if="!restarted || Object.keys(resetPasswordErrors).length > 0"
             >
-                <p class="text-gray-600 mb-6">Enter your new password</p>
+                <p class="text-gray-600 mb-6">{{ $t('subtitle') }}</p>
 
                 <form @submit.prevent="handleResetPassword">
                     <!-- Validation Alert Box -->
@@ -30,12 +30,12 @@
                             for="password"
                             class="block mb-2 text-sm font-medium text-gray-900"
                         >
-                            Password
+                            {{ $t('auth.password') }}
                         </label>
                         <fwb-input
                             v-model="formData.password"
                             type="password"
-                            placeholder="Enter your password"
+                            :placeholder="$t('password_placeholder')"
                             :validation-status="
                                 resetPasswordErrors.password
                                     ? 'error'
@@ -56,12 +56,12 @@
                             for="confirmPassword"
                             class="block mb-2 text-sm font-medium text-gray-900"
                         >
-                            Confirm Password
+                            {{ $t('confirm_password') }}
                         </label>
                         <fwb-input
                             v-model="formData.confirmPassword"
                             type="password"
-                            placeholder="Confirm your password"
+                            :placeholder="$t('confirm_placeholder')"
                             :validation-status="
                                 resetPasswordErrors.confirmPassword
                                     ? 'error'
@@ -84,11 +84,7 @@
                         :loading="isLoading"
                         :disabled="isLoading"
                     >
-                        {{
-                            isLoading
-                                ? "Resetting password..."
-                                : "Reset password"
-                        }}
+                        {{ isLoading ? $t('resetting') : $t('reset_button') }}
                     </fwb-button>
                 </form>
             </div>
@@ -111,11 +107,10 @@
                     </svg>
                 </div>
                 <p class="text-gray-700 mb-6 text-lg">
-                    Password reset successfully! Please log in with your new
-                    password.
+                    {{ $t('success_message') }}
                 </p>
                 <fwb-button color="blue" class="w-full" @click="openLogInModal">
-                    Go to log in
+                    {{ $t('go_to_login') }}
                 </fwb-button>
             </div>
         </div>
@@ -179,7 +174,7 @@ export default {
                             e.response.data.error.validation_errors || {};
                     } else {
                         this.resetPasswordErrors = {
-                            general: ["An error occurred. Please try again."],
+                            general: [this.$t('common.error')],
                         };
                     }
                 })
@@ -190,26 +185,22 @@ export default {
         validateForm() {
             const errors = {};
 
-            // Password validation
             if (!this.formData.password) {
-                errors.password = ["Password is required"];
+                errors.password = [this.$t('validation.password_required')];
             } else if (this.formData.password.length < 6) {
-                errors.password = ["Password must be at least 6 characters"];
+                errors.password = [this.$t('validation.password_min')];
             } else if (
                 !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.formData.password)
             ) {
-                errors.password = [
-                    "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-                ];
+                errors.password = [this.$t('validation.password_strength')];
             }
 
-            // Confirm Password validation
             if (!this.formData.confirmPassword) {
-                errors.confirmPassword = ["Please confirm your password"];
+                errors.confirmPassword = [this.$t('validation.confirm_required')];
             } else if (
                 this.formData.password !== this.formData.confirmPassword
             ) {
-                errors.confirmPassword = ["Passwords do not match"];
+                errors.confirmPassword = [this.$t('validation.confirm_mismatch')];
             }
 
             return errors;
@@ -225,3 +216,86 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yml">
+en:
+  title: Reset Password
+  subtitle: Enter your new password
+  password_placeholder: Enter your password
+  confirm_password: Confirm Password
+  confirm_placeholder: Confirm your password
+  resetting: Resetting password...
+  reset_button: Reset password
+  success_message: Password reset successfully! Please log in with your new password.
+  go_to_login: Go to log in
+  validation:
+    password_required: Password is required
+    password_min: Password must be at least 6 characters
+    password_strength: Password must contain at least one uppercase letter, one lowercase letter, and one number
+    confirm_required: Please confirm your password
+    confirm_mismatch: Passwords do not match
+sr:
+  title: Resetuj lozinku
+  subtitle: Unesite novu lozinku
+  password_placeholder: Unesite lozinku
+  confirm_password: Potvrdite lozinku
+  confirm_placeholder: Potvrdite lozinku
+  resetting: Resetovanje lozinke...
+  reset_button: Resetuj lozinku
+  success_message: Lozinka je uspešno resetovana! Prijavite se sa novom lozinkom.
+  go_to_login: Idi na prijavu
+  validation:
+    password_required: Lozinka je obavezna
+    password_min: Lozinka mora imati najmanje 6 karaktera
+    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo i broj
+    confirm_required: Potvrdite lozinku
+    confirm_mismatch: Lozinke se ne podudaraju
+hr:
+  title: Resetiraj lozinku
+  subtitle: Unesite novu lozinku
+  password_placeholder: Unesite lozinku
+  confirm_password: Potvrdite lozinku
+  confirm_placeholder: Potvrdite lozinku
+  resetting: Resetiranje lozinke...
+  reset_button: Resetiraj lozinku
+  success_message: Lozinka je uspješno resetirana! Prijavite se s novom lozinkom.
+  go_to_login: Idi na prijavu
+  validation:
+    password_required: Lozinka je obavezna
+    password_min: Lozinka mora imati najmanje 6 znakova
+    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo i broj
+    confirm_required: Potvrdite lozinku
+    confirm_mismatch: Lozinke se ne podudaraju
+mk:
+  title: Ресетирај лозинка
+  subtitle: Внесете нова лозинка
+  password_placeholder: Внесете лозинка
+  confirm_password: Потврдете ја лозинката
+  confirm_placeholder: Потврдете ја лозинката
+  resetting: Ресетирање на лозинка...
+  reset_button: Ресетирај лозинка
+  success_message: Лозинката е успешно ресетирана! Најавете се со новата лозинка.
+  go_to_login: Оди на најава
+  validation:
+    password_required: Лозинката е задолжителна
+    password_min: Лозинката мора да има најмалку 6 знаци
+    password_strength: Лозинката мора да содржи барем едно големо, мало слово и број
+    confirm_required: Потврдете ја лозинката
+    confirm_mismatch: Лозинките не се совпаѓаат
+sl:
+  title: Ponastavi geslo
+  subtitle: Vnesite novo geslo
+  password_placeholder: Vnesite geslo
+  confirm_password: Potrdi geslo
+  confirm_placeholder: Potrdite geslo
+  resetting: Ponastavljanje gesla...
+  reset_button: Ponastavi geslo
+  success_message: Geslo je bilo uspešno ponastavljeno! Prijavite se z novim geslom.
+  go_to_login: Pojdi na prijavo
+  validation:
+    password_required: Geslo je obvezno
+    password_min: Geslo mora imeti vsaj 6 znakov
+    password_strength: Geslo mora vsebovati vsaj eno veliko, malo črko in številko
+    confirm_required: Potrdite geslo
+    confirm_mismatch: Gesli se ne ujemata
+</i18n>

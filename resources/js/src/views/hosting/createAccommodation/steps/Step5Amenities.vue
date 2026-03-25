@@ -1,10 +1,10 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Tell guests what your place has to offer
+            {{ $t('heading') }}
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            You can add more amenities after you publish your listing.
+            {{ $t('subtitle') }}
         </p>
 
         <hr />
@@ -62,19 +62,16 @@ export default {
             return sorted;
         },
         amenityCategories() {
-            const categories = new Set();
+            const seen = new Map();
 
             this.amenities.forEach((amenity) => {
-                categories.add(amenity.category);
+                const key = amenity.category.replace(/[-_]/g, "");
+                if (!seen.has(key)) {
+                    seen.set(key, amenity.category_label ?? amenity.category);
+                }
             });
 
-            return Array.from(categories).map(category => ({
-                title: category
-                    .split('-')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' '),
-                key: category.replace(/[-_]/g, "")
-            }));
+            return Array.from(seen.entries()).map(([key, title]) => ({ key, title }));
         }
     },
     methods: {
@@ -96,3 +93,21 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: Tell guests what your place has to offer
+  subtitle: You can add more amenities after you publish your listing.
+sr:
+  heading: Recite gostima šta vaš smeštaj nudi
+  subtitle: Možete dodati više sadržaja nakon što objavite oglas.
+hr:
+  heading: Recite gostima što vaš smještaj nudi
+  subtitle: Možete dodati više sadržaja nakon što objavite oglas.
+mk:
+  heading: Кажете им на гостите што нуди вашиот простор
+  subtitle: Можете да додадете повеќе содржини откако ќе го објавите огласот.
+sl:
+  heading: Povejte gostom, kaj ponuja vaš prostor
+  subtitle: Po objavi oglasa lahko dodate več amenitet.
+</i18n>

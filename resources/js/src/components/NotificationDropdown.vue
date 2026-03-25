@@ -31,20 +31,20 @@
         <div class="w-80 max-w-[calc(100vw-1rem)] bg-white dark:bg-gray-800 rounded-xl shadow-dropdown border border-gray-100 dark:border-gray-700">
             <!-- Header -->
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                <h6 class="font-semibold text-gray-900 dark:text-white text-sm">Notifications</h6>
+                <h6 class="font-semibold text-gray-900 dark:text-white text-sm">{{ $t('title') }}</h6>
                 <button
                     v-if="hasUnread"
                     class="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 font-medium"
                     @click.stop="markAllRead"
                 >
-                    Mark all as read
+                    {{ $t('mark_all_read') }}
                 </button>
             </div>
 
             <!-- Notification list -->
             <ul class="max-h-96 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-700">
                 <li v-if="notifications.length === 0" class="px-4 py-6 text-center text-sm text-gray-400 dark:text-gray-500">
-                    No notifications yet
+                    {{ $t('empty') }}
                 </li>
                 <li
                     v-for="notification in notifications"
@@ -123,14 +123,8 @@ export default {
         },
 
         titleFor(notification) {
-            const titles = {
-                accommodation_under_review: "Accommodation under review",
-                accommodation_approved: "Accommodation approved",
-                booking_received: "New booking received",
-                booking_confirmed: "Booking confirmed",
-                booking_cancelled: "Booking cancelled",
-            };
-            return titles[notification.type] ?? "Notification";
+            const key = `types.${notification.type}`;
+            return this.$te(key) ? this.$t(key) : this.$t('types.default');
         },
 
         subtitleFor(notification) {
@@ -174,14 +168,97 @@ export default {
 
         timeAgo(isoString) {
             const diff = Math.floor((Date.now() - new Date(isoString)) / 1000);
-            if (diff < 60) return "Just now";
-            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-            return `${Math.floor(diff / 86400)}d ago`;
+            if (diff < 60) return this.$t('time.just_now');
+            if (diff < 3600) return this.$t('time.minutes_ago', { n: Math.floor(diff / 60) });
+            if (diff < 86400) return this.$t('time.hours_ago', { n: Math.floor(diff / 3600) });
+            return this.$t('time.days_ago', { n: Math.floor(diff / 86400) });
         },
     },
 };
 </script>
+
+<i18n lang="yml">
+en:
+  title: Notifications
+  mark_all_read: Mark all as read
+  empty: No notifications yet
+  types:
+    accommodation_under_review: Accommodation under review
+    accommodation_approved: Accommodation approved
+    booking_received: New booking received
+    booking_confirmed: Booking confirmed
+    booking_cancelled: Booking cancelled
+    default: Notification
+  time:
+    just_now: Just now
+    minutes_ago: "{n}m ago"
+    hours_ago: "{n}h ago"
+    days_ago: "{n}d ago"
+sr:
+  title: Obaveštenja
+  mark_all_read: Označi sve kao pročitano
+  empty: Nema obaveštenja
+  types:
+    accommodation_under_review: Smeštaj na pregledu
+    accommodation_approved: Smeštaj odobren
+    booking_received: Nova rezervacija primljena
+    booking_confirmed: Rezervacija potvrđena
+    booking_cancelled: Rezervacija otkazana
+    default: Obaveštenje
+  time:
+    just_now: Upravo sada
+    minutes_ago: "pre {n}min"
+    hours_ago: "pre {n}h"
+    days_ago: "pre {n}d"
+hr:
+  title: Obavijesti
+  mark_all_read: Označi sve kao pročitano
+  empty: Nema obavijesti
+  types:
+    accommodation_under_review: Smještaj na pregledu
+    accommodation_approved: Smještaj odobren
+    booking_received: Nova rezervacija primljena
+    booking_confirmed: Rezervacija potvrđena
+    booking_cancelled: Rezervacija otkazana
+    default: Obavijest
+  time:
+    just_now: Upravo sada
+    minutes_ago: "prije {n}min"
+    hours_ago: "prije {n}h"
+    days_ago: "prije {n}d"
+mk:
+  title: Известувања
+  mark_all_read: Означи ги сите како прочитани
+  empty: Нема известувања
+  types:
+    accommodation_under_review: Сместувањето е на преглед
+    accommodation_approved: Сместувањето е одобрено
+    booking_received: Примена нова резервација
+    booking_confirmed: Резервацијата е потврдена
+    booking_cancelled: Резервацијата е откажана
+    default: Известување
+  time:
+    just_now: Токму сега
+    minutes_ago: "пред {n}мин"
+    hours_ago: "пред {n}ч"
+    days_ago: "пред {n}д"
+sl:
+  title: Obvestila
+  mark_all_read: Označi vse kot prebrano
+  empty: Ni obvestil
+  types:
+    accommodation_under_review: Nastanitev v pregledu
+    accommodation_approved: Nastanitev odobrena
+    booking_received: Nova rezervacija prejeta
+    booking_confirmed: Rezervacija potrjena
+    booking_cancelled: Rezervacija preklicana
+    default: Obvestilo
+  time:
+    just_now: Ravnokar
+    minutes_ago: "pred {n}min"
+    hours_ago: "pred {n}h"
+    days_ago: "pred {n}d"
+</i18n>
 
 <style scoped>
 ul {

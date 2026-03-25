@@ -12,10 +12,10 @@
             <!-- Header -->
             <div class="mb-8">
                 <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-                    Calendar
+                    {{ $t('title') }}
                 </h1>
                 <p class="text-base text-gray-600 dark:text-gray-400">
-                    Track bookings and availability for your properties.
+                    {{ $t('subtitle') }}
                 </p>
             </div>
 
@@ -103,7 +103,7 @@
                                 :key="'p-' + period.id"
                                 class="text-xs px-1.5 py-0.5 rounded truncate leading-tight bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300"
                             >
-                                {{ period.isIcalSynced ? (period.icalCalendarName ?? 'iCal') : 'Blocked' }}
+                                {{ period.isIcalSynced ? (period.icalCalendarName ?? 'iCal') : $t('blocked') }}
                             </div>
                             <div
                                 v-if="cell.bookings.length + cell.periods.length > 2"
@@ -120,25 +120,25 @@
             <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mb-8 px-1">
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full bg-green-500 flex-shrink-0"></span>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Confirmed</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('legend_confirmed') }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full bg-yellow-400 flex-shrink-0"></span>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Pending</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('legend_pending') }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full bg-gray-400 flex-shrink-0"></span>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Completed</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('legend_completed') }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full bg-orange-400 flex-shrink-0"></span>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Blocked / iCal</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('legend_blocked_ical') }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-6 h-6 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                         {{ new Date().getDate() }}
                     </span>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Today</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('legend_today') }}</span>
                 </div>
             </div>
 
@@ -147,10 +147,10 @@
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
                         <template v-if="selectedDate">
-                            Bookings for {{ formatDisplayDate(selectedDate) }}
+                            {{ $t('bookings_for', { date: formatDisplayDate(selectedDate) }) }}
                         </template>
                         <template v-else>
-                            Upcoming bookings
+                            {{ $t('upcoming_bookings') }}
                         </template>
                     </h2>
                     <button
@@ -158,7 +158,7 @@
                         @click="clearSelectedDate"
                         class="text-sm text-primary-600 dark:text-primary-400 hover:underline"
                     >
-                        Show all upcoming
+                        {{ $t('show_all_upcoming') }}
                     </button>
                 </div>
 
@@ -184,8 +184,8 @@
                                             {{ booking.accommodationTitle }}
                                         </p>
                                     </div>
-                                    <fwb-badge :type="badgeType(booking.status)" class="flex-shrink-0 capitalize">
-                                        {{ booking.status }}
+                                    <fwb-badge :type="badgeType(booking.status)" class="flex-shrink-0">
+                                        {{ $t('status_' + booking.status) }}
                                     </fwb-badge>
                                 </div>
 
@@ -196,7 +196,7 @@
                                     </span>
                                     <span class="flex items-center gap-1">
                                         <icon-loader name="UsersIcon" :size="13" />
-                                        {{ booking.guests }} guest{{ booking.guests !== 1 ? 's' : '' }}
+                                        {{ guestCountText(booking.guests) }}
                                     </span>
                                     <span class="font-medium text-gray-700 dark:text-gray-300">
                                         {{ booking.currency }} {{ booking.totalPrice.toFixed(2) }}
@@ -212,7 +212,7 @@
                                     >
                                         <textarea
                                             v-model="declineReason"
-                                            placeholder="Reason for declining (optional)"
+                                            :placeholder="$t('decline_reason_placeholder')"
                                             rows="2"
                                             class="w-full text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
                                         ></textarea>
@@ -222,14 +222,14 @@
                                                 :disabled="pendingAction === booking.id"
                                                 class="flex-1 py-1.5 px-3 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
-                                                {{ pendingAction === booking.id ? 'Declining…' : 'Confirm decline' }}
+                                                {{ pendingAction === booking.id ? $t('declining') : $t('confirm_decline') }}
                                             </button>
                                             <button
                                                 @click="decliningBookingId = null; declineReason = ''"
                                                 :disabled="pendingAction === booking.id"
                                                 class="py-1.5 px-3 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                                             >
-                                                Cancel
+                                                {{ $t('common.cancel') }}
                                             </button>
                                         </div>
                                     </div>
@@ -241,14 +241,14 @@
                                             :disabled="pendingAction === booking.id"
                                             class="flex-1 py-1.5 px-3 text-sm font-medium rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            {{ pendingAction === booking.id ? 'Confirming…' : 'Confirm' }}
+                                            {{ pendingAction === booking.id ? $t('confirming') : $t('confirm') }}
                                         </button>
                                         <button
                                             @click="decliningBookingId = booking.id"
                                             :disabled="pendingAction === booking.id"
                                             class="flex-1 py-1.5 px-3 text-sm font-medium rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
                                         >
-                                            Decline
+                                            {{ $t('decline') }}
                                         </button>
                                     </div>
                                 </template>
@@ -266,14 +266,14 @@
                         <icon-loader name="CalendarIcon" :size="48" />
                     </div>
                     <p class="text-gray-500 dark:text-gray-400">
-                        {{ selectedDate ? 'No bookings on this date.' : 'No upcoming bookings.' }}
+                        {{ selectedDate ? $t('no_bookings_date') : $t('no_upcoming_bookings') }}
                     </p>
                 </div>
 
                 <!-- Blocked periods for selected date -->
                 <template v-if="selectedDate && periodsForDate(selectedDate).length > 0">
                     <h3 class="text-base font-semibold text-gray-700 dark:text-gray-300 mt-6 mb-3">
-                        Blocked dates
+                        {{ $t('blocked_dates') }}
                     </h3>
                     <div class="space-y-3">
                         <div
@@ -287,11 +287,11 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between gap-2">
-                                        <p class="text-sm font-semibold text-gray-900 dark:text-white capitalize">
-                                            {{ period.status }}
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                            {{ $t('status_' + period.status) }}
                                         </p>
                                         <span class="text-xs px-2 py-0.5 rounded-full flex-shrink-0" :class="period.isIcalSynced ? 'bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300' : 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300'">
-                                            {{ period.isIcalSynced ? (period.icalCalendarName ?? 'iCal sync') : 'Manual' }}
+                                            {{ period.isIcalSynced ? (period.icalCalendarName ?? $t('ical_sync')) : $t('manual') }}
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -319,11 +319,6 @@ export default {
 
     data() {
         return {
-            weekDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            monthNames: [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December",
-            ],
             pendingAction: null,
             decliningBookingId: null,
             declineReason: "",
@@ -341,8 +336,12 @@ export default {
             "currentMonth",
         ]),
 
+        weekDays() {
+            return this.$t('week_days').split(' ');
+        },
+
         monthName() {
-            return this.monthNames[this.currentMonth];
+            return this.$t('months').split(',')[this.currentMonth];
         },
 
         calendarCells() {
@@ -475,11 +474,13 @@ export default {
         formatDisplayDate(dateStr) {
             if (!dateStr) return "";
             const [year, month, day] = dateStr.split("-");
-            return new Date(year, month - 1, day).toLocaleDateString("en-US", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-            });
+            const months = this.$t('months').split(',');
+            return `${Number(day)} ${months[Number(month) - 1]} ${year}`;
+        },
+
+        guestCountText(count) {
+            const key = count === 1 ? 'guests_one' : 'guests_other';
+            return this.$t(key, { count });
         },
 
         bookingChipClass(booking) {
@@ -538,3 +539,175 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  months: "January,February,March,April,May,June,July,August,September,October,November,December"
+  week_days: "Mon Tue Wed Thu Fri Sat Sun"
+  title: Calendar
+  subtitle: Track bookings and availability for your properties.
+  legend_confirmed: Confirmed
+  legend_pending: Pending
+  legend_completed: Completed
+  legend_blocked_ical: Blocked / iCal
+  legend_today: Today
+  bookings_for: "Bookings for {date}"
+  upcoming_bookings: Upcoming bookings
+  show_all_upcoming: Show all upcoming
+  no_bookings_date: No bookings on this date.
+  no_upcoming_bookings: No upcoming bookings.
+  blocked_dates: Blocked dates
+  decline_reason_placeholder: Reason for declining (optional)
+  declining: Declining…
+  confirm_decline: Confirm decline
+  confirming: Confirming…
+  confirm: Confirm
+  decline: Decline
+  ical_sync: iCal sync
+  manual: Manual
+  blocked: Blocked
+  status_confirmed: Confirmed
+  status_pending: Pending
+  status_cancelled: Cancelled
+  status_completed: Completed
+  status_blocked: Blocked
+  status_closed: Closed
+  guests_one: "{count} guest"
+  guests_other: "{count} guests"
+
+sr:
+  months: "Januar,Februar,Mart,April,Maj,Jun,Jul,Avgust,Septembar,Oktobar,Novembar,Decembar"
+  week_days: "Pon Uto Sri Čet Pet Sub Ned"
+  title: Kalendar
+  subtitle: Pratite rezervacije i dostupnost za vaše nekretnine.
+  legend_confirmed: Potvrđeno
+  legend_pending: Na čekanju
+  legend_completed: Završeno
+  legend_blocked_ical: Blokirano / iCal
+  legend_today: Danas
+  bookings_for: "Rezervacije za {date}"
+  upcoming_bookings: Nadolazeće rezervacije
+  show_all_upcoming: Prikaži sve nadolazeće
+  no_bookings_date: Nema rezervacija za ovaj datum.
+  no_upcoming_bookings: Nema nadolazećih rezervacija.
+  blocked_dates: Blokirani datumi
+  decline_reason_placeholder: Razlog odbijanja (opciono)
+  declining: Odbijanje…
+  confirm_decline: Potvrdi odbijanje
+  confirming: Potvrđivanje…
+  confirm: Potvrdi
+  decline: Odbij
+  ical_sync: iCal sinhronizacija
+  manual: Ručno
+  blocked: Blokirano
+  status_confirmed: Potvrđeno
+  status_pending: Na čekanju
+  status_cancelled: Otkazano
+  status_completed: Završeno
+  status_blocked: Blokirano
+  status_closed: Zatvoreno
+  guests_one: "{count} gost"
+  guests_other: "{count} gostiju"
+
+hr:
+  months: "Siječanj,Veljača,Ožujak,Travanj,Svibanj,Lipanj,Srpanj,Kolovoz,Rujan,Listopad,Studeni,Prosinac"
+  week_days: "Pon Uto Sri Čet Pet Sub Ned"
+  title: Kalendar
+  subtitle: Pratite rezervacije i dostupnost za vaše nekretnine.
+  legend_confirmed: Potvrđeno
+  legend_pending: Na čekanju
+  legend_completed: Završeno
+  legend_blocked_ical: Blokirano / iCal
+  legend_today: Danas
+  bookings_for: "Rezervacije za {date}"
+  upcoming_bookings: Nadolazeće rezervacije
+  show_all_upcoming: Prikaži sve nadolazeće
+  no_bookings_date: Nema rezervacija za ovaj datum.
+  no_upcoming_bookings: Nema nadolazećih rezervacija.
+  blocked_dates: Blokirani datumi
+  decline_reason_placeholder: Razlog odbijanja (neobvezno)
+  declining: Odbijanje…
+  confirm_decline: Potvrdi odbijanje
+  confirming: Potvrđivanje…
+  confirm: Potvrdi
+  decline: Odbij
+  ical_sync: iCal sinkronizacija
+  manual: Ručno
+  blocked: Blokirano
+  status_confirmed: Potvrđeno
+  status_pending: Na čekanju
+  status_cancelled: Otkazano
+  status_completed: Završeno
+  status_blocked: Blokirano
+  status_closed: Zatvoreno
+  guests_one: "{count} gost"
+  guests_other: "{count} gostiju"
+
+mk:
+  months: "Јануари,Февруари,Март,Април,Мај,Јуни,Јули,Август,Септември,Октомври,Ноември,Декември"
+  week_days: "Пон Вто Сре Чет Пет Саб Нед"
+  title: Календар
+  subtitle: Следете ги резервациите и достапноста за вашите имоти.
+  legend_confirmed: Потврдено
+  legend_pending: На чекање
+  legend_completed: Завршено
+  legend_blocked_ical: Блокирано / iCal
+  legend_today: Денес
+  bookings_for: "Резервации за {date}"
+  upcoming_bookings: Претстојни резервации
+  show_all_upcoming: Прикажи ги сите претстојни
+  no_bookings_date: Нема резервации за овој датум.
+  no_upcoming_bookings: Нема претстојни резервации.
+  blocked_dates: Блокирани датуми
+  decline_reason_placeholder: Причина за одбивање (опционално)
+  declining: Одбивање…
+  confirm_decline: Потврди одбивање
+  confirming: Потврдување…
+  confirm: Потврди
+  decline: Одбиј
+  ical_sync: iCal синхронизација
+  manual: Рачно
+  blocked: Блокирано
+  status_confirmed: Потврдено
+  status_pending: На чекање
+  status_cancelled: Откажано
+  status_completed: Завршено
+  status_blocked: Блокирано
+  status_closed: Затворено
+  guests_one: "{count} гостин"
+  guests_other: "{count} гости"
+
+sl:
+  months: "Januar,Februar,Marec,April,Maj,Junij,Julij,Avgust,September,Oktober,November,December"
+  week_days: "Pon Tor Sre Čet Pet Sob Ned"
+  title: Koledar
+  subtitle: Sledite rezervacije in razpoložljivost vaših nepremičnin.
+  legend_confirmed: Potrjeno
+  legend_pending: V teku
+  legend_completed: Zaključeno
+  legend_blocked_ical: Blokirano / iCal
+  legend_today: Danes
+  bookings_for: "Rezervacije za {date}"
+  upcoming_bookings: Prihajajoče rezervacije
+  show_all_upcoming: Prikaži vse prihajajoče
+  no_bookings_date: Ni rezervacij za ta datum.
+  no_upcoming_bookings: Ni prihajajočih rezervacij.
+  blocked_dates: Blokirani datumi
+  decline_reason_placeholder: Razlog zavrnitve (neobvezno)
+  declining: Zavrnitev…
+  confirm_decline: Potrdi zavrnitev
+  confirming: Potrjevanje…
+  confirm: Potrdi
+  decline: Zavrni
+  ical_sync: Sinhronizacija iCal
+  manual: Ročno
+  blocked: Blokirano
+  status_confirmed: Potrjeno
+  status_pending: V teku
+  status_cancelled: Preklicano
+  status_completed: Zaključeno
+  status_blocked: Blokirano
+  status_closed: Zaprto
+  guests_one: "{count} gost"
+  guests_other: "{count} gostov"
+</i18n>

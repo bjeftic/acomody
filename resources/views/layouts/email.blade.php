@@ -56,7 +56,7 @@
             @yield('content')
         </div>
         <div class="footer">
-            &copy; {{ date('Y') }} {{ config('app.name') }} &mdash; All rights reserved.
+            &copy; {{ date('Y') }} {{ config('app.name') }} &mdash; {{ __('mail.copyright') }}
         </div>
     </div>
 </div>

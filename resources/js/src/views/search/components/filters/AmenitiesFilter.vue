@@ -1,7 +1,7 @@
 <template>
     <div class="pb-6 border-b border-gray-200 dark:border-gray-800">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">
-            Amenities
+            {{ $t('accommodation.amenities') }}
         </h3>
 
         <!-- Popular Amenities -->
@@ -31,7 +31,7 @@
             @click="showAllAmenities = !showAllAmenities"
             class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white underline"
         >
-            {{ showAllAmenities ? 'Show less' : `Show all ${totalAmenitiesCount} amenities` }}
+            {{ showAllAmenities ? $t('show_less') : $t('show_all', { count: totalAmenitiesCount }) }}
         </button>
 
         <!-- All Amenities Modal/Expanded -->
@@ -121,3 +121,21 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  show_less: Show less
+  show_all: "Show all {count} amenities"
+sr:
+  show_less: Prikaži manje
+  show_all: "Prikaži svih {count} sadržaja"
+hr:
+  show_less: Prikaži manje
+  show_all: "Prikaži svih {count} sadržaja"
+mk:
+  show_less: Прикажи помалку
+  show_all: "Прикажи ги сите {count} содржини"
+sl:
+  show_less: Prikaži manj
+  show_all: "Prikaži vseh {count} amenitet"
+</i18n>

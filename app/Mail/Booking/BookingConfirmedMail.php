@@ -14,13 +14,16 @@ class BookingConfirmedMail extends BookingMailable
     public function __construct(
         public readonly Booking $booking,
         public readonly bool $forHost = false,
-    ) {}
+    ) {
+        $recipient = $forHost ? $booking->host : $booking->guest;
+        $this->locale($recipient->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
         $subject = $this->forHost
-            ? "New Booking Confirmed — {$this->booking->accommodation->title}"
-            : "Booking Confirmed — {$this->booking->accommodation->title}";
+            ? __('mail.booking_confirmed_host.subject', ['title' => $this->booking->accommodation->title])
+            : __('mail.booking_confirmed_guest.subject', ['title' => $this->booking->accommodation->title]);
 
         return new Envelope(subject: $subject);
     }

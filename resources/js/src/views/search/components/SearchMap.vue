@@ -97,6 +97,7 @@ import "leaflet/dist/leaflet.css";
 import { createApp, h } from "vue";
 import MapMarker from "@/src/views/search/components/map/MapMarker.vue";
 import MapPopup from "@/src/views/search/components/map/MapPopup.vue";
+import i18n from "@/i18n";
 
 // Fix for default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -386,6 +387,7 @@ export default {
                         },
                     }),
             });
+            popupApp.use(i18n);
             popupApp.mount(popupContainer);
 
             // POPUP OPTIONS - Keep inside map

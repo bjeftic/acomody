@@ -14,11 +14,13 @@ class DraftSubmittedProfileIncompleteMail extends Mailable
 
     public function __construct(
         public readonly AccommodationDraft $draft,
-    ) {}
+    ) {
+        $this->locale($draft->user->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your Accommodation Is Under Review — Complete Your Host Profile');
+        return new Envelope(subject: __('mail.draft_submitted_incomplete.subject'));
     }
 
     public function content(): Content

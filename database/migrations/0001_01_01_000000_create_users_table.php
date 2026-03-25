@@ -26,8 +26,9 @@ return new class extends Migration
             $table->text('last_login_user_agent')->nullable()->after('last_login_ip');
             $table->ipAddress('registration_ip')->nullable()->after('last_login_user_agent');
 
-            // Currency preference
+            // Currency and language preference
             $table->string('preferred_currency')->nullable()->after('registration_ip');
+            $table->string('preferred_language', 5)->nullable()->after('preferred_currency');
 
             // Privacy and terms
             $table->timestamp('terms_accepted_at')->nullable()->after('preferred_currency');
@@ -66,7 +67,7 @@ return new class extends Migration
             $table->integer('last_activity')->index();
         });
 
-        if(config('app.env') === 'local') {
+        if (config('app.env') === 'local') {
             DB::table('users')->insert([[
                 'email' => 'superadmin@acomody.com',
                 'password' => bcrypt('Password123*'),
@@ -76,15 +77,15 @@ return new class extends Migration
                 'privacy_policy_accepted_at' => now(),
                 'status' => 'active',
             ],
-            [
-                'email' => 'user@acomody.com',
-                'password' => bcrypt('Password123*'),
-                'is_superadmin' => false,
-                'email_verified_at' => now(),
-                'terms_accepted_at' => now(),
-                'privacy_policy_accepted_at' => now(),
-                'status' => 'active',
-            ]]);
+                [
+                    'email' => 'user@acomody.com',
+                    'password' => bcrypt('Password123*'),
+                    'is_superadmin' => false,
+                    'email_verified_at' => now(),
+                    'terms_accepted_at' => now(),
+                    'privacy_policy_accepted_at' => now(),
+                    'status' => 'active',
+                ]]);
         }
     }
 

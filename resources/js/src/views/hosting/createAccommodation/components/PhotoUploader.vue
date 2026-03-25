@@ -34,10 +34,10 @@
                     <p
                         class="text-sm font-semibold text-gray-900 dark:text-white mb-2"
                     >
-                        Drag your photos here
+                        {{ $t('drag_here') }}
                     </p>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        Choose at least 5 photos
+                        {{ $t('choose_min') }}
                     </p>
                 </div>
 
@@ -46,7 +46,7 @@
                     for="photo-upload"
                     class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 text-sm font-semibold rounded-xl hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer"
                 >
-                    Upload from your device
+                    {{ $t('upload_btn') }}
                 </label>
                 <input
                     id="photo-upload"
@@ -59,8 +59,7 @@
 
                 <!-- Info Text -->
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Maximum {{ maxPhotos }} photos • JPG, PNG or WebP • Max
-                    {{ formatFileSize(maxFileSize) }} each
+                    {{ $t('upload_info', { maxPhotos, size: formatFileSize(maxFileSize) }) }}
                 </p>
             </div>
         </div>
@@ -69,10 +68,10 @@
         <div v-if="localPhotos.length > 0" class="space-y-4">
             <div class="flex items-center justify-between">
                 <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ localPhotos.length }} / {{ maxPhotos }} photos
+                    {{ $t('photo_count', { count: localPhotos.length, max: maxPhotos }) }}
                 </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Drag photos to reorder
+                    {{ $t('drag_reorder') }}
                 </p>
             </div>
 
@@ -128,7 +127,7 @@
                                 v-if="index === 0"
                                 class="absolute top-2 left-2 px-3 py-1 bg-white dark:bg-gray-900 text-xs font-semibold rounded-full shadow-lg"
                             >
-                                Cover photo
+                                {{ $t('cover_photo') }}
                             </div>
 
                             <!-- Overlay on Hover -->
@@ -197,7 +196,7 @@
             v-if="localPhotos.length === 0"
             class="text-center py-8 text-gray-500 dark:text-gray-400"
         >
-            <p>No photos uploaded yet. Add at least 5 photos to continue.</p>
+            <p>{{ $t('empty_state') }}</p>
         </div>
 
         <!-- Error Messages -->
@@ -324,7 +323,7 @@ export default {
             if (this.localPhotos.length + files.length > this.maxPhotos) {
                 this.$emit(
                     "error",
-                    `You can only upload a maximum of ${this.maxPhotos} photos.`,
+                    this.$t('error_max_photos', { max: this.maxPhotos }),
                 );
                 return;
             }
@@ -333,7 +332,7 @@ export default {
                 if (!file.type.match("image/(jpeg|jpg|png|webp)")) {
                     this.$emit(
                         "error",
-                        `${file.name} is not a valid image format. Please use JPG, PNG or WebP.`,
+                        this.$t('error_invalid_format', { name: file.name }),
                     );
                     return;
                 }
@@ -341,9 +340,7 @@ export default {
                 if (file.size > this.maxFileSize) {
                     this.$emit(
                         "error",
-                        `${file.name} is too large. Maximum size is ${this.formatFileSize(
-                            this.maxFileSize,
-                        )}.`,
+                        this.$t('error_too_large', { name: file.name, size: this.formatFileSize(this.maxFileSize) }),
                     );
                     return;
                 }
@@ -487,3 +484,66 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  drag_here: Drag your photos here
+  choose_min: Choose at least 5 photos
+  upload_btn: Upload from your device
+  upload_info: "Maximum {maxPhotos} photos • JPG, PNG or WebP • Max {size} each"
+  photo_count: "{count} / {max} photos"
+  drag_reorder: Drag photos to reorder
+  cover_photo: Cover photo
+  empty_state: No photos uploaded yet. Add at least 5 photos to continue.
+  error_max_photos: You can only upload a maximum of {max} photos.
+  error_invalid_format: "{name} is not a valid image format. Please use JPG, PNG or WebP."
+  error_too_large: "{name} is too large. Maximum size is {size}."
+sr:
+  drag_here: Prevucite fotografije ovdje
+  choose_min: Odaberite najmanje 5 fotografija
+  upload_btn: Učitajte s vašeg uređaja
+  upload_info: "Maksimalno {maxPhotos} fotografija • JPG, PNG ili WebP • Maks. {size} svaka"
+  photo_count: "{count} / {max} fotografija"
+  drag_reorder: Prevucite fotografije da promijenite redoslijed
+  cover_photo: Naslovna fotografija
+  empty_state: Nema učitanih fotografija. Dodajte najmanje 5 fotografija za nastavak.
+  error_max_photos: Možete učitati najviše {max} fotografija.
+  error_invalid_format: "{name} nije validan format slike. Koristite JPG, PNG ili WebP."
+  error_too_large: "{name} je prevelika. Maksimalna veličina je {size}."
+hr:
+  drag_here: Povucite fotografije ovdje
+  choose_min: Odaberite najmanje 5 fotografija
+  upload_btn: Učitajte s vašeg uređaja
+  upload_info: "Maksimalno {maxPhotos} fotografija • JPG, PNG ili WebP • Maks. {size} svaka"
+  photo_count: "{count} / {max} fotografija"
+  drag_reorder: Povucite fotografije za promjenu redoslijeda
+  cover_photo: Naslovna fotografija
+  empty_state: Nema učitanih fotografija. Dodajte najmanje 5 fotografija za nastavak.
+  error_max_photos: Možete učitati najviše {max} fotografija.
+  error_invalid_format: "{name} nije valjani format slike. Koristite JPG, PNG ili WebP."
+  error_too_large: "{name} je prevelika. Maksimalna veličina je {size}."
+mk:
+  drag_here: Повлечете ги вашите фотографии тука
+  choose_min: Одберете најмалку 5 фотографии
+  upload_btn: Прикачете од вашиот уред
+  upload_info: "Максимум {maxPhotos} фотографии • JPG, PNG или WebP • Макс. {size} секоја"
+  photo_count: "{count} / {max} фотографии"
+  drag_reorder: Повлечете фотографии за промена на редоследот
+  cover_photo: Насловна фотографија
+  empty_state: Нема прикачени фотографии. Додајте најмалку 5 фотографии за продолжување.
+  error_max_photos: Можете да прикачите максимум {max} фотографии.
+  error_invalid_format: "{name} не е валиден формат на слика. Користете JPG, PNG или WebP."
+  error_too_large: "{name} е преголема. Максималната големина е {size}."
+sl:
+  drag_here: Povlecite svoje fotografije sem
+  choose_min: Izberite vsaj 5 fotografij
+  upload_btn: Naložite iz svoje naprave
+  upload_info: "Največ {maxPhotos} fotografij • JPG, PNG ali WebP • Največ {size} vsaka"
+  photo_count: "{count} / {max} fotografij"
+  drag_reorder: Povlecite fotografije za spremembo vrstnega reda
+  cover_photo: Naslovna fotografija
+  empty_state: Ni naloženih fotografij. Dodajte vsaj 5 fotografij za nadaljevanje.
+  error_max_photos: Naložite lahko največ {max} fotografij.
+  error_invalid_format: "{name} ni veljavna oblika slike. Uporabite JPG, PNG ali WebP."
+  error_too_large: "{name} je prevelika. Največja velikost je {size}."
+</i18n>

@@ -15,11 +15,13 @@ class AccommodationRejectedMail extends Mailable
     public function __construct(
         public readonly AccommodationDraft $draft,
         public readonly ?string $reason = null,
-    ) {}
+    ) {
+        $this->locale($draft->user->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your Accommodation Submission Was Not Approved');
+        return new Envelope(subject: __('mail.accommodation_rejected.subject'));
     }
 
     public function content(): Content

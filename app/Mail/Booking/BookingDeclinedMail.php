@@ -11,12 +11,15 @@ class BookingDeclinedMail extends BookingMailable
 {
     use Queueable;
 
-    public function __construct(public readonly Booking $booking) {}
+    public function __construct(public readonly Booking $booking)
+    {
+        $this->locale($booking->guest->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Booking Request Declined — {$this->booking->accommodation->title}",
+            subject: __('mail.booking_declined.subject', ['title' => $this->booking->accommodation->title]),
         );
     }
 

@@ -1,20 +1,20 @@
 <template>
     <BaseModal v-if="show" @close="cancel" size="md">
         <template #header>
-            {{ options.title || "Are you sure?" }}
+            {{ options.title || $t('title') }}
         </template>
         <template #body>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-                {{ options.message || "Do you want to proceed?" }}
+                {{ options.message || $t('message') }}
             </p>
         </template>
         <template #footer>
             <div class="flex justify-end gap-3">
                 <BaseButton variant="secondary" @click="cancel">
-                    {{ options.cancelText || "Cancel" }}
+                    {{ options.cancelText || $t('common.cancel') }}
                 </BaseButton>
                 <BaseButton :variant="options.confirmVariant || 'danger'" @click="confirm">
-                    {{ options.confirmText || "Confirm" }}
+                    {{ options.confirmText || $t('common.confirm') }}
                 </BaseButton>
             </div>
         </template>
@@ -72,3 +72,21 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yml">
+en:
+  title: Are you sure?
+  message: Do you want to proceed?
+sr:
+  title: Da li ste sigurni?
+  message: Da li želite da nastavite?
+hr:
+  title: Jeste li sigurni?
+  message: Želite li nastaviti?
+mk:
+  title: Дали сте сигурни?
+  message: Дали сакате да продолжите?
+sl:
+  title: Ste prepričani?
+  message: Ali želite nadaljevati?
+</i18n>

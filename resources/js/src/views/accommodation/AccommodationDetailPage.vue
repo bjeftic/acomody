@@ -31,7 +31,7 @@
                         d="M15 19l-7-7 7-7"
                     />
                 </svg>
-                Back to listings
+                {{ $t('back_to_listings') }}
             </button>
 
             <!-- Photo Gallery -->
@@ -132,7 +132,7 @@
                                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                                     />
                                 </svg>
-                                {{ accommodation.max_guests }} guests
+                                {{ $t('accommodation.guests', accommodation.max_guests, { count: accommodation.max_guests }) }}
                             </div>
                             <div
                                 v-if="accommodation.bedrooms"
@@ -219,7 +219,7 @@
                         <h2
                             class="text-xl font-semibold text-gray-900 dark:text-white mb-4"
                         >
-                            Amenities
+                            {{ $t('accommodation.amenities') }}
                         </h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div
@@ -241,7 +241,7 @@
                         <h2
                             class="text-xl font-semibold text-gray-900 dark:text-white mb-4"
                         >
-                            Location
+                            {{ $t('accommodation.location') }}
                         </h2>
                         <div
                             class="aspect-video bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center"
@@ -361,13 +361,13 @@
                         <div class="text-lg font-bold text-gray-900 dark:text-white">
                             {{ formatPrice(accommodation.pricing.base_price_in_user_currency.base_price, accommodation.pricing.base_price_in_user_currency.currency) }}
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">per night</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $t('search.price_per_night') }}</div>
                     </div>
                     <button
                         class="flex-1 max-w-[200px] bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-xl transition"
                         @click="showMobileBooking = true"
                     >
-                        Reserve
+                        {{ $t('accommodation.reserve') }}
                     </button>
                 </div>
             </div>
@@ -476,3 +476,16 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  back_to_listings: Back to listings
+sr:
+  back_to_listings: Nazad na oglase
+hr:
+  back_to_listings: Natrag na oglase
+mk:
+  back_to_listings: Назад кон огласите
+sl:
+  back_to_listings: Nazaj na oglase
+</i18n>

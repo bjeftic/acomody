@@ -14,11 +14,13 @@ class DraftSubmittedMail extends Mailable
 
     public function __construct(
         public readonly AccommodationDraft $draft,
-    ) {}
+    ) {
+        $this->locale($draft->user->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your Accommodation Is Under Review');
+        return new Envelope(subject: __('mail.draft_submitted.subject'));
     }
 
     public function content(): Content

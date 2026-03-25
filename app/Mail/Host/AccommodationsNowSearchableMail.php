@@ -15,11 +15,13 @@ class AccommodationsNowSearchableMail extends Mailable
     public function __construct(
         public readonly User $user,
         public readonly int $accommodationCount,
-    ) {}
+    ) {
+        $this->locale($user->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your Listings Are Now Live on Acomody');
+        return new Envelope(subject: __('mail.listings_live.subject'));
     }
 
     public function content(): Content

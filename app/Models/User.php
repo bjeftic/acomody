@@ -45,6 +45,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'last_login_user_agent',
         'registration_ip',
         'preferred_currency',
+        'preferred_language',
         'created_at',
         'updated_at',
     ];

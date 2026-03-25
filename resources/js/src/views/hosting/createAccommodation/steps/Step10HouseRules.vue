@@ -1,10 +1,10 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Set house rules for your guests
+            {{ $t('heading') }}
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Guests must agree to your house rules before they book.
+            {{ $t('subtitle') }}
         </p>
 
         <hr />
@@ -13,12 +13,12 @@
             <!-- Check-in/Check-out Times -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Check-in and check-out
+                    {{ $t('checkin_section') }}
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Check-in Time -->
                     <time-range-selector
-                        label="Check-in time"
+                        :label="$t('checkin_label')"
                         :time-slots="config.timeSlots"
                         :show-from="true"
                         :show-until="true"
@@ -30,7 +30,7 @@
 
                     <!-- Check-out Time -->
                     <time-range-selector
-                        label="Check-out time"
+                        :label="$t('checkout_label')"
                         :time-slots="config.timeSlots"
                         :single-value="localHouseRules.checkOutUntil"
                         @update:value="updateCheckOutUntil"
@@ -41,7 +41,7 @@
             <!-- Quiet Hours -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Quiet hours (optional)
+                    {{ $t('quiet_hours_section') }}
                 </h3>
                 <div
                     class="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -51,10 +51,10 @@
                             <h4
                                 class="text-base font-medium text-gray-900 dark:text-white mb-1"
                             >
-                                Set quiet hours
+                                {{ $t('quiet_hours_title') }}
                             </h4>
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                Specify when guests should keep noise to a minimum
+                                {{ $t('quiet_hours_desc') }}
                             </p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer ml-4">
@@ -73,7 +73,7 @@
                     <div v-if="localHouseRules.hasQuietHours" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                                From
+                                {{ $t('from') }}
                             </label>
                             <select
                                 v-model="localHouseRules.quietHoursFrom"
@@ -87,7 +87,7 @@
                         </div>
                         <div>
                             <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                                Until
+                                {{ $t('until') }}
                             </label>
                             <select
                                 v-model="localHouseRules.quietHoursUntil"
@@ -106,11 +106,11 @@
             <!-- Cancellation Policy -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Cancellation policy
+                    {{ $t('cancellation_section') }}
                 </h3>
                 <div class="space-y-3">
                     <cancellation-policy-card
-                        v-for="policy in config.cancellationPolicies"
+                        v-for="policy in cancellationPolicies"
                         :key="policy.id"
                         :policy="policy"
                         :selected="localHouseRules.cancellationPolicy === policy.id"
@@ -137,7 +137,7 @@
                             clip-rule="evenodd"
                         />
                     </svg>
-                    Good to know
+                    {{ $t('good_to_know') }}
                 </h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <li class="flex items-start">
@@ -152,7 +152,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Clear house rules help set expectations and reduce misunderstandings</span>
+                        <span>{{ $t('tip1') }}</span>
                     </li>
                     <li class="flex items-start">
                         <svg
@@ -166,7 +166,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Flexible cancellation policies often attract more bookings</span>
+                        <span>{{ $t('tip2') }}</span>
                     </li>
                     <li class="flex items-start">
                         <svg
@@ -180,7 +180,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>You can update your rules anytime after publishing</span>
+                        <span>{{ $t('tip3') }}</span>
                     </li>
                 </ul>
             </div>
@@ -217,6 +217,19 @@ export default {
             config: houseRulesConfig,
             localHouseRules: { ...this.formData.houseRules },
         };
+    },
+    computed: {
+        cancellationPolicies() {
+            return this.config.cancellationPolicies.map((policy) => {
+                const key = policy.id.replace('-', '');
+                return {
+                    ...policy,
+                    name: this.$t(`policy_${key}_name`),
+                    description: this.$t(`policy_${key}_desc`),
+                    details: this.$tm(`policy_${key}_details`).map((d) => this.$rt(d)),
+                };
+            });
+        },
     },
     watch: {
         "formData.houseRules": {
@@ -279,3 +292,216 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: Set house rules for your guests
+  subtitle: Guests must agree to your house rules before they book.
+  checkin_section: Check-in and check-out
+  checkin_label: Check-in time
+  checkout_label: Check-out time
+  quiet_hours_section: Quiet hours (optional)
+  quiet_hours_title: Set quiet hours
+  quiet_hours_desc: Specify when guests should keep noise to a minimum
+  from: From
+  until: Until
+  cancellation_section: Cancellation policy
+  good_to_know: Good to know
+  tip1: Clear house rules help set expectations and reduce misunderstandings
+  tip2: Flexible cancellation policies often attract more bookings
+  tip3: You can update your rules anytime after publishing
+  policy_flexible_name: Flexible
+  policy_flexible_desc: Full refund 1 day prior to arrival.
+  policy_flexible_details:
+    - Guests can cancel up to 24 hours before check-in for a full refund
+    - If they cancel less than 24 hours before check-in, the first night is non-refundable
+    - Service fees are refunded when cancellation happens before check-in
+  policy_moderate_name: Moderate
+  policy_moderate_desc: Full refund 5 days prior to arrival.
+  policy_moderate_details:
+    - Guests can cancel up to 5 days before check-in for a full refund
+    - If they cancel less than 5 days before check-in, the first night is non-refundable
+    - "50% refund for cancellations made 5\u201330 days before check-in"
+  policy_firm_name: Firm
+  policy_firm_desc: "50% refund up until 30 days prior to arrival. No refund after that."
+  policy_firm_details:
+    - Guests can cancel up to 30 days before check-in for a 50% refund
+    - No refund for cancellations made less than 30 days before check-in
+  policy_strict_name: Strict
+  policy_strict_desc: ""
+  policy_strict_details:
+    - Guests can cancel up to 7 days before check-in for a 50% refund
+    - No refund for cancellations made less than 7 days before check-in
+  policy_nonrefundable_name: Non-Refundable
+  policy_nonrefundable_desc: No refunds for any cancellations.
+  policy_nonrefundable_details:
+    - No refunds for cancellations at any time
+sr:
+  heading: Postavite kućni red za vaše goste
+  subtitle: Gosti moraju prihvatiti vaš kućni red pre rezervacije.
+  checkin_section: Prijava i odjava
+  checkin_label: Vreme prijave
+  checkout_label: Vreme odjave
+  quiet_hours_section: Sati tišine (opciono)
+  quiet_hours_title: Postavite sate tišine
+  quiet_hours_desc: Navedite kada gosti treba da smanje buku na minimum
+  from: Od
+  until: Do
+  cancellation_section: Politika otkazivanja
+  good_to_know: Dobro je znati
+  tip1: Jasna pravila pomažu postavljanju očekivanja i smanjuju nesporazume
+  tip2: Fleksibilne politike otkazivanja često privlače više rezervacija
+  tip3: Možete ažurirati svoja pravila u bilo koje vreme nakon objavljivanja
+  policy_flexible_name: Fleksibilna
+  policy_flexible_desc: Puni povrat 1 dan pre dolaska.
+  policy_flexible_details:
+    - Gosti mogu otkazati do 24 sata pre prijave za puni povrat
+    - Ako otkazuju manje od 24 sata pre prijave, prva noć nije refundabilna
+    - Naknade za usluge se vraćaju kada otkazivanje nastane pre prijave
+  policy_moderate_name: Umerena
+  policy_moderate_desc: Puni povrat 5 dana pre dolaska.
+  policy_moderate_details:
+    - Gosti mogu otkazati do 5 dana pre prijave za puni povrat
+    - Ako otkazuju manje od 5 dana pre prijave, prva noć nije refundabilna
+    - "50% povrat za otkazivanja 5\u201330 dana pre prijave"
+  policy_firm_name: Čvrsta
+  policy_firm_desc: "50% povrat do 30 dana pre dolaska. Bez povrata nakon toga."
+  policy_firm_details:
+    - Gosti mogu otkazati do 30 dana pre prijave za 50% povrat
+    - Bez povrata za otkazivanja manje od 30 dana pre prijave
+  policy_strict_name: Stroga
+  policy_strict_desc: ""
+  policy_strict_details:
+    - Gosti mogu otkazati do 7 dana pre prijave za 50% povrat
+    - Bez povrata za otkazivanja manje od 7 dana pre prijave
+  policy_nonrefundable_name: Bez povrata
+  policy_nonrefundable_desc: Nema povrata za otkazivanja.
+  policy_nonrefundable_details:
+    - Nema povrata za otkazivanja u bilo koje vreme
+hr:
+  heading: Postavite kućni red za vaše goste
+  subtitle: Gosti moraju prihvatiti vaš kućni red prije rezervacije.
+  checkin_section: Prijava i odjava
+  checkin_label: Vrijeme prijave
+  checkout_label: Vrijeme odjave
+  quiet_hours_section: Sati tišine (opcionalno)
+  quiet_hours_title: Postavite sate tišine
+  quiet_hours_desc: Navedite kada gosti trebaju smanjiti buku na minimum
+  from: Od
+  until: Do
+  cancellation_section: Politika otkazivanja
+  good_to_know: Dobro je znati
+  tip1: Jasna pravila pomažu postavljanju očekivanja i smanjuju nesporazume
+  tip2: Fleksibilne politike otkazivanja često privlače više rezervacija
+  tip3: Možete ažurirati svoja pravila u bilo koje vrijeme nakon objavljivanja
+  policy_flexible_name: Fleksibilna
+  policy_flexible_desc: Puni povrat 1 dan prije dolaska.
+  policy_flexible_details:
+    - Gosti mogu otkazati do 24 sata prije prijave za puni povrat
+    - Ako otkazuju manje od 24 sata prije prijave, prva noć nije refundabilna
+    - Naknade za usluge vraćaju se kada otkazivanje nastane prije prijave
+  policy_moderate_name: Umjerena
+  policy_moderate_desc: Puni povrat 5 dana prije dolaska.
+  policy_moderate_details:
+    - Gosti mogu otkazati do 5 dana prije prijave za puni povrat
+    - Ako otkazuju manje od 5 dana prije prijave, prva noć nije refundabilna
+    - "50% povrat za otkazivanja 5\u201330 dana prije prijave"
+  policy_firm_name: Čvrsta
+  policy_firm_desc: "50% povrat do 30 dana prije dolaska. Bez povrata nakon toga."
+  policy_firm_details:
+    - Gosti mogu otkazati do 30 dana prije prijave za 50% povrat
+    - Bez povrata za otkazivanja manje od 30 dana prije prijave
+  policy_strict_name: Stroga
+  policy_strict_desc: ""
+  policy_strict_details:
+    - Gosti mogu otkazati do 7 dana prije prijave za 50% povrat
+    - Bez povrata za otkazivanja manje od 7 dana prije prijave
+  policy_nonrefundable_name: Bez povrata
+  policy_nonrefundable_desc: Nema povrata za otkazivanja.
+  policy_nonrefundable_details:
+    - Nema povrata za otkazivanja u bilo koje vrijeme
+mk:
+  heading: Поставете правила за куќата за вашите гости
+  subtitle: Гостите мора да се согласат со вашите правила пред резервацијата.
+  checkin_section: Пријавување и одјавување
+  checkin_label: Време на пријавување
+  checkout_label: Време на одјавување
+  quiet_hours_section: Часови на тишина (опционално)
+  quiet_hours_title: Поставете часови на тишина
+  quiet_hours_desc: Наведете кога гостите треба да ја намалат бучавата на минимум
+  from: Од
+  until: До
+  cancellation_section: Политика за откажување
+  good_to_know: Добро е да знаете
+  tip1: Јасните правила помагаат да се постават очекувања и да се намалат недоразбирањата
+  tip2: Флексибилните политики за откажување честопати привлекуваат повеќе резервации
+  tip3: Можете да ги ажурирате правилата во секое време по објавувањето
+  policy_flexible_name: Флексибилна
+  policy_flexible_desc: Целосен поврат 1 ден пред пристигнување.
+  policy_flexible_details:
+    - Гостите можат да откажат до 24 часа пред пријавување за целосен поврат
+    - Ако откажуваат помалку од 24 часа пред пријавување, првата ноќ не се враќа
+    - Надоместоците за услуги се враќаат кога откажувањето настанува пред пријавувањето
+  policy_moderate_name: Умерена
+  policy_moderate_desc: Целосен поврат 5 дена пред пристигнување.
+  policy_moderate_details:
+    - Гостите можат да откажат до 5 дена пред пријавување за целосен поврат
+    - Ако откажуваат помалку од 5 дена пред пријавување, првата ноќ не се враќа
+    - "50% поврат за откажувања 5\u201330 дена пред пријавување"
+  policy_firm_name: Цврста
+  policy_firm_desc: "50% поврат до 30 дена пред пристигнување. Без поврат после тоа."
+  policy_firm_details:
+    - Гостите можат да откажат до 30 дена пред пријавување за 50% поврат
+    - Без поврат за откажувања помалку од 30 дена пред пријавување
+  policy_strict_name: Строга
+  policy_strict_desc: ""
+  policy_strict_details:
+    - Гостите можат да откажат до 7 дена пред пријавување за 50% поврат
+    - Без поврат за откажувања помалку од 7 дена пред пријавување
+  policy_nonrefundable_name: Без поврат
+  policy_nonrefundable_desc: Нема поврат за откажувања.
+  policy_nonrefundable_details:
+    - Нема поврат за откажувања во било кое време
+sl:
+  heading: Nastavite hišna pravila za vaše goste
+  subtitle: Gostje morajo pred rezervacijo sprejeti vaša hišna pravila.
+  checkin_section: Prijava in odjava
+  checkin_label: Čas prijave
+  checkout_label: Čas odjave
+  quiet_hours_section: Ure tišine (neobvezno)
+  quiet_hours_title: Nastavite ure tišine
+  quiet_hours_desc: Določite, kdaj naj gostje zmanjšajo hrup na minimum
+  from: Od
+  until: Do
+  cancellation_section: Politika odpovedi
+  good_to_know: Dobro je vedeti
+  tip1: Jasna hišna pravila pomagajo postaviti pričakovanja in zmanjšati nesporazume
+  tip2: Fleksibilne politike odpovedi pogosto privabijo več rezervacij
+  tip3: Svoja pravila lahko kadar koli posodobite po objavi
+  policy_flexible_name: Prožna
+  policy_flexible_desc: Celotno vračilo 1 dan pred prihodom.
+  policy_flexible_details:
+    - Gostje lahko odpovejo do 24 ur pred prijavo za celotno vračilo
+    - Če odpovejo manj kot 24 ur pred prijavo, prva noč ni vračljiva
+    - Storitvene pristojbine se vrnejo, ko pride do odpovedi pred prijavo
+  policy_moderate_name: Zmerna
+  policy_moderate_desc: Celotno vračilo 5 dni pred prihodom.
+  policy_moderate_details:
+    - Gostje lahko odpovejo do 5 dni pred prijavo za celotno vračilo
+    - Če odpovejo manj kot 5 dni pred prijavo, prva noč ni vračljiva
+    - "50% vračilo za odpovedi 5\u201330 dni pred prijavo"
+  policy_firm_name: Trdna
+  policy_firm_desc: "50% vračilo do 30 dni pred prihodom. Brez vračila po tem."
+  policy_firm_details:
+    - Gostje lahko odpovejo do 30 dni pred prijavo za 50% vračilo
+    - Brez vračila za odpovedi manj kot 30 dni pred prijavo
+  policy_strict_name: Stroga
+  policy_strict_desc: ""
+  policy_strict_details:
+    - Gostje lahko odpovejo do 7 dni pred prijavo za 50% vračilo
+    - Brez vračila za odpovedi manj kot 7 dni pred prijavo
+  policy_nonrefundable_name: Brez vračila
+  policy_nonrefundable_desc: Brez vračila za odpovedi.
+  policy_nonrefundable_details:
+    - Brez vračila za odpovedi kadar koli
+</i18n>

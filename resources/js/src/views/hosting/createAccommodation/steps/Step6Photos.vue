@@ -1,10 +1,10 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Add some photos of your place
+            {{ $t('heading') }}
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            You'll need at least 5 photos to get started. You can add more or make changes later.
+            {{ $t('subtitle') }}
         </p>
 
         <hr />
@@ -68,3 +68,21 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: Add some photos of your place
+  subtitle: "You'll need at least 5 photos to get started. You can add more or make changes later."
+sr:
+  heading: Dodajte fotografije vašeg smeštaja
+  subtitle: Treba će vam najmanje 5 fotografija za početak. Možete dodati više ili napraviti izmene kasnije.
+hr:
+  heading: Dodajte fotografije vašeg smještaja
+  subtitle: Trebate najmanje 5 fotografija za početak. Možete dodati više ili napraviti izmjene kasnije.
+mk:
+  heading: Додајте фотографии на вашиот простор
+  subtitle: Ќе ви требаат најмалку 5 фотографии за почеток. Можете да додадете повеќе или да направите измени подоцна.
+sl:
+  heading: Dodajte fotografije vašega prostora
+  subtitle: Za začetek boste potrebovali vsaj 5 fotografij. Kasneje lahko dodate več ali naredite spremembe.
+</i18n>

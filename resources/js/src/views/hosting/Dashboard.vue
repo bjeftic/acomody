@@ -16,53 +16,41 @@
                 </div>
                 <div class="flex-1">
                     <h3 class="text-base font-semibold text-amber-800 mb-1">
-                        Complete your host profile to go live
+                        {{ $t('profile_incomplete_title') }}
                     </h3>
                     <p class="text-sm text-amber-700 mb-3">
-                        Your listing won't be searchable until you add your display name, contact email, and phone number.
+                        {{ $t('profile_incomplete_desc') }}
                     </p>
                     <router-link
                         :to="{ name: 'page-host-profile' }"
                         class="inline-block px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-xl hover:bg-amber-700 transition"
                     >
-                        Complete host profile →
+                        {{ $t('profile_cta') }}
                     </router-link>
                 </div>
             </div>
 
             <!-- Welcome Header -->
             <div class="mb-8">
-                <h1
-                    class="text-3xl font-semibold text-gray-900 dark:text-white mb-2"
-                >
-                    Welcome back, {{ userName }}
+                <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
+                    {{ $t('welcome_back', { name: userName }) }}
                 </h1>
                 <p class="text-base text-gray-600 dark:text-gray-400">
-                    Manage your listings, view your bookings and account
-                    details.
+                    {{ $t('welcome_desc') }}
                 </p>
             </div>
+
             <!-- Start a new listing Section -->
             <div class="mb-10">
-                <h2
-                    class="text-xl font-semibold text-gray-900 dark:text-white mb-4"
-                >
-                    Start a new listing
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                    {{ $t('new_listing_section') }}
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Create New Listing Card -->
                     <action-card
-                        :title="
-                            !accommodationDraftExists
-                                ? 'Create a new listing'
-                                : 'Continue your draft listing'
-                        "
-                        :description="
-                            !accommodationDraftExists
-                                ? 'Set up a fresh property listing'
-                                : 'Resume editing your saved property listing'
-                        "
+                        :title="!accommodationDraftExists ? $t('create_listing_title') : $t('continue_draft_title')"
+                        :description="!accommodationDraftExists ? $t('create_listing_desc') : $t('continue_draft_desc')"
                         :icon-background="true"
                         @click="$router.push({ name: 'page-listing-create' })"
                     >
@@ -74,8 +62,8 @@
 
                     <!-- Create From Existing Card -->
                     <action-card
-                        title="Create from an existing listing"
-                        description="Duplicate and modify an existing property"
+                        :title="$t('copy_listing_title')"
+                        :description="$t('copy_listing_desc')"
                         :icon-background="true"
                     >
                         <template #icon>
@@ -87,16 +75,14 @@
 
             <!-- Quick Links Section -->
             <div>
-                <h2
-                    class="text-xl font-semibold text-gray-900 dark:text-white mb-4"
-                >
-                    Quick links
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                    {{ $t('quick_links') }}
                 </h2>
 
                 <div class="space-y-3">
                     <!-- My Listings Link -->
-                     <action-card
-                        title="My listings"
+                    <action-card
+                        :title="$t('my_listings')"
                         @click="$router.push({ name: 'page-listings' })"
                     >
                         <template #icon>
@@ -110,7 +96,7 @@
 
                     <action-card
                         v-if="!isColdStart"
-                        title="Calendar"
+                        :title="$t('calendar')"
                         @click="$router.push({ name: 'page-calendar' })"
                     >
                         <template #icon>
@@ -119,7 +105,7 @@
                     </action-card>
 
                     <action-card
-                        title="Account settings"
+                        :title="$t('account_settings')"
                         @click="$router.push({ name: 'page-host-profile' })"
                     >
                         <template #icon>
@@ -145,7 +131,7 @@ export default {
         ...mapState("hosting", ["hostingLoading", "accommodationDraftStats"]),
         ...mapGetters("user", ["hostProfileComplete"]),
         userName() {
-            return this.currentUser?.first_name || this.currentUser?.email || "Guest";
+            return this.currentUser?.first_name || this.currentUser?.email || this.$t('guest_fallback');
         },
         accommodationDraftExists() {
             return this.accommodationDraftStats?.draft > 0 ?? false;
@@ -168,3 +154,100 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  profile_incomplete_title: Complete your host profile to go live
+  profile_incomplete_desc: "Your listing won't be searchable until you add your display name, contact email, and phone number."
+  profile_cta: "Complete host profile →"
+  welcome_back: "Welcome back, {name}"
+  welcome_desc: Manage your listings, view your bookings and account details.
+  new_listing_section: Start a new listing
+  create_listing_title: Create a new listing
+  create_listing_desc: Set up a fresh property listing
+  continue_draft_title: Continue your draft listing
+  continue_draft_desc: Resume editing your saved property listing
+  copy_listing_title: Create from an existing listing
+  copy_listing_desc: Duplicate and modify an existing property
+  quick_links: Quick links
+  my_listings: My listings
+  calendar: Calendar
+  account_settings: Account settings
+  guest_fallback: Guest
+
+sr:
+  profile_incomplete_title: Popunite profil domaćina da biste bili vidljivi
+  profile_incomplete_desc: Vaš oglas neće biti pretraživ dok ne dodate ime za prikaz, email za kontakt i broj telefona.
+  profile_cta: "Popunite profil domaćina →"
+  welcome_back: "Dobro došli, {name}"
+  welcome_desc: Upravljajte oglasima, pregledajte rezervacije i detalje naloga.
+  new_listing_section: Kreirajte novi oglas
+  create_listing_title: Kreirajte novi oglas
+  create_listing_desc: Postavite novi oglas za nekretninu
+  continue_draft_title: Nastavite sa nacrtom oglasa
+  continue_draft_desc: Nastavite uređivanje sačuvanog oglasa
+  copy_listing_title: Kreirajte iz postojećeg oglasa
+  copy_listing_desc: Duplirajte i izmenite postojeću nekretninu
+  quick_links: Brze veze
+  my_listings: Moji oglasi
+  calendar: Kalendar
+  account_settings: Podešavanja naloga
+  guest_fallback: Gost
+
+hr:
+  profile_incomplete_title: Popunite profil domaćina da biste bili vidljivi
+  profile_incomplete_desc: Vaš oglas neće biti pretraživ dok ne dodate ime za prikaz, kontakt email i broj telefona.
+  profile_cta: "Popunite profil domaćina →"
+  welcome_back: "Dobrodošli, {name}"
+  welcome_desc: Upravljajte oglasima, pregledajte rezervacije i detalje računa.
+  new_listing_section: Stvorite novi oglas
+  create_listing_title: Stvorite novi oglas
+  create_listing_desc: Postavite novi oglas za nekretninu
+  continue_draft_title: Nastavite s nacrtom oglasa
+  continue_draft_desc: Nastavite uređivanje spremljenog oglasa
+  copy_listing_title: Stvorite iz postojećeg oglasa
+  copy_listing_desc: Duplicirajte i izmijenite postojeću nekretninu
+  quick_links: Brze veze
+  my_listings: Moji oglasi
+  calendar: Kalendar
+  account_settings: Postavke računa
+  guest_fallback: Gost
+
+mk:
+  profile_incomplete_title: Пополнете го профилот на домаќин за да бидете видливи
+  profile_incomplete_desc: Вашиот оглас нема да биде пребарлив додека не го додадете вашето прикажано име, контакт email и телефонски број.
+  profile_cta: "Пополнете го профилот →"
+  welcome_back: "Добредојдовте, {name}"
+  welcome_desc: Управувајте со огласите, прегледајте ги резервациите и деталите на сметката.
+  new_listing_section: Креирајте нов оглас
+  create_listing_title: Креирајте нов оглас
+  create_listing_desc: Поставете нов оглас за имот
+  continue_draft_title: Продолжете со нацртот на огласот
+  continue_draft_desc: Продолжете со уредувањето на зачуваниот оглас
+  copy_listing_title: Креирајте од постоечки оглас
+  copy_listing_desc: Дуплирајте и изменете постоечки имот
+  quick_links: Брзи врски
+  my_listings: Моите огласи
+  calendar: Календар
+  account_settings: Поставки на сметката
+  guest_fallback: Гостин
+
+sl:
+  profile_incomplete_title: Izpolnite profil gostitelja za vidljivost
+  profile_incomplete_desc: Vaš oglas ne bo iskljiv, dokler ne dodate prikazno ime, kontaktni e-naslov in telefonsko številko.
+  profile_cta: "Izpolnite profil gostitelja →"
+  welcome_back: "Dobrodošli, {name}"
+  welcome_desc: Upravljajte z oglasi, pregledujte rezervacije in podrobnosti računa.
+  new_listing_section: Ustvarite nov oglas
+  create_listing_title: Ustvarite nov oglas
+  create_listing_desc: Nastavite nov oglas za nepremičnino
+  continue_draft_title: Nadaljujte z osnutkom oglasa
+  continue_draft_desc: Nadaljujte z urejanjem shranjenega oglasa
+  copy_listing_title: Ustvarite iz obstoječega oglasa
+  copy_listing_desc: Podvojite in spremenite obstoječo nepremičnino
+  quick_links: Hitre povezave
+  my_listings: Moji oglasi
+  calendar: Koledar
+  account_settings: Nastavitve računa
+  guest_fallback: Gost
+</i18n>

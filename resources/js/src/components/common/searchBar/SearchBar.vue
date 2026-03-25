@@ -8,7 +8,7 @@
                     ref="autocompleteField"
                     class="flex-1 min-w-[200px] px-4 py-1.5 border-r border-gray-200 dark:border-gray-700 relative"
                 >
-                    <div class="text-[10px] font-semibold leading-none text-gray-500 dark:text-gray-400 mb-1">Where to?</div>
+                    <div class="text-[10px] font-semibold leading-none text-gray-500 dark:text-gray-400 mb-1">{{ $t('where_to') }}</div>
                     <input
                         v-model="locationSearchName"
                         @input="handleLocationInput"
@@ -17,7 +17,7 @@
                         @keydown.up.prevent="navigateUp"
                         @keydown.enter.prevent="selectHighlighted"
                         type="text"
-                        placeholder="Search destinations"
+                        :placeholder="$t('search_placeholder')"
                         class="w-full p-0 bg-transparent text-sm leading-none text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 font-medium custom-input"
                     />
                     <!-- Location results dropdown -->
@@ -49,14 +49,14 @@
                     class="flex-1 min-w-[240px] px-4 py-1.5 border-r border-gray-200 dark:border-gray-700 cursor-pointer relative"
                     @click="toggleCalendar"
                 >
-                    <div class="text-[10px] font-semibold leading-none text-gray-500 dark:text-gray-400 mb-1">Dates</div>
+                    <div class="text-[10px] font-semibold leading-none text-gray-500 dark:text-gray-400 mb-1">{{ $t('dates') }}</div>
                     <div
                         v-if="searchForm.checkIn && searchForm.checkOut"
                         class="text-sm leading-none font-medium text-gray-800 dark:text-gray-100"
                     >
                         {{ formatDate(searchForm.checkIn) }} – {{ formatDate(searchForm.checkOut) }}
                     </div>
-                    <div v-else class="text-sm leading-none font-medium text-gray-400 dark:text-gray-500">Add dates</div>
+                    <div v-else class="text-sm leading-none font-medium text-gray-400 dark:text-gray-500">{{ $t('add_dates') }}</div>
 
                     <!-- Desktop calendar dropdown (2 months) -->
                     <div
@@ -97,8 +97,8 @@
                             </div>
                         </div>
                         <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
-                            <button @click="clearDates" class="px-4 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm font-medium text-gray-700 dark:text-gray-300">Clear dates</button>
-                            <button @click="closeCalendar" class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition text-sm font-medium">Close</button>
+                            <button @click="clearDates" class="px-4 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('clear_dates') }}</button>
+                            <button @click="closeCalendar" class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition text-sm font-medium">{{ $t('close') }}</button>
                         </div>
                     </div>
                 </div>
@@ -108,7 +108,7 @@
                     <guests-dropdown v-model="guests" dropdown-class="right-0 w-80">
                         <template #trigger="{ toggle, displayText }">
                             <div class="cursor-pointer" @click="toggle">
-                                <div class="text-[10px] font-semibold leading-none text-gray-500 dark:text-gray-400 mb-1">Guests</div>
+                                <div class="text-[10px] font-semibold leading-none text-gray-500 dark:text-gray-400 mb-1">{{ $t('guests') }}</div>
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm leading-none font-medium text-gray-800 dark:text-gray-100">{{ displayText }}</span>
                                     <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M7.41 8.84L12 13.42l4.59-4.58L18 10.25l-6 6-6-6z" /></svg>
@@ -128,7 +128,7 @@
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                         </svg>
-                        Search
+                        {{ $t('search') }}
                     </button>
                 </div>
             </div>
@@ -141,11 +141,11 @@
             >
                 <div class="flex-1 min-w-0">
                     <div class="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
-                        {{ locationSearchName || 'Where to?' }}
+                        {{ locationSearchName || $t('where_to') }}
                     </div>
                     <div class="text-xs text-gray-500 dark:text-gray-400">
                         <template v-if="searchForm.checkIn && searchForm.checkOut">{{ formatDate(searchForm.checkIn) }} – {{ formatDate(searchForm.checkOut) }} · </template>
-                        {{ totalGuests }} guest{{ totalGuests !== 1 ? 's' : '' }}
+                        {{ guestCountText }}
                     </div>
                 </div>
                 <div class="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-primary-600 rounded-xl">
@@ -159,7 +159,7 @@
             <div v-if="mobileExpanded" class="md:hidden space-y-2">
                 <!-- Location -->
                 <div ref="autocompleteFieldMobile" class="relative border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl px-4 py-3 shadow-card">
-                    <div class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1">Where to?</div>
+                    <div class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1">{{ $t('where_to') }}</div>
                     <input
                         v-model="locationSearchName"
                         @input="handleLocationInput"
@@ -168,7 +168,7 @@
                         @keydown.up.prevent="navigateUp"
                         @keydown.enter.prevent="selectHighlighted"
                         type="text"
-                        placeholder="Search destinations"
+                        :placeholder="$t('search_placeholder')"
                         class="w-full p-0 bg-transparent text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 font-medium custom-input"
                     />
                     <div
@@ -195,11 +195,11 @@
                     class="relative border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl px-4 py-3 shadow-card cursor-pointer"
                     @click="toggleCalendar"
                 >
-                    <div class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1">Dates</div>
+                    <div class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1">{{ $t('dates') }}</div>
                     <div v-if="searchForm.checkIn && searchForm.checkOut" class="text-sm font-medium text-gray-800 dark:text-gray-100">
                         {{ formatDate(searchForm.checkIn) }} – {{ formatDate(searchForm.checkOut) }}
                     </div>
-                    <div v-else class="text-sm font-medium text-gray-400 dark:text-gray-500">Add dates</div>
+                    <div v-else class="text-sm font-medium text-gray-400 dark:text-gray-500">{{ $t('add_dates') }}</div>
 
                     <!-- Mobile calendar (single month, fixed position) -->
                     <div
@@ -229,8 +229,8 @@
                             >{{ day.date }}</div>
                         </div>
                         <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                            <button @click="clearDates" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm font-medium text-gray-700 dark:text-gray-300">Clear</button>
-                            <button @click="closeCalendar" class="px-4 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition text-sm font-medium">Done</button>
+                            <button @click="clearDates" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('clear') }}</button>
+                            <button @click="closeCalendar" class="px-4 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition text-sm font-medium">{{ $t('done') }}</button>
                         </div>
                     </div>
                 </div>
@@ -240,7 +240,7 @@
                     <guests-dropdown v-model="guests" dropdown-class="left-0 right-0 w-full">
                         <template #trigger="{ toggle, displayText }">
                             <div class="cursor-pointer" @click="toggle">
-                                <div class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1">Guests</div>
+                                <div class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1">{{ $t('guests') }}</div>
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-gray-800 dark:text-gray-100">{{ displayText }}</span>
                                     <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M7.41 8.84L12 13.42l4.59-4.58L18 10.25l-6 6-6-6z" /></svg>
@@ -259,7 +259,7 @@
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                     </svg>
-                    Search
+                    {{ $t('search') }}
                 </button>
             </div>
 
@@ -285,6 +285,8 @@ export default {
     components: {
         GuestsDropdown,
     },
+
+    emits: ['search'],
 
     props: {
         initialLocationId: {
@@ -350,7 +352,6 @@ export default {
             },
             localSearchResults: [],
             debounceTimer: null,
-            weekDays: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
         };
     },
 
@@ -377,6 +378,16 @@ export default {
         totalGuests() {
             return (this.guestsData.adults || 0) + (this.guestsData.children || 0);
         },
+
+        weekDays() {
+            return this.$t('week_days').split(' ');
+        },
+
+        guestCountText() {
+            const count = this.totalGuests;
+            const key = count === 1 ? 'guests_count_one' : 'guests_count_other';
+            return this.$t(key, { count });
+        },
     },
 
     mounted() {
@@ -386,7 +397,7 @@ export default {
         this.initializeFromProps();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         document.removeEventListener("click", this.handleClickOutside);
         window.removeEventListener("scroll", this.handleScroll);
         if (this.debounceTimer) {
@@ -428,8 +439,7 @@ export default {
             try {
                 const response = await this.searchLocations(query);
                 this.localSearchResults = response || [];
-            } catch (error) {
-                console.error("Failed to search locations:", error);
+            } catch {
                 this.localSearchResults = [];
             }
         },
@@ -503,7 +513,8 @@ export default {
         },
 
         getMonthYear(date) {
-            return moment(date).format('MMMM YYYY');
+            const months = this.$t('months').split(',');
+            return `${months[date.getMonth()]} ${date.getFullYear()}`;
         },
 
         getMonthDays(month) {
@@ -603,7 +614,7 @@ export default {
 
         handleSearch() {
             if (!this.isFormValid) {
-                this.validationMessage = "Please fill in all required fields";
+                this.validationMessage = this.$t('fill_required');
                 return;
             }
 
@@ -681,13 +692,99 @@ export default {
 };
 </script>
 
+<i18n lang="yaml">
+en:
+  months: "January,February,March,April,May,June,July,August,September,October,November,December"
+  where_to: Where to?
+  search_placeholder: Search destinations
+  dates: Dates
+  add_dates: Add dates
+  clear_dates: Clear dates
+  close: Close
+  guests: Guests
+  search: Search
+  clear: Clear
+  done: Done
+  fill_required: Please fill in all required fields
+  week_days: Su Mo Tu We Th Fr Sa
+  guests_count_one: "{count} guest"
+  guests_count_other: "{count} guests"
+
+sr:
+  months: "Januar,Februar,Mart,April,Maj,Jun,Jul,Avgust,Septembar,Oktobar,Novembar,Decembar"
+  where_to: Kuda?
+  search_placeholder: Pretražite destinacije
+  dates: Datumi
+  add_dates: Dodajte datume
+  clear_dates: Obriši datume
+  close: Zatvori
+  guests: Gosti
+  search: Pretraži
+  clear: Obriši
+  done: Gotovo
+  fill_required: Molimo popunite sva obavezna polja
+  week_days: Ned Pon Uto Sre Čet Pet Sub
+  guests_count_one: "{count} gost"
+  guests_count_other: "{count} gostiju"
+
+hr:
+  months: "Siječanj,Veljača,Ožujak,Travanj,Svibanj,Lipanj,Srpanj,Kolovoz,Rujan,Listopad,Studeni,Prosinac"
+  where_to: Kamo?
+  search_placeholder: Pretražite destinacije
+  dates: Datumi
+  add_dates: Dodajte datume
+  clear_dates: Obriši datume
+  close: Zatvori
+  guests: Gosti
+  search: Pretraži
+  clear: Obriši
+  done: Gotovo
+  fill_required: Molimo ispunite sva obavezna polja
+  week_days: Ned Pon Uto Sri Čet Pet Sub
+  guests_count_one: "{count} gost"
+  guests_count_other: "{count} gostiju"
+
+mk:
+  months: "Јануари,Февруари,Март,Април,Мај,Јуни,Јули,Август,Септември,Октомври,Ноември,Декември"
+  where_to: Каде?
+  search_placeholder: Пребарај дестинации
+  dates: Датуми
+  add_dates: Додај датуми
+  clear_dates: Исчисти датуми
+  close: Затвори
+  guests: Гости
+  search: Пребарај
+  clear: Исчисти
+  done: Готово
+  fill_required: Ве молиме пополнете ги сите задолжителни полиња
+  week_days: Нед Пон Вто Сре Чет Пет Саб
+  guests_count_one: "{count} гостин"
+  guests_count_other: "{count} гости"
+
+sl:
+  months: "Januar,Februar,Marec,April,Maj,Junij,Julij,Avgust,September,Oktober,November,December"
+  where_to: Kam?
+  search_placeholder: Iščite destinacije
+  dates: Datumi
+  add_dates: Dodajte datume
+  clear_dates: Počisti datume
+  close: Zapri
+  guests: Gostje
+  search: Išči
+  clear: Počisti
+  done: Končano
+  fill_required: Izpolnite vsa zahtevana polja
+  week_days: Ned Pon Tor Sre Čet Pet Sob
+  guests_count_one: "{count} gost"
+  guests_count_other: "{count} gostov"
+</i18n>
+
 <style scoped>
 .custom-input {
     outline: none !important;
     border: none !important;
     box-shadow: none !important;
     line-height: 1 !important;
-    height: 1em !important;
     display: block;
 }
 

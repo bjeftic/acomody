@@ -1,10 +1,10 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Now, set your price
+            {{ $t('heading') }}
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            You can change it anytime.
+            {{ $t('subtitle') }}
         </p>
 
         <hr />
@@ -39,7 +39,7 @@
                         </span>
                     </div>
                     <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">
-                        base price per night
+                        {{ $t('base_price_per_night') }}
                     </p>
                 </div>
 
@@ -48,7 +48,7 @@
                     class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg inline-block"
                 >
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        Guest price before taxes (weekday)
+                        {{ $t('guest_price_label') }}
                     </p>
                     <div class="flex items-baseline justify-center">
                         <p
@@ -104,10 +104,10 @@
                                 d="M13 10V3L4 14h7v7l9-11h-7z"
                             />
                         </svg>
-                        Booking Type
+                        {{ $t('booking_type_heading') }}
                     </h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Choose how you want to receive reservations
+                        {{ $t('booking_type_desc') }}
                     </p>
                 </div>
 
@@ -124,9 +124,7 @@
                 <!-- Info Note -->
                 <div class="mt-4 p-3 bg-primary-50 dark:bg-primary-900/20 rounded-xl">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
-                        <strong>Tip:</strong> Instant booking typically results
-                        in 3x more reservations compared to request-only
-                        listings.
+                        {{ $t('booking_type_tip') }}
                     </p>
                 </div>
             </div>
@@ -154,8 +152,7 @@
                 class="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl"
             >
                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                    This fee helps us run our platform and provide 24/7 customer
-                    support for your trip.
+                    {{ $t('service_fee_tip') }}
                 </p>
             </div>
 
@@ -167,7 +164,7 @@
                     <h3
                         class="text-base font-semibold text-gray-900 dark:text-white"
                     >
-                        You earn (per night)
+                        {{ $t('you_earn') }}
                     </h3>
                     <span
                         class="text-2xl font-bold text-green-600 dark:text-green-400"
@@ -177,8 +174,7 @@
                     </span>
                 </div>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                    After the {{ pricingConfig.hostServiceFeePercentage }}% host
-                    service fee
+                    {{ $t('after_fee', { percentage: pricingConfig.hostServiceFeePercentage }) }}
                 </p>
             </div>
 
@@ -339,3 +335,61 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: Now, set your price
+  subtitle: You can change it anytime.
+  base_price_per_night: base price per night
+  guest_price_label: Guest price before taxes (weekday)
+  booking_type_heading: Booking Type
+  booking_type_desc: Choose how you want to receive reservations
+  booking_type_tip: "Tip: Instant booking typically results in 3x more reservations compared to request-only listings."
+  you_earn: You earn (per night)
+  after_fee: After the {percentage}% host service fee
+  service_fee_tip: This fee helps us run our platform and provide 24/7 customer support for your trip.
+sr:
+  heading: Sada postavite svoju cenu
+  subtitle: Možete je promeniti u bilo koje vreme.
+  base_price_per_night: osnovna cena po noći
+  guest_price_label: Cena za gosta pre poreza (radni dan)
+  booking_type_heading: Vrsta rezervacije
+  booking_type_desc: Odaberite kako želite primati rezervacije
+  booking_type_tip: "Savet: Direktna rezervacija tipično rezultira 3 puta više rezervacija u poređenju s oglasima koji zahtevaju zahtev."
+  you_earn: Vi zarađujete (po noći)
+  after_fee: Nakon {percentage}% naknade za domaćina
+  service_fee_tip: Ova naknada nam pomaže da upravljamo platformom i pružimo korisničku podršku 24/7 za vaše putovanje.
+hr:
+  heading: Sada postavite svoju cijenu
+  subtitle: Možete je promijeniti u bilo koje vrijeme.
+  base_price_per_night: osnovna cijena po noći
+  guest_price_label: Cijena za gosta prije poreza (radni dan)
+  booking_type_heading: Vrsta rezervacije
+  booking_type_desc: Odaberite kako želite primati rezervacije
+  booking_type_tip: "Savjet: Direktna rezervacija tipično rezultira 3 puta više rezervacija u usporedbi s oglasima koji zahtijevaju zahtjev."
+  you_earn: Vi zarađujete (po noći)
+  after_fee: Nakon {percentage}% naknade za domaćina
+  service_fee_tip: Ova naknada nam pomaže upravljati platformom i pružiti korisničku podršku 24/7 za vaše putovanje.
+mk:
+  heading: Сега поставете ја вашата цена
+  subtitle: Можете да ја промените во секое време.
+  base_price_per_night: основна цена по ноќ
+  guest_price_label: Цена за гостин пред даноци (работен ден)
+  booking_type_heading: Вид на резервација
+  booking_type_desc: Одберете како сакате да примате резервации
+  booking_type_tip: "Совет: Директната резервација обично резултира со 3 пати повеќе резервации во споредба со огласите кои бараат барање."
+  you_earn: Вие заработувате (по ноќ)
+  after_fee: По {percentage}% провизија за домаќин
+  service_fee_tip: Оваа провизија ни помага да ја водиме платформата и да обезбедиме поддршка 24/7 за вашето патување.
+sl:
+  heading: Zdaj nastavite svojo ceno
+  subtitle: Spremenite jo lahko kadarkoli.
+  base_price_per_night: osnovna cena na noč
+  guest_price_label: Cena za gosta pred davki (delovni dan)
+  booking_type_heading: Vrsta rezervacije
+  booking_type_desc: Izberite, kako želite prejemati rezervacije
+  booking_type_tip: "Nasvet: Takojšnja rezervacija tipično prinese 3-krat več rezervacij v primerjavi z oglasi, ki zahtevajo zahtevek."
+  you_earn: Vi zaslužite (na noč)
+  after_fee: Po {percentage}% proviziji za gostitelja
+  service_fee_tip: Ta provizija nam pomaga upravljati platformo in zagotavljati podporo strankam 24/7 za vaše potovanje.
+</i18n>

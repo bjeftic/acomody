@@ -1,10 +1,10 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Now, let's give your {{ accommodationTypeName }} a title
+            {{ $t('heading', { type: accommodationTypeName }) }}
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Short titles work best. Have fun with it—you can always change it later.
+            {{ $t('subtitle') }}
         </p>
 
         <hr />
@@ -13,17 +13,17 @@
             <!-- Title Input -->
             <BaseTextarea
                 :model-value="formData.title"
-                label="Title"
+                :label="$t('label_title')"
                 :rows="3"
                 :maxlength="50"
-                placeholder="Example: Cozy studio in the heart of the city"
+                :placeholder="$t('placeholder')"
                 @update:model-value="updateTitle"
             />
 
             <!-- Quick Suggestions -->
             <div v-if="titleSuggestions.length > 0" class="space-y-4">
                 <h3 class="text-base font-medium text-gray-900 dark:text-white">
-                    Need inspiration? Try one of these:
+                    {{ $t('inspiration_heading') }}
                 </h3>
 
                 <!-- Suggestion Cards -->
@@ -50,7 +50,7 @@
                             clip-rule="evenodd"
                         />
                     </svg>
-                    Tips for a great title
+                    {{ $t('tips_heading') }}
                 </h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <li class="flex items-start">
@@ -65,7 +65,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Highlight what makes your place special</span>
+                        <span>{{ $t('tip1') }}</span>
                     </li>
                     <li class="flex items-start">
                         <svg
@@ -79,7 +79,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Include the location or a unique feature</span>
+                        <span>{{ $t('tip2') }}</span>
                     </li>
                     <li class="flex items-start">
                         <svg
@@ -93,7 +93,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Keep it clear and descriptive</span>
+                        <span>{{ $t('tip3') }}</span>
                     </li>
                     <li class="flex items-start">
                         <svg
@@ -107,7 +107,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Avoid all caps or excessive punctuation!!!</span>
+                        <span>{{ $t('tip4') }}</span>
                     </li>
                 </ul>
             </div>
@@ -119,7 +119,7 @@
                 <h4
                     class="text-sm font-semibold text-gray-900 dark:text-white mb-3"
                 >
-                    Popular {{ accommodationTypeName }} titles
+                    {{ $t('examples_heading', { type: accommodationTypeName }) }}
                 </h4>
                 <div class="space-y-2">
                     <p
@@ -270,3 +270,66 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: Give your {type} a title
+  subtitle: Short titles work best. Have fun with it — you can always change it later.
+  label_title: Title
+  placeholder: e.g. Cozy apartment in the city center
+  inspiration_heading: Need some inspiration?
+  tips_heading: Tips for a great title
+  tip1: Highlight what makes your place unique
+  tip2: Mention the neighborhood or nearby attractions
+  tip3: Keep it short and memorable (under 50 characters)
+  tip4: Avoid generic phrases like "nice place" or "great location"
+  examples_heading: Popular {type} titles
+sr:
+  heading: Dajte svom {type} naslov
+  subtitle: Kratki naslovi rade najbolje. Zabavite se — uvek ga možete promeniti kasnije.
+  label_title: Naslov
+  placeholder: npr. Udoban apartman u centru grada
+  inspiration_heading: Treba vam inspiracija?
+  tips_heading: Saveti za odličan naslov
+  tip1: Istaknite šta vaš smeštaj čini jedinstvenim
+  tip2: Pomenite kvart ili obližnje atrakcije
+  tip3: Neka bude kratak i pamtljiv (ispod 50 znakova)
+  tip4: Izbegavajte generičke fraze poput "lepo mesto" ili "odlična lokacija"
+  examples_heading: Popularni naslovi za {type}
+hr:
+  heading: Dajte svom {type} naslov
+  subtitle: Kratki naslovi su najbolji. Uživajte — uvijek ga možete promijeniti kasnije.
+  label_title: Naslov
+  placeholder: npr. Ugodan apartman u centru grada
+  inspiration_heading: Trebate inspiraciju?
+  tips_heading: Savjeti za odličan naslov
+  tip1: Istaknite što vaš smještaj čini jedinstvenim
+  tip2: Spominjite četvrt ili obližnje atrakcije
+  tip3: Neka bude kratak i pamtljiv (ispod 50 znakova)
+  tip4: Izbjegavajte generičke fraze poput "lijepo mjesto" ili "odlična lokacija"
+  examples_heading: Popularni naslovi za {type}
+mk:
+  heading: Дајте му наслов на вашиот {type}
+  subtitle: Кратките наслови се најдобри. Забавете се — секогаш можете да го промените подоцна.
+  label_title: Наслов
+  placeholder: пр. Удобен стан во центарот на градот
+  inspiration_heading: Ви треба инспирација?
+  tips_heading: Совети за одличен наслов
+  tip1: Истакнете го она што го прави вашиот простор единствен
+  tip2: Споменете го кварталот или блиските атракции
+  tip3: Нека биде краток и паметлив (под 50 знаци)
+  tip4: Избегнувајте генерички фрази како "убаво место" или "одлична локација"
+  examples_heading: Популарни наслови за {type}
+sl:
+  heading: Dajte svojemu {type} naslov
+  subtitle: Kratki naslovi so najboljši. Zabavite se — vedno ga lahko pozneje spremenite.
+  label_title: Naslov
+  placeholder: npr. Udobno stanovanje v središču mesta
+  inspiration_heading: Potrebujete navdih?
+  tips_heading: Nasveti za odličen naslov
+  tip1: Poudarite, kaj naredi vaš prostor edinstvenega
+  tip2: Omenite sosesko ali bližnje znamenitosti
+  tip3: Naj bo kratek in pamtljiv (manj kot 50 znakov)
+  tip4: Izogibajte se splošnim frazam, kot so "lepo mesto" ali "odlična lokacija"
+  examples_heading: Priljubljeni naslovi za {type}
+</i18n>

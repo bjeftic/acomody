@@ -1,7 +1,7 @@
 <template>
     <div class="pb-6 border-b border-gray-200 dark:border-gray-800">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">
-            Booking options
+            {{ $t('title') }}
         </h3>
 
         <div class="space-y-3">
@@ -68,3 +68,16 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  title: Booking options
+sr:
+  title: Opcije rezervacije
+hr:
+  title: Opcije rezervacije
+mk:
+  title: Опции за резервација
+sl:
+  title: Možnosti rezervacije
+</i18n>

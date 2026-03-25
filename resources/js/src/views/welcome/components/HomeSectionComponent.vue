@@ -39,18 +39,20 @@ export default {
             if (typeof t === 'string') {
                 return t;
             }
-            return t?.en || Object.values(t ?? {})[0] || '';
+            const locale = this.$i18n.locale;
+            return t?.[locale] || t?.en || Object.values(t ?? {})[0] || '';
         },
         firstLocation() {
             const loc = this.section.locations?.[0];
             if (!loc) {
                 return null;
             }
+            const locale = this.$i18n.locale;
             return {
                 ...loc,
                 name: typeof loc.name === 'string'
                     ? loc.name
-                    : (loc.name?.en || Object.values(loc.name ?? {})[0] || ''),
+                    : (loc.name?.[locale] || loc.name?.en || Object.values(loc.name ?? {})[0] || ''),
             };
         },
     },

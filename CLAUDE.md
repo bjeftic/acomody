@@ -10,6 +10,56 @@ Acomody is a full-stack accommodation search and management platform. The backen
 
 When someone creates accommodation for example in Serbia, base currency of that accommodation is RSD.
 
+## Internationalisation (i18n)
+
+The app supports 5 locales: `en`, `sr`, `hr`, `mk`, `sl`.
+
+### Serbian (`sr`) — Latin script, Ekavian dialect
+
+Serbian translations **must always** use Latin script and the **Ekavian dialect**. Never use Cyrillic or Ijekavian forms.
+
+Common Ijekavian→Ekavian corrections:
+| Ijekavian (wrong) | Ekavian (correct) |
+|---|---|
+| cijena | cena |
+| cijeli / cijelo | celi / celo |
+| smještaj | smeštaj |
+| mjesto / mjesta | mesto / mesta |
+| prijevoz | prevoz |
+| promijeniti | promeniti |
+| uvijek | uvek |
+| prije | pre |
+| Podijelite | Podelite |
+| Savjeti | Saveti |
+| bit će | biće |
+| Primit ćete | Primićete |
+| obavijest | obaveštenje |
+| primjenjiv | primenjiv |
+| Uvjeti | Uslovi |
+
+### Vue component translations
+
+- Use component-level `<i18n lang="yaml">` blocks — one block per `.vue` file.
+- Access with `$t('key')` for strings, `$tm('key')` + `.map(d => $rt(d))` for arrays.
+- All 5 locales (`en`, `sr`, `hr`, `mk`, `sl`) must be present in every `<i18n>` block.
+
+### Translatable data in JS config files
+
+- If config data contains English text that users see, translate it via one of:
+  1. **Backend RuntimeConstants** with `__()` helpers (e.g. `BookingType` enum labels) — injected as meta tags by Laravel Blade, consumed via `config.ui.*`.
+  2. **Component computed property** using `$t()` / `$tm()` / `$rt()` — map config IDs to translated strings in the component, not in the config file itself.
+- Never leave user-visible English strings in `.js` config files.
+
+### Backend locale for Blade rendering
+
+`DetectLanguage` middleware runs on **both** `api` and `web` middleware groups (see `bootstrap/app.php`). This ensures RuntimeConstants injected into the Blade template (on the initial page load) are rendered with the correct locale.
+
+### Backend translations
+
+- Category labels and other server-side strings use `lang/{locale}/*.php` files.
+- `AmenityResource` returns `category_label` via `trans('amenity_category.'.$this->category)`.
+- `BookingType::toArray()` uses `__()` so labels are locale-aware when called via RuntimeConstants.
+
 ## Frontend — Mobile Responsiveness
 
 All frontend Vue components must support both desktop and mobile. When creating or modifying any component:

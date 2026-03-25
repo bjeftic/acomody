@@ -30,7 +30,7 @@ class HomeSectionSeeder extends Seeder
             $accommodationsSection = HomeSection::create([
                 'title' => [
                     'en' => 'Stay in Belgrade',
-                    'sr' => 'Smještaj u Beogradu',
+                    'sr' => 'Smeštaj u Beogradu',
                     'de' => 'Unterkunft in Belgrad',
                 ],
                 'type' => SectionType::Accommodations,

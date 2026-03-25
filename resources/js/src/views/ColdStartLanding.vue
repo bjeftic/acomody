@@ -7,22 +7,22 @@
                     <!-- Badge -->
                     <div class="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 rounded-full px-4 py-1.5 mb-8">
                         <span class="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></span>
-                        <span class="text-sm font-medium text-primary-300">Early access — limited to 100 founding hosts</span>
+                        <span class="text-sm font-medium text-primary-300">{{ $t('badge') }}</span>
                     </div>
 
                     <h1 class="text-5xl md:text-6xl font-bold leading-tight mb-6">
-                        List first.<br />
-                        <span class="text-primary-400">Earn from day one.</span>
+                        {{ $t('hero_line1') }}<br />
+                        <span class="text-primary-400">{{ $t('hero_line2') }}</span>
                     </h1>
 
-                    <p class="text-xl text-gray-300 mb-4 max-w-2xl leading-relaxed">
-                        Acomody is launching soon. Founding hosts get
-                        <strong class="text-white">0% commission for the entire first year</strong>
-                        and guaranteed top placement when we go live.
-                    </p>
+                    <i18n-t keypath="hero_subtitle" tag="p" class="text-xl text-gray-300 mb-4 max-w-2xl leading-relaxed">
+                        <template #highlight>
+                            <strong class="text-white">{{ $t('hero_highlight') }}</strong>
+                        </template>
+                    </i18n-t>
 
                     <p class="text-sm font-medium text-primary-300 mb-10">
-                        Be among the first 100 hosts on the platform.
+                        {{ $t('hero_founding') }}
                     </p>
 
                     <div class="flex flex-wrap gap-4">
@@ -30,14 +30,14 @@
                             class="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold bg-primary-500 hover:bg-primary-400 text-white rounded-xl transition-all shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40"
                             @click="handleCta"
                         >
-                            List your property
+                            {{ $t('hero_cta') }}
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
                         </button>
                     </div>
 
-                    <p class="mt-4 text-sm text-gray-500">No credit card required. Listing takes under 5 minutes.</p>
+                    <p class="mt-4 text-sm text-gray-500">{{ $t('hero_no_cc') }}</p>
                 </div>
             </div>
 
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                         <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            <span class="font-bold text-primary-600 dark:text-primary-400">23 hosts</span> already joined
+                            <span class="font-bold text-primary-600 dark:text-primary-400">{{ $t('joined', { count: joinedCount }) }}</span>
                         </p>
                     </div>
 
@@ -74,14 +74,14 @@
                     <div class="flex items-center gap-4 w-full sm:w-auto sm:min-w-72">
                         <div class="flex-1">
                             <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1.5">
-                                <span>Founding spots claimed</span>
-                                <span class="font-semibold text-primary-600 dark:text-primary-400">23 / 100</span>
+                                <span>{{ $t('spots_claimed') }}</span>
+                                <span class="font-semibold text-primary-600 dark:text-primary-400">{{ joinedCount }} / 100</span>
                             </div>
                             <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                <div class="h-full bg-primary-500 rounded-full" style="width: 23%"></div>
+                                <div class="h-full bg-primary-500 rounded-full" :style="{ width: joinedCount + '%' }"></div>
                             </div>
                         </div>
-                        <span class="text-xs font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap">77 left</span>
+                        <span class="text-xs font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap">{{ $t('spots_left', { count: spotsLeft }) }}</span>
                     </div>
                 </div>
             </div>
@@ -91,28 +91,20 @@
         <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                    <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">What is Acomody?</span>
+                    <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">{{ $t('what_label') }}</span>
                     <h2 class="text-4xl font-bold text-gray-900 dark:text-white mt-3 mb-6">
-                        A smarter way to rent out your property.
+                        {{ $t('what_title') }}
                     </h2>
-                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-                        Acomody is a property rental platform built for hosts who want more control and fewer fees. List your apartment, house, villa, cabin — any type of accommodation — and connect directly with guests looking to book short or long stays.
-                    </p>
-                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-                        Unlike legacy platforms, Acomody keeps things simple: you set your own prices, choose your own rules, and communicate directly with guests before confirming a booking. No surprises.
-                    </p>
-                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                        We're currently in pre-launch — building the platform alongside our first hosts to make sure it works the way you actually need it to.
-                    </p>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">{{ $t('what_p1') }}</p>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">{{ $t('what_p2') }}</p>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">{{ $t('what_p3') }}</p>
 
                     <!-- iCal sync highlight -->
                     <div class="flex items-start gap-4 bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800/40 rounded-xl p-4">
                         <div class="text-2xl shrink-0">🔄</div>
                         <div>
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white mb-1">Already listing on Airbnb or Booking.com?</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">
-                                Acomody supports two-way iCal calendar sync. Add your existing calendars and your availability stays in sync across all platforms — no double bookings, no manual work.
-                            </p>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white mb-1">{{ $t('ical_title') }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ $t('ical_desc') }}</p>
                         </div>
                     </div>
                 </div>
@@ -133,11 +125,9 @@
         <!-- BENEFITS SECTION -->
         <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6">
             <div class="text-center mb-14">
-                <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">Founding host perks</span>
-                <h2 class="text-4xl font-bold text-gray-900 dark:text-white mt-3">Why list now?</h2>
-                <p class="text-gray-500 dark:text-gray-400 mt-3 max-w-xl mx-auto">
-                    These perks are exclusive to our first 100 hosts. Once the spots are gone, they're gone.
-                </p>
+                <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">{{ $t('benefits_label') }}</span>
+                <h2 class="text-4xl font-bold text-gray-900 dark:text-white mt-3">{{ $t('benefits_title') }}</h2>
+                <p class="text-gray-500 dark:text-gray-400 mt-3 max-w-xl mx-auto">{{ $t('benefits_subtitle') }}</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -157,8 +147,8 @@
         <section class="py-20 bg-gray-50 dark:bg-gray-800/40">
             <div class="max-w-7xl mx-auto px-4 sm:px-6">
                 <div class="text-center mb-14">
-                    <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">Simple process</span>
-                    <h2 class="text-4xl font-bold text-gray-900 dark:text-white mt-3">From listing to launch in 3 steps</h2>
+                    <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">{{ $t('how_label') }}</span>
+                    <h2 class="text-4xl font-bold text-gray-900 dark:text-white mt-3">{{ $t('how_title') }}</h2>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -180,8 +170,8 @@
         <!-- SOCIAL PROOF -->
         <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6">
             <div class="text-center mb-14">
-                <h2 class="text-4xl font-bold text-gray-900 dark:text-white">Early hosts love it</h2>
-                <p class="text-gray-500 dark:text-gray-400 mt-3">From our founding host community</p>
+                <h2 class="text-4xl font-bold text-gray-900 dark:text-white">{{ $t('proof_title') }}</h2>
+                <p class="text-gray-500 dark:text-gray-400 mt-3">{{ $t('proof_subtitle') }}</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -190,7 +180,6 @@
                     :key="testimonial.name"
                     class="bg-white dark:bg-gray-800 rounded-2xl p-7 border border-gray-100 dark:border-gray-700 flex flex-col"
                 >
-                    <!-- Stars -->
                     <div class="flex gap-1 mb-5">
                         <svg
                             v-for="n in 5"
@@ -221,24 +210,26 @@
         <!-- FINAL CTA SECTION -->
         <section class="py-24 bg-gradient-to-br from-gray-900 to-primary-900">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-                <span class="inline-block text-xs font-semibold text-primary-300 uppercase tracking-widest mb-5">Limited time offer</span>
-                <h2 class="text-5xl font-bold text-white mb-6">Become a founding host.</h2>
+                <span class="inline-block text-xs font-semibold text-primary-300 uppercase tracking-widest mb-5">{{ $t('final_label') }}</span>
+                <h2 class="text-5xl font-bold text-white mb-6">{{ $t('final_title') }}</h2>
                 <p class="text-xl text-gray-300 mb-4 max-w-2xl mx-auto leading-relaxed">
-                    0% commission. Top placement. Direct access to our team.
+                    {{ $t('final_subtitle') }}
                 </p>
-                <p class="text-base text-primary-300 font-medium mb-10">
-                    Only <strong class="text-white">77 spots</strong> remaining out of 100.
-                </p>
+                <i18n-t keypath="final_remaining" tag="p" class="text-base text-primary-300 font-medium mb-10">
+                    <template #count>
+                        <strong class="text-white">{{ spotsLeft }}</strong>
+                    </template>
+                </i18n-t>
                 <button
                     class="inline-flex items-center gap-2 px-10 py-5 text-lg font-semibold bg-primary-500 hover:bg-primary-400 text-white rounded-xl transition-all shadow-xl shadow-primary-500/30 hover:shadow-primary-500/50"
                     @click="handleCta"
                 >
-                    Claim your founding spot
+                    {{ $t('final_cta') }}
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                 </button>
-                <p class="mt-4 text-sm text-gray-500">No credit card required. Takes under 5 minutes.</p>
+                <p class="mt-4 text-sm text-gray-500">{{ $t('final_no_cc') }}</p>
             </div>
         </section>
 
@@ -248,11 +239,11 @@
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-2">
                         <img src="/images/acomody.png" alt="Acomody" class="h-7 brightness-0 invert" />
-                        <span class="text-gray-500 text-sm">— Platform in early access phase</span>
+                        <span class="text-gray-500 text-sm">— {{ $t('footer_phase') }}</span>
                     </div>
                     <div class="flex items-center gap-6 text-sm text-gray-400">
-                        <router-link :to="{ name: 'page-terms' }" class="hover:text-white transition-colors">Terms</router-link>
-                        <router-link :to="{ name: 'page-privacy-policy' }" class="hover:text-white transition-colors">Privacy</router-link>
+                        <router-link :to="{ name: 'page-terms' }" class="hover:text-white transition-colors">{{ $t('footer_terms') }}</router-link>
+                        <router-link :to="{ name: 'page-privacy-policy' }" class="hover:text-white transition-colors">{{ $t('footer_privacy') }}</router-link>
                         <a href="mailto:hello@acomody.com" class="hover:text-white transition-colors">hello@acomody.com</a>
                     </div>
                 </div>
@@ -269,58 +260,8 @@ export default {
 
     data() {
         return {
-            platformStats: [
-                { value: 'Any type', label: 'Apartments, houses, villas, cabins and more' },
-                { value: '0%', label: 'Commission for founding hosts in year one' },
-                { value: '5 min', label: 'Average time to create a listing' },
-                { value: '100%', label: 'Control over your prices, rules and guests' },
-            ],
-            benefits: [
-                {
-                    icon: '🎯',
-                    title: '0% commission — entire first year',
-                    desc: 'Founding hosts keep 100% of every booking. No platform fees until year two. That\'s thousands saved from day one.',
-                },
-                {
-                    icon: '🚀',
-                    title: 'Top placement at launch',
-                    desc: 'Your property gets priority position in search results when we open to guests. First in line, every time.',
-                },
-                {
-                    icon: '📅',
-                    title: 'First bookings, guaranteed',
-                    desc: 'We personally promote founding host properties to our pre-launch guest waitlist of thousands of travelers.',
-                },
-                {
-                    icon: '⚡',
-                    title: 'List in under 5 minutes',
-                    desc: 'Our streamlined creation flow gets your property live without the complexity of other platforms.',
-                },
-                {
-                    icon: '🔄',
-                    title: 'Sync with Airbnb, Booking & more',
-                    desc: 'Connect your existing calendars via iCal. Availability stays in sync automatically — no double bookings, no manual updates.',
-                },
-                {
-                    icon: '💬',
-                    title: 'Direct line to our team',
-                    desc: 'Founding hosts get a dedicated channel and direct access to our founders. Your feedback shapes the product.',
-                },
-            ],
-            steps: [
-                {
-                    title: 'Create your listing',
-                    desc: 'Add your property details, photos, and pricing in a simple step-by-step flow. Done in minutes.',
-                },
-                {
-                    title: 'We review and prepare',
-                    desc: 'Our team personally reviews and optimizes your listing for maximum visibility at launch.',
-                },
-                {
-                    title: 'Start receiving bookings',
-                    desc: 'When we launch, your listing goes live first — visible to thousands of pre-registered guests.',
-                },
-            ],
+            joinedCount: 23,
+            totalSpots: 100,
             testimonials: [
                 {
                     name: 'Marija T.',
@@ -344,6 +285,38 @@ export default {
     computed: {
         ...mapGetters('auth', ['isLoggedIn']),
         ...mapGetters('user', ['hostingCtaStatus']),
+
+        spotsLeft() {
+            return this.totalSpots - this.joinedCount;
+        },
+
+        platformStats() {
+            return [
+                { value: this.$t('stat_any_type'), label: this.$t('stat_any_type_desc') },
+                { value: '0%', label: this.$t('stat_commission_desc') },
+                { value: this.$t('stat_time'), label: this.$t('stat_time_desc') },
+                { value: '100%', label: this.$t('stat_control_desc') },
+            ];
+        },
+
+        benefits() {
+            return [
+                { icon: '🎯', title: this.$t('b1_title'), desc: this.$t('b1_desc') },
+                { icon: '🚀', title: this.$t('b2_title'), desc: this.$t('b2_desc') },
+                { icon: '📅', title: this.$t('b3_title'), desc: this.$t('b3_desc') },
+                { icon: '⚡', title: this.$t('b4_title'), desc: this.$t('b4_desc') },
+                { icon: '🔄', title: this.$t('b5_title'), desc: this.$t('b5_desc') },
+                { icon: '💬', title: this.$t('b6_title'), desc: this.$t('b6_desc') },
+            ];
+        },
+
+        steps() {
+            return [
+                { title: this.$t('s1_title'), desc: this.$t('s1_desc') },
+                { title: this.$t('s2_title'), desc: this.$t('s2_desc') },
+                { title: this.$t('s3_title'), desc: this.$t('s3_desc') },
+            ];
+        },
     },
 
     methods: {
@@ -369,3 +342,305 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  badge: "Early access — limited to 100 founding hosts"
+  hero_line1: "List first."
+  hero_line2: "Earn from day one."
+  hero_subtitle: "Acomody is launching soon. Founding hosts get {highlight} and guaranteed top placement when we go live."
+  hero_highlight: "0% commission for the entire first year"
+  hero_founding: "Be among the first 100 hosts on the platform."
+  hero_cta: "List your property"
+  hero_no_cc: "No credit card required. Listing takes under 5 minutes."
+  joined: "{count} hosts already joined"
+  spots_claimed: "Founding spots claimed"
+  spots_left: "{count} left"
+  what_label: "What is Acomody?"
+  what_title: "A smarter way to rent out your property."
+  what_p1: "Acomody is a property rental platform built for hosts who want more control and fewer fees. List your apartment, house, villa, cabin — any type of accommodation — and connect directly with guests looking to book short or long stays."
+  what_p2: "Unlike legacy platforms, Acomody keeps things simple: you set your own prices, choose your own rules, and communicate directly with guests before confirming a booking. No surprises."
+  what_p3: "We're currently in pre-launch — building the platform alongside our first hosts to make sure it works the way you actually need it to."
+  ical_title: "Already listing on Airbnb or Booking.com?"
+  ical_desc: "Acomody supports two-way iCal calendar sync. Add your existing calendars and your availability stays in sync across all platforms — no double bookings, no manual work."
+  benefits_label: "Founding host perks"
+  benefits_title: "Why list now?"
+  benefits_subtitle: "These perks are exclusive to our first 100 hosts. Once the spots are gone, they're gone."
+  how_label: "Simple process"
+  how_title: "From listing to launch in 3 steps"
+  proof_title: "Early hosts love it"
+  proof_subtitle: "From our founding host community"
+  final_label: "Limited time offer"
+  final_title: "Become a founding host."
+  final_subtitle: "0% commission. Top placement. Direct access to our team."
+  final_remaining: "Only {count} spots remaining out of 100."
+  final_cta: "Claim your founding spot"
+  final_no_cc: "No credit card required. Takes under 5 minutes."
+  footer_phase: "Platform in early access phase"
+  footer_terms: "Terms"
+  footer_privacy: "Privacy"
+  stat_any_type: "Any type"
+  stat_any_type_desc: "Apartments, houses, villas, cabins and more"
+  stat_commission_desc: "Commission for founding hosts in year one"
+  stat_time: "5 min"
+  stat_time_desc: "Average time to create a listing"
+  stat_control_desc: "Control over your prices, rules and guests"
+  b1_title: "0% commission — entire first year"
+  b1_desc: "Founding hosts keep 100% of every booking. No platform fees until year two. That's thousands saved from day one."
+  b2_title: "Top placement at launch"
+  b2_desc: "Your property gets priority position in search results when we open to guests. First in line, every time."
+  b3_title: "First bookings, guaranteed"
+  b3_desc: "We personally promote founding host properties to our pre-launch guest waitlist of thousands of travelers."
+  b4_title: "List in under 5 minutes"
+  b4_desc: "Our streamlined creation flow gets your property live without the complexity of other platforms."
+  b5_title: "Sync with Airbnb, Booking & more"
+  b5_desc: "Connect your existing calendars via iCal. Availability stays in sync automatically — no double bookings, no manual updates."
+  b6_title: "Direct line to our team"
+  b6_desc: "Founding hosts get a dedicated channel and direct access to our founders. Your feedback shapes the product."
+  s1_title: "Create your listing"
+  s1_desc: "Add your property details, photos, and pricing in a simple step-by-step flow. Done in minutes."
+  s2_title: "We review and prepare"
+  s2_desc: "Our team personally reviews and optimizes your listing for maximum visibility at launch."
+  s3_title: "Start receiving bookings"
+  s3_desc: "When we launch, your listing goes live first — visible to thousands of pre-registered guests."
+
+sr:
+  badge: "Rani pristup — ograničeno na 100 osnivačkih domaćina"
+  hero_line1: "Objavi prvi."
+  hero_line2: "Zarađuj od prvog dana."
+  hero_subtitle: "Acomody se uskoro lansira. Osnivački domaćini dobijaju {highlight} i garantovano top pozicioniranje kada se platforma pokrene."
+  hero_highlight: "0% provizije tokom cele prve godine"
+  hero_founding: "Budite među prvih 100 domaćina na platformi."
+  hero_cta: "Oglasite svoju nekretninu"
+  hero_no_cc: "Nije potrebna kreditna kartica. Kreiranje oglasa traje manje od 5 minuta."
+  joined: "{count} domaćina se već pridružilo"
+  spots_claimed: "Zauzeto osnivačkih mesta"
+  spots_left: "{count} preostalo"
+  what_label: "Šta je Acomody?"
+  what_title: "Pametniji način iznajmljivanja vaše nekretnine."
+  what_p1: "Acomody je platforma za iznajmljivanje nekretnina napravljena za domaćine koji žele više kontrole i manje naknada. Oglašujte stan, kuću, vilu, kolibu — bilo koji tip smeštaja — i povežite se direktno sa gostima."
+  what_p2: "Za razliku od legacy platformi, Acomody je jednostavan: vi određujete cene, birate pravila i direktno komunicirate sa gostima pre potvrde rezervacije. Bez iznenađenja."
+  what_p3: "Trenutno smo u pre-lansiranju — gradimo platformu zajedno sa prvim domaćinima kako bismo osigurali da funkcioniše onako kako vam stvarno treba."
+  ical_title: "Već oglašavate na Airbnb-u ili Booking.com-u?"
+  ical_desc: "Acomody podržava dvosmerni iCal sinhronizaciju kalendara. Dodajte postojeće kalendare i vaša dostupnost ostaje sinhronizovana na svim platformama — bez dvostrukih rezervacija i ručnog rada."
+  benefits_label: "Pogodnosti za osnivačke domaćine"
+  benefits_title: "Zašto oglasiti sada?"
+  benefits_subtitle: "Ove pogodnosti su ekskluzivne za naših prvih 100 domaćina. Kada se mesta popune, nema više."
+  how_label: "Jednostavan proces"
+  how_title: "Od oglasa do lansiranja u 3 koraka"
+  proof_title: "Rani domaćini su oduševljeni"
+  proof_subtitle: "Iz naše zajednice osnivačkih domaćina"
+  final_label: "Ograničena ponuda"
+  final_title: "Postanite osnivački domaćin."
+  final_subtitle: "0% provizije. Top pozicioniranje. Direktan pristup našem timu."
+  final_remaining: "Samo {count} mesta preostalo od 100."
+  final_cta: "Rezervišite osnivačko mesto"
+  final_no_cc: "Nije potrebna kreditna kartica. Traje manje od 5 minuta."
+  footer_phase: "Platforma u fazi ranog pristupa"
+  footer_terms: "Uslovi korišćenja"
+  footer_privacy: "Privatnost"
+  stat_any_type: "Bilo koji tip"
+  stat_any_type_desc: "Stanovi, kuće, vile, kabine i još mnogo toga"
+  stat_commission_desc: "Provizija za osnivačke domaćine u prvoj godini"
+  stat_time: "5 min"
+  stat_time_desc: "Prosečno vreme za kreiranje oglasa"
+  stat_control_desc: "Kontrola nad cenama, pravilima i gostima"
+  b1_title: "0% provizije — cela prva godina"
+  b1_desc: "Osnivački domaćini zadržavaju 100% svake rezervacije. Bez platformskih naknada do druge godine. To su hiljade uštedovano od prvog dana."
+  b2_title: "Top pozicioniranje na lansiranju"
+  b2_desc: "Vaša nekretnina dobija prioritetno mesto u rezultatima pretrage. Uvek na prvom mestu."
+  b3_title: "Prve rezervacije, garantovano"
+  b3_desc: "Lično promovišemo nekretnine osnivačkih domaćina na pre-lansiranjoj listi čekanja od hiljada putnika."
+  b4_title: "Oglasite za manje od 5 minuta"
+  b4_desc: "Naš pojednostavljen proces kreira vaš oglas bez složenosti ostalih platformi."
+  b5_title: "Sinhronizacija sa Airbnb, Booking i više"
+  b5_desc: "Povežite kalendare putem iCal. Dostupnost se automatski sinhronizuje — bez dvostrukih rezervacija."
+  b6_title: "Direktna linija sa našim timom"
+  b6_desc: "Osnivački domaćini dobijaju poseban kanal i direktan pristup osnivačima. Vaše povratne informacije oblikuju produkt."
+  s1_title: "Kreirajte oglas"
+  s1_desc: "Dodajte detalje nekretnine, fotografije i cene u jednostavnom procesu korak-po-korak. Gotovo za minuta."
+  s2_title: "Pregledamo i pripremamo"
+  s2_desc: "Naš tim lično pregledava i optimizuje vaš oglas za maksimalnu vidljivost na lansiranju."
+  s3_title: "Počnite da primate rezervacije"
+  s3_desc: "Kada se lansiramo, vaš oglas ide live prvi — vidljiv hiljadama pre-registrovanih gostiju."
+
+hr:
+  badge: "Rani pristup — ograničeno na 100 osnivačkih domaćina"
+  hero_line1: "Oglasi prvi."
+  hero_line2: "Zarađuj od prvog dana."
+  hero_subtitle: "Acomody se uskoro lansira. Osnivački domaćini dobivaju {highlight} i zajamčeno top pozicioniranje kada se platforma pokrene."
+  hero_highlight: "0% provizije tijekom cijele prve godine"
+  hero_founding: "Budite među prvih 100 domaćina na platformi."
+  hero_cta: "Oglasi svoju nekretninu"
+  hero_no_cc: "Kreditna kartica nije potrebna. Kreiranje oglasa traje manje od 5 minuta."
+  joined: "{count} domaćina se već pridružilo"
+  spots_claimed: "Zauzeto osnivačkih mjesta"
+  spots_left: "{count} preostalo"
+  what_label: "Što je Acomody?"
+  what_title: "Pametniji način iznajmljivanja vaše nekretnine."
+  what_p1: "Acomody je platforma za iznajmljivanje nekretnina napravljena za domaćine koji žele više kontrole i manje naknada. Oglašajte stan, kuću, vilu, kolibu — bilo koji tip smještaja — i povežite se izravno s gostima."
+  what_p2: "Za razliku od legacy platformi, Acomody je jednostavan: vi određujete cijene, birate pravila i izravno komunicirate s gostima prije potvrde rezervacije. Bez iznenađenja."
+  what_p3: "Trenutno smo u pred-lansiranju — gradimo platformu zajedno s prvim domaćinima kako bismo osigurali da funkcionira onako kako vam stvarno treba."
+  ical_title: "Već oglašavate na Airbnb-u ili Booking.com-u?"
+  ical_desc: "Acomody podržava dvosmjernu iCal sinkronizaciju kalendara. Dodajte postojeće kalendare i vaša dostupnost ostaje sinkronizirana na svim platformama — bez dvostrukih rezervacija i ručnog rada."
+  benefits_label: "Pogodnosti za osnivačke domaćine"
+  benefits_title: "Zašto oglasiti sada?"
+  benefits_subtitle: "Ove pogodnosti su ekskluzivne za naših prvih 100 domaćina. Kada se mjesta popune, nema više."
+  how_label: "Jednostavan proces"
+  how_title: "Od oglasa do lansiranja u 3 koraka"
+  proof_title: "Rani domaćini su oduševljeni"
+  proof_subtitle: "Iz naše zajednice osnivačkih domaćina"
+  final_label: "Ograničena ponuda"
+  final_title: "Postanite osnivački domaćin."
+  final_subtitle: "0% provizije. Top pozicioniranje. Izravan pristup našem timu."
+  final_remaining: "Samo {count} mjesta preostalo od 100."
+  final_cta: "Rezervirajte osnivačko mjesto"
+  final_no_cc: "Kreditna kartica nije potrebna. Traje manje od 5 minuta."
+  footer_phase: "Platforma u fazi ranog pristupa"
+  footer_terms: "Uvjeti korištenja"
+  footer_privacy: "Privatnost"
+  stat_any_type: "Bilo koji tip"
+  stat_any_type_desc: "Stanovi, kuće, vile, kabine i još mnogo toga"
+  stat_commission_desc: "Provizija za osnivačke domaćine u prvoj godini"
+  stat_time: "5 min"
+  stat_time_desc: "Prosječno vrijeme za kreiranje oglasa"
+  stat_control_desc: "Kontrola nad cijenama, pravilima i gostima"
+  b1_title: "0% provizije — cijela prva godina"
+  b1_desc: "Osnivački domaćini zadržavaju 100% svake rezervacije. Bez platformskih naknada do druge godine. To su tisuće uštedovano od prvog dana."
+  b2_title: "Top pozicioniranje na lansiranju"
+  b2_desc: "Vaša nekretnina dobiva prioritetno mjesto u rezultatima pretrage. Uvijek na prvom mjestu."
+  b3_title: "Prve rezervacije, zajamčeno"
+  b3_desc: "Osobno promoviramo nekretnine osnivačkih domaćina na pred-lansiranjoj listi čekanja od tisuća putnika."
+  b4_title: "Oglasi za manje od 5 minuta"
+  b4_desc: "Naš pojednostavljeni proces kreira vaš oglas bez složenosti ostalih platformi."
+  b5_title: "Sinkronizacija s Airbnb, Booking i više"
+  b5_desc: "Povežite kalendare putem iCal. Dostupnost se automatski sinkronizira — bez dvostrukih rezervacija."
+  b6_title: "Izravna linija s našim timom"
+  b6_desc: "Osnivački domaćini dobivaju poseban kanal i izravan pristup osnivačima. Vaše povratne informacije oblikuju produkt."
+  s1_title: "Kreirajte oglas"
+  s1_desc: "Dodajte detalje nekretnine, fotografije i cijene u jednostavnom procesu korak-po-korak. Gotovo za minuta."
+  s2_title: "Pregledavamo i pripremamo"
+  s2_desc: "Naš tim osobno pregledava i optimizira vaš oglas za maksimalnu vidljivost na lansiranju."
+  s3_title: "Počnite primati rezervacije"
+  s3_desc: "Kada se lansiramo, vaš oglas ide live prvi — vidljiv tisućama pred-registriranih gostiju."
+
+mk:
+  badge: "Ран пристап — ограничено на 100 основачки домаќини"
+  hero_line1: "Огласи прв."
+  hero_line2: "Заработи од првиот ден."
+  hero_subtitle: "Acomody се наскоро лансира. Основачките домаќини добиваат {highlight} и гарантирано топ позиционирање кога платформата ќе се покрене."
+  hero_highlight: "0% провизија во текот на целата прва година"
+  hero_founding: "Бидете меѓу првите 100 домаќини на платформата."
+  hero_cta: "Огласете го вашиот имот"
+  hero_no_cc: "Кредитна картичка не е потребна. Создавањето оглас трае помалку од 5 минути."
+  joined: "{count} домаќини веќе се придружиле"
+  spots_claimed: "Заземени основачки места"
+  spots_left: "{count} преостанати"
+  what_label: "Што е Acomody?"
+  what_title: "Попаметен начин за издавање на вашиот имот."
+  what_p1: "Acomody е платформа за издавање имот направена за домаќини кои сакаат повеќе контрола и помалку надоместоци. Огласете стан, куќа, вила, колиба — кој било тип на сместување — и поврзете се директно со гостите."
+  what_p2: "За разлика од традиционалните платформи, Acomody е едноставна: вие ги одредувате цените, ги избирате правилата и директно комуницирате со гостите пред потврдата на резервацијата. Без изненадувања."
+  what_p3: "Моментално сме во пред-лансирање — ја градиме платформата заедно со првите домаќини за да осигуриме дека функционира онака како на вас ви е потребно."
+  ical_title: "Веќе огласувате на Airbnb или Booking.com?"
+  ical_desc: "Acomody поддржува двонасочна iCal синхронизација на календарот. Додадете ги постоечките календари и вашата достапност останува синхронизирана на сите платформи — без двојни резервации и рачна работа."
+  benefits_label: "Погодности за основачките домаќини"
+  benefits_title: "Зошто да огласите сега?"
+  benefits_subtitle: "Овие погодности се ексклузивни за нашите први 100 домаќини. Кога ќе се пополнат местата, нема повеќе."
+  how_label: "Едноставен процес"
+  how_title: "Од оглас до лансирање во 3 чекори"
+  proof_title: "Раните домаќини се воодушевени"
+  proof_subtitle: "Од нашата заедница на основачки домаќини"
+  final_label: "Ограничена понуда"
+  final_title: "Станете основачки домаќин."
+  final_subtitle: "0% провизија. Топ позиционирање. Директен пристап до нашиот тим."
+  final_remaining: "Само {count} места преостануваат од 100."
+  final_cta: "Резервирајте основачко место"
+  final_no_cc: "Кредитна картичка не е потребна. Трае помалку од 5 минути."
+  footer_phase: "Платформа во фаза на ран пристап"
+  footer_terms: "Услови за користење"
+  footer_privacy: "Приватност"
+  stat_any_type: "Кој било тип"
+  stat_any_type_desc: "Станови, куќи, вили, кабини и уште многу"
+  stat_commission_desc: "Провизија за основачките домаќини во првата година"
+  stat_time: "5 мин"
+  stat_time_desc: "Просечно време за создавање оглас"
+  stat_control_desc: "Контрола над цените, правилата и гостите"
+  b1_title: "0% провизија — цела прва година"
+  b1_desc: "Основачките домаќини задржуваат 100% на секоја резервација. Без платформски надоместоци до втората година."
+  b2_title: "Топ позиционирање на лансирањето"
+  b2_desc: "Вашиот имот добива приоритетна позиција во резултатите на пребарувањето. Секогаш на прво место."
+  b3_title: "Први резервации, гарантирано"
+  b3_desc: "Лично ги промовираме имотите на основачките домаќини на нашата листа на чекање пред лансирањето."
+  b4_title: "Огласете за помалку од 5 минути"
+  b4_desc: "Нашиот поедноставен процес го создава вашиот оглас без сложеноста на другите платформи."
+  b5_title: "Синхронизација со Airbnb, Booking и повеќе"
+  b5_desc: "Поврзете ги календарите преку iCal. Достапноста автоматски се синхронизира — без двојни резервации."
+  b6_title: "Директна линија со нашиот тим"
+  b6_desc: "Основачките домаќини добиваат посебен канал и директен пристап до основачите. Вашите повратни информации го обликуваат производот."
+  s1_title: "Создадете оглас"
+  s1_desc: "Додадете детали за имотот, фотографии и цени во едноставен процес чекор по чекор. Готово за минути."
+  s2_title: "Ние го прегледуваме и подготвуваме"
+  s2_desc: "Нашиот тим лично го прегледува и оптимизира вашиот оглас за максимална видливост на лансирањето."
+  s3_title: "Почнете да примате резервации"
+  s3_desc: "Кога ќе се лансираме, вашиот оглас оди live прв — видлив на илјадници пред-регистрирани гости."
+
+sl:
+  badge: "Zgodnji dostop — omejeno na 100 ustanovnih gostiteljev"
+  hero_line1: "Oglašaj prvi."
+  hero_line2: "Zaslužuj od prvega dne."
+  hero_subtitle: "Acomody se kmalu lansira. Ustanovni gostitelji dobijo {highlight} in zajamčeno vrhunsko pozicioniranje ob zagonu platforme."
+  hero_highlight: "0% provizije celotno prvo leto"
+  hero_founding: "Bodite med prvimi 100 gostitelji na platformi."
+  hero_cta: "Oglasite svojo nepremičnino"
+  hero_no_cc: "Kreditna kartica ni potrebna. Ustvarjanje oglasa traja manj kot 5 minut."
+  joined: "{count} gostiteljev se je že pridružilo"
+  spots_claimed: "Zasedenih ustanovnih mest"
+  spots_left: "{count} preostalo"
+  what_label: "Kaj je Acomody?"
+  what_title: "Pametnejši način oddajanja vaše nepremičnine."
+  what_p1: "Acomody je platforma za oddajanje nepremičnin za gostitelje, ki želijo več nadzora in manj stroškov. Oglasite stanovanje, hišo, vilo, kočo — katero koli vrsto nastanitve — in se neposredno povežite z gosti."
+  what_p2: "Za razliko od uveljavljenih platform je Acomody preprost: vi določate cene, izbirate pravila in neposredno komunicirate z gosti pred potrditvijo rezervacije. Brez presenečenj."
+  what_p3: "Trenutno smo v pred-lansiranju — gradimo platformo skupaj s prvimi gostitelji, da zagotovimo, da deluje tako, kot zares potrebujete."
+  ical_title: "Že oglašujete na Airbnb ali Booking.com?"
+  ical_desc: "Acomody podpira dvosmerno sinhronizacijo iCal kalendarjev. Dodajte obstoječe kalendarje in vaša razpoložljivost ostane sinhronizirana na vseh platformah — brez dvojnih rezervacij in ročnega dela."
+  benefits_label: "Ugodnosti za ustanovne gostitelje"
+  benefits_title: "Zakaj oglasite zdaj?"
+  benefits_subtitle: "Te ugodnosti so ekskluzivne za naših prvih 100 gostiteljev. Ko so mesta zapolnjena, jih ni več."
+  how_label: "Preprost postopek"
+  how_title: "Od oglasa do lansiranja v 3 korakih"
+  proof_title: "Zgodnji gostitelji so navdušeni"
+  proof_subtitle: "Iz naše skupnosti ustanovnih gostiteljev"
+  final_label: "Omejena ponudba"
+  final_title: "Postanite ustanovni gostitelj."
+  final_subtitle: "0% provizije. Vrhunsko pozicioniranje. Neposreden dostop do naše ekipe."
+  final_remaining: "Samo {count} mest preostaja od 100."
+  final_cta: "Rezervirajte ustanovno mesto"
+  final_no_cc: "Kreditna kartica ni potrebna. Traja manj kot 5 minut."
+  footer_phase: "Platforma v fazi zgodnjega dostopa"
+  footer_terms: "Pogoji uporabe"
+  footer_privacy: "Zasebnost"
+  stat_any_type: "Katera koli vrsta"
+  stat_any_type_desc: "Stanovanja, hiše, vile, koče in še več"
+  stat_commission_desc: "Provizija za ustanovne gostitelje v prvem letu"
+  stat_time: "5 min"
+  stat_time_desc: "Povprečen čas za ustvarjanje oglasa"
+  stat_control_desc: "Nadzor nad cenami, pravili in gosti"
+  b1_title: "0% provizije — celotno prvo leto"
+  b1_desc: "Ustanovni gostitelji obdržijo 100% vsake rezervacije. Brez platformnih stroškov do drugega leta."
+  b2_title: "Vrhunsko pozicioniranje ob lansiranju"
+  b2_desc: "Vaša nepremičnina dobi prioritetno mesto v rezultatih iskanja. Vedno na prvem mestu."
+  b3_title: "Prve rezervacije, zajamčeno"
+  b3_desc: "Osebno promoviramo nepremičnine ustanovnih gostiteljev na naši pred-lansiranjski čakalni listi tisočih popotnikov."
+  b4_title: "Oglasite v manj kot 5 minutah"
+  b4_desc: "Naš poenostavljen postopek ustvari vaš oglas brez zapletenosti drugih platform."
+  b5_title: "Sinhronizacija z Airbnb, Booking in več"
+  b5_desc: "Povežite kalendarje prek iCal. Razpoložljivost se samodejno sinhronizira — brez dvojnih rezervacij."
+  b6_title: "Neposredna linija z našo ekipo"
+  b6_desc: "Ustanovni gostitelji dobijo namenski kanal in neposreden dostop do ustanoviteljev. Vaše povratne informacije oblikujejo produkt."
+  s1_title: "Ustvarite oglas"
+  s1_desc: "Dodajte podrobnosti nepremičnine, fotografije in cene v preprostem postopku korak za korakom. Končano v minutah."
+  s2_title: "Pregledamo in pripravimo"
+  s2_desc: "Naša ekipa osebno pregleduje in optimizira vaš oglas za največjo vidljivost ob lansiranju."
+  s3_title: "Začnite prejemati rezervacije"
+  s3_desc: "Ko se lansiramo, vaš oglas gre live prvi — viden tisočim pred-registriranim gostom."
+</i18n>

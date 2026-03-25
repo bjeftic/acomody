@@ -3,7 +3,7 @@
         class="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4"
     >
         <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">
-            {{ title }}
+            {{ title || $t('default_title') }}
         </h3>
 
         <!-- Base Price -->
@@ -11,7 +11,7 @@
             class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700"
         >
             <span class="text-sm text-gray-600 dark:text-gray-400">
-                Base price
+                {{ $t('base_price') }}
             </span>
             <span class="text-sm font-medium text-gray-900 dark:text-white">
                 {{ formatPrice(basePrice, currency, true, 'code') }}
@@ -24,7 +24,7 @@
         >
             <div class="flex items-center space-x-2">
                 <span class="text-sm text-gray-600 dark:text-gray-400">
-                    Guest service fee
+                    {{ $t('service_fee') }}
                 </span>
                 <button
                     v-if="showInfoButton"
@@ -52,7 +52,7 @@
         <!-- Total -->
         <div class="flex items-center justify-between pt-4">
             <span class="text-base font-semibold text-gray-900 dark:text-white">
-                Guest pays
+                {{ $t('guest_pays') }}
             </span>
             <span class="text-base font-semibold text-gray-900 dark:text-white">
                 {{ formatPrice(guestPaysTotal, currency, true, 'code') }}
@@ -68,7 +68,7 @@ export default {
     props: {
         title: {
             type: String,
-            default: "Price breakdown (weekday)",
+            default: "",
         },
         basePrice: {
             type: Number,
@@ -105,3 +105,31 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  default_title: Price breakdown (weekday)
+  base_price: Base price
+  service_fee: Guest service fee
+  guest_pays: Guest pays
+sr:
+  default_title: Pregled cene (radni dan)
+  base_price: Osnovna cena
+  service_fee: Naknada za goste
+  guest_pays: Gost plaća
+hr:
+  default_title: Pregled cijene (radni dan)
+  base_price: Osnovna cijena
+  service_fee: Naknada za goste
+  guest_pays: Gost plaća
+mk:
+  default_title: Преглед на цена (работен ден)
+  base_price: Основна цена
+  service_fee: Провизија за гости
+  guest_pays: Гостинот плаќа
+sl:
+  default_title: Pregled cene (delovni dan)
+  base_price: Osnovna cena
+  service_fee: Provizija za goste
+  guest_pays: Gost plača
+</i18n>

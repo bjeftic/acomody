@@ -1,20 +1,20 @@
 @extends('layouts.email')
 
-@section('title', 'Your Listings Are Now Live')
+@section('title', __('mail.listings_live.title'))
 @section('header-bg', '#16a34a')
-@section('header-title', '✓ Your Listings Are Now Live!')
+@section('header-title', __('mail.listings_live.title'))
 
 @section('content')
-<p>Hi {{ $user->first_name ?? $user->name }},</p>
+<p>{{ __('mail.hi', ['name' => $user->first_name ?? $user->name]) }}</p>
 <p>
-    Your host profile is now complete — your
-    {{ $accommodationCount === 1 ? 'listing is' : $accommodationCount . ' listings are' }}
-    now searchable on Acomody and guests can start booking.
+    {{ $accommodationCount === 1
+        ? __('mail.listings_live.body_singular')
+        : __('mail.listings_live.body_plural', ['count' => $accommodationCount]) }}
 </p>
 
 <div class="btn-wrap">
-    <a href="{{ config('app.url') }}/hosting/dashboard" class="btn btn-success">Go to hosting dashboard &rarr;</a>
+    <a href="{{ config('app.url') }}/hosting/dashboard" class="btn btn-success">{{ __('mail.listings_live.btn') }}</a>
 </div>
 
-<p class="note">If you have any questions, please contact our support team.</p>
+<p class="note">{{ __('mail.support_note') }}</p>
 @endsection

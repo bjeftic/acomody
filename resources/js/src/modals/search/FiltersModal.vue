@@ -1,6 +1,6 @@
 <template>
     <BaseModal v-if="show" @close="close" size="xl">
-        <template #header>Filters</template>
+        <template #header>{{ $t('title') }}</template>
         <template #body>
             <div class="overflow-y-auto max-h-[65vh] scrollbar-hide">
                 <price-filter
@@ -28,7 +28,7 @@
         <template #footer>
             <div class="flex justify-between">
                 <BaseButton variant="secondary" @click="handleClearAll">
-                    Clear all
+                    {{ $t('clear_all') }}
                 </BaseButton>
                 <BaseButton
                     class="min-w-36"
@@ -36,7 +36,7 @@
                     @click="handleApplyFilters"
                 >
                     <template v-if="!isLoading">
-                        Show {{ resultsFound > 100 ? 100 : resultsFound }}{{ resultsFound > 100 ? "+" : "" }} places
+                        {{ $t('show_places', { count: resultsFound > 100 ? '100+' : resultsFound }) }}
                     </template>
                 </BaseButton>
             </div>
@@ -246,3 +246,26 @@ export default {
     display: none;
 }
 </style>
+
+<i18n lang="yml">
+en:
+  title: Filters
+  clear_all: Clear all
+  show_places: "Show {count} places"
+sr:
+  title: Filteri
+  clear_all: Obriši sve
+  show_places: "Prikaži {count} mesta"
+hr:
+  title: Filtri
+  clear_all: Obriši sve
+  show_places: "Prikaži {count} mjesta"
+mk:
+  title: Филтри
+  clear_all: Исчисти ги сите
+  show_places: "Прикажи {count} места"
+sl:
+  title: Filtri
+  clear_all: Počisti vse
+  show_places: "Prikaži {count} mest"
+</i18n>

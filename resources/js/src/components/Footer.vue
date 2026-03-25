@@ -9,42 +9,42 @@
                         Acomody
                     </router-link>
                     <p class="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
-                        Find and book unique accommodations around the world.
+                        {{ $t('tagline') }}
                     </p>
                 </div>
 
                 <!-- Links -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-8">
                     <div>
-                        <h3 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Company</h3>
+                        <h3 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">{{ $t('company') }}</h3>
                         <ul class="flex flex-col gap-3">
-                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">About</a></li>
-                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">Careers</a></li>
-                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">Press</a></li>
+                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">{{ $t('about') }}</a></li>
+                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">{{ $t('careers') }}</a></li>
+                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">{{ $t('press') }}</a></li>
                         </ul>
                     </div>
                     <div>
-                        <h3 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Support</h3>
+                        <h3 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">{{ $t('support') }}</h3>
                         <ul class="flex flex-col gap-3">
-                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">Help center</a></li>
-                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">Safety</a></li>
-                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">Contact us</a></li>
+                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">{{ $t('help_center') }}</a></li>
+                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">{{ $t('safety') }}</a></li>
+                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">{{ $t('contact_us') }}</a></li>
                         </ul>
                     </div>
                     <div>
-                        <h3 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Legal</h3>
+                        <h3 class="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">{{ $t('legal') }}</h3>
                         <ul class="flex flex-col gap-3">
                             <li>
                                 <router-link :to="{ name: 'page-privacy-policy' }" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">
-                                    Privacy policy
+                                    {{ $t('privacy_policy') }}
                                 </router-link>
                             </li>
                             <li>
                                 <router-link :to="{ name: 'page-terms' }" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">
-                                    Terms of service
+                                    {{ $t('terms_of_service') }}
                                 </router-link>
                             </li>
-                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">Cookie policy</a></li>
+                            <li><a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition">{{ $t('cookie_policy') }}</a></li>
                         </ul>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
             <!-- Bottom row -->
             <div class="mt-10 pt-6 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <p class="text-sm text-gray-400 dark:text-gray-500">
-                    &copy; {{ year }} Acomody. All rights reserved.
+                    &copy; {{ year }} Acomody. {{ $t('all_rights_reserved') }}
                 </p>
                 <div class="flex items-center gap-4">
                     <a href="#" class="text-gray-400 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition">
@@ -87,3 +87,85 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  tagline: Find and book unique accommodations around the world.
+  company: Company
+  about: About
+  careers: Careers
+  press: Press
+  support: Support
+  help_center: Help center
+  safety: Safety
+  contact_us: Contact us
+  legal: Legal
+  privacy_policy: Privacy policy
+  terms_of_service: Terms of service
+  cookie_policy: Cookie policy
+  all_rights_reserved: All rights reserved.
+
+sr:
+  tagline: Pronađite i rezervišite jedinstvene smeštaje širom sveta.
+  company: Kompanija
+  about: O nama
+  careers: Karijere
+  press: Presa
+  support: Podrška
+  help_center: Centar za pomoć
+  safety: Bezbednost
+  contact_us: Kontaktirajte nas
+  legal: Pravno
+  privacy_policy: Politika privatnosti
+  terms_of_service: Uslovi korišćenja
+  cookie_policy: Politika kolačića
+  all_rights_reserved: Sva prava zadržana.
+
+hr:
+  tagline: Pronađite i rezervirajte jedinstvene smještaje širom svijeta.
+  company: Tvrtka
+  about: O nama
+  careers: Karijere
+  press: Mediji
+  support: Podrška
+  help_center: Centar za pomoć
+  safety: Sigurnost
+  contact_us: Kontaktirajte nas
+  legal: Pravno
+  privacy_policy: Politika privatnosti
+  terms_of_service: Uvjeti korištenja
+  cookie_policy: Politika kolačića
+  all_rights_reserved: Sva prava pridržana.
+
+mk:
+  tagline: Пронајдете и резервирајте уникатни сместувања ширум светот.
+  company: Компанија
+  about: За нас
+  careers: Кариери
+  press: Медиуми
+  support: Поддршка
+  help_center: Центар за помош
+  safety: Безбедност
+  contact_us: Контактирајте нè
+  legal: Правно
+  privacy_policy: Политика на приватност
+  terms_of_service: Услови за користење
+  cookie_policy: Политика на колачиња
+  all_rights_reserved: Сите права задржани.
+
+sl:
+  tagline: Poiščite in rezervirajte edinstvene nastanitve po vsem svetu.
+  company: Podjetje
+  about: O nas
+  careers: Kariere
+  press: Mediji
+  support: Podpora
+  help_center: Center za pomoč
+  safety: Varnost
+  contact_us: Kontaktirajte nas
+  legal: Pravno
+  privacy_policy: Politika zasebnosti
+  terms_of_service: Pogoji storitve
+  cookie_policy: Politika piškotkov
+  all_rights_reserved: Vse pravice pridržane.
+</i18n>
