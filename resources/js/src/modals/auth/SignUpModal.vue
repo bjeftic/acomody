@@ -1,9 +1,9 @@
 <template>
     <BaseModal v-if="show" @close="close" size="md">
-        <template #header>Sign Up</template>
+        <template #header>{{ $t('title') }}</template>
         <template #body>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                Please fill in the details to sign up
+                {{ $t('subtitle') }}
             </p>
 
             <validation-alert-box
@@ -16,7 +16,7 @@
                 <BaseInput
                     v-model="formData.email"
                     type="email"
-                    label="Email address"
+                    :label="$t('auth.email')"
                     placeholder="john@example.com"
                     :error="signUpErrors.email ? signUpErrors.email[0] : null"
                 />
@@ -24,24 +24,24 @@
                 <BaseInput
                     v-model="formData.password"
                     type="password"
-                    label="Password"
-                    placeholder="Enter your password"
+                    :label="$t('auth.password')"
+                    :placeholder="$t('password_placeholder')"
                     :error="signUpErrors.password ? signUpErrors.password[0] : null"
                 />
 
                 <BaseInput
                     v-model="formData.confirmPassword"
                     type="password"
-                    label="Confirm password"
-                    placeholder="Confirm your password"
+                    :label="$t('auth.confirm_password')"
+                    :placeholder="$t('confirm_placeholder')"
                     :error="signUpErrors.confirmPassword ? signUpErrors.confirmPassword[0] : null"
                 />
 
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    By creating an account, you're agreeing with our
-                    <a href="#" class="text-primary-600 hover:text-primary-700 dark:text-primary-400">Terms of Use</a>
-                    and
-                    <a href="#" class="text-primary-600 hover:text-primary-700 dark:text-primary-400">Privacy Policy</a>
+                    {{ $t('terms_prefix') }}
+                    <a href="#" class="text-primary-600 hover:text-primary-700 dark:text-primary-400">{{ $t('terms_link') }}</a>
+                    {{ $t('terms_and') }}
+                    <a href="#" class="text-primary-600 hover:text-primary-700 dark:text-primary-400">{{ $t('privacy_link') }}</a>
                 </p>
 
                 <BaseButton
@@ -50,13 +50,13 @@
                     :disabled="isLoading || isProcessing"
                     full
                 >
-                    {{ isLoading ? "Signing up..." : "Sign up" }}
+                    {{ isLoading ? $t('signing_up') : $t('auth.signup_title') }}
                 </BaseButton>
             </form>
 
             <div class="flex items-center gap-3 my-5">
                 <div class="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
-                <span class="text-xs text-gray-400">or</span>
+                <span class="text-xs text-gray-400">{{ $t('common.or') }}</span>
                 <div class="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
             </div>
 
@@ -74,7 +74,7 @@
                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
-                    Continue with Google
+                    {{ $t('google') }}
                 </BaseButton>
 
                 <BaseButton
@@ -87,14 +87,14 @@
                     <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="#1877F2">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                     </svg>
-                    Continue with Facebook
+                    {{ $t('facebook') }}
                 </BaseButton>
             </div>
 
             <p class="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
-                Already have an account?
+                {{ $t('auth.have_account') }}
                 <a href="#" @click.prevent="openLogInModal" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium">
-                    Log in
+                    {{ $t('auth.login_title') }}
                 </a>
             </p>
         </template>
@@ -194,7 +194,7 @@ export default {
                     } else if (e.error.message) {
                         this.signUpErrors = [e.error.message];
                     } else {
-                        this.signUpErrors = { general: ["An error occurred. Please try again."] };
+                        this.signUpErrors = { general: [this.$t('common.error')] };
                     }
                 })
                 .finally(() => {
@@ -206,25 +206,23 @@ export default {
             const errors = {};
 
             if (!this.formData.email) {
-                errors.email = ["Email address is required"];
+                errors.email = [this.$t('validation.email_required')];
             } else if (!this.isValidEmail(this.formData.email)) {
-                errors.email = ["Please enter a valid email address"];
+                errors.email = [this.$t('validation.email_invalid')];
             }
 
             if (!this.formData.password) {
-                errors.password = ["Password is required"];
+                errors.password = [this.$t('validation.password_required')];
             } else if (this.formData.password.length < 6) {
-                errors.password = ["Password must be at least 6 characters"];
+                errors.password = [this.$t('validation.password_min')];
             } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.formData.password)) {
-                errors.password = [
-                    "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-                ];
+                errors.password = [this.$t('validation.password_strength')];
             }
 
             if (!this.formData.confirmPassword) {
-                errors.confirmPassword = ["Please confirm your password"];
+                errors.confirmPassword = [this.$t('validation.confirm_required')];
             } else if (this.formData.password !== this.formData.confirmPassword) {
-                errors.confirmPassword = ["Passwords do not match"];
+                errors.confirmPassword = [this.$t('validation.confirm_mismatch')];
             }
 
             return errors;
@@ -267,3 +265,106 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yml">
+en:
+  title: Sign up
+  subtitle: Please fill in the details to sign up
+  password_placeholder: Enter your password
+  confirm_placeholder: Confirm your password
+  signing_up: Signing up...
+  google: Continue with Google
+  facebook: Continue with Facebook
+  terms_prefix: "By creating an account, you're agreeing with our"
+  terms_link: Terms of Use
+  terms_and: and
+  privacy_link: Privacy Policy
+  validation:
+    email_required: Email address is required
+    email_invalid: Please enter a valid email address
+    password_required: Password is required
+    password_min: Password must be at least 6 characters
+    password_strength: Password must contain at least one uppercase letter, one lowercase letter, and one number
+    confirm_required: Please confirm your password
+    confirm_mismatch: Passwords do not match
+sr:
+  title: Registrujte se
+  subtitle: Popunite podatke za registraciju
+  password_placeholder: Unesite lozinku
+  confirm_placeholder: Potvrdite lozinku
+  signing_up: Registracija u toku...
+  google: Nastavite sa Google
+  facebook: Nastavite sa Facebook
+  terms_prefix: Kreiranjem naloga prihvatate naše
+  terms_link: Uslove korišćenja
+  terms_and: i
+  privacy_link: Politiku privatnosti
+  validation:
+    email_required: Email adresa je obavezna
+    email_invalid: Unesite ispravnu email adresu
+    password_required: Lozinka je obavezna
+    password_min: Lozinka mora imati najmanje 6 karaktera
+    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo i broj
+    confirm_required: Potvrdite lozinku
+    confirm_mismatch: Lozinke se ne podudaraju
+hr:
+  title: Registrirajte se
+  subtitle: Ispunite podatke za registraciju
+  password_placeholder: Unesite lozinku
+  confirm_placeholder: Potvrdite lozinku
+  signing_up: Registracija u tijeku...
+  google: Nastavite s Googleom
+  facebook: Nastavite s Facebookom
+  terms_prefix: Kreiranjem računa prihvaćate naše
+  terms_link: Uvjete korištenja
+  terms_and: i
+  privacy_link: Politiku privatnosti
+  validation:
+    email_required: Email adresa je obavezna
+    email_invalid: Unesite ispravnu email adresu
+    password_required: Lozinka je obavezna
+    password_min: Lozinka mora imati najmanje 6 znakova
+    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo i broj
+    confirm_required: Potvrdite lozinku
+    confirm_mismatch: Lozinke se ne podudaraju
+mk:
+  title: Регистрирајте се
+  subtitle: Пополнете ги деталите за регистрација
+  password_placeholder: Внесете лозинка
+  confirm_placeholder: Потврдете ја лозинката
+  signing_up: Регистрација во тек...
+  google: Продолжете со Google
+  facebook: Продолжете со Facebook
+  terms_prefix: Со креирање сметка се согласувате со нашите
+  terms_link: Услови за користење
+  terms_and: и
+  privacy_link: Политика за приватност
+  validation:
+    email_required: Е-поштата е задолжителна
+    email_invalid: Внесете важечка е-пошта
+    password_required: Лозинката е задолжителна
+    password_min: Лозинката мора да има најмалку 6 знаци
+    password_strength: Лозинката мора да содржи барем едно големо, мало слово и број
+    confirm_required: Потврдете ја лозинката
+    confirm_mismatch: Лозинките не се совпаѓаат
+sl:
+  title: Registrirajte se
+  subtitle: Izpolnite podatke za registracijo
+  password_placeholder: Vnesite geslo
+  confirm_placeholder: Potrdite geslo
+  signing_up: Registracija v teku...
+  google: Nadaljujte z Googlom
+  facebook: Nadaljujte s Facebookom
+  terms_prefix: Z ustvarjanjem računa se strinjate z našimi
+  terms_link: Pogoji uporabe
+  terms_and: in
+  privacy_link: Politiko zasebnosti
+  validation:
+    email_required: E-poštni naslov je obvezen
+    email_invalid: Vnesite veljavni e-poštni naslov
+    password_required: Geslo je obvezno
+    password_min: Geslo mora imeti vsaj 6 znakov
+    password_strength: Geslo mora vsebovati vsaj eno veliko, malo črko in številko
+    confirm_required: Potrdite geslo
+    confirm_mismatch: Gesli se ne ujemata
+</i18n>

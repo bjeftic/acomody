@@ -1,13 +1,13 @@
 <template>
     <div class="pb-6 border-b border-gray-200 dark:border-gray-800">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">
-            Rooms and beds
+            {{ $t('title') }}
         </h3>
 
         <div class="space-y-4">
             <!-- Bedrooms -->
             <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-900 dark:text-white">Bedrooms</span>
+                <span class="text-sm text-gray-900 dark:text-white">{{ $t('bedrooms') }}</span>
                 <div class="flex items-center space-x-3">
                     <button
                         @click="decrementCount('bedrooms')"
@@ -19,7 +19,7 @@
                         </svg>
                     </button>
                     <span class="w-8 text-center text-sm font-medium">
-                        {{ localCounts.bedrooms === 0 ? 'Any' : localCounts.bedrooms }}
+                        {{ localCounts.bedrooms === 0 ? $t('any') : localCounts.bedrooms }}
                     </span>
                     <button
                         @click="incrementCount('bedrooms')"
@@ -35,7 +35,7 @@
 
             <!-- Beds -->
             <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-900 dark:text-white">Beds</span>
+                <span class="text-sm text-gray-900 dark:text-white">{{ $t('beds') }}</span>
                 <div class="flex items-center space-x-3">
                     <button
                         @click="decrementCount('beds')"
@@ -47,7 +47,7 @@
                         </svg>
                     </button>
                     <span class="w-8 text-center text-sm font-medium">
-                        {{ localCounts.beds === 0 ? 'Any' : localCounts.beds }}
+                        {{ localCounts.beds === 0 ? $t('any') : localCounts.beds }}
                     </span>
                     <button
                         @click="incrementCount('beds')"
@@ -63,7 +63,7 @@
 
             <!-- Bathrooms -->
             <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-900 dark:text-white">Bathrooms</span>
+                <span class="text-sm text-gray-900 dark:text-white">{{ $t('bathrooms') }}</span>
                 <div class="flex items-center space-x-3">
                     <button
                         @click="decrementCount('bathrooms')"
@@ -75,7 +75,7 @@
                         </svg>
                     </button>
                     <span class="w-8 text-center text-sm font-medium">
-                        {{ localCounts.bathrooms === 0 ? 'Any' : localCounts.bathrooms }}
+                        {{ localCounts.bathrooms === 0 ? $t('any') : localCounts.bathrooms }}
                     </span>
                     <button
                         @click="incrementCount('bathrooms')"
@@ -143,3 +143,36 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  title: Rooms and beds
+  bedrooms: Bedrooms
+  beds: Beds
+  bathrooms: Bathrooms
+  any: Any
+sr:
+  title: Sobe i kreveti
+  bedrooms: Spavaće sobe
+  beds: Kreveti
+  bathrooms: Kupatila
+  any: Bilo koji
+hr:
+  title: Sobe i kreveti
+  bedrooms: Spavaće sobe
+  beds: Kreveti
+  bathrooms: Kupaonice
+  any: Bilo koji
+mk:
+  title: Соби и кревети
+  bedrooms: Спални соби
+  beds: Кревети
+  bathrooms: Бањи
+  any: Било кој
+sl:
+  title: Sobe in postelje
+  bedrooms: Spalnice
+  beds: Postelje
+  bathrooms: Kopalnice
+  any: Katera koli
+</i18n>

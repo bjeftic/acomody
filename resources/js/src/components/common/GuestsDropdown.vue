@@ -28,8 +28,8 @@
                 <!-- Adults -->
                 <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-700">
                     <div>
-                        <div class="font-semibold text-gray-800 dark:text-white">Adults</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">Ages 13 or above</div>
+                        <div class="font-semibold text-gray-800 dark:text-white">{{ $t('adults') }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('adults_age') }}</div>
                     </div>
                     <div class="flex items-center gap-4">
                         <button
@@ -57,8 +57,8 @@
                 <!-- Children -->
                 <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-700">
                     <div>
-                        <div class="font-semibold text-gray-800 dark:text-white">Children</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">Ages 2–12</div>
+                        <div class="font-semibold text-gray-800 dark:text-white">{{ $t('children') }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('children_age') }}</div>
                     </div>
                     <div class="flex items-center gap-4">
                         <button
@@ -86,8 +86,8 @@
                 <!-- Infants -->
                 <div class="flex items-center justify-between py-4">
                     <div>
-                        <div class="font-semibold text-gray-800 dark:text-white">Infants</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">Under 2</div>
+                        <div class="font-semibold text-gray-800 dark:text-white">{{ $t('infants') }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ $t('infants_age') }}</div>
                     </div>
                     <div class="flex items-center gap-4">
                         <button
@@ -160,9 +160,9 @@ export default {
     computed: {
         displayText() {
             const total = this.modelValue.adults + this.modelValue.children;
-            let text = `${total} ${total === 1 ? 'guest' : 'guests'}`;
+            let text = `${total} ${total === 1 ? this.$t('guest') : this.$t('guests')}`;
             if (this.modelValue.infants > 0) {
-                text += `, ${this.modelValue.infants} ${this.modelValue.infants === 1 ? 'infant' : 'infants'}`;
+                text += `, ${this.modelValue.infants} ${this.modelValue.infants === 1 ? this.$t('infant') : this.$t('infants_plural')}`;
             }
             return text;
         },
@@ -219,3 +219,61 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yml">
+en:
+  adults: Adults
+  adults_age: Ages 13 or above
+  children: Children
+  children_age: Ages 2–12
+  infants: Infants
+  infants_age: Under 2
+  guest: guest
+  guests: guests
+  infant: infant
+  infants_plural: infants
+sr:
+  adults: Odrasli
+  adults_age: 13 godina i stariji
+  children: Deca
+  children_age: "2–12 godina"
+  infants: Bebe
+  infants_age: Ispod 2 godine
+  guest: gost
+  guests: gostiju
+  infant: beba
+  infants_plural: bebe
+hr:
+  adults: Odrasli
+  adults_age: 13 godina i stariji
+  children: Djeca
+  children_age: "2–12 godina"
+  infants: Dojenčad
+  infants_age: Ispod 2 godine
+  guest: gost
+  guests: gostiju
+  infant: dojenče
+  infants_plural: dojenčadi
+mk:
+  adults: Возрасни
+  adults_age: 13 години и постари
+  children: Деца
+  children_age: "2–12 години"
+  infants: Бебиња
+  infants_age: Под 2 години
+  guest: гостин
+  guests: гости
+  infant: бебе
+  infants_plural: бебиња
+sl:
+  adults: Odrasli
+  adults_age: 13 let in starejši
+  children: Otroci
+  children_age: "2–12 let"
+  infants: Dojenčki
+  infants_age: Pod 2 leti
+  guest: gost
+  guests: gostov
+  infant: dojenček
+  infants_plural: dojenčki
+</i18n>

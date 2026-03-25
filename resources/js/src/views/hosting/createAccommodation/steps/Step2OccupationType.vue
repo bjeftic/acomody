@@ -1,11 +1,11 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Step: 2 - What type of place will guests have?
+            {{ $t('heading') }}
         </h1>
 
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Choose the occupation type that best describes how guests will use your place.
+            {{ $t('subtitle') }}
         </p>
 
         <hr />
@@ -60,3 +60,21 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: "Step 2 — What type of place will guests have?"
+  subtitle: Choose the occupation type that best describes how guests will use your place.
+sr:
+  heading: "Korak 2 — Kakav tip prostora će gosti imati?"
+  subtitle: Odaberite tip korišćenja koji najbolje opisuje kako će gosti koristiti vaš prostor.
+hr:
+  heading: "Korak 2 — Kakav tip prostora će gosti imati?"
+  subtitle: Odaberite vrstu korišćenja koja najbolje opisuje kako će gosti koristiti vaš prostor.
+mk:
+  heading: "Чекор 2 — Каков тип на простор ќе имаат гостите?"
+  subtitle: Одберете тип на користење кој најдобро опишува како гостите ќе го користат вашиот простор.
+sl:
+  heading: "Korak 2 — Kakšen tip prostora bodo imeli gostje?"
+  subtitle: Izberite vrsto zasedenosti, ki najbolje opisuje, kako bodo gostje uporabljali vaš prostor.
+</i18n>

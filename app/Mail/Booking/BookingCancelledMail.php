@@ -14,12 +14,17 @@ class BookingCancelledMail extends BookingMailable
     public function __construct(
         public readonly Booking $booking,
         public readonly bool $forHost = false,
-    ) {}
+    ) {
+        $recipient = $forHost ? $booking->host : $booking->guest;
+        $this->locale($recipient->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
+        $key = $this->forHost ? 'mail.booking_cancelled_host.subject' : 'mail.booking_cancelled_guest.subject';
+
         return new Envelope(
-            subject: "Booking Cancelled — {$this->booking->accommodation->title}",
+            subject: __($key, ['title' => $this->booking->accommodation->title]),
         );
     }
 

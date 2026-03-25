@@ -11,7 +11,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                    Back
+                    {{ $t('common.back') }}
                 </BaseButton>
                 <div v-else></div>
 
@@ -21,7 +21,7 @@
                     size="lg"
                     @click="$emit('next')"
                 >
-                    {{ currentStep === totalSteps ? "Finish" : "Next" }}
+                    {{ currentStep === totalSteps ? $t('finish') : $t('common.next') }}
                 </BaseButton>
             </div>
         </div>
@@ -48,3 +48,16 @@ export default {
     emits: ["previous", "next"],
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  finish: Finish
+sr:
+  finish: Završi
+hr:
+  finish: Završi
+mk:
+  finish: Заврши
+sl:
+  finish: Zaključi
+</i18n>

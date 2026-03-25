@@ -9,7 +9,7 @@
                     {{ formatPrice(accommodation.pricing.base_price_in_user_currency.base_price, accommodation.pricing.base_price_in_user_currency.currency) }}
                 </span>
                 <span class="text-base text-gray-600 dark:text-gray-400 ml-2">
-                    / night
+                    / {{ $t('search.price_per_night') }}
                 </span>
             </div>
             <div
@@ -29,7 +29,7 @@
                     {{ accommodation.rating }}
                 </span>
                 <span class="text-gray-600 dark:text-gray-400 ml-1">
-                    ({{ accommodation.reviews_count || 0 }} reviews)
+                    ({{ accommodation.reviews_count || 0 }} {{ $t('accommodation.reviews') }})
                 </span>
             </div>
         </div>
@@ -40,7 +40,7 @@
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        CHECK-IN
+                        {{ $t('search.check_in') }}
                     </label>
                     <VueDatePicker
                         v-model="bookingForm.checkIn"
@@ -49,14 +49,14 @@
                         :disabled-dates="isDateDisabled"
                         :time-config="{ enableTimePicker: false }"
                         :auto-apply="true"
-                        placeholder="Select date"
+                        :placeholder="$t('select_date')"
                         :format="formatPickerDate"
                         @update:model-value="onCheckInChange"
                     />
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        CHECK-OUT
+                        {{ $t('search.check_out') }}
                     </label>
                     <VueDatePicker
                         v-model="bookingForm.checkOut"
@@ -66,7 +66,7 @@
                         :disabled-dates="isDateDisabled"
                         :time-config="{ enableTimePicker: false }"
                         :auto-apply="true"
-                        placeholder="Select date"
+                        :placeholder="$t('select_date')"
                         :format="formatPickerDate"
                     />
                 </div>
@@ -75,7 +75,7 @@
             <!-- Guests Selector -->
             <div>
                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    GUESTS
+                    {{ $t('search.guests') }}
                 </label>
                 <guests-dropdown
                     v-model="bookingForm.guests"
@@ -91,7 +91,7 @@
             >
                 <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
                     <span>
-                        {{ formatPrice(pricePerNight, priceCurrency) }} × {{ totalNights }} night{{ totalNights > 1 ? 's' : '' }}
+                        {{ formatPrice(pricePerNight, priceCurrency) }} × {{ $tc('accommodation.nights', totalNights, { count: totalNights }) }}
                     </span>
                     <span>{{ formatPrice(totalPrice, priceCurrency) }}</span>
                 </div>
@@ -99,13 +99,13 @@
                     v-if="serviceFee > 0"
                     class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
                 >
-                    <span>Service fee</span>
+                    <span>{{ $t('booking.service_fee') }}</span>
                     <span>{{ formatPrice(serviceFee, priceCurrency) }}</span>
                 </div>
                 <div
                     class="flex justify-between text-base font-semibold text-gray-900 dark:text-white pt-3 border-t border-gray-200 dark:border-gray-700"
                 >
-                    <span>Total</span>
+                    <span>{{ $t('accommodation.total') }}</span>
                     <span>{{ formatPrice(totalWithFees, priceCurrency) }}</span>
                 </div>
             </div>
@@ -117,12 +117,12 @@
                 :full="true"
                 :disabled="!isFormValid"
             >
-                Reserve
+                {{ $t('accommodation.reserve') }}
             </BaseButton>
 
             <!-- Notice -->
             <p class="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
-                You won't be charged yet
+                {{ $t('no_charge_yet') }}
             </p>
         </form>
 
@@ -145,7 +145,7 @@
                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                     />
                 </svg>
-                Contact host
+                {{ $t('booking.contact_host') }}
             </button>
         </div>
     </div>
@@ -302,3 +302,25 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  select_date: Select date
+  no_charge_yet: You won't be charged yet
+
+sr:
+  select_date: Izaberite datum
+  no_charge_yet: Nećete biti naplaćeni još
+
+hr:
+  select_date: Odaberite datum
+  no_charge_yet: Nećete biti naplaćeni još
+
+mk:
+  select_date: Изберете датум
+  no_charge_yet: Нема да бидете наплатени уште
+
+sl:
+  select_date: Izberite datum
+  no_charge_yet: Zaenkrat ne boste zaračunani
+</i18n>

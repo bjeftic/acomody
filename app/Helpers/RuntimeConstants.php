@@ -2,11 +2,13 @@
 
 namespace App\Helpers;
 
+use App\Enums\Accommodation\BookingType;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\CurrencyResource;
 use App\Services\CountryService;
 use App\Services\CurrencyService;
 use App\Services\FeatureFlagService;
+use App\Services\LanguageService;
 use Illuminate\Support\Arr;
 
 class RuntimeConstants
@@ -47,6 +49,8 @@ class RuntimeConstants
     // const DATE_FORMATS = 'dateFormats';
     // const DEFAULT_FIELD_ORDER = 'defaultFieldOrder';
     const FEATURE_FLAGS = 'featureFlags';
+
+    const BOOKING_TYPES = 'bookingTypes';
     // const REGION = 'region';
     // const AVAILABLE_REGIONS = 'availableRegions';
 
@@ -69,6 +73,8 @@ class RuntimeConstants
                     self::COUNTRY_CURRENCY_MAP => self::getCountryCurrencyMap(),
                     self::CURRENCIES => self::getAvailableCurrencies(),
                     self::SELECTED_CURRENCY => self::getSelectedCurrency(),
+                    self::LANGUAGES => self::getUiLanguages(),
+                    'selectedLanguage' => self::getSelectedLanguage(),
                     self::SORT_OPTIONS => self::getUIConstants('sort_options'),
                     self::DAYS_OF_WEEK => self::getUIConstants('daysOfWeek'),
                     // Name of route should match name of index route in shared routing group
@@ -80,6 +86,7 @@ class RuntimeConstants
                     // self::DATE_FORMATS => config('constants.date_formats'),
                     // self::DEFAULT_FIELD_ORDER => config('constants.default_field_order'),
                     self::FEATURE_FLAGS => FeatureFlagService::getEnabledFlags(),
+                    self::BOOKING_TYPES => BookingType::toArray(),
                     // self::REGION => config('app.region'),
                     // self::AVAILABLE_REGIONS => config('app.regions'),
                 ];
@@ -122,6 +129,16 @@ class RuntimeConstants
         }
 
         return $filteredMap;
+    }
+
+    protected static function getUiLanguages(): array
+    {
+        return LanguageService::getUiLanguages();
+    }
+
+    protected static function getSelectedLanguage(): string
+    {
+        return LanguageService::getUserLanguage();
     }
 
     protected static function getUIConstants($constant)

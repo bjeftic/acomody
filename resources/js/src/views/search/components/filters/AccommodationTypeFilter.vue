@@ -1,7 +1,7 @@
 <template>
     <div class="pb-6 border-b border-gray-200 dark:border-gray-800">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">
-            Accommodation type
+            {{ $t('hosting.accommodation_type') }}
         </h3>
         <div class="grid grid-cols-2 gap-3">
             <button

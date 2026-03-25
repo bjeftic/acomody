@@ -1,10 +1,10 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Create your description
+            {{ $t('heading') }}
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Share what makes your place special.
+            {{ $t('subtitle') }}
         </p>
 
         <hr />
@@ -13,10 +13,10 @@
             <!-- Description Textarea -->
             <BaseTextarea
                 :model-value="formData.description"
-                :label="'Description of your ' + formData.title"
+                :label="$t('label_description') + ' ' + formData.title"
                 :rows="10"
                 :maxlength="500"
-                placeholder="Describe your space, the neighborhood, and what guests will love about staying here..."
+                :placeholder="$t('placeholder')"
                 @update:model-value="updateDescription"
             />
 
@@ -24,13 +24,13 @@
             <div class="space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-base font-medium text-gray-900 dark:text-white">
-                        Start with a template
+                        {{ $t('templates_heading') }}
                     </h3>
                     <button
                         @click="showTemplates = !showTemplates"
                         class="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
                     >
-                        {{ showTemplates ? "Hide templates" : "Show templates" }}
+                        {{ showTemplates ? $t('hide_templates') : $t('show_templates') }}
                     </button>
                 </div>
 
@@ -89,7 +89,7 @@
                             clip-rule="evenodd"
                         />
                     </svg>
-                    Tips for a great description
+                    {{ $t('tips_heading') }}
                 </h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <li class="flex items-start">
@@ -104,7 +104,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Describe the atmosphere and vibe of your space</span>
+                        <span>{{ $t('tip1') }}</span>
                     </li>
                     <li class="flex items-start">
                         <svg
@@ -118,7 +118,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Mention what's special about the location</span>
+                        <span>{{ $t('tip2') }}</span>
                     </li>
                     <li class="flex items-start">
                         <svg
@@ -132,7 +132,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Highlight unique features or amenities</span>
+                        <span>{{ $t('tip3') }}</span>
                     </li>
                     <li class="flex items-start">
                         <svg
@@ -146,7 +146,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Include nearby attractions or transportation</span>
+                        <span>{{ $t('tip4') }}</span>
                     </li>
                     <li class="flex items-start">
                         <svg
@@ -160,7 +160,7 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>Be honest and set clear expectations</span>
+                        <span>{{ $t('tip5') }}</span>
                     </li>
                 </ul>
             </div>
@@ -170,39 +170,39 @@
                 class="p-6 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800"
             >
                 <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                    Suggested structure
+                    {{ $t('structure_heading') }}
                 </h4>
                 <div class="space-y-4">
                     <div>
                         <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                            1. The Space
+                            {{ $t('section1_title') }}
                         </h5>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Describe the rooms, layout, and overall feel of your place.
+                            {{ $t('section1_desc') }}
                         </p>
                     </div>
                     <div>
                         <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                            2. Guest Access
+                            {{ $t('section2_title') }}
                         </h5>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Explain which areas guests can use (entire place, private room, etc.).
+                            {{ $t('section2_desc') }}
                         </p>
                     </div>
                     <div>
                         <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                            3. The Neighborhood
+                            {{ $t('section3_title') }}
                         </h5>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Share what makes the area special and mention nearby spots.
+                            {{ $t('section3_desc') }}
                         </p>
                     </div>
                     <div>
                         <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                            4. Getting Around
+                            {{ $t('section4_title') }}
                         </h5>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Note transportation options and parking information.
+                            {{ $t('section4_desc') }}
                         </p>
                     </div>
                 </div>
@@ -227,14 +227,14 @@
                         />
                     </svg>
                     <span class="text-sm text-gray-600 dark:text-gray-400">
-                        Word count:
+                        {{ $t('word_count') }}
                         <strong class="text-gray-900 dark:text-white">{{
                             wordCount
                         }}</strong>
                     </span>
                 </div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">
-                    Recommended: 50-200 words
+                    {{ $t('recommended') }}
                 </div>
             </div>
         </div>
@@ -309,7 +309,7 @@ export default {
 
             return [
                 {
-                    title: "Welcoming & Detailed",
+                    title: this.$t('template1_title'),
                     content: `Welcome to our beautiful ${type} in ${city}! This charming space comfortably accommodates ${guests} guests with ${bedrooms} bedroom${
                         bedrooms !== 1 ? "s" : ""
                     } and ${beds} bed${
@@ -317,21 +317,21 @@ export default {
                     }. Enjoy ${amenitiesList} during your stay. The space is perfect for families, couples, or solo travelers looking for a comfortable and convenient base to explore the area. The neighborhood is vibrant yet peaceful, with restaurants, cafes, and shops just a short walk away. Public transportation is easily accessible, making it simple to get around the city.`,
                 },
                 {
-                    title: "Short & Sweet",
+                    title: this.$t('template2_title'),
                     content: `Cozy ${type} in the heart of ${city}. Perfect for ${guests} guests with all the essentials you need for a comfortable stay. Features ${amenitiesList}. Great location with easy access to local attractions and public transport. Looking forward to hosting you!`,
                 },
                 {
-                    title: "Luxury Focused",
+                    title: this.$t('template3_title'),
                     content: `Experience comfort and style in this thoughtfully designed ${type}. Located in ${city}, our space offers ${guests} guests a perfect blend of modern amenities and local charm. Featuring ${amenitiesList}, every detail has been carefully considered to ensure your stay is exceptional. The space boasts elegant interiors, quality furnishings, and a prime location that puts you close to the best the area has to offer.`,
                 },
                 {
-                    title: "Family Friendly",
+                    title: this.$t('template4_title'),
                     content: `Looking for a family-friendly ${type} in ${city}? You've found it! Our spacious accommodation sleeps ${guests} guests comfortably, with ${bedrooms} bedroom${
                         bedrooms !== 1 ? "s" : ""
                     } providing plenty of space for everyone. Kids will love the area, and parents will appreciate ${amenitiesList}. We're located in a safe, quiet neighborhood that's still close to all the action. Restaurants, parks, and family attractions are all nearby.`,
                 },
                 {
-                    title: "Business Traveler",
+                    title: this.$t('template5_title'),
                     content: `Ideal ${type} for business travelers visiting ${city}. This professional space accommodates ${guests} guest${
                         guests !== 1 ? "s" : ""
                     } and includes ${amenitiesList}, perfect for both work and relaxation. The location offers easy access to the business district and major transportation hubs. After a productive day, unwind in your comfortable, quiet retreat. Fast check-in and responsive hosting to support your busy schedule.`,
@@ -366,3 +366,156 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: Create your description
+  subtitle: Share what makes your place special.
+  label_description: Description of your
+  placeholder: Describe your space, the neighborhood, and what guests will love about staying here...
+  templates_heading: Start with a template
+  show_templates: Show templates
+  hide_templates: Hide templates
+  tips_heading: Tips for a great description
+  tip1: Describe the atmosphere and vibe of your space
+  tip2: Mention what's special about the location
+  tip3: Highlight unique features or amenities
+  tip4: Include nearby attractions or transportation
+  tip5: Be honest and set clear expectations
+  structure_heading: Suggested structure
+  section1_title: "1. The Space"
+  section1_desc: Describe the rooms, layout, and overall feel of your place.
+  section2_title: "2. Guest Access"
+  section2_desc: Explain which areas guests can use (entire place, private room, etc.).
+  section3_title: "3. The Neighborhood"
+  section3_desc: Share what makes the area special and mention nearby spots.
+  section4_title: "4. Getting Around"
+  section4_desc: Note transportation options and parking information.
+  word_count: "Word count:"
+  recommended: "Recommended: 50-200 words"
+  template1_title: Welcoming & Detailed
+  template2_title: Short & Sweet
+  template3_title: Luxury Focused
+  template4_title: Family Friendly
+  template5_title: Business Traveler
+sr:
+  heading: Napišite opis
+  subtitle: Podelite šta vaše mesto čini posebnim.
+  label_description: Opis vašeg
+  placeholder: Opišite vaš prostor, kvart i šta će gosti voleti u boravku kod vas...
+  templates_heading: Počnite s predlogom
+  show_templates: Prikaži predloge
+  hide_templates: Sakrij predloge
+  tips_heading: Saveti za odličan opis
+  tip1: Opišite atmosferu i osećaj vašeg prostora
+  tip2: Pomenite šta je posebno u pogledu lokacije
+  tip3: Istaknite jedinstvene karakteristike ili sadržaje
+  tip4: Uključite obližnje atrakcije ili prevoz
+  tip5: Budite iskreni i postavite jasna očekivanja
+  structure_heading: Predložena struktura
+  section1_title: "1. Prostor"
+  section1_desc: Opišite sobe, raspored i opšti izgled vašeg mesta.
+  section2_title: "2. Pristup gostima"
+  section2_desc: Objasnite koje prostorije gosti mogu koristiti (celo mesto, privatna soba, itd.).
+  section3_title: "3. Kvart"
+  section3_desc: Podelite šta čini područje posebnim i pomenite obližnja mesta.
+  section4_title: "4. Kretanje"
+  section4_desc: Navedite mogućnosti prevoza i informacije o parkiranju.
+  word_count: "Broj reči:"
+  recommended: "Preporučeno: 50-200 reči"
+  template1_title: Dobrodošlica i detalji
+  template2_title: Kratko i jasno
+  template3_title: Luksuzno usmereno
+  template4_title: Prilagođeno porodici
+  template5_title: Poslovni putnik
+hr:
+  heading: Napišite opis
+  subtitle: Podijelite što vaše mjesto čini posebnim.
+  label_description: Opis vašeg
+  placeholder: Opišite vaš prostor, kvart i što će gosti voljeti u boravku kod vas...
+  templates_heading: Počnite s predloškom
+  show_templates: Prikaži predloške
+  hide_templates: Sakrij predloške
+  tips_heading: Savjeti za odličan opis
+  tip1: Opišite atmosferu i ugođaj vašeg prostora
+  tip2: Spomenite što je posebno u pogledu lokacije
+  tip3: Istaknite jedinstvene karakteristike ili sadržaje
+  tip4: Uključite obližnje atrakcije ili prijevoz
+  tip5: Budite iskreni i postavite jasna očekivanja
+  structure_heading: Predložena struktura
+  section1_title: "1. Prostor"
+  section1_desc: Opišite sobe, raspored i opći dojam vašeg mjesta.
+  section2_title: "2. Pristup gostima"
+  section2_desc: Objasnite koje prostorije gosti mogu koristiti (cijelo mjesto, privatna soba, itd.).
+  section3_title: "3. Kvart"
+  section3_desc: Podijelite što čini područje posebnim i spominjite obližnja mjesta.
+  section4_title: "4. Kretanje"
+  section4_desc: Navedite mogućnosti prijevoza i informacije o parkiranju.
+  word_count: "Broj riječi:"
+  recommended: "Preporučeno: 50-200 riječi"
+  template1_title: Dobrodošlica i detalji
+  template2_title: Kratko i jasno
+  template3_title: Luksuzno usmjereno
+  template4_title: Prilagođeno obitelji
+  template5_title: Poslovni putnik
+mk:
+  heading: Напишете опис
+  subtitle: Споделете го она што го прави вашето место посебно.
+  label_description: Опис на вашиот
+  placeholder: Опишете го вашиот простор, кварталот и она што гостите ќе го сакаат во престојот кај вас...
+  templates_heading: Почнете со предлошка
+  show_templates: Прикажи предлошки
+  hide_templates: Сокриј предлошки
+  tips_heading: Совети за одличен опис
+  tip1: Опишете ја атмосферата и угодноста на вашиот простор
+  tip2: Споменете го она што е посебно во поглед на локацијата
+  tip3: Истакнете ги единствените карактеристики или содржини
+  tip4: Вклучете блиски атракции или превоз
+  tip5: Бидете искрени и поставете јасни очекувања
+  structure_heading: Предложена структура
+  section1_title: "1. Просторот"
+  section1_desc: Опишете ги собите, распоредот и општиот впечаток на вашето место.
+  section2_title: "2. Пристап за гостите"
+  section2_desc: Објаснете кои простории гостите можат да ги користат (цело место, приватна соба, итн.).
+  section3_title: "3. Кварталот"
+  section3_desc: Споделете го она што го прави подрачјето посебно и споменете блиски места.
+  section4_title: "4. Движење"
+  section4_desc: Наведете опции за превоз и информации за паркирање.
+  word_count: "Број зборови:"
+  recommended: "Препорачано: 50-200 зборови"
+  template1_title: Добредојде и детали
+  template2_title: Кратко и јасно
+  template3_title: Луксузно насочено
+  template4_title: Прилагодено за семејство
+  template5_title: Деловен патник
+sl:
+  heading: Napišite opis
+  subtitle: Delite, kaj naredi vaše mesto posebno.
+  label_description: Opis vašega
+  placeholder: Opišite vaš prostor, sosesko in kaj bodo gostje imeli radi pri bivanju pri vas...
+  templates_heading: Začnite s predlogo
+  show_templates: Prikaži predloge
+  hide_templates: Skrij predloge
+  tips_heading: Nasveti za odličen opis
+  tip1: Opišite vzdušje in počutje vašega prostora
+  tip2: Omenite, kaj je posebnega glede lokacije
+  tip3: Poudarite edinstvene značilnosti ali amenitete
+  tip4: Vključite bližnje atrakcije ali prevoz
+  tip5: Bodite iskreni in postavite jasna pričakovanja
+  structure_heading: Predlagana struktura
+  section1_title: "1. Prostor"
+  section1_desc: Opišite sobe, razpored in splošni vtis vašega mesta.
+  section2_title: "2. Dostop za goste"
+  section2_desc: Pojasnite, katere prostore lahko gostje uporabljajo (celotno mesto, zasebna soba itd.).
+  section3_title: "3. Soseska"
+  section3_desc: Delite, kaj naredi območje posebno, in omenite bližnja mesta.
+  section4_title: "4. Gibanje"
+  section4_desc: Navedite možnosti prevoza in informacije o parkiranju.
+  word_count: "Število besed:"
+  recommended: "Priporočeno: 50-200 besed"
+  template1_title: Dobrodošlica in podrobnosti
+  template2_title: Kratko in jasno
+  template3_title: Luksuzno usmerjeno
+  template4_title: Primerno za družine
+  template5_title: Poslovni potnik
+</i18n>

@@ -29,9 +29,9 @@
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                    Back
+                    {{ $t('common.back') }}
                 </button>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Confirm your reservation</h1>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $t('reservation.confirm_title') }}</h1>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -79,7 +79,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Hosted by</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t('reservation.hosted_by') }}</p>
                                     <p class="text-sm font-medium text-gray-900 dark:text-white">{{ hostName }}</p>
                                 </div>
                             </div>
@@ -91,17 +91,17 @@
                 <div class="lg:sticky lg:top-8 space-y-4">
                     <!-- Dates & Guests Summary -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your trip</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ $t('reservation.your_trip') }}</h3>
                         <div class="space-y-3">
                             <div class="flex justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Dates</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $t('reservation.dates') }}</p>
                                     <p class="text-sm text-gray-600 dark:text-gray-400">{{ formattedCheckIn }} – {{ formattedCheckOut }}</p>
                                 </div>
                             </div>
                             <div class="flex justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Guests</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $t('search.guests') }}</p>
                                     <p class="text-sm text-gray-600 dark:text-gray-400">{{ guestSummary }}</p>
                                 </div>
                             </div>
@@ -110,7 +110,7 @@
 
                     <!-- Pricing Breakdown -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Price details</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ $t('reservation.price_details') }}</h3>
 
                         <!-- Loading price -->
                         <div v-if="priceLoading" class="animate-pulse space-y-2">
@@ -133,13 +133,13 @@
                         <div v-else-if="priceBreakdown" class="space-y-3">
                             <!-- Nightly rates summary -->
                             <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
-                                <span>{{ totalNights }} night{{ totalNights !== 1 ? 's' : '' }} × {{ priceBreakdown.currency }}</span>
+                                <span>{{ $tc('accommodation.nights', totalNights, { count: totalNights }) }} × {{ priceBreakdown.currency }}</span>
                                 <span>{{ priceBreakdown.subtotal_formatted }}</span>
                             </div>
 
                             <!-- Bulk discount -->
                             <div v-if="priceBreakdown.bulk_discount" class="flex justify-between text-sm text-green-600 dark:text-green-400">
-                                <span>Long stay discount</span>
+                                <span>{{ $t('reservation.long_stay_discount') }}</span>
                                 <span>-{{ formatAmount(priceBreakdown.bulk_discount.amount, priceBreakdown.currency) }}</span>
                             </div>
 
@@ -169,7 +169,7 @@
 
                             <!-- Total -->
                             <div class="flex justify-between text-base font-semibold text-gray-900 dark:text-white pt-3 border-t border-gray-200 dark:border-gray-700">
-                                <span>Total</span>
+                                <span>{{ $t('booking.total_price') }}</span>
                                 <span>{{ priceBreakdown.total_formatted }}</span>
                             </div>
                         </div>
@@ -177,7 +177,7 @@
 
                     <!-- Cancellation Policy -->
                     <div v-if="accommodation.cancellation_policy" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Cancellation policy</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $t('accommodation.cancellation_policy') }}</h3>
                         <p class="text-sm text-gray-600 dark:text-gray-400 capitalize">{{ accommodation.cancellation_policy }}</p>
                     </div>
 
@@ -188,8 +188,8 @@
                             class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4"
                         >
                             <p class="text-sm text-yellow-800 dark:text-yellow-300">
-                                Please update your profile with your full name before reserving.
-                                <router-link to="/account" class="font-medium underline ml-1">Update profile</router-link>
+                                {{ $t('reservation.update_profile_warning') }}
+                                <router-link to="/account" class="font-medium underline ml-1">{{ $t('reservation.update_profile') }}</router-link>
                             </p>
                         </div>
                         <div
@@ -197,8 +197,8 @@
                             class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4"
                         >
                             <p class="text-sm text-yellow-800 dark:text-yellow-300">
-                                Please verify your email address before reserving.
-                                <router-link to="/account" class="font-medium underline ml-1">Go to account</router-link>
+                                {{ $t('reservation.verify_email_warning') }}
+                                <router-link to="/account" class="font-medium underline ml-1">{{ $t('reservation.go_to_account') }}</router-link>
                             </p>
                         </div>
                         <div
@@ -206,7 +206,7 @@
                             class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4"
                         >
                             <p class="text-sm text-red-800 dark:text-red-300">
-                                You cannot book your own property.
+                                {{ $t('reservation.own_property_error') }}
                             </p>
                         </div>
                     </div>
@@ -219,12 +219,12 @@
                         :loading="isSubmitting"
                         @click="confirmReservation"
                     >
-                        <span v-if="isSubmitting">Processing...</span>
-                        <span v-else>Confirm reservation</span>
+                        <span v-if="isSubmitting">{{ $t('reservation.processing') }}</span>
+                        <span v-else>{{ $t('reservation.confirm_button') }}</span>
                     </BaseButton>
 
                     <p class="text-xs text-center text-gray-500 dark:text-gray-400">
-                        You won't be charged until your booking is confirmed.
+                        {{ $t('reservation.no_charge_notice') }}
                     </p>
                 </div>
             </div>
@@ -292,10 +292,10 @@ export default {
         },
         guestSummary() {
             const parts = [];
-            if (this.adults > 0) parts.push(`${this.adults} adult${this.adults !== 1 ? 's' : ''}`);
-            if (this.children > 0) parts.push(`${this.children} child${this.children !== 1 ? 'ren' : ''}`);
-            if (this.infants > 0) parts.push(`${this.infants} infant${this.infants !== 1 ? 's' : ''}`);
-            return parts.join(', ') || '1 guest';
+            if (this.adults > 0) parts.push(this.$tc('reservation.adults', this.adults, { count: this.adults }));
+            if (this.children > 0) parts.push(this.$tc('reservation.children', this.children, { count: this.children }));
+            if (this.infants > 0) parts.push(this.$tc('reservation.infants', this.infants, { count: this.infants }));
+            return parts.join(', ') || this.$t('reservation.one_guest');
         },
 
         primaryPhotoUrl() {

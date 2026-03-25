@@ -84,14 +84,14 @@
                     class="px-2 py-1 bg-white text-xs font-semibold rounded shadow-lg flex items-center space-x-1"
                 >
                     <span>⚡</span>
-                    <span>Instant</span>
+                    <span>{{ $t('instant') }}</span>
                 </span>
                 <span
                     v-if="accommodation.isSuperhost"
                     class="px-2 py-1 bg-white text-xs font-semibold rounded shadow-lg flex items-center space-x-1"
                 >
                     <span>⭐</span>
-                    <span>Superhost</span>
+                    <span>{{ $t('superhost') }}</span>
                 </span>
             </div>
 
@@ -141,13 +141,13 @@
                     {{ formatPrice(accommodation.rounded_price || accommodation.regular_price) }}
                 </span>
                 <span class="text-sm text-gray-600 dark:text-gray-400">
-                    / night
+                    {{ $t('per_night') }}
                 </span>
             </div>
 
             <!-- Total Price (if dates selected) -->
             <p v-if="accommodation.totalPrice" class="text-sm text-gray-600 dark:text-gray-400">
-                {{ formatPrice(accommodation.totalPrice) }} total
+                {{ $t('total_price', { price: formatPrice(accommodation.totalPrice) }) }}
             </p>
         </div>
     </div>
@@ -257,6 +257,38 @@ export default {
     }
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  instant: Instant
+  superhost: Superhost
+  per_night: "/ night"
+  total_price: "{price} total"
+
+sr:
+  instant: Instant
+  superhost: Superdomaćin
+  per_night: "/ noć"
+  total_price: "{price} ukupno"
+
+hr:
+  instant: Instant
+  superhost: Superdomaćin
+  per_night: "/ noć"
+  total_price: "{price} ukupno"
+
+mk:
+  instant: Инстант
+  superhost: Супердомаќин
+  per_night: "/ ноќ"
+  total_price: "{price} вкупно"
+
+sl:
+  instant: Takojšnja
+  superhost: Supergostitelj
+  per_night: "/ noč"
+  total_price: "{price} skupaj"
+</i18n>
 
 <style scoped>
 /* Custom Swiper Pagination Dots */

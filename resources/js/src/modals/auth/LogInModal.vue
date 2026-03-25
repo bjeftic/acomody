@@ -1,9 +1,9 @@
 <template>
     <BaseModal v-if="show" @close="close" size="md">
-        <template #header>Log in</template>
+        <template #header>{{ $t('title') }}</template>
         <template #body>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                Please log in to your account
+                {{ $t('subtitle') }}
             </p>
 
             <form @submit.prevent="handleLogIn" class="flex flex-col gap-4">
@@ -15,7 +15,7 @@
                 <BaseInput
                     v-model="formData.email"
                     type="email"
-                    label="Email address"
+                    :label="$t('auth.email')"
                     placeholder="john@example.com"
                     :error="logInErrors.email ? logInErrors.email[0] : null"
                 />
@@ -23,8 +23,8 @@
                 <BaseInput
                     v-model="formData.password"
                     type="password"
-                    label="Password"
-                    placeholder="Enter your password"
+                    :label="$t('auth.password')"
+                    :placeholder="$t('password_placeholder')"
                     :error="logInErrors.password ? logInErrors.password[0] : null"
                 />
 
@@ -35,25 +35,25 @@
                             v-model="formData.rememberMe"
                             class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 dark:bg-gray-700"
                         />
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('auth.remember_me') }}</span>
                     </label>
                     <a
                         href="#"
                         @click.prevent="openForgotPasswordModal"
                         class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400"
                     >
-                        Forgot password?
+                        {{ $t('auth.forgot_password') }}
                     </a>
                 </div>
 
                 <BaseButton type="submit" :loading="isLoading" :disabled="isLoading" full>
-                    {{ isLoading ? "Logging in..." : "Log in" }}
+                    {{ isLoading ? $t('logging_in') : $t('auth.login_title') }}
                 </BaseButton>
             </form>
 
             <div class="flex items-center gap-3 my-5">
                 <div class="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
-                <span class="text-xs text-gray-400">or</span>
+                <span class="text-xs text-gray-400">{{ $t('common.or') }}</span>
                 <div class="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
             </div>
 
@@ -71,7 +71,7 @@
                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
-                    Continue with Google
+                    {{ $t('google') }}
                 </BaseButton>
 
                 <BaseButton
@@ -84,14 +84,14 @@
                     <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="#1877F2">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                     </svg>
-                    Continue with Facebook
+                    {{ $t('facebook') }}
                 </BaseButton>
             </div>
 
             <p class="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
-                Don't have an account?
+                {{ $t('auth.no_account') }}
                 <a href="#" @click.prevent="openSignUpModal" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium">
-                    Sign up
+                    {{ $t('auth.signup_title') }}
                 </a>
             </p>
         </template>
@@ -182,7 +182,7 @@ export default {
                     } else if (e.error.message) {
                         this.logInErrors = [e.error.message];
                     } else {
-                        this.logInErrors = ["An error occurred. Please try again."];
+                        this.logInErrors = [this.$t('common.error')];
                     }
                 })
                 .finally(() => {
@@ -193,19 +193,17 @@ export default {
             const errors = {};
 
             if (!this.formData.email) {
-                errors.email = ["Email address is required"];
+                errors.email = [this.$t('validation.email_required')];
             } else if (!this.isValidEmail(this.formData.email)) {
-                errors.email = ["Please enter a valid email address"];
+                errors.email = [this.$t('validation.email_invalid')];
             }
 
             if (!this.formData.password) {
-                errors.password = ["Password is required"];
+                errors.password = [this.$t('validation.password_required')];
             } else if (this.formData.password.length < 6) {
-                errors.password = ["Password must be at least 6 characters"];
+                errors.password = [this.$t('validation.password_min')];
             } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.formData.password)) {
-                errors.password = [
-                    "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-                ];
+                errors.password = [this.$t('validation.password_strength')];
             }
 
             return errors;
@@ -256,3 +254,71 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yml">
+en:
+  title: Log in
+  subtitle: Please log in to your account
+  password_placeholder: Enter your password
+  logging_in: Logging in...
+  google: Continue with Google
+  facebook: Continue with Facebook
+  validation:
+    email_required: Email address is required
+    email_invalid: Please enter a valid email address
+    password_required: Password is required
+    password_min: Password must be at least 6 characters
+    password_strength: Password must contain at least one uppercase letter, one lowercase letter, and one number
+sr:
+  title: Prijavite se
+  subtitle: Prijavite se na vaš nalog
+  password_placeholder: Unesite lozinku
+  logging_in: Prijavljivanje...
+  google: Nastavite sa Google
+  facebook: Nastavite sa Facebook
+  validation:
+    email_required: Email adresa je obavezna
+    email_invalid: Unesite ispravnu email adresu
+    password_required: Lozinka je obavezna
+    password_min: Lozinka mora imati najmanje 6 karaktera
+    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo i broj
+hr:
+  title: Prijavite se
+  subtitle: Prijavite se na vaš račun
+  password_placeholder: Unesite lozinku
+  logging_in: Prijava u tijeku...
+  google: Nastavite s Googleom
+  facebook: Nastavite s Facebookom
+  validation:
+    email_required: Email adresa je obavezna
+    email_invalid: Unesite ispravnu email adresu
+    password_required: Lozinka je obavezna
+    password_min: Lozinka mora imati najmanje 6 znakova
+    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo i broj
+mk:
+  title: Најавете се
+  subtitle: Најавете се на вашата сметка
+  password_placeholder: Внесете лозинка
+  logging_in: Најавување...
+  google: Продолжете со Google
+  facebook: Продолжете со Facebook
+  validation:
+    email_required: Е-поштата е задолжителна
+    email_invalid: Внесете важечка е-пошта
+    password_required: Лозинката е задолжителна
+    password_min: Лозинката мора да има најмалку 6 знаци
+    password_strength: Лозинката мора да содржи барем едно големо, мало слово и број
+sl:
+  title: Prijavite se
+  subtitle: Prijavite se v vaš račun
+  password_placeholder: Vnesite geslo
+  logging_in: Prijava v teku...
+  google: Nadaljujte z Googlom
+  facebook: Nadaljujte s Facebookom
+  validation:
+    email_required: E-poštni naslov je obvezen
+    email_invalid: Vnesite veljavni e-poštni naslov
+    password_required: Geslo je obvezno
+    password_min: Geslo mora imeti vsaj 6 znakov
+    password_strength: Geslo mora vsebovati vsaj eno veliko, malo črko in številko
+</i18n>

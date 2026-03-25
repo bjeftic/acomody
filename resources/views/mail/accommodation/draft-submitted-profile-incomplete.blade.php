@@ -1,27 +1,21 @@
 @extends('layouts.email')
 
-@section('title', 'Accommodation Under Review')
-@section('header-title', 'Accommodation Under Review')
+@section('title', __('mail.draft_submitted_incomplete.title'))
+@section('header-title', __('mail.draft_submitted_incomplete.title'))
 
 @section('content')
-<p>Hi {{ $draft->user->first_name ?? $draft->user->name }},</p>
-<p>
-    Your accommodation <strong>{{ json_decode($draft->data, true)['title'] ?? 'your property' }}</strong>
-    has been successfully submitted and is now under review by our team. We'll notify you once it's approved.
-</p>
+<p>{{ __('mail.hi', ['name' => $draft->user->first_name ?? $draft->user->name]) }}</p>
+<p>{{ __('mail.draft_submitted_incomplete.body', ['property' => json_decode($draft->data, true)['title'] ?? 'your property']) }}</p>
 
 <div class="alert alert-warning">
-    <strong>Complete your host profile to go live</strong>
-    <p>
-        Once your accommodation is approved, it won't appear in search results until your host profile
-        is complete. Please add your display name, contact email, and phone number — it only takes a minute.
-    </p>
+    <strong>{{ __('mail.draft_submitted_incomplete.warning_title') }}</strong>
+    <p>{{ __('mail.draft_submitted_incomplete.warning_body') }}</p>
     <div style="margin-top: 12px;">
         <a href="{{ config('app.url') }}/hosting/profile" class="btn btn-amber btn-sm">
-            Complete host profile &rarr;
+            {{ __('mail.draft_submitted_incomplete.warning_btn') }}
         </a>
     </div>
 </div>
 
-<p class="note">If you have any questions, please contact our support team.</p>
+<p class="note">{{ __('mail.support_note') }}</p>
 @endsection

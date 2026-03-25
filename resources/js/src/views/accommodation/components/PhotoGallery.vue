@@ -17,7 +17,7 @@
                 >
                     <img
                         :src="photos[0].urls.original"
-                        alt="Main photo"
+                        :alt="$t('main_photo')"
                         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                         style="max-height: 500px"
                     />
@@ -36,7 +36,7 @@
                     >
                         <img
                             :src="photo.urls.medium"
-                            :alt="`Photo ${index + 2}`"
+                            :alt="$t('photo_alt', { n: index + 2 })"
                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                             style="max-height: 250px"
                         />
@@ -65,7 +65,7 @@
                                     />
                                 </svg>
                                 <span class="text-sm font-medium">
-                                    +{{ photos.length - 5 }} more
+                                    +{{ photos.length - 5 }} {{ $t('more') }}
                                 </span>
                             </div>
                         </div>
@@ -80,7 +80,7 @@
                 class="flex mt-4 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
                 <IconLoader :name="'Image'" :size="20" class="mr-2 text-gray-700 dark:text-gray-300"/>
-                View all {{ photos.length }} photos
+                {{ $t('view_all', { count: photos.length }) }}
             </button>
         </div>
 
@@ -134,7 +134,7 @@
                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                 </svg>
-                <p class="text-sm">No photos available</p>
+                <p class="text-sm">{{ $t('no_photos') }}</p>
             </div>
         </div>
     </div>
@@ -212,3 +212,36 @@ export default {
     opacity: 1;
 }
 </style>
+
+<i18n lang="yaml">
+en:
+  view_all: "View all {count} photos"
+  more: more
+  no_photos: No photos available
+  main_photo: Main photo
+  photo_alt: "Photo {n}"
+sr:
+  view_all: "Pogledaj svih {count} fotografija"
+  more: više
+  no_photos: Nema dostupnih fotografija
+  main_photo: Glavna fotografija
+  photo_alt: "Fotografija {n}"
+hr:
+  view_all: "Pogledaj svih {count} fotografija"
+  more: više
+  no_photos: Nema dostupnih fotografija
+  main_photo: Glavna fotografija
+  photo_alt: "Fotografija {n}"
+mk:
+  view_all: "Погледај ги сите {count} фотографии"
+  more: повеќе
+  no_photos: Нема достапни фотографии
+  main_photo: Главна фотографија
+  photo_alt: "Фотографија {n}"
+sl:
+  view_all: "Oglej si vseh {count} fotografij"
+  more: več
+  no_photos: Ni razpoložljivih fotografij
+  main_photo: Glavna fotografija
+  photo_alt: "Fotografija {n}"
+</i18n>

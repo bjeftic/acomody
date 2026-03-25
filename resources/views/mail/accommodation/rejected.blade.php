@@ -1,21 +1,21 @@
 @extends('layouts.email')
 
-@section('title', 'Accommodation Not Approved')
+@section('title', __('mail.accommodation_rejected.title'))
 @section('header-bg', '#dc2626')
-@section('header-title', 'Accommodation Not Approved')
+@section('header-title', __('mail.accommodation_rejected.title'))
 
 @section('content')
-<p>Hi {{ $draft->user->first_name ?? $draft->user->name }},</p>
-<p>Thank you for submitting your accommodation <strong>{{ json_decode($draft->data, true)['title'] ?? 'your property' }}</strong> for review.</p>
-<p>After careful review, our team was unable to approve your submission at this time.</p>
+<p>{{ __('mail.hi', ['name' => $draft->user->first_name ?? $draft->user->name]) }}</p>
+<p>{{ __('mail.accommodation_rejected.body1', ['property' => json_decode($draft->data, true)['title'] ?? 'your property']) }}</p>
+<p>{{ __('mail.accommodation_rejected.body2') }}</p>
 
 @if($reason)
 <div class="alert alert-error">
-    <strong>Reason</strong>
+    <strong>{{ __('mail.accommodation_rejected.reason_label') }}</strong>
     <p>{{ $reason }}</p>
 </div>
 @endif
 
-<p>If you believe this was a mistake or have made the necessary changes, you are welcome to re-submit your accommodation for review.</p>
-<p class="note">If you have any questions, please contact our support team.</p>
+<p>{{ __('mail.accommodation_rejected.resubmit') }}</p>
+<p class="note">{{ __('mail.support_note') }}</p>
 @endsection

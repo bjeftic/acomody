@@ -3,12 +3,12 @@
         <!-- Mobile view toggle -->
         <div class="md:hidden flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-800">
             <div v-if="totalAccommodationsFound > 0" class="text-sm font-semibold text-gray-900 dark:text-white">
-                {{ totalAccommodationsFound }} results
+                {{ totalAccommodationsFound }} {{ $t('search.results') }}
             </div>
             <div class="flex items-center gap-2 ml-auto">
                 <BaseButton variant="secondary" size="sm" @click="openFiltersModal">
                     <IconLoader name="SlidersHorizontal" :size="16" />
-                    Filters
+                    {{ $t('search.filters') }}
                 </BaseButton>
                 <div class="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                     <button
@@ -16,14 +16,14 @@
                         :class="mobileView === 'list' ? 'bg-primary-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'"
                         @click="mobileView = 'list'"
                     >
-                        List
+                        {{ $t('list_view') }}
                     </button>
                     <button
                         class="px-3 py-1.5 text-xs font-medium transition"
                         :class="mobileView === 'map' ? 'bg-primary-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'"
                         @click="mobileView = 'map'"
                     >
-                        Map
+                        {{ $t('map_view') }}
                     </button>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                         v-if="totalAccommodationsFound > 0"
                         class="text-base font-semibold text-gray-900 dark:text-white"
                     >
-                        {{ totalAccommodationsFound }} results
+                        {{ totalAccommodationsFound }} {{ $t('search.results') }}
                     </div>
 
                     <div class="flex items-center space-x-4 ml-auto">
@@ -223,3 +223,21 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  list_view: List
+  map_view: Map
+sr:
+  list_view: Lista
+  map_view: Mapa
+hr:
+  list_view: Lista
+  map_view: Karta
+mk:
+  list_view: Листа
+  map_view: Карта
+sl:
+  list_view: Seznam
+  map_view: Zemljevid
+</i18n>

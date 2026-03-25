@@ -14,9 +14,12 @@ export default {
         countries: runtimeConstants.countries,
         currencies: runtimeConstants.currencies,
         selectedCurrency: runtimeConstants.selectedCurrency,
+        languages: runtimeConstants.languages,
+        selectedLanguage: runtimeConstants.selectedLanguage,
 
         countryCurrencyMap: runtimeConstants.countryCurrencyMap,
         sortOptions: runtimeConstants.sortOptions,
         daysOfWeek: runtimeConstants.daysOfWeek,
+        bookingTypes: runtimeConstants.bookingTypes,
     }
 }

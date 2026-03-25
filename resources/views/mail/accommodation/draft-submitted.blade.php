@@ -1,34 +1,31 @@
 @extends('layouts.email')
 
-@section('title', 'Accommodation Under Review')
-@section('header-title', 'Accommodation Under Review')
+@section('title', __('mail.draft_submitted.title'))
+@section('header-title', __('mail.draft_submitted.title'))
 
 @section('content')
-<p>Hi {{ $draft->user->first_name ?? $draft->user->name }},</p>
-<p>
-    Your accommodation <strong>{{ json_decode($draft->data, true)['title'] ?? 'your property' }}</strong>
-    has been successfully submitted and is now under review by our team.
-</p>
+<p>{{ __('mail.hi', ['name' => $draft->user->first_name ?? $draft->user->name]) }}</p>
+<p>{{ __('mail.draft_submitted.body', ['property' => json_decode($draft->data, true)['title'] ?? 'your property']) }}</p>
 
-<p>Here's what happens next:</p>
+<p>{{ __('mail.draft_submitted.next') }}</p>
 <ul class="steps">
     <li>
         <span class="step-num">1</span>
-        <span>Our team reviews your listing — this usually takes 1–2 business days.</span>
+        <span>{{ __('mail.draft_submitted.step1') }}</span>
     </li>
     <li>
         <span class="step-num">2</span>
-        <span>Once approved, your listing will automatically become searchable and guests can start booking.</span>
+        <span>{{ __('mail.draft_submitted.step2') }}</span>
     </li>
     <li>
         <span class="step-num">3</span>
-        <span>You'll receive an email notification as soon as it goes live.</span>
+        <span>{{ __('mail.draft_submitted.step3') }}</span>
     </li>
 </ul>
 
 <div class="btn-wrap">
-    <a href="{{ config('app.url') }}/hosting/dashboard" class="btn">Go to hosting dashboard &rarr;</a>
+    <a href="{{ config('app.url') }}/hosting/dashboard" class="btn">{{ __('mail.draft_submitted.btn') }}</a>
 </div>
 
-<p class="note">If you have any questions, please contact our support team.</p>
+<p class="note">{{ __('mail.support_note') }}</p>
 @endsection

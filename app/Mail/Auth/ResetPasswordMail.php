@@ -16,11 +16,13 @@ class ResetPasswordMail extends Mailable
     public function __construct(
         public readonly User $user,
         public readonly string $resetUrl,
-    ) {}
+    ) {
+        $this->locale($user->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Reset Your Password');
+        return new Envelope(subject: __('mail.reset_password.subject'));
     }
 
     public function content(): Content

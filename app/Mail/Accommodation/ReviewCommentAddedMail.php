@@ -16,11 +16,13 @@ class ReviewCommentAddedMail extends Mailable
     public function __construct(
         public readonly AccommodationDraft $draft,
         public readonly ReviewComment $comment,
-    ) {}
+    ) {
+        $this->locale($draft->user->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'A Reviewer Has Left a Comment on Your Accommodation');
+        return new Envelope(subject: __('mail.review_comment.subject'));
     }
 
     public function content(): Content

@@ -15,11 +15,13 @@ class AccommodationApprovedMail extends Mailable
     public function __construct(
         public readonly AccommodationDraft $draft,
         public readonly bool $hostProfileComplete = true,
-    ) {}
+    ) {
+        $this->locale($draft->user->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your Accommodation Has Been Approved');
+        return new Envelope(subject: __('mail.accommodation_approved.subject'));
     }
 
     public function content(): Content

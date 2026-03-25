@@ -11,7 +11,7 @@
                 @click="seeAll"
                 class="text-sm font-medium text-gray-900 underline underline-offset-2 hover:text-gray-600 dark:text-white dark:hover:text-gray-300 whitespace-nowrap"
             >
-                See all
+                {{ $t('see_all') }}
             </button>
         </div>
 
@@ -27,12 +27,12 @@
 
         <!-- Error state -->
         <div v-else-if="error" class="py-6 text-sm text-gray-400 dark:text-gray-500">
-            Could not load accommodations for this location.
+            {{ $t('load_error') }}
         </div>
 
         <!-- Empty state -->
         <div v-else-if="accommodations.length === 0" class="py-6 text-sm text-gray-400 dark:text-gray-500">
-            No accommodations found in {{ location.name }}.
+            {{ $t('no_results', { name: location.name }) }}
         </div>
 
         <!-- Grid — 2 rows of 6 -->
@@ -116,3 +116,30 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  see_all: See all
+  load_error: Could not load accommodations for this location.
+  no_results: "No accommodations found in {name}."
+
+sr:
+  see_all: Pogledaj sve
+  load_error: Nije moguće učitati smeštaje za ovu lokaciju.
+  no_results: "Nema smeštaja u {name}."
+
+hr:
+  see_all: Pogledaj sve
+  load_error: Nije moguće učitati smještaje za ovu lokaciju.
+  no_results: "Nema smještaja u {name}."
+
+mk:
+  see_all: Погледај ги сите
+  load_error: Не можат да се вчитаат сместувањата за оваа локација.
+  no_results: "Нема сместувања во {name}."
+
+sl:
+  see_all: Poglej vse
+  load_error: Nastanitev za to lokacijo ni bilo mogoče naložiti.
+  no_results: "V {name} ni nastanitev."
+</i18n>

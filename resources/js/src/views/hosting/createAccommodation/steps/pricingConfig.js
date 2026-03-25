@@ -1,4 +1,17 @@
 // Pricing Configuration
+import config from "@/config";
+
+const bookingTypeIcons = {
+    instant_booking: "⚡",
+    request_to_book: "💬",
+};
+
+const bookingTypes = (config.ui.bookingTypes ?? []).map((type) => ({
+    ...type,
+    name: type.label,
+    icon: bookingTypeIcons[type.id] ?? "",
+}));
+
 export const pricingConfig = {
     // Currency settings
     currency: "$",
@@ -16,23 +29,8 @@ export const pricingConfig = {
         max: 120,
     },
 
-    // Booking types
-    bookingTypes: [
-        {
-            id: "instant_booking",
-            name: "Instant Booking",
-            icon: "⚡",
-            description:
-                "Guests can book immediately without waiting for your approval. Get more bookings faster!",
-        },
-        {
-            id: "request_to_book",
-            name: "Request to Book",
-            icon: "💬",
-            description:
-                "Guests send a booking request that you can approve or decline. You have full control over who stays.",
-        },
-    ],
+    // Booking types (translated via backend RuntimeConstants)
+    bookingTypes: bookingTypes,
 
     // Discount recommendations
     discountRecommendations: {

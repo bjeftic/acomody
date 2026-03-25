@@ -1,0 +1,181 @@
+common:
+  save: Save
+  cancel: Cancel
+  confirm: Confirm
+  delete: Delete
+  edit: Edit
+  close: Close
+  back: Back
+  next: Next
+  loading: Loading...
+  error: Something went wrong. Please try again.
+  success: Success
+  required: Required
+  optional: Optional
+  yes: Yes
+  no: No
+  or: or
+
+nav:
+  become_host: Become a host
+  hosting: Hosting
+  hosting_dashboard: Hosting dashboard
+  login: Log in
+  signup: Sign up
+  account: Account
+  my_account: My account
+  dashboard: Dashboard
+  bookings: Bookings
+  wishlists: Wishlists
+  reviews: Reviews
+  logout: Log out
+  currency: Currency
+  language: Language
+
+auth:
+  login_title: Log in
+  signup_title: Sign up
+  forgot_password: Forgot password?
+  email: Email address
+  password: Password
+  confirm_password: Confirm password
+  first_name: First name
+  last_name: Last name
+  remember_me: Remember me
+  no_account: Don't have an account?
+  have_account: Already have an account?
+  reset_password: Reset password
+  new_password: New password
+  login_success: You have been logged in.
+  logout_success: You have been logged out.
+  email_verified: Your email has been verified.
+  check_email: Check your email for the verification link.
+  password_reset_sent: Password reset link sent to your email.
+  password_reset_success: Your password has been reset.
+
+search:
+  placeholder: Where are you going?
+  check_in: Check-in
+  check_out: Check-out
+  guests: Guests
+  adults: Adults
+  children: Children
+  infants: Infants
+  search: Search
+  results: results
+  no_results: No results found
+  filters: Filters
+  sort_by: Sort by
+  price_per_night: per night
+  show_map: Show map
+  hide_map: Hide map
+  clear_filters: Clear all filters
+  apply: Apply
+
+accommodation:
+  guests: "{count} guest | {count} guests"
+  bedrooms: "{count} bedroom | {count} bedrooms"
+  beds: "{count} bed | {count} beds"
+  bathrooms: "{count} bathroom | {count} bathrooms"
+  amenities: Amenities
+  house_rules: House rules
+  cancellation_policy: Cancellation policy
+  availability: Availability
+  reviews: Reviews
+  location: Location
+  description: Description
+  photos: Photos
+  book_now: Book now
+  reserve: Reserve
+  total: Total
+  nights: "{count} night | {count} nights"
+  free_cancellation: Free cancellation
+  instant_book: Instant book
+
+booking:
+  confirm_booking: Confirm booking
+  booking_confirmed: Booking confirmed
+  booking_cancelled: Booking cancelled
+  check_in: Check-in
+  check_out: Check-out
+  guests: Guests
+  total_price: Total price
+  breakdown: Price breakdown
+  per_night: per night
+  cleaning_fee: Cleaning fee
+  service_fee: Service fee
+  taxes: Taxes
+  cancel: Cancel booking
+  contact_host: Contact host
+
+hosting:
+  dashboard: Dashboard
+  my_listings: My listings
+  add_listing: Add listing
+  calendar: Calendar
+  bookings: Bookings
+  earnings: Earnings
+  profile: Host profile
+  listing_title: Listing title
+  listing_description: Listing description
+  accommodation_type: Accommodation type
+  address: Address
+  floor_plan: Floor plan
+  amenities: Amenities
+  photos: Photos
+  pricing: Pricing
+  house_rules: House rules
+  review: Review & submit
+  publish: Publish listing
+  save_draft: Save as draft
+  draft_saved: Draft saved
+  listing_submitted: Listing submitted for review
+
+account:
+  title: My account
+  personal_info: Personal information
+  security: Security
+  notifications: Notifications
+  preferences: Preferences
+  save_changes: Save changes
+  change_password: Change password
+  delete_account: Delete account
+
+notifications:
+  title: Notifications
+  mark_all_read: Mark all as read
+  no_notifications: No notifications yet
+  booking_received: New booking received
+  booking_confirmed: Booking confirmed
+  booking_cancelled: Booking cancelled
+  accommodation_approved: Accommodation approved
+
+reservation:
+  confirm_title: Confirm your reservation
+  hosted_by: Hosted by
+  your_trip: Your trip
+  dates: Dates
+  price_details: Price details
+  long_stay_discount: Long stay discount
+  update_profile_warning: Please update your profile with your full name before reserving.
+  update_profile: Update profile
+  verify_email_warning: Please verify your email address before reserving.
+  go_to_account: Go to account
+  own_property_error: You cannot book your own property.
+  processing: Processing...
+  confirm_button: Confirm reservation
+  no_charge_notice: You won't be charged until your booking is confirmed.
+  adults: "{count} adult | {count} adults"
+  children: "{count} child | {count} children"
+  infants: "{count} infant | {count} infants"
+  one_guest: 1 guest
+
+gallery:
+  photo_of: "Photo {current} of {total}"
+
+errors:
+  not_found: Page not found
+  not_found_desc: The page you're looking for doesn't exist.
+  go_home: Go home
+  unauthorized: You need to log in to access this page.
+  forbidden: You don't have permission to access this page.

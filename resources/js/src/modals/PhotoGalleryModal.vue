@@ -3,8 +3,7 @@
         <template #header>
             <div class="flex items-center justify-between">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Photo {{ currentGalleryIndex + 1 }} of
-                    {{ options.photos.length }}
+                    {{ $t('gallery.photo_of', { current: currentGalleryIndex + 1, total: options.photos.length }) }}
                 </h3>
             </div>
         </template>

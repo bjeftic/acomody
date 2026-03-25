@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
@@ -12,6 +11,7 @@ class AmenityResource extends JsonResource
      * @OA\Schema(
      *     schema="Amenity",
      *     type="object",
+     *
      *     @OA\Property(property="id", type="integer", example=1),
      *     @OA\Property(property="slug", type="string", example="wifi"),
      *     @OA\Property(property="name", type="string", example="WiFi"),
@@ -30,6 +30,7 @@ class AmenityResource extends JsonResource
             'name' => $this->name,
             'icon' => $this->icon,
             'category' => $this->category,
+            'category_label' => trans('amenity_category.'.$this->category),
             'is_feeable' => $this->is_feeable,
             'is_highlighted' => $this->is_highlighted,
             'is_active' => $this->is_active,

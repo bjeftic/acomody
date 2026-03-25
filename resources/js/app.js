@@ -3,6 +3,7 @@ import "../css/app.css";
 import { createApp } from "vue";
 import router from "./router";
 import store from "./store";
+import i18n from "./i18n";
 
 //Flowbite Vue Components
 import {
@@ -115,5 +116,6 @@ app.component("IconLoader", IconLoader)
 store.dispatch("auth/initializeAuth").finally(() => {
     app.use(store);
     app.use(router);
+    app.use(i18n);
     app.mount("#app");
 });

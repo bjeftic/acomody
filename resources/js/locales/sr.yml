@@ -1,0 +1,181 @@
+common:
+  save: Sačuvaj
+  cancel: Otkaži
+  confirm: Potvrdi
+  delete: Obriši
+  edit: Izmeni
+  close: Zatvori
+  back: Nazad
+  next: Dalje
+  loading: Učitavanje...
+  error: Došlo je do greške. Pokušajte ponovo.
+  success: Uspešno
+  required: Obavezno
+  optional: Opciono
+  yes: Da
+  no: Ne
+  or: ili
+
+nav:
+  become_host: Postanite domaćin
+  hosting: Izdavanje
+  hosting_dashboard: Kontrolna tabla
+  login: Prijavite se
+  signup: Registrujte se
+  account: Nalog
+  my_account: Moj nalog
+  dashboard: Kontrolna tabla
+  bookings: Rezervacije
+  wishlists: Lista želja
+  reviews: Recenzije
+  logout: Odjavite se
+  currency: Valuta
+  language: Jezik
+
+auth:
+  login_title: Prijavite se
+  signup_title: Registrujte se
+  forgot_password: Zaboravili ste lozinku?
+  email: Email adresa
+  password: Lozinka
+  confirm_password: Potvrdite lozinku
+  first_name: Ime
+  last_name: Prezime
+  remember_me: Zapamti me
+  no_account: Nemate nalog?
+  have_account: Već imate nalog?
+  reset_password: Resetujte lozinku
+  new_password: Nova lozinka
+  login_success: Uspešno ste se prijavili.
+  logout_success: Uspešno ste se odjavili.
+  email_verified: Vaša email adresa je potvrđena.
+  check_email: Proverite email za link za potvrdu.
+  password_reset_sent: Link za resetovanje lozinke je poslat na vaš email.
+  password_reset_success: Vaša lozinka je uspešno resetovana.
+
+search:
+  placeholder: Kuda putujete?
+  check_in: Prijava
+  check_out: Odjava
+  guests: Gosti
+  adults: Odrasli
+  children: Deca
+  infants: Bebe
+  search: Pretraži
+  results: rezultata
+  no_results: Nema rezultata
+  filters: Filteri
+  sort_by: Sortiraj po
+  price_per_night: po noći
+  show_map: Prikaži mapu
+  hide_map: Sakrij mapu
+  clear_filters: Ukloni sve filtere
+  apply: Primeni
+
+accommodation:
+  guests: "{count} gost | {count} gosta | {count} gostiju"
+  bedrooms: "{count} spavaća soba | {count} spavaće sobe | {count} spavaćih soba"
+  beds: "{count} krevet | {count} kreveta | {count} kreveta"
+  bathrooms: "{count} kupatilo | {count} kupatila | {count} kupatila"
+  amenities: Sadržaji
+  house_rules: Kućna pravila
+  cancellation_policy: Politika otkazivanja
+  availability: Dostupnost
+  reviews: Recenzije
+  location: Lokacija
+  description: Opis
+  photos: Fotografije
+  book_now: Rezervišite sada
+  reserve: Rezervišite
+  total: Ukupno
+  nights: "{count} noć | {count} noći | {count} noći"
+  free_cancellation: Besplatno otkazivanje
+  instant_book: Trenutna rezervacija
+
+booking:
+  confirm_booking: Potvrdi rezervaciju
+  booking_confirmed: Rezervacija potvrđena
+  booking_cancelled: Rezervacija otkazana
+  check_in: Prijava
+  check_out: Odjava
+  guests: Gosti
+  total_price: Ukupna cena
+  breakdown: Pregled cene
+  per_night: po noći
+  cleaning_fee: Naknada za čišćenje
+  service_fee: Naknada za uslugu
+  taxes: Porezi
+  cancel: Otkažite rezervaciju
+  contact_host: Kontaktirajte domaćina
+
+hosting:
+  dashboard: Kontrolna tabla
+  my_listings: Moji oglasi
+  add_listing: Dodajte oglas
+  calendar: Kalendar
+  bookings: Rezervacije
+  earnings: Prihodi
+  profile: Profil domaćina
+  listing_title: Naslov oglasa
+  listing_description: Opis oglasa
+  accommodation_type: Tip smeštaja
+  address: Adresa
+  floor_plan: Raspored prostorija
+  amenities: Sadržaji
+  photos: Fotografije
+  pricing: Cene
+  house_rules: Kućna pravila
+  review: Pregled i slanje
+  publish: Objavite oglas
+  save_draft: Sačuvaj kao nacrt
+  draft_saved: Nacrt sačuvan
+  listing_submitted: Oglas poslat na pregled
+
+account:
+  title: Moj nalog
+  personal_info: Lični podaci
+  security: Bezbednost
+  notifications: Obaveštenja
+  preferences: Podešavanja
+  save_changes: Sačuvaj izmene
+  change_password: Promenite lozinku
+  delete_account: Obrišite nalog
+
+notifications:
+  title: Obaveštenja
+  mark_all_read: Označi sve kao pročitano
+  no_notifications: Nema obaveštenja
+  booking_received: Nova rezervacija primljena
+  booking_confirmed: Rezervacija potvrđena
+  booking_cancelled: Rezervacija otkazana
+  accommodation_approved: Smeštaj odobren
+
+reservation:
+  confirm_title: Potvrdite vašu rezervaciju
+  hosted_by: Domaćin
+  your_trip: Vaše putovanje
+  dates: Datumi
+  price_details: Detalji cene
+  long_stay_discount: Popust za duži boravak
+  update_profile_warning: Molimo ažurirajte profil sa punim imenom pre rezervacije.
+  update_profile: Ažurirajte profil
+  verify_email_warning: Molimo potvrdite email adresu pre rezervacije.
+  go_to_account: Idite na nalog
+  own_property_error: Ne možete rezervisati sopstveni smeštaj.
+  processing: Obrada...
+  confirm_button: Potvrdite rezervaciju
+  no_charge_notice: Nećete biti naplaćeni dok vaša rezervacija ne bude potvrđena.
+  adults: "{count} odrasli | {count} odrasla | {count} odraslih"
+  children: "{count} dete | {count} deteta | {count} dece"
+  infants: "{count} beba | {count} bebe | {count} beba"
+  one_guest: 1 gost
+
+gallery:
+  photo_of: "Fotografija {current} od {total}"
+
+errors:
+  not_found: Stranica nije pronađena
+  not_found_desc: Stranica koju tražite ne postoji.
+  go_home: Idite na početnu
+  unauthorized: Morate se prijaviti da biste pristupili ovoj stranici.
+  forbidden: Nemate dozvolu za pristup ovoj stranici.

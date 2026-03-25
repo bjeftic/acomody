@@ -1,11 +1,11 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Step: 1 - Which of these best describes your place?
+            {{ $t('heading') }}
         </h1>
 
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Select the accommodation type that best matches your accommodation.
+            {{ $t('subtitle') }}
         </p>
 
         <hr />
@@ -63,3 +63,21 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: "Step 1 — Which of these best describes your place?"
+  subtitle: Select the accommodation type that best matches your accommodation.
+sr:
+  heading: "Korak 1 — Šta od navedenog najbolje opisuje vaš smeštaj?"
+  subtitle: Odaberite vrstu smeštaja koja najbolje odgovara vašem objektu.
+hr:
+  heading: "Korak 1 — Što od navedenog najbolje opisuje vaš smještaj?"
+  subtitle: Odaberite vrstu smještaja koja najbolje odgovara vašem objektu.
+mk:
+  heading: "Чекор 1 — Кое од наведеното најдобро го опишува вашиот простор?"
+  subtitle: Одберете тип на сместување кој најдобро одговара на вашиот објект.
+sl:
+  heading: "Korak 1 — Kateri od teh najboljše opisuje vaš prostor?"
+  subtitle: Izberite vrsto nastanitve, ki najbolje ustreza vašemu objektu.
+</i18n>

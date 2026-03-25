@@ -1,34 +1,34 @@
 <template>
     <div>
         <h1 class="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Share some basics about your place
+            {{ $t('heading') }}
         </h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Tell guests how many people can stay and what types of beds you have.
+            {{ $t('subtitle') }}
         </p>
 
         <hr />
 
         <div class="space-y-8 max-w-xl overflow-auto py-4 h-[60vh] mx-auto">
             <!-- Guests -->
-            <counter-item label="Guests" :value="formData.floorPlan.guests" :min="1" :max="16"
+            <counter-item :label="$t('guests')" :value="formData.floorPlan.guests" :min="1" :max="16"
                 @update:value="updateFloorPlan('guests', $event)" />
 
             <!-- Bedrooms -->
-            <counter-item label="Bedrooms" :value="formData.floorPlan.bedrooms" :min="0" :max="50"
+            <counter-item :label="$t('bedrooms')" :value="formData.floorPlan.bedrooms" :min="0" :max="50"
                 @update:value="updateFloorPlan('bedrooms', $event)" />
 
             <!-- Bathrooms -->
-            <counter-item label="Bathrooms" :value="formData.floorPlan.bathrooms" :min="1" :max="20"
+            <counter-item :label="$t('bathrooms')" :value="formData.floorPlan.bathrooms" :min="1" :max="20"
                 @update:value="updateFloorPlan('bathrooms', $event)" />
 
             <!-- Bed Types -->
             <div class="my-2">
                 <h3 class="text-base font-medium text-gray-900 dark:text-white">
-                    Bed types
+                    {{ $t('bed_types') }}
                 </h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                    Select the types of beds available (at least one required).
+                    {{ $t('bed_types_desc') }}
                 </p>
             </div>
             <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
@@ -83,3 +83,46 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: Share some basics about your place
+  subtitle: Tell guests how many people can stay and what types of beds you have.
+  guests: Guests
+  bedrooms: Bedrooms
+  bathrooms: Bathrooms
+  bed_types: Bed types
+  bed_types_desc: Select the types of beds available (at least one required).
+sr:
+  heading: Podelite osnove o vašem smeštaju
+  subtitle: Recite gostima koliko osoba može boraviti i koje vrste kreveta imate.
+  guests: Gosti
+  bedrooms: Spavaće sobe
+  bathrooms: Kupatila
+  bed_types: Vrste kreveta
+  bed_types_desc: Odaberite vrste kreveta koje su dostupne (potreban je najmanje jedan).
+hr:
+  heading: Podijelite osnove o vašem smještaju
+  subtitle: Recite gostima koliko osoba može boraviti i koje vrste kreveta imate.
+  guests: Gosti
+  bedrooms: Spavaće sobe
+  bathrooms: Kupaonice
+  bed_types: Vrste kreveta
+  bed_types_desc: Odaberite vrste kreveta koje su dostupne (potreban je najmanje jedan).
+mk:
+  heading: Споделете основи за вашиот простор
+  subtitle: Кажете им на гостите колку луѓе можат да останат и какви видови кревети имате.
+  guests: Гости
+  bedrooms: Спални соби
+  bathrooms: Бањи
+  bed_types: Видови кревети
+  bed_types_desc: Изберете ги видовите кревети кои се достапни (потребен е најмалку еден).
+sl:
+  heading: Delite osnove o vašem prostoru
+  subtitle: Povejte gostom, koliko ljudi lahko biva in katere vrste postelj imate.
+  guests: Gostje
+  bedrooms: Spalnice
+  bathrooms: Kopalnice
+  bed_types: Vrste postelj
+  bed_types_desc: Izberite vrste postelj, ki so na voljo (potrebna je vsaj ena).
+</i18n>

@@ -10,10 +10,10 @@
                 <h1
                     class="text-3xl font-semibold text-gray-900 dark:text-white mb-2"
                 >
-                    Edit listing
+                    {{ $t('heading') }}
                 </h1>
                 <p class="text-lg text-gray-600 dark:text-gray-400">
-                    Make changes to your listing below.
+                    {{ $t('subtitle') }}
                 </p>
             </div>
 
@@ -25,11 +25,10 @@
                 <h3
                     class="text-base font-semibold text-red-800 dark:text-red-300 mb-1"
                 >
-                    This listing was rejected
+                    {{ $t('rejected_title') }}
                 </h3>
                 <p class="text-sm text-red-700 dark:text-red-400">
-                    Please review the feedback below, make the necessary changes,
-                    and resubmit for approval.
+                    {{ $t('rejected_desc') }}
                 </p>
 
                 <div
@@ -39,7 +38,7 @@
                     <p
                         class="text-sm font-semibold text-red-700 dark:text-red-400"
                     >
-                        Reviewer comments:
+                        {{ $t('reviewer_comments') }}
                     </p>
                     <div
                         v-for="comment in accommodationDraftReviewComments"
@@ -72,7 +71,7 @@
                     />
                     <div class="flex gap-3 mt-6">
                         <BaseButton variant="secondary" @click="cancelEdit">
-                            Done
+                            {{ $t('btn_done') }}
                         </BaseButton>
                     </div>
                 </div>
@@ -87,11 +86,11 @@
                         v-else
                         class="w-full h-full flex items-center justify-center text-gray-400"
                     >
-                        <span>No photos uploaded</span>
+                        <span>{{ $t('no_photos') }}</span>
                     </div>
                     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                         <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-sm font-medium px-4 py-2 rounded-lg shadow">
-                            Edit photos
+                            {{ $t('edit_photos') }}
                         </span>
                     </div>
                     <div
@@ -100,7 +99,7 @@
                         <span
                             class="text-sm font-medium text-gray-900 dark:text-white"
                         >
-                            {{ formData.photos.length }} photos
+                            {{ $t('photos', { count: formData.photos.length }) }}
                         </span>
                     </div>
                 </div>
@@ -109,7 +108,7 @@
                     <h2
                         class="text-2xl font-semibold text-gray-900 dark:text-white mb-2"
                     >
-                        {{ formData.title || "Untitled listing" }}
+                        {{ formData.title || $t('untitled') }}
                     </h2>
                     <p
                         v-if="formData.address.city"
@@ -123,13 +122,13 @@
                         class="flex items-center space-x-6 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700"
                     >
                         <span class="text-sm text-gray-700 dark:text-gray-300">
-                            {{ formData.floorPlan.guests }} guests
+                            {{ $t('guests', { count: formData.floorPlan.guests }) }}
                         </span>
                         <span class="text-sm text-gray-700 dark:text-gray-300">
-                            {{ formData.floorPlan.bedrooms }} bedrooms
+                            {{ $t('bedrooms', { count: formData.floorPlan.bedrooms }) }}
                         </span>
                         <span class="text-sm text-gray-700 dark:text-gray-300">
-                            {{ formData.floorPlan.bathrooms }} bathrooms
+                            {{ $t('bathrooms', { count: formData.floorPlan.bathrooms }) }}
                         </span>
                     </div>
 
@@ -142,7 +141,7 @@
                         <span
                             class="text-base text-gray-600 dark:text-gray-400 ml-1"
                         >
-                            / night
+                            {{ $t('per_night') }}
                         </span>
                     </div>
                 </div>
@@ -158,7 +157,7 @@
                     <h3
                         class="text-base font-semibold text-gray-900 dark:text-white mb-4"
                     >
-                        Property info
+                        {{ $t('section_property') }}
                     </h3>
                     <step1-accommodation-type
                         :form-data="formData"
@@ -175,23 +174,21 @@
                             :disabled="isSaving"
                             @click="saveSection"
                         >
-                            Save
+                            {{ $t('btn_save') }}
                         </BaseButton>
                         <BaseButton variant="secondary" @click="cancelEdit">
-                            Cancel
+                            {{ $t('btn_cancel') }}
                         </BaseButton>
                     </div>
                 </div>
                 <edit-section
                     v-else
-                    title="Property info"
+                    :title="$t('section_property')"
                     @edit="startEdit('property')"
                 >
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Type:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_type') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
@@ -199,9 +196,7 @@
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Occupation:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_occupation') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
@@ -219,7 +214,7 @@
                     <h3
                         class="text-base font-semibold text-gray-900 dark:text-white mb-4"
                     >
-                        Location
+                        {{ $t('section_location') }}
                     </h3>
                     <step3-address
                         :form-data="formData"
@@ -231,16 +226,16 @@
                             :disabled="isSaving"
                             @click="saveSection"
                         >
-                            Save
+                            {{ $t('btn_save') }}
                         </BaseButton>
                         <BaseButton variant="secondary" @click="cancelEdit">
-                            Cancel
+                            {{ $t('btn_cancel') }}
                         </BaseButton>
                     </div>
                 </div>
                 <edit-section
                     v-else
-                    title="Location"
+                    :title="$t('section_location')"
                     @edit="startEdit('location')"
                 >
                     <div
@@ -264,7 +259,7 @@
                     <h3
                         class="text-base font-semibold text-gray-900 dark:text-white mb-4"
                     >
-                        Floor plan
+                        {{ $t('section_floor_plan') }}
                     </h3>
                     <step4-floor-plan
                         :form-data="formData"
@@ -276,23 +271,21 @@
                             :disabled="isSaving"
                             @click="saveSection"
                         >
-                            Save
+                            {{ $t('btn_save') }}
                         </BaseButton>
                         <BaseButton variant="secondary" @click="cancelEdit">
-                            Cancel
+                            {{ $t('btn_cancel') }}
                         </BaseButton>
                     </div>
                 </div>
                 <edit-section
                     v-else
-                    title="Floor plan"
+                    :title="$t('section_floor_plan')"
                     @edit="startEdit('floorPlan')"
                 >
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Guests:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_guests') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
@@ -300,9 +293,7 @@
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Bedrooms:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_bedrooms') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
@@ -310,9 +301,7 @@
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Bathrooms:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_bathrooms') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
@@ -330,7 +319,7 @@
                     <h3
                         class="text-base font-semibold text-gray-900 dark:text-white mb-4"
                     >
-                        Amenities
+                        {{ $t('section_amenities') }}
                     </h3>
                     <step5-amenities
                         :form-data="formData"
@@ -342,20 +331,20 @@
                             :disabled="isSaving"
                             @click="saveSection"
                         >
-                            Save
+                            {{ $t('btn_save') }}
                         </BaseButton>
                         <BaseButton variant="secondary" @click="cancelEdit">
-                            Cancel
+                            {{ $t('btn_cancel') }}
                         </BaseButton>
                     </div>
                 </div>
                 <edit-section
                     v-else
-                    title="Amenities"
+                    :title="$t('section_amenities')"
                     @edit="startEdit('amenities')"
                 >
                     <p class="text-sm text-gray-700 dark:text-gray-300">
-                        {{ formData.amenities.length }} amenities selected
+                        {{ $t('amenities_count', { count: formData.amenities.length }) }}
                     </p>
                 </edit-section>
 
@@ -367,7 +356,7 @@
                     <h3
                         class="text-base font-semibold text-gray-900 dark:text-white mb-4"
                     >
-                        Title
+                        {{ $t('section_title') }}
                     </h3>
                     <step7-title
                         :form-data="formData"
@@ -379,22 +368,22 @@
                             :disabled="isSaving"
                             @click="saveSection"
                         >
-                            Save
+                            {{ $t('btn_save') }}
                         </BaseButton>
                         <BaseButton variant="secondary" @click="cancelEdit">
-                            Cancel
+                            {{ $t('btn_cancel') }}
                         </BaseButton>
                     </div>
                 </div>
                 <edit-section
                     v-else
-                    title="Title"
+                    :title="$t('section_title')"
                     @edit="startEdit('title')"
                 >
                     <p
                         class="text-sm text-gray-700 dark:text-gray-300 font-medium"
                     >
-                        {{ formData.title || "Not set" }}
+                        {{ formData.title || $t('not_set') }}
                     </p>
                 </edit-section>
 
@@ -406,7 +395,7 @@
                     <h3
                         class="text-base font-semibold text-gray-900 dark:text-white mb-4"
                     >
-                        Description
+                        {{ $t('section_description') }}
                     </h3>
                     <step8-description
                         :form-data="formData"
@@ -418,22 +407,22 @@
                             :disabled="isSaving"
                             @click="saveSection"
                         >
-                            Save
+                            {{ $t('btn_save') }}
                         </BaseButton>
                         <BaseButton variant="secondary" @click="cancelEdit">
-                            Cancel
+                            {{ $t('btn_cancel') }}
                         </BaseButton>
                     </div>
                 </div>
                 <edit-section
                     v-else
-                    title="Description"
+                    :title="$t('section_description')"
                     @edit="startEdit('description')"
                 >
                     <p
                         class="text-sm text-gray-700 dark:text-gray-300 line-clamp-2"
                     >
-                        {{ formData.description || "Not set" }}
+                        {{ formData.description || $t('not_set') }}
                     </p>
                 </edit-section>
 
@@ -445,7 +434,7 @@
                     <h3
                         class="text-base font-semibold text-gray-900 dark:text-white mb-4"
                     >
-                        Pricing
+                        {{ $t('section_pricing') }}
                     </h3>
                     <step9-pricing
                         :form-data="formData"
@@ -457,33 +446,29 @@
                             :disabled="isSaving"
                             @click="saveSection"
                         >
-                            Save
+                            {{ $t('btn_save') }}
                         </BaseButton>
                         <BaseButton variant="secondary" @click="cancelEdit">
-                            Cancel
+                            {{ $t('btn_cancel') }}
                         </BaseButton>
                     </div>
                 </div>
                 <edit-section
                     v-else
-                    title="Pricing"
+                    :title="$t('section_pricing')"
                     @edit="startEdit('pricing')"
                 >
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Base price:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_base_price') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
-                                ${{ formData.pricing.basePrice }} / night
+                                ${{ formData.pricing.basePrice }} {{ $t('per_night') }}
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Booking type:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_booking_type') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium capitalize"
                             >
@@ -491,13 +476,11 @@
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Min. stay:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_min_stay') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
-                                {{ formData.pricing.minStay }} nights
+                                {{ $t('nights', { count: formData.pricing.minStay }) }}
                             </span>
                         </div>
                     </div>
@@ -511,7 +494,7 @@
                     <h3
                         class="text-base font-semibold text-gray-900 dark:text-white mb-4"
                     >
-                        House rules
+                        {{ $t('section_house_rules') }}
                     </h3>
                     <step10-house-rules
                         :form-data="formData"
@@ -523,23 +506,21 @@
                             :disabled="isSaving"
                             @click="saveSection"
                         >
-                            Save
+                            {{ $t('btn_save') }}
                         </BaseButton>
                         <BaseButton variant="secondary" @click="cancelEdit">
-                            Cancel
+                            {{ $t('btn_cancel') }}
                         </BaseButton>
                     </div>
                 </div>
                 <edit-section
                     v-else
-                    title="House rules"
+                    :title="$t('section_house_rules')"
                     @edit="startEdit('houseRules')"
                 >
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Check-in:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_checkin') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
@@ -548,9 +529,7 @@
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Check-out:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_checkout') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium"
                             >
@@ -558,9 +537,7 @@
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400"
-                                >Cancellation:</span
-                            >
+                            <span class="text-gray-600 dark:text-gray-400">{{ $t('label_cancellation') }}</span>
                             <span
                                 class="text-gray-900 dark:text-white font-medium capitalize"
                             >
@@ -578,17 +555,16 @@
                 <h4
                     class="text-sm font-semibold text-gray-900 dark:text-white mb-2"
                 >
-                    Ready to submit?
+                    {{ $t('submit_heading') }}
                 </h4>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    Once submitted, our team will review your listing within 24
-                    hours.
+                    {{ $t('submit_desc') }}
                 </p>
                 <BaseButton
                     :disabled="isSaving"
                     @click="submitForApproval"
                 >
-                    Submit for approval
+                    {{ $t('submit_btn') }}
                 </BaseButton>
             </div>
         </template>
@@ -892,3 +868,216 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  heading: "Edit listing"
+  subtitle: "Make changes to your listing below."
+  no_photos: "No photos uploaded"
+  edit_photos: "Edit photos"
+  photos: "{count} photos"
+  untitled: "Untitled listing"
+  guests: "{count} guests"
+  bedrooms: "{count} bedrooms"
+  bathrooms: "{count} bathrooms"
+  per_night: "/ night"
+  rejected_title: "This listing was rejected"
+  rejected_desc: "Please review the feedback below, make the necessary changes, and resubmit for approval."
+  reviewer_comments: "Reviewer comments:"
+  section_property: "Property info"
+  section_location: "Location"
+  section_floor_plan: "Floor plan"
+  section_amenities: "Amenities"
+  section_title: "Title"
+  section_description: "Description"
+  section_pricing: "Pricing"
+  section_house_rules: "House rules"
+  label_type: "Type:"
+  label_occupation: "Occupation:"
+  label_guests: "Guests:"
+  label_bedrooms: "Bedrooms:"
+  label_bathrooms: "Bathrooms:"
+  label_base_price: "Base price:"
+  label_booking_type: "Booking type:"
+  label_min_stay: "Min. stay:"
+  label_checkin: "Check-in:"
+  label_checkout: "Check-out:"
+  label_cancellation: "Cancellation:"
+  not_set: "Not set"
+  amenities_count: "{count} amenities selected"
+  nights: "{count} nights"
+  btn_save: "Save"
+  btn_cancel: "Cancel"
+  btn_done: "Done"
+  submit_heading: "Ready to submit?"
+  submit_desc: "Once submitted, our team will review your listing within 24 hours."
+  submit_btn: "Submit for approval"
+sr:
+  heading: "Uredi oglas"
+  subtitle: "Unesite izmene u oglas ispod."
+  no_photos: "Nema otpremljenih fotografija"
+  edit_photos: "Uredi fotografije"
+  photos: "{count} fotografija"
+  untitled: "Oglas bez naslova"
+  guests: "{count} gostiju"
+  bedrooms: "{count} spavaćih soba"
+  bathrooms: "{count} kupatila"
+  per_night: "/ noć"
+  rejected_title: "Ovaj oglas je odbijen"
+  rejected_desc: "Pregledajte povratne informacije u nastavku, napravite neophodne izmene i ponovo podnesite na odobrenje."
+  reviewer_comments: "Komentari recenzenta:"
+  section_property: "Informacije o nekretnini"
+  section_location: "Lokacija"
+  section_floor_plan: "Raspored soba"
+  section_amenities: "Sadržaji"
+  section_title: "Naslov"
+  section_description: "Opis"
+  section_pricing: "Cene"
+  section_house_rules: "Kućni red"
+  label_type: "Vrsta:"
+  label_occupation: "Tip korišćenja:"
+  label_guests: "Gosti:"
+  label_bedrooms: "Spavaće sobe:"
+  label_bathrooms: "Kupatila:"
+  label_base_price: "Osnovna cena:"
+  label_booking_type: "Tip rezervacije:"
+  label_min_stay: "Min. boravak:"
+  label_checkin: "Prijava:"
+  label_checkout: "Odjava:"
+  label_cancellation: "Otkazivanje:"
+  not_set: "Nije postavljeno"
+  amenities_count: "{count} sadržaja odabrano"
+  nights: "{count} noći"
+  btn_save: "Sačuvaj"
+  btn_cancel: "Otkaži"
+  btn_done: "Gotovo"
+  submit_heading: "Spremni za slanje?"
+  submit_desc: "Nakon slanja, naš tim će pregledati vaš oglas u roku od 24 sata."
+  submit_btn: "Pošalji na odobrenje"
+hr:
+  heading: "Uredi oglas"
+  subtitle: "Unesite izmjene u oglas ispod."
+  no_photos: "Nema učitanih fotografija"
+  edit_photos: "Uredi fotografije"
+  photos: "{count} fotografija"
+  untitled: "Oglas bez naslova"
+  guests: "{count} gostiju"
+  bedrooms: "{count} spavaćih soba"
+  bathrooms: "{count} kupaonica"
+  per_night: "/ noć"
+  rejected_title: "Ovaj oglas je odbijen"
+  rejected_desc: "Pregledajte povratne informacije u nastavku, napravite potrebne izmjene i ponovo podnesite na odobrenje."
+  reviewer_comments: "Komentari recenzenta:"
+  section_property: "Informacije o nekretnini"
+  section_location: "Lokacija"
+  section_floor_plan: "Tlocrt"
+  section_amenities: "Sadržaji"
+  section_title: "Naslov"
+  section_description: "Opis"
+  section_pricing: "Cijene"
+  section_house_rules: "Kućna pravila"
+  label_type: "Vrsta:"
+  label_occupation: "Vrsta korištenja:"
+  label_guests: "Gosti:"
+  label_bedrooms: "Spavaće sobe:"
+  label_bathrooms: "Kupaonica:"
+  label_base_price: "Osnovna cijena:"
+  label_booking_type: "Vrsta rezervacije:"
+  label_min_stay: "Min. boravak:"
+  label_checkin: "Prijava:"
+  label_checkout: "Odjava:"
+  label_cancellation: "Otkazivanje:"
+  not_set: "Nije postavljeno"
+  amenities_count: "{count} sadržaja odabrano"
+  nights: "{count} noći"
+  btn_save: "Spremi"
+  btn_cancel: "Odustani"
+  btn_done: "Gotovo"
+  submit_heading: "Spremni za slanje?"
+  submit_desc: "Nakon slanja, naš tim će pregledati vaš oglas u roku od 24 sata."
+  submit_btn: "Pošalji na odobrenje"
+mk:
+  heading: "Уреди оглас"
+  subtitle: "Направете промени на вашиот оглас подолу."
+  no_photos: "Нема прикачени фотографии"
+  edit_photos: "Уреди фотографии"
+  photos: "{count} фотографии"
+  untitled: "Оглас без наслов"
+  guests: "{count} гости"
+  bedrooms: "{count} спални"
+  bathrooms: "{count} бањи"
+  per_night: "/ ноќ"
+  rejected_title: "Овој оглас е одбиен"
+  rejected_desc: "Прегледајте ги повратните информации подолу, направете ги потребните промени и повторно поднесете за одобрување."
+  reviewer_comments: "Коментари на рецензентот:"
+  section_property: "Информации за имотот"
+  section_location: "Локација"
+  section_floor_plan: "План на катот"
+  section_amenities: "Погодности"
+  section_title: "Наслов"
+  section_description: "Опис"
+  section_pricing: "Цени"
+  section_house_rules: "Правила на домот"
+  label_type: "Вид:"
+  label_occupation: "Тип на користење:"
+  label_guests: "Гости:"
+  label_bedrooms: "Спални:"
+  label_bathrooms: "Бањи:"
+  label_base_price: "Основна цена:"
+  label_booking_type: "Тип на резервација:"
+  label_min_stay: "Мин. престој:"
+  label_checkin: "Пријавување:"
+  label_checkout: "Одјавување:"
+  label_cancellation: "Откажување:"
+  not_set: "Не е поставено"
+  amenities_count: "{count} погодности избрани"
+  nights: "{count} ноќи"
+  btn_save: "Зачувај"
+  btn_cancel: "Откажи"
+  btn_done: "Готово"
+  submit_heading: "Готови за поднесување?"
+  submit_desc: "По поднесувањето, нашиот тим ќе го прегледа вашиот оглас во рок од 24 часа."
+  submit_btn: "Поднеси за одобрување"
+sl:
+  heading: "Uredi oglas"
+  subtitle: "Spodaj vnesite spremembe v oglas."
+  no_photos: "Ni naloženih fotografij"
+  edit_photos: "Uredi fotografije"
+  photos: "{count} fotografij"
+  untitled: "Oglas brez naslova"
+  guests: "{count} gostov"
+  bedrooms: "{count} spalnic"
+  bathrooms: "{count} kopalnic"
+  per_night: "/ noč"
+  rejected_title: "Ta oglas je bil zavrnjen"
+  rejected_desc: "Preglejte spodnje povratne informacije, naredite potrebne spremembe in ponovno oddajte v odobritev."
+  reviewer_comments: "Komentarji recenzenta:"
+  section_property: "Informacije o nepremičnini"
+  section_location: "Lokacija"
+  section_floor_plan: "Tloris"
+  section_amenities: "Ugodnosti"
+  section_title: "Naslov"
+  section_description: "Opis"
+  section_pricing: "Cene"
+  section_house_rules: "Hišni red"
+  label_type: "Vrsta:"
+  label_occupation: "Vrsta rabe:"
+  label_guests: "Gosti:"
+  label_bedrooms: "Spalnice:"
+  label_bathrooms: "Kopalnice:"
+  label_base_price: "Osnovna cena:"
+  label_booking_type: "Vrsta rezervacije:"
+  label_min_stay: "Min. bivanje:"
+  label_checkin: "Prijava:"
+  label_checkout: "Odjava:"
+  label_cancellation: "Odpoved:"
+  not_set: "Ni nastavljeno"
+  amenities_count: "{count} ugodnosti izbranih"
+  nights: "{count} noči"
+  btn_save: "Shrani"
+  btn_cancel: "Prekliči"
+  btn_done: "Končano"
+  submit_heading: "Pripravljeni za oddajo?"
+  submit_desc: "Po oddaji bo naša ekipa pregledala vaš oglas v 24 urah."
+  submit_btn: "Oddaj v odobritev"
+</i18n>

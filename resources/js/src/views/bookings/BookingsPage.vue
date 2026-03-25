@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen bg-white dark:bg-gray-900">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Bookings</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ $t('title') }}</h1>
 
             <!-- Loading -->
             <div v-if="loading" class="space-y-4">
@@ -35,15 +35,13 @@
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                 </svg>
-                <p class="text-gray-600 dark:text-gray-400 text-lg font-medium">No bookings yet</p>
-                <p class="text-gray-500 dark:text-gray-500 text-sm mt-1">
-                    When you make a reservation, it will appear here.
-                </p>
+                <p class="text-gray-600 dark:text-gray-400 text-lg font-medium">{{ $t('no_bookings') }}</p>
+                <p class="text-gray-500 dark:text-gray-500 text-sm mt-1">{{ $t('no_bookings_desc') }}</p>
                 <router-link
                     :to="{ name: 'page-search' }"
                     class="mt-4 inline-block text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline"
                 >
-                    Find a place to stay
+                    {{ $t('find_stay') }}
                 </router-link>
             </div>
 
@@ -82,12 +80,12 @@
                     <div class="flex flex-1 flex-col justify-between p-4 min-w-0">
                         <div>
                             <p class="font-semibold text-gray-900 dark:text-white truncate">
-                                {{ booking.accommodation?.title || 'Accommodation' }}
+                                {{ booking.accommodation?.title || $t('accommodation_fallback') }}
                             </p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                                 {{ formatDate(booking.check_in) }} – {{ formatDate(booking.check_out) }}
-                                · {{ booking.nights }} night{{ booking.nights !== 1 ? 's' : '' }}
-                                · {{ booking.guests }} guest{{ booking.guests !== 1 ? 's' : '' }}
+                                · {{ $tc('accommodation.nights', booking.nights, { count: booking.nights }) }}
+                                · {{ $tc('accommodation.guests', booking.guests, { count: booking.guests }) }}
                             </p>
                         </div>
                         <div class="flex items-center justify-between mt-3">
@@ -172,7 +170,7 @@ export default {
                 this.bookings = response.data.data;
                 this.meta = response.data.meta || {};
             } catch (err) {
-                this.error = err?.error?.message || err?.message || 'Failed to load bookings.';
+                this.error = err?.error?.message || err?.message || this.$t('load_error');
             } finally {
                 this.loading = false;
             }
@@ -184,3 +182,45 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  title: My Bookings
+  no_bookings: No bookings yet
+  no_bookings_desc: When you make a reservation, it will appear here.
+  find_stay: Find a place to stay
+  load_error: Failed to load bookings.
+  accommodation_fallback: Accommodation
+
+sr:
+  title: Moje rezervacije
+  no_bookings: Nema rezervacija
+  no_bookings_desc: Kada napravite rezervaciju, pojaviće se ovde.
+  find_stay: Pronađite smeštaj
+  load_error: Greška pri učitavanju rezervacija.
+  accommodation_fallback: Smeštaj
+
+hr:
+  title: Moje rezervacije
+  no_bookings: Nema rezervacija
+  no_bookings_desc: Kad napravite rezervaciju, pojavit će se ovdje.
+  find_stay: Pronađite smještaj
+  load_error: Greška pri učitavanju rezervacija.
+  accommodation_fallback: Smještaj
+
+mk:
+  title: Мои резервации
+  no_bookings: Нема резервации
+  no_bookings_desc: Кога ќе направите резервација, ќе се појави овде.
+  find_stay: Пронајдете сместување
+  load_error: Грешка при вчитување на резервациите.
+  accommodation_fallback: Сместување
+
+sl:
+  title: Moje rezervacije
+  no_bookings: Ni rezervacij
+  no_bookings_desc: Ko naredite rezervacijo, se bo pojavila tukaj.
+  find_stay: Poiščite nastanitev
+  load_error: Napaka pri nalaganju rezervacij.
+  accommodation_fallback: Nastanitev
+</i18n>

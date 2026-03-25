@@ -9,7 +9,7 @@
             <!-- From Time -->
             <div v-if="showFrom">
                 <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                    {{ fromLabel || 'From' }}
+                    {{ fromLabel || $t('from') }}
                 </label>
                 <select
                     :value="fromValue"
@@ -25,7 +25,7 @@
             <!-- Until Time -->
             <div v-if="showUntil">
                 <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                    {{ untilLabel || 'Until' }}
+                    {{ untilLabel || $t('until') }}
                 </label>
                 <select
                     :value="untilValue"
@@ -100,3 +100,21 @@ export default {
     emits: ["update:from", "update:until", "update:value"],
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  from: From
+  until: Until
+sr:
+  from: Od
+  until: Do
+hr:
+  from: Od
+  until: Do
+mk:
+  from: Од
+  until: До
+sl:
+  from: Od
+  until: Do
+</i18n>

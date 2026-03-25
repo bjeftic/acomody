@@ -1,19 +1,19 @@
 @extends('layouts.email')
 
-@section('title', 'Verify Your Email Address')
-@section('header-title', 'Verify Your Email Address')
+@section('title', __('mail.verify_email.title'))
+@section('header-title', __('mail.verify_email.title'))
 
 @section('content')
-<p>Hi {{ $user->email }},</p>
-<p>Thank you for registering with {{ config('app.name') }}. Please verify your email address by clicking the button below.</p>
+<p>{{ __('mail.hi', ['name' => $user->email]) }}</p>
+<p>{{ __('mail.verify_email.body', ['app' => config('app.name')]) }}</p>
 
 <div class="btn-wrap">
-    <a href="{{ $verificationUrl }}" class="btn">Verify Email Address</a>
+    <a href="{{ $verificationUrl }}" class="btn">{{ __('mail.verify_email.btn') }}</a>
 </div>
 
-<p class="note">This link will expire in {{ config('auth.verification.expire', 60) }} minutes.</p>
-<p class="note">If you did not create an account, no further action is required.</p>
-<p class="note">If the button above does not work, copy and paste the following link into your browser:<br>
+<p class="note">{{ __('mail.verify_email.expire_note', ['minutes' => config('auth.verification.expire', 60)]) }}</p>
+<p class="note">{{ __('mail.verify_email.no_account_note') }}</p>
+<p class="note">{{ __('mail.verify_email.fallback_note') }}<br>
     <a href="{{ $verificationUrl }}" style="color: #E11D48; word-break: break-all;">{{ $verificationUrl }}</a>
 </p>
 @endsection

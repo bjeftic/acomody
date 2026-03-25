@@ -9,6 +9,29 @@
 
                 <!-- Desktop Navigation Items -->
                 <div class="hidden md:flex items-center gap-2">
+                    <!-- Language selector -->
+                    <BaseDropdown align="end" close-inside>
+                        <template #trigger="{ isOpen }">
+                            <BaseButton variant="ghost" size="sm">
+                                {{ currentLanguageCode.toUpperCase() }}
+                                <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': isOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </BaseButton>
+                        </template>
+                        <nav class="bg-white dark:bg-gray-800 py-1 text-sm rounded-xl text-gray-700 dark:text-gray-200 flex flex-col shadow-dropdown border border-gray-100 dark:border-gray-700">
+                            <span
+                                v-for="lang in languages"
+                                :key="lang.code"
+                                class="cursor-pointer px-4 py-2 min-w-32 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between gap-3"
+                                @click="changeLanguage(lang.code)"
+                            >
+                                <span>{{ lang.native }}</span>
+                                <span v-if="currentLanguageCode === lang.code" class="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
+                            </span>
+                        </nav>
+                    </BaseDropdown>
+
                     <!-- Currency selector -->
                     <BaseDropdown align="end" close-inside>
                         <template #trigger="{ isOpen }">
@@ -23,10 +46,11 @@
                             <span
                                 v-for="currency in currencies"
                                 :key="currency.code"
-                                class="cursor-pointer px-4 py-2 min-w-24 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                class="cursor-pointer px-4 py-2 min-w-32 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between gap-3"
                                 @click="setCurrency(currency.code); currentCurrency = currency.code"
                             >
-                                {{ currency.code }}
+                                <span>{{ currency.code }}</span>
+                                <span v-if="(currentCurrency || selectedCurrency.code) === currency.code" class="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
                             </span>
                         </nav>
                     </BaseDropdown>
@@ -39,7 +63,7 @@
                             size="sm"
                             @click="$router.push({ name: 'page-become-a-host' })"
                         >
-                            Become a host
+                            {{ $t('nav.become_host') }}
                         </BaseButton>
                         <BaseButton
                             v-else-if="hostingCtaStatus !== 'not_host' && $route.name !== 'page-hosting-home'"
@@ -47,7 +71,7 @@
                             size="sm"
                             @click="$router.push({ name: 'page-hosting-home' })"
                         >
-                            Hosting
+                            {{ $t('nav.hosting') }}
                         </BaseButton>
                     </template>
                     <BaseButton
@@ -56,7 +80,7 @@
                         size="sm"
                         @click="$router.push({ name: 'page-become-a-host' })"
                     >
-                        Become a host
+                        {{ $t('nav.become_host') }}
                     </BaseButton>
 
                     <!-- Notifications -->
@@ -65,17 +89,17 @@
                     <!-- Auth buttons or Account dropdown -->
                     <template v-if="!isLoggedIn">
                         <BaseButton variant="secondary" size="sm" @click="openLogInModal">
-                            Log in
+                            {{ $t('nav.login') }}
                         </BaseButton>
                         <BaseButton variant="primary" size="sm" @click="openSignUpModal">
-                            Sign up
+                            {{ $t('nav.signup') }}
                         </BaseButton>
                     </template>
                     <template v-else>
                         <BaseDropdown align="end" close-inside>
                             <template #trigger="{ isOpen }">
                                 <BaseButton variant="ghost" size="sm">
-                                    Account
+                                    {{ $t('nav.account') }}
                                     <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': isOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
                                     </svg>
@@ -86,29 +110,29 @@
                                     :to="{ name: 'page-account' }"
                                     class="px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700"
                                 >
-                                    My account
+                                    {{ $t('nav.my_account') }}
                                 </router-link>
                                 <span class="px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
-                                    Dashboard
+                                    {{ $t('nav.dashboard') }}
                                 </span>
                                 <router-link
                                     :to="{ name: 'bookings-list' }"
                                     class="px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700"
                                 >
-                                    Bookings
+                                    {{ $t('nav.bookings') }}
                                 </router-link>
                                 <span class="px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
-                                    Wishlists
+                                    {{ $t('nav.wishlists') }}
                                 </span>
                                 <span class="px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
-                                    Reviews
+                                    {{ $t('nav.reviews') }}
                                 </span>
                                 <hr class="my-1 border-gray-100 dark:border-gray-700" />
                                 <span
                                     class="px-4 py-2 min-w-36 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-primary-600 dark:text-primary-400"
                                     @click="logOut"
                                 >
-                                    Log out
+                                    {{ $t('nav.logout') }}
                                 </span>
                             </nav>
                         </BaseDropdown>
@@ -138,9 +162,27 @@
                 class="md:hidden border-t border-gray-200 dark:border-gray-700 py-3 space-y-1"
                 @click="mobileMenuOpen = false"
             >
+                <!-- Language selector -->
+                <div class="px-2 py-1">
+                    <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">{{ $t('nav.language') }}</p>
+                    <div class="flex flex-wrap gap-1">
+                        <button
+                            v-for="lang in languages"
+                            :key="lang.code"
+                            class="px-3 py-1.5 text-sm rounded-lg border transition"
+                            :class="currentLanguageCode === lang.code
+                                ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-700 text-primary-700 dark:text-primary-300 font-medium'
+                                : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'"
+                            @click.stop="changeLanguage(lang.code)"
+                        >
+                            {{ lang.native }}
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Currency selector -->
                 <div class="px-2 py-1">
-                    <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">Currency</p>
+                    <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">{{ $t('nav.currency') }}</p>
                     <div class="flex flex-wrap gap-1">
                         <button
                             v-for="currency in currencies"
@@ -165,14 +207,14 @@
                         class="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
                         @click="$router.push({ name: 'page-become-a-host' })"
                     >
-                        Become a host
+                        {{ $t('nav.become_host') }}
                     </button>
                     <button
                         v-else-if="hostingCtaStatus !== 'not_host' && $route.name !== 'page-hosting-home'"
                         class="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
                         @click="$router.push({ name: 'page-hosting-home' })"
                     >
-                        Hosting dashboard
+                        {{ $t('nav.hosting_dashboard') }}
                     </button>
                 </template>
                 <button
@@ -180,7 +222,7 @@
                     class="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
                     @click="$router.push({ name: 'page-become-a-host' })"
                 >
-                    Become a host
+                    {{ $t('nav.become_host') }}
                 </button>
 
                 <!-- Auth / Account links -->
@@ -189,13 +231,13 @@
                         class="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
                         @click="openLogInModal"
                     >
-                        Log in
+                        {{ $t('nav.login') }}
                     </button>
                     <button
                         class="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
                         @click="openSignUpModal"
                     >
-                        Sign up
+                        {{ $t('nav.signup') }}
                     </button>
                 </template>
                 <template v-else>
@@ -203,19 +245,19 @@
                         :to="{ name: 'page-account' }"
                         class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
                     >
-                        My account
+                        {{ $t('nav.my_account') }}
                     </router-link>
                     <router-link
                         :to="{ name: 'bookings-list' }"
                         class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
                     >
-                        Bookings
+                        {{ $t('nav.bookings') }}
                     </router-link>
                     <button
                         class="w-full text-left px-4 py-3 text-sm text-primary-600 dark:text-primary-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition"
                         @click="logOut"
                     >
-                        Log out
+                        {{ $t('nav.logout') }}
                     </button>
                 </template>
             </div>
@@ -245,7 +287,11 @@ export default {
     computed: {
         ...mapGetters("auth", ["isLoggedIn"]),
         ...mapGetters("user", ["hostingCtaStatus"]),
-        ...mapState("ui", ["currencies", "selectedCurrency"]),
+        ...mapState("ui", ["currencies", "selectedCurrency", "languages", "selectedLanguage"]),
+
+        currentLanguageCode() {
+            return this.selectedLanguage || this.$i18n.locale || "en";
+        },
     },
 
     watch: {
@@ -274,7 +320,7 @@ export default {
     methods: {
         ...mapActions(["openModal"]),
         ...mapActions("auth", ["logOut"]),
-        ...mapActions("ui", ["setCurrency"]),
+        ...mapActions("ui", ["setCurrency", "setLanguage"]),
         ...mapActions("notifications", ["fetchNotifications"]),
 
         openLogInModal() {
@@ -283,6 +329,10 @@ export default {
 
         openSignUpModal() {
             this.openModal({ modalName: "signUpModal" });
+        },
+
+        changeLanguage(code) {
+            this.setLanguage(code);
         },
 
         startPolling() {

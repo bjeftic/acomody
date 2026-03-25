@@ -57,7 +57,8 @@ export default {
             if (typeof nameObj === 'string') {
                 return nameObj;
             }
-            return nameObj?.en || Object.values(nameObj ?? {})[0] || '';
+            const locale = this.$i18n.locale;
+            return nameObj?.[locale] || nameObj?.en || Object.values(nameObj ?? {})[0] || '';
         },
         countryFlag(isoCode) {
             return isoCode

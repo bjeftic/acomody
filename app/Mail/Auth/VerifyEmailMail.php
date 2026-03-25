@@ -16,11 +16,13 @@ class VerifyEmailMail extends Mailable
     public function __construct(
         public readonly User $user,
         public readonly string $verificationUrl,
-    ) {}
+    ) {
+        $this->locale($user->preferred_language ?? 'en');
+    }
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Verify Your Email Address');
+        return new Envelope(subject: __('mail.verify_email.subject'));
     }
 
     public function content(): Content

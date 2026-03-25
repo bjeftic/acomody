@@ -1,16 +1,16 @@
 @extends('layouts.email')
 
-@section('title', 'Reviewer Comment')
-@section('header-title', 'Reviewer Comment')
+@section('title', __('mail.review_comment.title'))
+@section('header-title', __('mail.review_comment.title'))
 
 @section('content')
-<p>Hi {{ $draft->user->first_name ?? $draft->user->name }},</p>
-<p>Our review team has left a comment on your accommodation submission <strong>{{ json_decode($draft->data, true)['title'] ?? 'your property' }}</strong>.</p>
+<p>{{ __('mail.hi', ['name' => $draft->user->first_name ?? $draft->user->name]) }}</p>
+<p>{{ __('mail.review_comment.body1', ['property' => json_decode($draft->data, true)['title'] ?? 'your property']) }}</p>
 
 <div class="alert alert-info">
     <p>{{ $comment->body }}</p>
 </div>
 
-<p>Please review the comment and make any necessary updates to your submission.</p>
-<p class="note">If you have any questions, please contact our support team.</p>
+<p>{{ __('mail.review_comment.body2') }}</p>
+<p class="note">{{ __('mail.support_note') }}</p>
 @endsection
