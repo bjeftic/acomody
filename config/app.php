@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'sitemap_token' => env('SITEMAP_TOKEN'),
+
 ];
