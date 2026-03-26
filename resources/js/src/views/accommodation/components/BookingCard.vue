@@ -96,17 +96,10 @@
                     <span>{{ formatPrice(totalPrice, priceCurrency) }}</span>
                 </div>
                 <div
-                    v-if="serviceFee > 0"
-                    class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
-                >
-                    <span>{{ $t('booking.service_fee') }}</span>
-                    <span>{{ formatPrice(serviceFee, priceCurrency) }}</span>
-                </div>
-                <div
                     class="flex justify-between text-base font-semibold text-gray-900 dark:text-white pt-3 border-t border-gray-200 dark:border-gray-700"
                 >
                     <span>{{ $t('accommodation.total') }}</span>
-                    <span>{{ formatPrice(totalWithFees, priceCurrency) }}</span>
+                    <span>{{ formatPrice(totalPrice, priceCurrency) }}</span>
                 </div>
             </div>
 
@@ -152,8 +145,6 @@
 </template>
 
 <script>
-import { VueDatePicker } from "@vuepic/vue-datepicker";
-import "@vuepic/vue-datepicker/dist/main.css";
 import { formatPrice } from "@/utils/helpers";
 import apiClient from "@/services/apiClient";
 import GuestsDropdown from "@/src/components/common/GuestsDropdown.vue";
@@ -163,7 +154,6 @@ export default {
 
     components: {
         GuestsDropdown,
-        VueDatePicker,
     },
 
     props: {
@@ -231,14 +221,6 @@ export default {
 
         totalPrice() {
             return parseFloat((this.pricePerNight * this.totalNights).toFixed(2));
-        },
-
-        serviceFee() {
-            return parseFloat((this.totalPrice * 0.1).toFixed(2));
-        },
-
-        totalWithFees() {
-            return parseFloat((this.totalPrice + this.serviceFee).toFixed(2));
         },
 
         totalGuests() {

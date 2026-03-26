@@ -119,43 +119,58 @@
                     <!-- Nightly subtotal -->
                     <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
                         <span>{{ $t('accommodation.nights', { n: booking.nights, count: booking.nights }) }}</span>
-                        <span>{{ formatBookingAmount(booking.subtotal) }}</span>
+                        <div class="text-right">
+                            <div>{{ formatUserAmount(getDisplayAmount(booking.subtotal, userCurrencyPricing?.subtotal)) }}</div>
+                            <div v-if="showUserCurrency" class="text-xs text-gray-400 dark:text-gray-500">{{ formatBookingAmount(booking.subtotal) }}</div>
+                        </div>
                     </div>
 
                     <!-- Bulk discount -->
                     <div v-if="booking.price_details?.bulk_discount" class="flex justify-between text-sm text-green-600 dark:text-green-400">
                         <span>{{ $t('reservation.long_stay_discount') }}</span>
-                        <span>-{{ formatBookingAmount(booking.price_details.bulk_discount.amount) }}</span>
+                        <div class="text-right">
+                            <div>-{{ formatUserAmount(getDisplayAmount(booking.price_details.bulk_discount.amount, userCurrencyPricing?.bulk_discount_amount)) }}</div>
+                            <div v-if="showUserCurrency" class="text-xs text-green-400/70 dark:text-green-500/70">-{{ formatBookingAmount(booking.price_details.bulk_discount.amount) }}</div>
+                        </div>
                     </div>
 
                     <!-- Mandatory fees -->
                     <template v-if="booking.price_details?.fees?.mandatory">
                         <div
-                            v-for="fee in booking.price_details.fees.mandatory"
+                            v-for="(fee, i) in booking.price_details.fees.mandatory"
                             :key="fee.name"
                             class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
                         >
                             <span>{{ fee.name }}</span>
-                            <span>{{ formatBookingAmount(fee.amount) }}</span>
+                            <div class="text-right">
+                                <div>{{ formatUserAmount(getDisplayAmount(fee.amount, userCurrencyPricing?.fees_mandatory?.[i]?.amount)) }}</div>
+                                <div v-if="showUserCurrency" class="text-xs text-gray-400 dark:text-gray-500">{{ formatBookingAmount(fee.amount) }}</div>
+                            </div>
                         </div>
                     </template>
 
                     <!-- Taxes -->
                     <template v-if="booking.price_details?.taxes">
                         <div
-                            v-for="tax in booking.price_details.taxes"
+                            v-for="(tax, i) in booking.price_details.taxes"
                             :key="tax.name"
                             class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
                         >
                             <span>{{ tax.name }}</span>
-                            <span>{{ formatBookingAmount(tax.amount) }}</span>
+                            <div class="text-right">
+                                <div>{{ formatUserAmount(getDisplayAmount(tax.amount, userCurrencyPricing?.taxes?.[i]?.amount)) }}</div>
+                                <div v-if="showUserCurrency" class="text-xs text-gray-400 dark:text-gray-500">{{ formatBookingAmount(tax.amount) }}</div>
+                            </div>
                         </div>
                     </template>
 
                     <!-- Total -->
                     <div class="flex justify-between text-base font-semibold text-gray-900 dark:text-white pt-3 border-t border-gray-200 dark:border-gray-700">
                         <span>{{ $t('accommodation.total') }}</span>
-                        <span>{{ formatBookingAmount(booking.total_price) }}</span>
+                        <div class="text-right">
+                            <div>{{ formatUserAmount(getDisplayAmount(booking.total_price, userCurrencyPricing?.total_price)) }}</div>
+                            <div v-if="showUserCurrency" class="text-xs font-normal text-gray-400 dark:text-gray-500">{{ formatBookingAmount(booking.total_price) }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -245,7 +260,7 @@ export default {
     },
 
     computed: {
-        ...mapState('ui', ['currencies']),
+        ...mapState('ui', ['currencies', 'selectedCurrency']),
         isConfirmed() {
             return this.booking?.status === 'confirmed';
         },
@@ -271,6 +286,15 @@ export default {
         currency() {
             return this.booking?.currency || 'EUR';
         },
+        userCurrencyPricing() {
+            return this.booking?.pricing_in_user_currency || null;
+        },
+        showUserCurrency() {
+            return this.userCurrencyPricing !== null;
+        },
+        displayCurrency() {
+            return this.showUserCurrency ? this.userCurrencyPricing.currency : this.currency;
+        },
     },
 
     methods: {
@@ -283,6 +307,12 @@ export default {
         },
         formatBookingAmount(amount) {
             return formatPrice(Number(amount || 0), this.getCurrencyObject(this.currency), true, 'symbol');
+        },
+        formatUserAmount(amount) {
+            return formatPrice(Number(amount || 0), this.getCurrencyObject(this.displayCurrency), true, 'symbol');
+        },
+        getDisplayAmount(originalAmount, userAmount) {
+            return this.showUserCurrency ? userAmount : originalAmount;
         },
 
         async fetchBooking() {

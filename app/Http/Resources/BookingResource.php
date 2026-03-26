@@ -2,11 +2,49 @@
 
 namespace App\Http\Resources;
 
+use App\Services\CurrencyService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class BookingResource extends JsonResource
 {
+    private function buildUserCurrencyPricing(): ?array
+    {
+        $bookingCurrency = $this->currency;
+        $userCurrency = CurrencyService::getUserCurrency();
+
+        if ($userCurrency->code === $bookingCurrency) {
+            return null;
+        }
+
+        $convert = fn (?float $amount): ?float => $amount !== null
+            ? calculatePriceInSettedCurrency($amount, $bookingCurrency, $userCurrency->code)
+            : null;
+
+        $details = $this->price_details ?? [];
+
+        $convertedFeesMandatory = collect($details['fees']['mandatory'] ?? [])
+            ->map(fn ($fee) => array_merge($fee, ['amount' => $convert($fee['amount'] ?? 0)]))
+            ->all();
+
+        $convertedTaxes = collect($details['taxes'] ?? [])
+            ->map(fn ($tax) => array_merge($tax, ['amount' => $convert($tax['amount'] ?? 0)]))
+            ->all();
+
+        return [
+            'currency' => $userCurrency->code,
+            'subtotal' => $convert($this->subtotal),
+            'fees_total' => $convert($this->fees_total),
+            'taxes_total' => $convert($this->taxes_total),
+            'total_price' => $convert($this->total_price),
+            'bulk_discount_amount' => isset($details['bulk_discount']['amount'])
+                ? $convert($details['bulk_discount']['amount'])
+                : null,
+            'fees_mandatory' => $convertedFeesMandatory,
+            'taxes' => $convertedTaxes,
+        ];
+    }
+
     public function toArray(Request $request): array
     {
         return [
@@ -28,9 +66,9 @@ class BookingResource extends JsonResource
             'fees_total' => $this->fees_total,
             'taxes_total' => $this->taxes_total,
             'total_price' => $this->total_price,
-            'commission_host' => $this->commission_host,
-            'commission_guest' => $this->commission_guest,
-            'is_commission_free' => $this->is_commission_free,
+            'commission_host' => $this->when($request->user()?->id === $this->host_user_id, $this->commission_host),
+            'commission_guest' => $this->when($request->user()?->id === $this->host_user_id, $this->commission_guest),
+            'is_commission_free' => $this->when($request->user()?->id === $this->host_user_id, $this->is_commission_free),
             'price_details' => $this->price_details,
             'refund_amount' => $this->refund_amount,
 
@@ -59,6 +97,9 @@ class BookingResource extends JsonResource
                     'name' => trim(($this->guest->userProfile?->first_name ?? '').' '.($this->guest->userProfile?->last_name ?? '')) ?: $this->guest->email,
                     'email' => $this->guest->email,
                 ]),
+
+            // Pricing in user's selected currency
+            'pricing_in_user_currency' => $this->buildUserCurrencyPricing(),
 
             // Notes
             'guest_notes' => $this->guest_notes,

@@ -150,8 +150,7 @@ class BookingService
 
         $bookingType = $accommodation->booking_type ?? BookingType::INSTANT_BOOKING->value;
 
-        $host = $accommodation->user;
-        $isCommissionFree = $this->subscriptionService->isCommissionFree($host);
+        $isCommissionFree = $this->subscriptionService->isCommissionFreeByUserId($accommodation->user_id);
         $subtotal = $breakdown['subtotal'];
         $commissionHost = $isCommissionFree ? 0.0 : round($subtotal * self::COMMISSION_RATE, 2);
         $commissionGuest = $isCommissionFree ? 0.0 : round($subtotal * self::COMMISSION_RATE, 2);

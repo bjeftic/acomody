@@ -170,7 +170,12 @@
                             <!-- Total -->
                             <div class="flex justify-between text-base font-semibold text-gray-900 dark:text-white pt-3 border-t border-gray-200 dark:border-gray-700">
                                 <span>{{ $t('booking.total_price') }}</span>
-                                <span>{{ priceBreakdown.total_formatted }}</span>
+                                <div class="text-right">
+                                    <div>{{ priceBreakdown.total_formatted }}</div>
+                                    <div v-if="priceBreakdown.original_currency" class="text-xs font-normal text-gray-400 dark:text-gray-500">
+                                        ≈ {{ formatAmount(priceBreakdown.original_total, priceBreakdown.original_currency) }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

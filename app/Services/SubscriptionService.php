@@ -8,6 +8,8 @@ use App\Models\FeatureFlag;
 use App\Models\HostSubscription;
 use App\Models\Plan;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionService
 {
@@ -42,6 +44,31 @@ class SubscriptionService
         }
 
         return $subscription->isCommissionFree();
+    }
+
+    /**
+     * Check if a host is commission-free by user ID, using a raw DB query to avoid
+     * Eloquent authorization checks (needed when called in a guest booking context).
+     */
+    public function isCommissionFreeByUserId(string $userId): bool
+    {
+        $activeStatuses = [SubscriptionStatus::Active->value, SubscriptionStatus::Trial->value];
+
+        $subscription = DB::table('host_subscriptions')
+            ->where('user_id', $userId)
+            ->whereIn('status', $activeStatuses)
+            ->orderByDesc('created_at')
+            ->first(['is_early_host', 'early_host_expires_at']);
+
+        if (! $subscription || ! $subscription->is_early_host) {
+            return false;
+        }
+
+        if ($subscription->early_host_expires_at === null) {
+            return true;
+        }
+
+        return Carbon::parse($subscription->early_host_expires_at)->isFuture();
     }
 
     public function isEarlyHost(User $user): bool

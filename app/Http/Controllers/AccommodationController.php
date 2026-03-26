@@ -12,6 +12,8 @@ use App\Http\Support\ApiResponse;
 use App\Models\Accommodation;
 use App\Services\AccommodationService;
 use App\Services\BookingService;
+use App\Services\CurrencyService;
+use App\Services\PricingService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -23,10 +25,13 @@ class AccommodationController extends Controller
 
     protected BookingService $bookingService;
 
-    public function __construct(AccommodationService $accommodationService, BookingService $bookingService)
+    protected PricingService $pricingService;
+
+    public function __construct(AccommodationService $accommodationService, BookingService $bookingService, PricingService $pricingService)
     {
         $this->accommodationService = $accommodationService;
         $this->bookingService = $bookingService;
+        $this->pricingService = $pricingService;
     }
 
     /**
@@ -202,6 +207,16 @@ class AccommodationController extends Controller
                 $request->guest_ages ?? []
             );
 
+            $userCurrency = CurrencyService::getUserCurrency();
+
+            if ($userCurrency->code !== $breakdown['currency']) {
+                $originalCurrency = $breakdown['currency'];
+                $originalTotal = $breakdown['total'];
+                $breakdown = $this->convertBreakdownCurrency($breakdown, $userCurrency->code);
+                $breakdown['original_currency'] = $originalCurrency;
+                $breakdown['original_total'] = $originalTotal;
+            }
+
             return ApiResponse::success('Price calculated', new class($breakdown) extends \Illuminate\Http\Resources\Json\JsonResource
             {
                 public function toArray($request): array
@@ -212,6 +227,40 @@ class AccommodationController extends Controller
         } catch (\Exception $e) {
             return ApiResponse::error($e->getMessage(), null, null, 422);
         }
+    }
+
+    private function convertBreakdownCurrency(array $breakdown, string $toCurrency): array
+    {
+        $from = $breakdown['currency'];
+        $convert = fn (?float $amount): ?float => $amount !== null
+            ? calculatePriceInSettedCurrency($amount, $from, $toCurrency)
+            : null;
+
+        foreach (['subtotal', 'fees_subtotal', 'subtotal_before_tax', 'taxes_subtotal', 'total'] as $key) {
+            $breakdown[$key] = $convert($breakdown[$key] ?? null);
+        }
+
+        $breakdown['currency'] = $toCurrency;
+
+        foreach (['subtotal', 'fees_subtotal', 'subtotal_before_tax', 'taxes_subtotal', 'total'] as $key) {
+            $breakdown["{$key}_formatted"] = $this->pricingService->formatPrice((float) ($breakdown[$key] ?? 0), $toCurrency);
+        }
+
+        if (isset($breakdown['bulk_discount']['amount'])) {
+            $breakdown['bulk_discount']['amount'] = $convert($breakdown['bulk_discount']['amount']);
+        }
+
+        foreach (['mandatory', 'optional'] as $type) {
+            foreach ($breakdown['fees'][$type] ?? [] as &$fee) {
+                $fee['amount'] = $convert($fee['amount'] ?? 0);
+            }
+        }
+
+        foreach ($breakdown['taxes'] ?? [] as &$tax) {
+            $tax['amount'] = $convert($tax['amount'] ?? 0);
+        }
+
+        return $breakdown;
     }
 
     public function indexPhotos(Accommodation $accommodation): JsonResponse
