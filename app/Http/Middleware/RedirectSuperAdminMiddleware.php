@@ -21,10 +21,11 @@ class RedirectSuperAdminMiddleware
         // 3. Trying to access root or Vue app routes
         if (auth()->check() &&
             auth()->user()->is_superadmin &&
-            !$request->is('admin/*') &&
-            !$request->is('api/*') &&
-            !$request->is('log-in') &&
-            !$request->is('log-out')) {
+            ! $request->is('admin/*') &&
+            ! $request->is('api/*') &&
+            ! $request->is('log-in') &&
+            ! $request->is('log-out') &&
+            ! $request->is('sitemap-*.xml')) {
 
             return redirect()->route('admin.dashboard.index');
         }

@@ -1,7 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\SitemapController;
+use Illuminate\Support\Facades\Route;
+
+// ============================================
+// SITEMAP (token-protected URL)
+// ============================================
+Route::get('/sitemap-'.config('app.sitemap_token').'.xml', [SitemapController::class, 'index'])
+    ->name('sitemap');
 
 // ============================================
 // EMAIL VERIFICATION (Public but throttled)
@@ -14,7 +21,7 @@ Route::get('/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
 // SPA CATCH-ALL ROUTE (must be last)
 // ============================================
 Route::middleware(['redirect.super.admin'])->group(function () {
-    include __DIR__ . '/admin.php';
+    include __DIR__.'/admin.php';
     Route::get('/', function () {
         return view('welcome');
     })->name('login');

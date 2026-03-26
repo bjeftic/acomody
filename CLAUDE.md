@@ -72,6 +72,29 @@ const DAYS_OF_WEEK = 'DAYS_OF_WEEK';
 - `AmenityResource` returns `category_label` via `trans('amenity_category.'.$this->category)`.
 - `BookingType::toArray()` uses `__()` so labels are locale-aware when called via RuntimeConstants.
 
+## Testing Policy
+
+**Every feature addition or change must be covered by tests.** This applies to the entire application, not just specific domains:
+
+- When adding new functionality → write new tests
+- When modifying existing functionality → update affected tests and verify they pass
+- When fixing a bug → add a regression test that would have caught it
+- Tests must pass before a task is considered done — run affected tests after every change
+
+## Cross-Cutting Concerns — Prices, Bookings, Accommodations
+
+When working on anything related to **prices**, **bookings**, or **accommodations**, always check and update **all** of the following layers — do not treat any as optional:
+
+1. **Frontend (Vue) components** — guest-facing views, search results, accommodation detail, booking flow
+2. **Frontend (Vue) host dashboard** — host listings, host booking management, earnings/pricing panels
+3. **Backend controllers & services** — API endpoints, service classes (`PricingService`, `BookingService`, `AccommodationService`, etc.)
+4. **Superadmin area** — admin views/controllers for managing accommodations, bookings, and pricing
+5. **Emails** (`app/Mail/`) — booking confirmation, cancellation, pricing summaries, host notifications
+6. **In-app notifications** — `NotificationType` enum + notification classes affected by the change
+7. **Tests** — update existing tests and add new ones for all changed/added functionality across all layers above
+
+If a change is intentionally scoped to only some layers, explicitly note which layers were skipped and why.
+
 ## Frontend — Mobile Responsiveness
 
 All frontend Vue components must support both desktop and mobile. When creating or modifying any component:

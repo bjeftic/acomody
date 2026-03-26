@@ -15,13 +15,23 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
+use Spatie\Sitemap\Contracts\Sitemapable;
+use Spatie\Sitemap\Tags\Url;
 
 /**
  * @property PriceableItem|null $pricing
  */
-class Accommodation extends Model
+class Accommodation extends Model implements Sitemapable
 {
     use HasFactory, HasUlids, Searchable;
+
+    public function toSitemapTag(): Url|string|array
+    {
+        return Url::create("/accommodations/{$this->id}")
+            ->setLastModificationDate($this->updated_at)
+            ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+            ->setPriority(0.8);
+    }
 
     protected $fillable = [
         'accommodation_draft_id',
