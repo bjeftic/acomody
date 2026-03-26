@@ -105,31 +105,6 @@
     </div>
     @endif
 
-    {{-- Fees --}}
-    @if ($accommodation->activeFees->isNotEmpty())
-    <div class="panel panel-default">
-        <div class="panel-heading"><span class="section-title">Fees</span></div>
-        <div class="panel-body">
-            <table class="table table-condensed" style="margin:0;">
-                <thead>
-                    <tr><th>Name</th><th>Type</th><th>Amount</th><th>Charge type</th><th>Mandatory</th></tr>
-                </thead>
-                <tbody>
-                    @foreach ($accommodation->activeFees as $fee)
-                        <tr>
-                            <td>{{ $fee->name ?? $fee->fee_type }}</td>
-                            <td>{{ $fee->fee_type }}</td>
-                            <td>{{ number_format($fee->amount, 2) }} {{ $fee->currency }}</td>
-                            <td>{{ ucwords(str_replace('_', ' ', $fee->charge_type)) }}</td>
-                            <td>{{ $fee->mandatory ? 'Yes' : 'No' }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-    @endif
-
     {{-- Amenities --}}
     @if ($accommodation->amenities->isNotEmpty())
     <div class="panel panel-default">

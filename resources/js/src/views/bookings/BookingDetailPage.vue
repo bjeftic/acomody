@@ -134,36 +134,6 @@
                         </div>
                     </div>
 
-                    <!-- Mandatory fees -->
-                    <template v-if="booking.price_details?.fees?.mandatory">
-                        <div
-                            v-for="(fee, i) in booking.price_details.fees.mandatory"
-                            :key="fee.name"
-                            class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
-                        >
-                            <span>{{ fee.name }}</span>
-                            <div class="text-right">
-                                <div>{{ formatUserAmount(getDisplayAmount(fee.amount, userCurrencyPricing?.fees_mandatory?.[i]?.amount)) }}</div>
-                                <div v-if="showUserCurrency" class="text-xs text-gray-400 dark:text-gray-500">{{ formatBookingAmount(fee.amount) }}</div>
-                            </div>
-                        </div>
-                    </template>
-
-                    <!-- Taxes -->
-                    <template v-if="booking.price_details?.taxes">
-                        <div
-                            v-for="(tax, i) in booking.price_details.taxes"
-                            :key="tax.name"
-                            class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
-                        >
-                            <span>{{ tax.name }}</span>
-                            <div class="text-right">
-                                <div>{{ formatUserAmount(getDisplayAmount(tax.amount, userCurrencyPricing?.taxes?.[i]?.amount)) }}</div>
-                                <div v-if="showUserCurrency" class="text-xs text-gray-400 dark:text-gray-500">{{ formatBookingAmount(tax.amount) }}</div>
-                            </div>
-                        </div>
-                    </template>
-
                     <!-- Total -->
                     <div class="flex justify-between text-base font-semibold text-gray-900 dark:text-white pt-3 border-t border-gray-200 dark:border-gray-700">
                         <span>{{ $t('accommodation.total') }}</span>

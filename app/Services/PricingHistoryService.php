@@ -2,12 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\PricingHistory;
-use App\Models\PriceableItem;
-use App\Models\PricingPeriod;
-use App\Models\Fee;
-use App\Models\EntityTax;
 use App\Models\AvailabilityPeriod;
+use App\Models\PriceableItem;
+use App\Models\PricingHistory;
+use App\Models\PricingPeriod;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -108,7 +106,7 @@ class PricingHistoryService
                 'changed_at' => $record->changed_at->format('Y-m-d H:i:s'),
                 'source' => $record->change_source_label,
                 'reason' => $record->change_reason,
-                'can_rollback' => $record->can_rollback && !$record->rolled_back_at,
+                'can_rollback' => $record->can_rollback && ! $record->rolled_back_at,
                 'rolled_back' => (bool) $record->rolled_back_at,
             ];
         })->toArray();
@@ -128,12 +126,12 @@ class PricingHistoryService
             $history = PricingHistory::findOrFail($historyId);
 
             // Check if can rollback
-            if (!$history->can_rollback) {
-                throw new \Exception("This change cannot be rolled back");
+            if (! $history->can_rollback) {
+                throw new \Exception('This change cannot be rolled back');
             }
 
             if ($history->rolled_back_at) {
-                throw new \Exception("This change has already been rolled back");
+                throw new \Exception('This change has already been rolled back');
             }
 
             // Perform rollback based on change type
@@ -146,6 +144,7 @@ class PricingHistoryService
             ]);
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -161,8 +160,6 @@ class PricingHistoryService
         match ($history->change_type) {
             'base_price' => $this->rollbackBasePrice($history),
             'period_pricing' => $this->rollbackPeriodPricing($history),
-            'fee' => $this->rollbackFee($history),
-            'tax' => $this->rollbackTax($history),
             'availability' => $this->rollbackAvailability($history),
             default => throw new \Exception("Unsupported rollback type: {$history->change_type}"),
         };
@@ -173,7 +170,7 @@ class PricingHistoryService
      */
     protected function rollbackBasePrice(PricingHistory $history): void
     {
-        if (!$history->old_values) {
+        if (! $history->old_values) {
             // Was created - delete it
             PriceableItem::forEntity($history->priceable_type, $history->priceable_id)
                 ->delete();
@@ -190,13 +187,13 @@ class PricingHistoryService
      */
     protected function rollbackPeriodPricing(PricingHistory $history): void
     {
-        if (!$history->old_values) {
+        if (! $history->old_values) {
             // Was created - delete it
             $periodId = $history->new_values['id'] ?? null;
             if ($periodId) {
                 PricingPeriod::destroy($periodId);
             }
-        } elseif (!$history->new_values) {
+        } elseif (! $history->new_values) {
             // Was deleted - recreate it
             PricingPeriod::create($history->old_values);
         } else {
@@ -209,63 +206,17 @@ class PricingHistoryService
     }
 
     /**
-     * Rollback fee change
-     */
-    protected function rollbackFee(PricingHistory $history): void
-    {
-        if (!$history->old_values) {
-            // Was created - delete it
-            $feeId = $history->new_values['id'] ?? null;
-            if ($feeId) {
-                Fee::destroy($feeId);
-            }
-        } elseif (!$history->new_values) {
-            // Was deleted - recreate it
-            Fee::create($history->old_values);
-        } else {
-            // Was updated - restore old values
-            $feeId = $history->new_values['id'] ?? null;
-            if ($feeId) {
-                Fee::find($feeId)->update($history->old_values);
-            }
-        }
-    }
-
-    /**
-     * Rollback tax change
-     */
-    protected function rollbackTax(PricingHistory $history): void
-    {
-        if (!$history->old_values) {
-            // Was created - delete it
-            $entityTaxId = $history->new_values['id'] ?? null;
-            if ($entityTaxId) {
-                EntityTax::destroy($entityTaxId);
-            }
-        } elseif (!$history->new_values) {
-            // Was deleted - recreate it
-            EntityTax::create($history->old_values);
-        } else {
-            // Was updated - restore old values
-            $entityTaxId = $history->new_values['id'] ?? null;
-            if ($entityTaxId) {
-                EntityTax::find($entityTaxId)->update($history->old_values);
-            }
-        }
-    }
-
-    /**
      * Rollback availability change
      */
     protected function rollbackAvailability(PricingHistory $history): void
     {
-        if (!$history->old_values) {
+        if (! $history->old_values) {
             // Was created - delete it
             $periodId = $history->new_values['id'] ?? null;
             if ($periodId) {
                 AvailabilityPeriod::destroy($periodId);
             }
-        } elseif (!$history->new_values) {
+        } elseif (! $history->new_values) {
             // Was deleted - recreate it
             AvailabilityPeriod::create($history->old_values);
         } else {
@@ -439,7 +390,7 @@ class PricingHistoryService
                 $record['changed_by'],
                 $record['source'],
                 $this->escapeCsv($record['reason'] ?? ''),
-            ]) . "\n";
+            ])."\n";
         }
 
         return $csv;
@@ -483,6 +434,7 @@ class PricingHistoryService
         }
 
         $value = str_replace('"', '""', $value);
-        return '"' . $value . '"';
+
+        return '"'.$value.'"';
     }
 }

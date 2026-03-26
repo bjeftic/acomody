@@ -12,7 +12,6 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\BedTypeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CurrencyController;
-use App\Http\Controllers\FeeController;
 use App\Http\Controllers\Host\AvailabilityPeriodController as HostAvailabilityPeriodController;
 use App\Http\Controllers\Host\BookingController as HostBookingController;
 use App\Http\Controllers\Host\DeletionRequestController as HostDeletionRequestController;
@@ -116,13 +115,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/amenities', [AmenityController::class, 'index'])
         ->name('api.amenities');
-
-    Route::prefix('/fees')->name('api.fees.')->group(function () {
-        Route::get('/fee-types', [FeeController::class, 'indexFeeTypes'])
-            ->name('fee-types');
-        Route::get('/charge-types', [FeeController::class, 'indexFeeChargeTypes'])
-            ->name('charge-types');
-    });
 
     Route::prefix('accommodation-drafts')->name('api.accommodation.drafts.')->group(function () {
         Route::get('', [AccommodationDraftController::class, 'index'])

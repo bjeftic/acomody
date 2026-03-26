@@ -23,25 +23,13 @@ class BookingResource extends JsonResource
 
         $details = $this->price_details ?? [];
 
-        $convertedFeesMandatory = collect($details['fees']['mandatory'] ?? [])
-            ->map(fn ($fee) => array_merge($fee, ['amount' => $convert($fee['amount'] ?? 0)]))
-            ->all();
-
-        $convertedTaxes = collect($details['taxes'] ?? [])
-            ->map(fn ($tax) => array_merge($tax, ['amount' => $convert($tax['amount'] ?? 0)]))
-            ->all();
-
         return [
             'currency' => $userCurrency->code,
             'subtotal' => $convert($this->subtotal),
-            'fees_total' => $convert($this->fees_total),
-            'taxes_total' => $convert($this->taxes_total),
             'total_price' => $convert($this->total_price),
             'bulk_discount_amount' => isset($details['bulk_discount']['amount'])
                 ? $convert($details['bulk_discount']['amount'])
                 : null,
-            'fees_mandatory' => $convertedFeesMandatory,
-            'taxes' => $convertedTaxes,
         ];
     }
 
@@ -63,8 +51,6 @@ class BookingResource extends JsonResource
             // Pricing
             'currency' => $this->currency,
             'subtotal' => $this->subtotal,
-            'fees_total' => $this->fees_total,
-            'taxes_total' => $this->taxes_total,
             'total_price' => $this->total_price,
             'commission_host' => $this->when($request->user()?->id === $this->host_user_id, $this->commission_host),
             'commission_guest' => $this->when($request->user()?->id === $this->host_user_id, $this->commission_guest),

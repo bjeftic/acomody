@@ -11,9 +11,7 @@ use App\Models\Currency;
 use App\Models\Photo;
 use App\Notifications\AccommodationApprovedNotification;
 use App\Services\CurrencyService;
-use App\Services\FeeService;
 use App\Services\PricingService;
-use App\Services\TaxService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -61,8 +59,6 @@ class CreateAccommodation implements ShouldQueue
     public function handle(
         PricingService $pricingService,
         CurrencyService $currencyService,
-        FeeService $feeService,
-        TaxService $taxService,
     ): void {
         // Authenticate as the superadmin who approved the draft so that
         // Authorizable checks pass throughout the job execution.

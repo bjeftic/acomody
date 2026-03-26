@@ -202,9 +202,7 @@ class AccommodationController extends Controller
                 $accommodation,
                 Carbon::parse($request->check_in),
                 Carbon::parse($request->check_out),
-                (int) $request->guests,
-                $request->optional_fee_ids ?? [],
-                $request->guest_ages ?? []
+                (int) $request->guests
             );
 
             $userCurrency = CurrencyService::getUserCurrency();
@@ -236,28 +234,18 @@ class AccommodationController extends Controller
             ? calculatePriceInSettedCurrency($amount, $from, $toCurrency)
             : null;
 
-        foreach (['subtotal', 'fees_subtotal', 'subtotal_before_tax', 'taxes_subtotal', 'total'] as $key) {
+        foreach (['subtotal', 'total'] as $key) {
             $breakdown[$key] = $convert($breakdown[$key] ?? null);
         }
 
         $breakdown['currency'] = $toCurrency;
 
-        foreach (['subtotal', 'fees_subtotal', 'subtotal_before_tax', 'taxes_subtotal', 'total'] as $key) {
+        foreach (['subtotal', 'total'] as $key) {
             $breakdown["{$key}_formatted"] = $this->pricingService->formatPrice((float) ($breakdown[$key] ?? 0), $toCurrency);
         }
 
         if (isset($breakdown['bulk_discount']['amount'])) {
             $breakdown['bulk_discount']['amount'] = $convert($breakdown['bulk_discount']['amount']);
-        }
-
-        foreach (['mandatory', 'optional'] as $type) {
-            foreach ($breakdown['fees'][$type] ?? [] as &$fee) {
-                $fee['amount'] = $convert($fee['amount'] ?? 0);
-            }
-        }
-
-        foreach ($breakdown['taxes'] ?? [] as &$tax) {
-            $tax['amount'] = $convert($tax['amount'] ?? 0);
         }
 
         return $breakdown;

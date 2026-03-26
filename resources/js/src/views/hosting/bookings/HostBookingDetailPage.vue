@@ -83,14 +83,6 @@
                         <span>{{ $t('accommodation.nights', { n: booking.nights, count: booking.nights }) }}</span>
                         <span>{{ formatAmount(booking.subtotal) }}</span>
                     </div>
-                    <div v-if="booking.fees_total > 0" class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
-                        <span>{{ $t('fees') }}</span>
-                        <span>{{ formatAmount(booking.fees_total) }}</span>
-                    </div>
-                    <div v-if="booking.taxes_total > 0" class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
-                        <span>{{ $t('taxes') }}</span>
-                        <span>{{ formatAmount(booking.taxes_total) }}</span>
-                    </div>
                     <div class="flex justify-between text-base font-semibold text-gray-900 dark:text-white pt-2 border-t border-gray-200 dark:border-gray-700">
                         <span>{{ $t('accommodation.total') }}</span>
                         <span>{{ formatAmount(booking.total_price) }}</span>
@@ -350,8 +342,6 @@ en:
   stay_details: Stay details
   nights_label: Nights
   pricing: Pricing
-  fees: Fees
-  taxes: Taxes
   guest_notes: Guest notes
   decline_reason_title: Decline reason
   cancel_reason_title: Cancellation reason
@@ -384,8 +374,6 @@ sr:
   stay_details: Detalji boravka
   nights_label: Noći
   pricing: Cene
-  fees: Naknade
-  taxes: Porezi
   guest_notes: Napomene gosta
   decline_reason_title: Razlog odbijanja
   cancel_reason_title: Razlog otkazivanja
@@ -418,8 +406,6 @@ hr:
   stay_details: Detalji boravka
   nights_label: Noći
   pricing: Cijene
-  fees: Naknade
-  taxes: Porezi
   guest_notes: Napomene gosta
   decline_reason_title: Razlog odbijanja
   cancel_reason_title: Razlog otkazivanja
@@ -452,8 +438,6 @@ mk:
   stay_details: Детали за престојот
   nights_label: Ноќи
   pricing: Цени
-  fees: Надоместоци
-  taxes: Данок
   guest_notes: Белешки на гостинот
   decline_reason_title: Причина за одбивање
   cancel_reason_title: Причина за откажување
@@ -486,8 +470,6 @@ sl:
   stay_details: Podrobnosti o bivanju
   nights_label: Noči
   pricing: Cene
-  fees: Pristojbine
-  taxes: Davki
   guest_notes: Opombe gosta
   decline_reason_title: Razlog zavrnitve
   cancel_reason_title: Razlog preklica

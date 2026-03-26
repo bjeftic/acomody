@@ -40,8 +40,6 @@ return new class extends Migration
             // Pricing snapshot — stored at booking time to prevent price drift
             $table->string('currency', 10);
             $table->decimal('subtotal', 10, 2);
-            $table->decimal('fees_total', 10, 2)->default(0);
-            $table->decimal('taxes_total', 10, 2)->default(0);
             $table->decimal('total_price', 10, 2);
             $table->decimal('commission_host', 10, 2)->default(0);
             $table->decimal('commission_guest', 10, 2)->default(0);
@@ -54,8 +52,6 @@ return new class extends Migration
             // Line-item detail snapshot (per-night rates, individual fees, taxes)
             // Totals are stored as scalars above; this JSON holds only the itemised breakdown
             $table->json('price_details')->nullable();
-
-            $table->json('optional_fee_ids')->nullable();
 
             // Payment
             $table->enum('payment_status', [

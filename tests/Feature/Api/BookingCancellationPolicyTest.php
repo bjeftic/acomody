@@ -6,6 +6,8 @@ use App\Models\Booking;
 use App\Services\BookingService;
 use Illuminate\Support\Facades\Event;
 
+beforeEach(fn () => seedCurrencyRates());
+
 // ============================================================
 // Helper: create a confirmed, paid booking with a given cancellation policy.
 // ============================================================

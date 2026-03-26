@@ -36,7 +36,6 @@ class AccommodationController
             'photos',
             'amenities',
             'pricing.currency',
-            'activeFees',
         ])->findOrFail($id);
 
         return view('super-admin.accommodations.show', compact('accommodation'));
