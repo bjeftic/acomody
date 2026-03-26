@@ -78,6 +78,8 @@ class AccommodationResource extends JsonResource
             'views_count' => $this->views_count,
             'favorites_count' => $this->favorites_count,
             'cancellation_policy' => $this->cancellation_policy,
+            'payment_policy' => $this->payment_policy?->value,
+            'payment_policy_label' => $this->payment_policy?->label(),
             'booking_type' => $this->booking_type,
             'ical_token' => $this->ical_token,
             'ical_export_active' => $this->ical_export_active,

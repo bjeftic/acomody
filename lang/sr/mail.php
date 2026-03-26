@@ -123,7 +123,7 @@ return [
         'title' => 'Smeštaj je na pregledu',
         'body' => 'Vaš smeštaj :property je uspešno poslat i sada je na pregledu od strane našeg tima.',
         'next' => 'Evo šta se dešava dalje:',
-        'step1' => 'Naš tim pregleda vaš oglas — ovo obično traje 1–2 radna dana.',
+        'step1' => 'Naš tim pregleda vaš oglas — ovo obično traje 24 časa.',
         'step2' => 'Nakon odobrenja, vaš oglas će automatski postati pretraživ i gosti mogu početi s rezervacijom.',
         'step3' => 'Dobićete email obaveštenje čim oglas bude objavljen.',
         'btn' => 'Idite na upravljački panel →',

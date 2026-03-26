@@ -161,6 +161,7 @@ describe('POST /api/sign-up (register)', function () {
     beforeEach(function () {
         Http::fake(); // Prevent external HTTP calls (HIBP uncompromised check, etc.)
         Mail::fake();
+        seedPlans();
     });
 
     it('returns 201 on successful registration', function () {

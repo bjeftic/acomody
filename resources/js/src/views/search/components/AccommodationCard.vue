@@ -155,6 +155,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import { formatPrice as formatPriceHelper } from '@/utils/helpers';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation, Pagination, EffectFade } from 'swiper/modules';
 import 'swiper/css';
@@ -230,18 +231,15 @@ export default {
             // }
         },
         formatPrice(price) {
-            if (!price) return this.selectedCurrency?.symbol + ' 0' || '$0';
-
-            // Handle object format
-            if (typeof price === 'object' && price.amount) {
-                return price.currency + ' ' + Math.ceil(price.amount);
+            if (!price) {
+                return formatPriceHelper(0, this.selectedCurrency, false, 'symbol');
             }
 
-            // Handle number format
-            const symbol = this.selectedCurrency?.symbol || '$';
-            const formattedPrice = Math.ceil(Number(price));
+            if (typeof price === 'object' && price.amount !== undefined) {
+                return formatPriceHelper(price.amount, this.selectedCurrency, false, 'symbol', 'ceil');
+            }
 
-            return `${symbol}${formattedPrice}`;
+            return formatPriceHelper(Number(price), this.selectedCurrency, false, 'symbol', 'ceil');
         }
     },
     mounted() {

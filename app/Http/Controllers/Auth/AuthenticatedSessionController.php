@@ -5,14 +5,14 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UserLogInRequest;
 use App\Http\Resources\UserResource;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\JsonResponse;
 use App\Http\Support\ApiResponse;
 use App\Services\AuthService;
-use Illuminate\Validation\ValidationException;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -30,7 +30,7 @@ class AuthenticatedSessionController extends Controller
     {
         try {
             // Rate limiting
-            $rateLimitKey = 'login_attempts:' . $request->ip();
+            $rateLimitKey = 'login_attempts:'.$request->ip();
             $rateLimitResponse = $this->authService->throttleLoginAttempts($rateLimitKey);
             if ($rateLimitResponse) {
                 return $rateLimitResponse;
@@ -39,15 +39,15 @@ class AuthenticatedSessionController extends Controller
             $validatedData = $request->validated();
             $credentials = [
                 'email' => $validatedData['email'],
-                'password' => $validatedData['password']
+                'password' => $validatedData['password'],
             ];
             $rememberMe = $validatedData['remember_me'] ?? false;
 
             // Attempt login
-            if (!Auth::guard('web')->attempt($credentials, $rememberMe)) {
+            if (! Auth::guard('web')->attempt($credentials, $rememberMe)) {
                 $this->authService->handleFailedLogin($request, $validatedData['email']);
                 throw ValidationException::withMessages([
-                    'email' => ['Invalid email or password.']
+                    'email' => ['Invalid email or password.'],
                 ]);
             }
 
@@ -72,6 +72,8 @@ class AuthenticatedSessionController extends Controller
                 'refresh_page' => $user->is_superadmin,
             ];
 
+            $user->load('hostSubscription.plan');
+
             return ApiResponse::success(
                 'User logged in successfully.',
                 new UserResource($user),
@@ -86,7 +88,7 @@ class AuthenticatedSessionController extends Controller
                 'line' => $e->getLine(),
                 'email' => $request->input('email', 'unknown'),
                 'ip' => $request->ip(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return ApiResponse::error('Login failed. Please try again later.', null, null, 500);
@@ -101,7 +103,7 @@ class AuthenticatedSessionController extends Controller
         try {
             $user = Auth::guard('web')->user();
 
-            if (!$user) {
+            if (! $user) {
                 return ApiResponse::error('Unauthorized', null, null, 401);
             }
 
@@ -111,7 +113,7 @@ class AuthenticatedSessionController extends Controller
         } catch (Exception $e) {
             Log::error('Logout failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return ApiResponse::error('Logout failed', null, null, 500);

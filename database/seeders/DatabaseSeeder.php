@@ -58,6 +58,11 @@ class DatabaseSeeder extends Seeder
             });
             $this->command->newLine();
 
+            // Plans
+            $this->command->info('Creating subscription plans...');
+            $this->call(PlanSeeder::class);
+            $this->command->newLine();
+
             // Home Sections
             $this->command->info('Creating home sections...');
             $this->call(HomeSectionSeeder::class);

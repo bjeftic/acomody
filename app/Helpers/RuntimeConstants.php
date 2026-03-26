@@ -39,7 +39,7 @@ class RuntimeConstants
 
     const SORT_OPTIONS = 'sortOptions';
 
-    const DAYS_OF_WEEK = 'DAYS_OF_WEEK';
+    const DAYS_OF_WEEK = 'daysOfWeek';
 
     // const ANNOUNCEMENTS = 'announcements';
     // const SCOUT_DRIVER = 'scoutDriver';

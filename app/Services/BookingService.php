@@ -19,9 +19,12 @@ use Illuminate\Support\Facades\DB;
 
 class BookingService
 {
+    private const COMMISSION_RATE = 0.05;
+
     public function __construct(
         private readonly AvailabilityService $availabilityService,
         private readonly PricingService $pricingService,
+        private readonly SubscriptionService $subscriptionService,
     ) {}
 
     // ============================================
@@ -147,6 +150,12 @@ class BookingService
 
         $bookingType = $accommodation->booking_type ?? BookingType::INSTANT_BOOKING->value;
 
+        $host = $accommodation->user;
+        $isCommissionFree = $this->subscriptionService->isCommissionFree($host);
+        $subtotal = $breakdown['subtotal'];
+        $commissionHost = $isCommissionFree ? 0.0 : round($subtotal * self::COMMISSION_RATE, 2);
+        $commissionGuest = $isCommissionFree ? 0.0 : round($subtotal * self::COMMISSION_RATE, 2);
+
         DB::beginTransaction();
         try {
             $priceDetails = array_filter([
@@ -154,6 +163,13 @@ class BookingService
                 'bulk_discount' => $breakdown['bulk_discount'] ?? null,
                 'fees' => $breakdown['fees'] ?? null,
                 'taxes' => $breakdown['taxes'] ?? null,
+                'commission' => [
+                    'host_rate' => $isCommissionFree ? 0 : self::COMMISSION_RATE,
+                    'guest_rate' => $isCommissionFree ? 0 : self::COMMISSION_RATE,
+                    'host_amount' => $commissionHost,
+                    'guest_amount' => $commissionGuest,
+                    'is_commission_free' => $isCommissionFree,
+                ],
             ], fn ($v) => $v !== null);
 
             $booking = Booking::create([
@@ -171,6 +187,9 @@ class BookingService
                 'fees_total' => $breakdown['fees_subtotal'] ?? 0,
                 'taxes_total' => $breakdown['taxes_subtotal'] ?? 0,
                 'total_price' => $breakdown['total'],
+                'commission_host' => $commissionHost,
+                'commission_guest' => $commissionGuest,
+                'is_commission_free' => $isCommissionFree,
                 'priceable_item_id' => $breakdown['priceable_item_id'],
                 'price_details' => $priceDetails,
                 'optional_fee_ids' => $data['optional_fee_ids'] ?? null,

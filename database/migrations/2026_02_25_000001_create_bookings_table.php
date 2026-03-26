@@ -43,6 +43,9 @@ return new class extends Migration
             $table->decimal('fees_total', 10, 2)->default(0);
             $table->decimal('taxes_total', 10, 2)->default(0);
             $table->decimal('total_price', 10, 2);
+            $table->decimal('commission_host', 10, 2)->default(0);
+            $table->decimal('commission_guest', 10, 2)->default(0);
+            $table->boolean('is_commission_free')->default(false);
 
             // Reference to the pricing config active at booking time
             $table->ulid('priceable_item_id')->nullable()->index();

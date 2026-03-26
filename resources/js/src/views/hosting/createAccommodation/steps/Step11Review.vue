@@ -157,7 +157,7 @@
                             <span
                                 class="text-2xl font-bold text-gray-900 dark:text-white"
                             >
-                                ${{ formData.pricing.basePrice }}
+                                {{ formatPrice(formData.pricing.basePrice, accommodationDraftCurrency, false, 'code') }}
                             </span>
                             <span
                                 class="text-base text-gray-600 dark:text-gray-400 ml-1"
@@ -169,7 +169,7 @@
                             v-if="formData.pricing.hasWeekendPrice"
                             class="text-sm text-gray-600 dark:text-gray-400 mt-1"
                         >
-                            {{ $t('weekend_prefix') }} ${{ formData.pricing.weekendPrice }} {{ $t('per_night') }}
+                            {{ $t('weekend_prefix') }} {{ formatPrice(formData.pricing.weekendPrice, accommodationDraftCurrency, false, 'code') }} {{ $t('per_night') }}
                         </p>
                     </div>
                 </div>
@@ -313,9 +313,9 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 import EditSection from "@/src/views/hosting/createAccommodation/components/EditSection.vue";
-import { mapActions } from "vuex/dist/vuex.cjs.js";
+import { formatPrice } from "@/utils/helpers";
 
 export default {
     name: "Step11Review",
@@ -342,6 +342,7 @@ export default {
         ...mapState("hosting/createAccommodation", [
             "accommodationDraftId",
             "accommodationTypes",
+            "accommodationDraftCurrency",
         ]),
 
         accommodationTypeName() {
@@ -383,6 +384,7 @@ export default {
             "fetchPhotos",
             "goToStep",
         ]),
+        formatPrice,
     },
     created() {
         this.fetchPhotos(this.accommodationDraftId);

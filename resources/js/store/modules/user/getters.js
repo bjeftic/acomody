@@ -32,6 +32,21 @@ export const hostProfileComplete = (state) => state.currentUser?.host_profile_co
  * - 'continue_listing'  → has host_profile + in-progress draft → show "Continue listing"
  * - 'hosting'           → has host_profile, no active draft → show "Hosting"
  */
+export const subscription = (state) => state.currentUser?.subscription ?? null;
+
+export const isCommissionFree = (state) => state.currentUser?.subscription?.is_commission_free ?? false;
+
+export const commissionRate = (state) => state.currentUser?.subscription?.commission_rate ?? 10;
+
+export const currentPlan = (state) => state.currentUser?.subscription?.plan_code ?? 'free';
+
+export const canAddAccommodation = (state) => {
+  const sub = state.currentUser?.subscription;
+  if (!sub) return true; // fallback: allow until we know otherwise
+  if (sub.max_accommodations === null) return true;
+  return true; // actual check is done server-side; this is a UI hint only
+};
+
 export const hostingCtaStatus = (state) => {
   const user = state.currentUser;
   if (!user || !user.is_host) return 'not_host';

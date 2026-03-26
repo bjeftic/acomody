@@ -80,7 +80,7 @@
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">{{ $t('pricing') }}</h3>
                 <div class="space-y-2">
                     <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
-                        <span>{{ $tc('accommodation.nights', booking.nights, { count: booking.nights }) }}</span>
+                        <span>{{ $t('accommodation.nights', { n: booking.nights, count: booking.nights }) }}</span>
                         <span>{{ formatAmount(booking.subtotal) }}</span>
                     </div>
                     <div v-if="booking.fees_total > 0" class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
@@ -216,7 +216,9 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import apiClient from '@/services/apiClient';
+import { formatPrice } from '@/utils/helpers';
 
 export default {
     name: 'HostBookingDetailPage',
@@ -236,6 +238,7 @@ export default {
     },
 
     computed: {
+        ...mapState('ui', ['currencies']),
         bannerClass() {
             const map = {
                 confirmed: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
@@ -267,9 +270,11 @@ export default {
             return new Date(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
         },
 
+        getCurrencyObject(code) {
+            return this.currencies.find((c) => c.code === code) || null;
+        },
         formatAmount(amount) {
-            const symbol = { EUR: '€', USD: '$', GBP: '£', RSD: 'дин' }[this.currency] || this.currency;
-            return `${symbol}${Number(amount || 0).toFixed(2)}`;
+            return formatPrice(Number(amount || 0), this.getCurrencyObject(this.currency), true, 'symbol');
         },
 
         async fetchBooking() {

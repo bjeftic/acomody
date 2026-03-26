@@ -118,7 +118,7 @@
                 <div class="space-y-3">
                     <!-- Nightly subtotal -->
                     <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
-                        <span>{{ $tc('accommodation.nights', booking.nights, { count: booking.nights }) }}</span>
+                        <span>{{ $t('accommodation.nights', { n: booking.nights, count: booking.nights }) }}</span>
                         <span>{{ formatBookingAmount(booking.subtotal) }}</span>
                     </div>
 
@@ -225,7 +225,9 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import apiClient from '@/services/apiClient';
+import { formatPrice } from '@/utils/helpers';
 
 export default {
     name: 'BookingDetailPage',
@@ -243,6 +245,7 @@ export default {
     },
 
     computed: {
+        ...mapState('ui', ['currencies']),
         isConfirmed() {
             return this.booking?.status === 'confirmed';
         },
@@ -275,9 +278,11 @@ export default {
             if (!dateStr) return '—';
             return new Date(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
         },
+        getCurrencyObject(code) {
+            return this.currencies.find((c) => c.code === code) || null;
+        },
         formatBookingAmount(amount) {
-            const symbol = { EUR: '€', USD: '$', GBP: '£', RSD: 'дин' }[this.currency] || this.currency;
-            return `${symbol}${Number(amount || 0).toFixed(2)}`;
+            return formatPrice(Number(amount || 0), this.getCurrencyObject(this.currency), true, 'symbol');
         },
 
         async fetchBooking() {

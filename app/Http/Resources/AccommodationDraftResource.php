@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Currency;
+use App\Services\CurrencyService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -26,11 +28,20 @@ class AccommodationDraftResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $data = json_decode($this->data, true);
+        $country = $data['address']['country'] ?? null;
+
+        $currencyService = app(CurrencyService::class);
+        $currency = $country
+            ? ($currencyService->getCurrencyByCountry($country) ?? Currency::where('code', 'EUR')->first())
+            : Currency::where('code', 'EUR')->first();
+
         return [
             'id' => $this->id,
             'current_step' => $this->current_step,
             'status' => $this->status,
-            'data' => json_decode($this->data, true),
+            'data' => $data,
+            'currency' => new CurrencyResource($currency),
             'last_saved_at' => $this->last_saved_at,
             'review_comments' => $this->when(
                 $this->relationLoaded('reviewComments'),

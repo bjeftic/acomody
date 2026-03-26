@@ -8,6 +8,7 @@ use App\Models\Accommodation;
 use App\Models\Booking;
 use App\Models\Country;
 use App\Models\Location;
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -96,6 +97,19 @@ function makeLocation(array $attributes = []): Location
         'is_active' => true,
         'user_id' => $superadmin->id,
     ], $attributes));
+}
+
+function seedPlans(): void
+{
+    Plan::withoutAuthorization(function () {
+        $plans = [
+            ['name' => 'Free', 'code' => 'free', 'max_accommodations' => null, 'price_eur' => 0, 'commission_rate' => 10, 'billing_period' => 'monthly', 'is_active' => true, 'features' => [], 'sort_order' => 1],
+            ['name' => 'Club', 'code' => 'club', 'max_accommodations' => null, 'price_eur' => 3000, 'commission_rate' => 5, 'billing_period' => 'monthly', 'is_active' => true, 'features' => [], 'sort_order' => 2],
+        ];
+        foreach ($plans as $plan) {
+            Plan::updateOrCreate(['code' => $plan['code']], $plan);
+        }
+    });
 }
 
 function seedCurrencyRates()

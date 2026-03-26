@@ -119,6 +119,55 @@
                 </div>
             </div>
 
+            <!-- Payment Policy -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                    {{ $t('payment_policy_section') }}
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {{ $t('payment_policy_desc') }}
+                </p>
+                <div class="space-y-3">
+                    <div
+                        v-for="policy in paymentPolicies"
+                        :key="policy.id"
+                        @click="updatePaymentPolicy(policy.id)"
+                        :class="[
+                            'p-4 rounded-xl border cursor-pointer transition-colors',
+                            localHouseRules.paymentPolicy === policy.id
+                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600',
+                        ]"
+                    >
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">{{ policy.icon }}</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
+                                        {{ policy.name }}
+                                    </h4>
+                                    <div
+                                        v-if="localHouseRules.paymentPolicy === policy.id"
+                                        class="w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center flex-shrink-0"
+                                    >
+                                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd"
+                                            />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                                    {{ policy.description }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Info Box -->
             <div
                 class="p-6 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800"
@@ -230,6 +279,13 @@ export default {
                 };
             });
         },
+        paymentPolicies() {
+            return this.config.paymentPolicies.map((policy) => ({
+                ...policy,
+                name: this.$t(`payment_${policy.id}_name`),
+                description: this.$t(`payment_${policy.id}_desc`),
+            }));
+        },
     },
     watch: {
         "formData.houseRules": {
@@ -283,6 +339,11 @@ export default {
             this.emitUpdate();
         },
 
+        updatePaymentPolicy(policyId) {
+            this.localHouseRules.paymentPolicy = policyId;
+            this.emitUpdate();
+        },
+
         emitUpdate() {
             this.$emit("update:form-data", {
                 ...this.formData,
@@ -297,6 +358,16 @@ export default {
 en:
   heading: Set house rules for your guests
   subtitle: Guests must agree to your house rules before they book.
+  payment_policy_section: Payment policy
+  payment_policy_desc: Choose how and when guests will pay for their stay.
+  payment_on_site_name: Pay on arrival
+  payment_on_site_desc: Guest pays at the property on arrival (cash or card).
+  payment_immediate_name: Pay now
+  payment_immediate_desc: Guest pays the full amount immediately upon booking.
+  payment_ten_days_before_name: Pay 10 days before
+  payment_ten_days_before_desc: Guest pays the full amount 10 days before check-in.
+  payment_split_name: Split payment
+  payment_split_desc: Guest pays 50% now and 50% on arrival.
   checkin_section: Check-in and check-out
   checkin_label: Check-in time
   checkout_label: Check-out time
@@ -339,6 +410,16 @@ en:
 sr:
   heading: Postavite kućni red za vaše goste
   subtitle: Gosti moraju prihvatiti vaš kućni red pre rezervacije.
+  payment_policy_section: Politika plaćanja
+  payment_policy_desc: Odaberite kako i kada će gosti platiti za boravak.
+  payment_on_site_name: Plati pri dolasku
+  payment_on_site_desc: Gost plaća u objektu pri dolasku (gotovinom ili karticom).
+  payment_immediate_name: Plati odmah
+  payment_immediate_desc: Gost plaća celokupan iznos odmah pri rezervaciji.
+  payment_ten_days_before_name: Plati 10 dana pre dolaska
+  payment_ten_days_before_desc: Gost plaća celokupan iznos 10 dana pre dolaska.
+  payment_split_name: Podeljeno plaćanje
+  payment_split_desc: Gost plaća 50% odmah i 50% pri dolasku.
   checkin_section: Prijava i odjava
   checkin_label: Vreme prijave
   checkout_label: Vreme odjave
@@ -381,6 +462,16 @@ sr:
 hr:
   heading: Postavite kućni red za vaše goste
   subtitle: Gosti moraju prihvatiti vaš kućni red prije rezervacije.
+  payment_policy_section: Politika plaćanja
+  payment_policy_desc: Odaberite kako i kada će gosti platiti za boravak.
+  payment_on_site_name: Plati pri dolasku
+  payment_on_site_desc: Gost plaća u objektu pri dolasku (gotovinom ili karticom).
+  payment_immediate_name: Plati odmah
+  payment_immediate_desc: Gost plaća cjelokupni iznos odmah pri rezervaciji.
+  payment_ten_days_before_name: Plati 10 dana prije dolaska
+  payment_ten_days_before_desc: Gost plaća cjelokupni iznos 10 dana prije dolaska.
+  payment_split_name: Podijeljeno plaćanje
+  payment_split_desc: Gost plaća 50% odmah i 50% pri dolasku.
   checkin_section: Prijava i odjava
   checkin_label: Vrijeme prijave
   checkout_label: Vrijeme odjave
@@ -423,6 +514,16 @@ hr:
 mk:
   heading: Поставете правила за куќата за вашите гости
   subtitle: Гостите мора да се согласат со вашите правила пред резервацијата.
+  payment_policy_section: Политика на плаќање
+  payment_policy_desc: Одберете како и кога гостите ќе платат за престојот.
+  payment_on_site_name: Плати при доаѓање
+  payment_on_site_desc: Гостинот плаќа во објектот при доаѓање (готовина или картица).
+  payment_immediate_name: Плати сега
+  payment_immediate_desc: Гостинот го плаќа целиот износ веднаш при резервација.
+  payment_ten_days_before_name: Плати 10 дена пред доаѓање
+  payment_ten_days_before_desc: Гостинот го плаќа целиот износ 10 дена пред пристигнување.
+  payment_split_name: Поделено плаќање
+  payment_split_desc: Гостинот плаќа 50% сега и 50% при доаѓање.
   checkin_section: Пријавување и одјавување
   checkin_label: Време на пријавување
   checkout_label: Време на одјавување
@@ -465,6 +566,16 @@ mk:
 sl:
   heading: Nastavite hišna pravila za vaše goste
   subtitle: Gostje morajo pred rezervacijo sprejeti vaša hišna pravila.
+  payment_policy_section: Politika plačila
+  payment_policy_desc: Izberite, kako in kdaj bodo gostje plačali za bivanje.
+  payment_on_site_name: Plačaj ob prihodu
+  payment_on_site_desc: Gost plača v objektu ob prihodu (gotovina ali kartica).
+  payment_immediate_name: Plačaj zdaj
+  payment_immediate_desc: Gost plača celoten znesek takoj ob rezervaciji.
+  payment_ten_days_before_name: Plačaj 10 dni pred prihodom
+  payment_ten_days_before_desc: Gost plača celoten znesek 10 dni pred prihodom.
+  payment_split_name: Razdeljeno plačilo
+  payment_split_desc: Gost plača 50% zdaj in 50% ob prihodu.
   checkin_section: Prijava in odjava
   checkin_label: Čas prijave
   checkout_label: Čas odjave

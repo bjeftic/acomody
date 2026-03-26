@@ -133,7 +133,7 @@
                         <div v-else-if="priceBreakdown" class="space-y-3">
                             <!-- Nightly rates summary -->
                             <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
-                                <span>{{ $tc('accommodation.nights', totalNights, { count: totalNights }) }} × {{ priceBreakdown.currency }}</span>
+                                <span>{{ $t('accommodation.nights', { n: totalNights, count: totalNights }) }} × {{ priceBreakdown.currency }}</span>
                                 <span>{{ priceBreakdown.subtotal_formatted }}</span>
                             </div>
 
@@ -234,6 +234,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import { formatPrice } from '@/utils/helpers';
 
 export default {
     name: 'ReservationConfirmPage',
@@ -256,6 +257,7 @@ export default {
         ...mapState('user', {
             currentUser: (state) => state.currentUser,
         }),
+        ...mapState('ui', ['currencies']),
 
         checkIn() {
             return this.$route.query.checkIn || '';
@@ -333,9 +335,11 @@ export default {
     methods: {
         ...mapActions('accommodation', ['fetchAccommodation', 'calculatePrice', 'createBooking']),
 
+        getCurrencyObject(code) {
+            return this.currencies.find((c) => c.code === code) || null;
+        },
         formatAmount(amount, currency) {
-            const symbol = { EUR: '€', USD: '$', GBP: '£', RSD: 'дин' }[currency] || currency;
-            return `${symbol}${Number(amount).toFixed(2)}`;
+            return formatPrice(Number(amount || 0), this.getCurrencyObject(currency), true, 'symbol');
         },
 
         async loadPriceBreakdown() {

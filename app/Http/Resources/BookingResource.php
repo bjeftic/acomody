@@ -28,6 +28,9 @@ class BookingResource extends JsonResource
             'fees_total' => $this->fees_total,
             'taxes_total' => $this->taxes_total,
             'total_price' => $this->total_price,
+            'commission_host' => $this->commission_host,
+            'commission_guest' => $this->commission_guest,
+            'is_commission_free' => $this->is_commission_free,
             'price_details' => $this->price_details,
             'refund_amount' => $this->refund_amount,
 
@@ -37,6 +40,8 @@ class BookingResource extends JsonResource
                 'title' => $this->accommodation->title,
                 'address' => $this->accommodation->street_address,
                 'cancellation_policy' => $this->accommodation->cancellation_policy,
+                'payment_policy' => $this->accommodation->payment_policy?->value,
+                'payment_policy_label' => $this->accommodation->payment_policy?->label(),
                 'primary_photo_url' => $this->accommodation->relationLoaded('primaryPhoto')
                     ? $this->accommodation->primaryPhoto?->medium_url
                     : null,

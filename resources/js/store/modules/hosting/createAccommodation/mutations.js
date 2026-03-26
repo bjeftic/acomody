@@ -7,6 +7,9 @@ export default {
     [types.SET_ACCOMMODATION_DRAFT](state, accommodationDraft) {
         state.accommodationDraft = accommodationDraft.data.data;
     },
+    [types.SET_ACCOMMODATION_DRAFT_CURRENCY](state, accommodationDraft) {
+        state.accommodationDraftCurrency = accommodationDraft.data.currency;
+    },
     [types.SET_ACCOMMODATION_DRAFT_STATUS](state, accommodationDraft) {
         state.accommodationDraftStatus = accommodationDraft.data.status;
     },
@@ -33,6 +36,9 @@ export default {
     [types.SET_CREATE_ACCOMMODATION_STEP](state, accommodationDraft) {
         state.currentStep = accommodationDraft.data.current_step;
     },
+    [types.SET_CURRENT_STEP](state, step) {
+        state.currentStep = step;
+    },
     [types.INCREMENT_CURRENT_STEP](state) {
         state.currentStep += 1;
     },
@@ -46,6 +52,7 @@ export default {
         state.accommodationDraftId = null;
         state.accommodationDraft = {};
         state.accommodationDraftStatus = null;
+        state.accommodationDraftCurrency = null;
         state.accommodationDraftReviewComments = [];
         state.currentStep = 1;
     },

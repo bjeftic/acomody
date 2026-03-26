@@ -118,6 +118,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return $this->hasMany(AccommodationDraft::class);
     }
 
+    public function hostSubscription(): HasOne
+    {
+        return $this->hasOne(HostSubscription::class)->latestOfMany();
+    }
+
     public function isHost(): bool
     {
         return $this->hostProfile !== null;

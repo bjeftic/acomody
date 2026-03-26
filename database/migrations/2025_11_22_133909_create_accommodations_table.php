@@ -77,6 +77,7 @@ return new class extends Migration
             $table->time('quiet_hours_from')->nullable();
             $table->time('quiet_hours_until')->nullable();
             $table->enum('cancellation_policy', ['flexible', 'moderate', 'firm', 'strict', 'non_refundable'])->default('moderate');
+            $table->enum('payment_policy', ['immediate', 'ten_days_before', 'on_site', 'split'])->default('on_site');
             $table->integer('bedrooms')->default(1);
             $table->integer('bathrooms')->default(1);
             $table->boolean('is_active')->default(false);

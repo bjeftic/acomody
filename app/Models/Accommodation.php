@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Accommodation\AccommodationOccupation;
 use App\Enums\Accommodation\AccommodationType;
+use App\Enums\Accommodation\PaymentPolicy;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -45,6 +46,7 @@ class Accommodation extends Model
         'quiet_hours_from',
         'quiet_hours_until',
         'cancellation_policy',
+        'payment_policy',
         'bedrooms',
         'bathrooms',
         'user_id',
@@ -55,6 +57,7 @@ class Accommodation extends Model
     protected $casts = [
         'accommodation_occupation' => AccommodationOccupation::class,
         'accommodation_type' => AccommodationType::class,
+        'payment_policy' => PaymentPolicy::class,
     ];
 
     protected static function booted(): void

@@ -148,6 +148,7 @@ class AccommodationService
             'bathrooms' => $data['floor_plan']['bathrooms'],
             'booking_type' => $data['pricing']['bookingType'],
             'cancellation_policy' => $data['house_rules']['cancellationPolicy'],
+            'payment_policy' => $data['house_rules']['paymentPolicy'] ?? 'on_site',
             'check_in_from' => $data['house_rules']['checkInFrom'],
             'check_in_until' => $data['house_rules']['checkInUntil'],
             'check_out_until' => $data['house_rules']['checkOutUntil'],

@@ -91,7 +91,7 @@
             >
                 <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
                     <span>
-                        {{ formatPrice(pricePerNight, priceCurrency) }} × {{ $tc('accommodation.nights', totalNights, { count: totalNights }) }}
+                        {{ formatPrice(pricePerNight, priceCurrency) }} × {{ $t('accommodation.nights', { n: totalNights, count: totalNights }) }}
                     </span>
                     <span>{{ formatPrice(totalPrice, priceCurrency) }}</span>
                 </div>

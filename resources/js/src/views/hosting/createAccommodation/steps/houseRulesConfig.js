@@ -82,6 +82,26 @@ export const houseRulesConfig = {
         },
     ],
 
+    // Payment policies
+    paymentPolicies: [
+        {
+            id: 'on_site',
+            icon: '🏠',
+        },
+        {
+            id: 'immediate',
+            icon: '💳',
+        },
+        {
+            id: 'ten_days_before',
+            icon: '📅',
+        },
+        {
+            id: 'split',
+            icon: '✂️',
+        },
+    ],
+
     // Check-in methods
     checkInMethods: [
         {
@@ -121,6 +141,7 @@ export const houseRulesConfig = {
 
         // Policies
         cancellationPolicy: "moderate",
+        paymentPolicy: "on_site",
 
         // Additional
         checkInMethod: "self-checkin",
