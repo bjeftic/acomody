@@ -275,7 +275,7 @@
                     <!-- Club -->
                     <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-7">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Club</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white mb-1">€30<span class="text-base font-normal text-gray-400">/mo</span></p>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white mb-1">€29<span class="text-base font-normal text-gray-400">/mo</span></p>
                         <p class="text-xs text-green-600 dark:text-green-400 mb-5">{{ $t('plan_club_commission') }}</p>
                         <ul class="space-y-2.5 text-sm text-gray-600 dark:text-gray-400">
                             <li class="flex items-center gap-2">
@@ -288,11 +288,20 @@
                             </li>
                             <li class="flex items-center gap-2">
                                 <svg class="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-                                {{ $t('plan_club_ai') }}
+                                {{ $t('plan_club_ai') }}<sup>*</sup>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_club_link_in_bio') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_club_fair_price_meter') }}
                             </li>
                         </ul>
                     </div>
                 </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-6 text-center">{{ $t('plan_club_ai_footnote') }}</p>
             </div>
         </section>
 
@@ -537,25 +546,28 @@ en:
   plans_title: "Simple, honest plans"
   plans_subtitle: "Register now and get 0% commission for 6 months after platform launch — the Early Host benefit, automatically applied."
   plan_free: "Free"
-  plan_free_commission: "10% commission per booking"
+  plan_free_commission: "12% commission per booking"
   plan_early: "Early Host"
   plan_early_badge: "You get this"
   plan_early_commission: "0% commission — 6 months from platform launch"
   plan_early_f_commission: "0% commission for 6 months from launch"
-  plan_club_commission: "5% commission, always"
+  plan_club_commission: "6% commission, always"
   plan_unlimited_listings: "Unlimited listings"
   plan_f_tools: "Calendar & booking tools"
   plan_f_ai_limited: "AI Receptionist (limited)"
   plan_club_ai: "AI Receptionist (full)"
+  plan_club_ai_footnote: "* AI Receptionist usage is virtually unlimited. To ensure quality for all hosts, very high usage may require extra credits."
+  plan_club_link_in_bio: "Link in bio tool"
+  plan_club_fair_price_meter: "Fair price meter"
   faq_title: "Questions & answers"
   faq1_q: "How long does the 0% commission last?"
-  faq1_a: "6 months from the date the platform launches publicly. After that, your account reverts to the standard Free plan (10% commission) unless you upgrade to Club (€30/mo, 5% commission)."
+  faq1_a: "6 months from the date the platform launches publicly. After that, your account reverts to the standard Free plan (12% commission) unless you upgrade to Club (€29/mo, 6% commission)."
   faq2_q: "Do I need a credit card to sign up?"
   faq2_a: "No. Signing up and creating your listing is completely free. No payment details required."
   faq3_q: "When does the early host offer end?"
   faq3_a: "The offer is available while our early host program is active. We will notify you before it ends."
   faq4_q: "How many properties can I list?"
-  faq4_a: "Both Free and Club plans support unlimited listings. On Club (€30/mo) you also get a lower 5% commission and full AI Receptionist."
+  faq4_a: "Both Free and Club plans support unlimited listings. On Club (€29/mo) you also get a lower 6% commission and full AI Receptionist."
 
 sr:
   badge: "Rani pristup — ograničeno na 100 osnivačkih domaćina"
@@ -620,25 +632,28 @@ sr:
   plans_title: "Jednostavni, pošteni planovi"
   plans_subtitle: "Registrujte se sada i dobijte 0% provizije 6 meseci od lansiranja platforme — benefit ranog domaćina, primenjen automatski."
   plan_free: "Besplatan"
-  plan_free_commission: "10% provizije po rezervaciji"
+  plan_free_commission: "12% provizije po rezervaciji"
   plan_early: "Rani domaćin"
   plan_early_badge: "Ovo dobijate vi"
   plan_early_commission: "0% provizije — 6 meseci od lansiranja platforme"
   plan_early_f_commission: "0% provizije 6 meseci od lansiranja"
-  plan_club_commission: "5% provizije, uvek"
+  plan_club_commission: "6% provizije, uvek"
   plan_unlimited_listings: "Neograničeni smeštaji"
   plan_f_tools: "Kalendar i alati za rezervacije"
   plan_f_ai_limited: "AI recepcionista (ograničen)"
   plan_club_ai: "AI recepcionista (pun)"
+  plan_club_ai_footnote: "* Korišćenje AI recepcioniste je praktično neograničeno. Da bismo osigurali kvalitet za sve domaćine, veoma visoka upotreba može zahtevati dodatne kredite."
+  plan_club_link_in_bio: "Link in bio alat"
+  plan_club_fair_price_meter: "Merač realne cene"
   faq_title: "Pitanja i odgovori"
   faq1_q: "Koliko dugo traje 0% provizija?"
-  faq1_a: "6 meseci od datuma javnog lansiranja platforme. Nakon toga nalog prelazi na standardni besplatni plan (10% provizije), osim ako ne nadogradite na Club (€30/mes, 5% provizije)."
+  faq1_a: "6 meseci od datuma javnog lansiranja platforme. Nakon toga nalog prelazi na standardni besplatni plan (12% provizije), osim ako ne nadogradite na Club (€29/mes, 6% provizije)."
   faq2_q: "Da li mi je potrebna kreditna kartica?"
   faq2_a: "Ne. Registracija i kreiranje oglasa su potpuno besplatni. Nisu potrebni podaci o plaćanju."
   faq3_q: "Kada ističe ponuda za rane domaćine?"
   faq3_a: "Ponuda je dostupna dok je program aktivan. Obavestićemo vas unapred pre nego što istekne."
   faq4_q: "Koliko smeštaja mogu da postavim?"
-  faq4_a: "I besplatni i Club plan podržavaju neograničene smeštaje. Na Club planu (€30/mes) dobijate i nižu proviziju od 5% i punog AI recepcionistu."
+  faq4_a: "I besplatni i Club plan podržavaju neograničene smeštaje. Na Club planu (€29/mes) dobijate i nižu proviziju od 6% i punog AI recepcionistu."
 
 hr:
   badge: "Rani pristup — ograničeno na 100 osnivačkih domaćina"
@@ -703,25 +718,28 @@ hr:
   plans_title: "Jednostavni, pošteni planovi"
   plans_subtitle: "Registrirajte se sada i dobijte 0% provizije 6 mjeseci od lansiranja platforme — benefit ranog domaćina, primijenjen automatski."
   plan_free: "Besplatan"
-  plan_free_commission: "10% provizije po rezervaciji"
+  plan_free_commission: "12% provizije po rezervaciji"
   plan_early: "Rani domaćin"
   plan_early_badge: "Ovo dobivate vi"
   plan_early_commission: "0% provizije — 6 mjeseci od lansiranja platforme"
   plan_early_f_commission: "0% provizije 6 mjeseci od lansiranja"
-  plan_club_commission: "5% provizije, uvijek"
+  plan_club_commission: "6% provizije, uvijek"
   plan_unlimited_listings: "Neograničeni smještaji"
   plan_f_tools: "Kalendar i alati za rezervacije"
   plan_f_ai_limited: "AI recepcionar (ograničen)"
   plan_club_ai: "AI recepcionar (pun)"
+  plan_club_ai_footnote: "* Korištenje AI recepcionara je praktički neograničeno. Kako bismo osigurali kvalitetu za sve domaćine, iznimno visoka upotreba može zahtijevati dodatne kredite."
+  plan_club_link_in_bio: "Link in bio alat"
+  plan_club_fair_price_meter: "Mjerač realne cijene"
   faq_title: "Pitanja i odgovori"
   faq1_q: "Koliko dugo traje 0% provizija?"
-  faq1_a: "6 mjeseci od datuma javnog lansiranja platforme. Nakon toga račun prelazi na standardni besplatni plan (10% provizije), osim ako ne nadogradite na Club (€30/mj, 5% provizije)."
+  faq1_a: "6 mjeseci od datuma javnog lansiranja platforme. Nakon toga račun prelazi na standardni besplatni plan (12% provizije), osim ako ne nadogradite na Club (€29/mj, 6% provizije)."
   faq2_q: "Je li mi potrebna kreditna kartica?"
   faq2_a: "Ne. Registracija i kreiranje oglasa su potpuno besplatni. Nisu potrebni podaci o plaćanju."
   faq3_q: "Kada istječe ponuda za rane domaćine?"
   faq3_a: "Ponuda je dostupna dok je program aktivan. Obavijestit ćemo vas unaprijed prije nego što istekne."
   faq4_q: "Koliko smještaja mogu oglasiti?"
-  faq4_a: "I besplatni i Club plan podržavaju neograničene smještaje. Na Club planu (€30/mj) dobivate i nižu proviziju od 5% i punog AI recepcionara."
+  faq4_a: "I besplatni i Club plan podržavaju neograničene smještaje. Na Club planu (€29/mj) dobivate i nižu proviziju od 6% i punog AI recepcionara."
 
 mk:
   badge: "Ран пристап — ограничено на 100 основачки домаќини"
@@ -786,25 +804,28 @@ mk:
   plans_title: "Едноставни, поштени планови"
   plans_subtitle: "Регистрирајте се сега и добијте 0% провизија 6 месеци од лансирањето на платформата — бенефит на ран домаќин, применет автоматски."
   plan_free: "Бесплатен"
-  plan_free_commission: "10% провизија по резервација"
+  plan_free_commission: "12% провизија по резервација"
   plan_early: "Ран домаќин"
   plan_early_badge: "Ова го добивате вие"
   plan_early_commission: "0% провизија — 6 месеци од лансирањето на платформата"
   plan_early_f_commission: "0% провизија 6 месеци од лансирањето"
-  plan_club_commission: "5% провизија, секогаш"
+  plan_club_commission: "6% провизија, секогаш"
   plan_unlimited_listings: "Неограничени сместувања"
   plan_f_tools: "Календар и алати за резервации"
   plan_f_ai_limited: "AI рецепционер (ограничен)"
   plan_club_ai: "AI рецепционер (полн)"
+  plan_club_ai_footnote: "* Користењето на AI рецепционерот е практично неограничено. За да обезбедиме квалитет за сите домаќини, многу висока употреба може да бара дополнителни кредити."
+  plan_club_link_in_bio: "Link in bio aлатка"
+  plan_club_fair_price_meter: "Мерач на фер цена"
   faq_title: "Прашања и одговори"
   faq1_q: "Колку долго трае 0% провизија?"
-  faq1_a: "6 месеци од датумот на јавното лансирање на платформата. По тоа сметката се враќа на стандардниот бесплатен план (10% провизија), освен ако не надградите на Club (€30/мес, 5% провизија)."
+  faq1_a: "6 месеци од датумот на јавното лансирање на платформата. По тоа сметката се враќа на стандардниот бесплатен план (12% провизија), освен ако не надградите на Club (€29/мес, 6% провизија)."
   faq2_q: "Дали ми е потребна кредитна картичка?"
   faq2_a: "Не. Регистрацијата и создавањето на огласот се целосно бесплатни. Не се потребни податоци за плаќање."
   faq3_q: "Кога истекува понудата за рани домаќини?"
   faq3_a: "Понудата е достапна додека програмот е активен. Ќе ве известиме однапред пред да истече."
   faq4_q: "Колку сместувања можам да огласам?"
-  faq4_a: "И бесплатниот и Club планот поддржуваат неограничени сместувања. На Club план (€30/мес) добивате и пониска провизија од 5% и полн AI рецепционер."
+  faq4_a: "И бесплатниот и Club планот поддржуваат неограничени сместувања. На Club план (€29/мес) добивате и пониска провизија од 6% и полн AI рецепционер."
 
 sl:
   badge: "Zgodnji dostop — omejeno na 100 ustanovnih gostiteljev"
@@ -869,23 +890,26 @@ sl:
   plans_title: "Preprosti, pošteni načrti"
   plans_subtitle: "Registrirajte se zdaj in pridobite 0% provizije 6 mesecev od lansiranja platforme — ugodnost zgodnjega gostitelja, samodejno dodeljeno."
   plan_free: "Brezplačno"
-  plan_free_commission: "10% provizije na rezervacijo"
+  plan_free_commission: "12% provizije na rezervacijo"
   plan_early: "Zgodnji gostitelj"
   plan_early_badge: "To dobite vi"
   plan_early_commission: "0% provizije — 6 mesecev od lansiranja platforme"
   plan_early_f_commission: "0% provizije 6 mesecev od lansiranja"
-  plan_club_commission: "5% provizije, vedno"
+  plan_club_commission: "6% provizije, vedno"
   plan_unlimited_listings: "Neomejene nastanitve"
   plan_f_tools: "Koledar in orodja za rezervacije"
   plan_f_ai_limited: "AI recepcionist (omejen)"
   plan_club_ai: "AI recepcionist (polni)"
+  plan_club_ai_footnote: "* Uporaba AI recepcionista je praktično neomejena. Za zagotavljanje kakovosti za vse gostitelje lahko zelo visoka uporaba zahteva dodatne kredite."
+  plan_club_link_in_bio: "Link in bio orodje"
+  plan_club_fair_price_meter: "Merilnik realne cene"
   faq_title: "Vprašanja in odgovori"
   faq1_q: "Kako dolgo traja 0% provizija?"
-  faq1_a: "6 mesecev od datuma javnega lansiranja platforme. Po tem se račun vrne na standardni brezplačni načrt (10% provizije), razen če nadgradite na Club (€30/mes, 5% provizije)."
+  faq1_a: "6 mesecev od datuma javnega lansiranja platforme. Po tem se račun vrne na standardni brezplačni načrt (12% provizije), razen če nadgradite na Club (€29/mes, 6% provizije)."
   faq2_q: "Ali potrebujem kreditno kartico?"
   faq2_a: "Ne. Registracija in ustvarjanje oglasa sta popolnoma brezplačna. Podatki o plačilu niso potrebni."
   faq3_q: "Kdaj se konča ponudba za zgodnje gostitelje?"
   faq3_a: "Ponudba je na voljo, dokler je program aktiven. Obvestili vas bomo vnaprej, preden se konča."
   faq4_q: "Koliko nastanitev lahko oglasim?"
-  faq4_a: "Tako brezplačni kot Club načrt podpirata neomejene nastanitve. Na Club načrtu (€30/mes) dobite tudi nižjo provizijo 5% in polnega AI recepcionista."
+  faq4_a: "Tako brezplačni kot Club načrt podpirata neomejene nastanitve. Na Club načrtu (€29/mes) dobite tudi nižjo provizijo 6% in polnega AI recepcionista."
 </i18n>

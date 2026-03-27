@@ -226,8 +226,8 @@ Every host has a `HostSubscription` (one per user). Plans are seeded via `PlanSe
 **Plans** (`App\Models\Plan`):
 | Code | Name | Price | Commission | Notes |
 |------|------|-------|------------|-------|
-| `free` | Free | €0/mo | 10% | Default plan for all hosts |
-| `club` | Club | €30/mo | 5% | Premium plan |
+| `free` | Free | €0/mo | 12% | Default plan for all hosts |
+| `club` | Club | €29/mo | 6% | Premium plan |
 
 Both plans allow **unlimited accommodations** (`max_accommodations = null`).
 

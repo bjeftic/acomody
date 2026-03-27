@@ -28,11 +28,9 @@ class FeatureFlag extends Model
                 && $featureFlag->wasChanged('is_enabled')
                 && ! $featureFlag->is_enabled
             ) {
-                HostSubscription::withoutAuthorization(function () {
-                    HostSubscription::where('is_early_host', true)
-                        ->whereNull('early_host_expires_at')
-                        ->update(['early_host_expires_at' => now()->addMonths(6)]);
-                });
+                HostSubscription::where('is_early_host', true)
+                    ->whereNull('early_host_expires_at')
+                    ->update(['early_host_expires_at' => now()->addMonths(6)]);
             }
         });
     }

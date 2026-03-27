@@ -331,7 +331,7 @@ en:
   early_host_note_expires: "Early host benefit active until {date}."
   you_earn: You receive
   commission_note: The platform acts as an intermediary. Your price is always yours to set.
-  club_cta_title: "Reduce your commission to 5% with Club"
+  club_cta_title: "Reduce your commission to 6% with Club"
   club_cta_desc: "Club plan (€30/mo) cuts your commission in half — unlimited listings, full AI Receptionist."
   club_cta_link: "Upgrade to Club →"
   guest_view_heading: What your guests will see
@@ -360,7 +360,7 @@ sr:
   early_host_note_expires: "Benefit ranog domaćina aktivan do {date}."
   you_earn: Vi dobijate
   commission_note: Platforma je posrednik. Vašu cenu uvek Vi postavljate.
-  club_cta_title: "Smanjite proviziju na 5% sa Club planom"
+  club_cta_title: "Smanjite proviziju na 6% sa Club planom"
   club_cta_desc: "Club plan (30€/mes) prepolovljuje vašu proviziju — neograničeni smeštaji, pun AI recepcionista."
   club_cta_link: "Pređite na Club →"
   guest_view_heading: Šta vaši gosti vide
@@ -389,7 +389,7 @@ hr:
   early_host_note_expires: "Benefit ranog domaćina aktivan do {date}."
   you_earn: Vi primate
   commission_note: Platforma je posrednik. Vaša cijena uvijek pripada Vama.
-  club_cta_title: "Smanjite proviziju na 5% s Club planom"
+  club_cta_title: "Smanjite proviziju na 6% s Club planom"
   club_cta_desc: "Club plan (30€/mj) prepolovljuje vašu proviziju — neograničeni smještaji, puni AI recepcionar."
   club_cta_link: "Prijeđite na Club →"
   guest_view_heading: Što vaši gosti vide
@@ -418,7 +418,7 @@ mk:
   early_host_note_expires: "Придобивката за ран домаќин е активна до {date}."
   you_earn: Вие добивате
   commission_note: Платформата е посредник. Вашата цена секогаш е ваша.
-  club_cta_title: "Намалете ја провизијата на 5% со Club план"
+  club_cta_title: "Намалете ја провизијата на 6% со Club план"
   club_cta_desc: "Club план (30€/мес) ја преполовува вашата провизија — неограничени сместувања, полн AI рецепционер."
   club_cta_link: "Преминете на Club →"
   guest_view_heading: Што гледаат вашите гости
@@ -447,7 +447,7 @@ sl:
   early_host_note_expires: "Ugodnost zgodnjega gostitelja aktivna do {date}."
   you_earn: Prejmete
   commission_note: Platforma je posrednik. Vašo ceno vedno določate vi.
-  club_cta_title: "Znižajte provizijo na 5% s Club načrtom"
+  club_cta_title: "Znižajte provizijo na 6% s Club načrtom"
   club_cta_desc: "Club načrt (30€/mes) razpolovi vašo provizijo — neomejene nastanitve, polni AI recepcionist."
   club_cta_link: "Nadgradite na Club →"
   guest_view_heading: Kaj vidijo vaši gostje

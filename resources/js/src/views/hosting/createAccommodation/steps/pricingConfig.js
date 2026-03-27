@@ -15,10 +15,10 @@ const bookingTypes = (config.ui.bookingTypes ?? []).map((type) => ({
 export const pricingConfig = {
     // Platform commission rates
     // Host commission: deducted from what host receives (actual rate comes from user's subscription)
-    // Free plan: 10%, Club plan: 5%, Early host: 0%
+    // Free plan: 12%, Club plan: 6%, Early host: 0%
     // Guests always pay exactly the host's listed price — no service fee added on top.
-    freeCommissionPercentage: 10, // fallback for unauthenticated / no subscription loaded
-    clubCommissionPercentage: 5,
+    freeCommissionPercentage: 12, // fallback for unauthenticated / no subscription loaded
+    clubCommissionPercentage: 6,
 
     // Competitive pricing (mockup data - should come from API)
     // These values should be dynamically fetched based on location
