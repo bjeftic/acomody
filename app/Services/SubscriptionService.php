@@ -29,7 +29,7 @@ class SubscriptionService
         $subscription = $user->hostSubscription;
 
         if (! $subscription || ! $subscription->isActive()) {
-            return Plan::query()->where('code', PlanCode::Free->value)->first()?->commission_rate ?? 10;
+            return Plan::query()->where('code', PlanCode::Free->value)->first()?->commission_rate ?? PlanCode::Free->defaultCommissionRate();
         }
 
         return $subscription->commissionRate();
@@ -91,7 +91,7 @@ class SubscriptionService
             ->orderByDesc('host_subscriptions.created_at')
             ->value('plans.commission_rate');
 
-        return $rate ?? Plan::query()->where('code', PlanCode::Free->value)->value('commission_rate') ?? 10;
+        return $rate ?? Plan::query()->where('code', PlanCode::Free->value)->value('commission_rate') ?? PlanCode::Free->defaultCommissionRate();
     }
 
     public function isEarlyHost(User $user): bool

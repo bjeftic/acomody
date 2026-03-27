@@ -45,7 +45,7 @@
                 <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
                     <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ $t('commission_label') }}</p>
                     <p class="text-lg font-semibold" :class="subscription.commission_rate === 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'">
-                        {{ (subscription.commission_rate ?? 10) + '%' }}
+                        {{ (subscription.commission_rate ?? 12) + '%' }}
                     </p>
                 </div>
 

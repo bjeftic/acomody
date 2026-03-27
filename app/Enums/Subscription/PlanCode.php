@@ -14,4 +14,12 @@ enum PlanCode: string
             self::Club => 'Club',
         };
     }
+
+    public function defaultCommissionRate(): int
+    {
+        return match ($this) {
+            self::Free => 12,
+            self::Club => 6,
+        };
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\Subscription\PlanCode;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -84,7 +85,7 @@ class UserResource extends JsonResource
             'features' => $plan?->features,
             'is_active' => $subscription?->isActive() ?? false,
             'ends_at' => $subscription?->ends_at?->toISOString(),
-            'commission_rate' => $subscription?->commissionRate() ?? ($plan?->commission_rate ?? 10),
+            'commission_rate' => $subscription?->commissionRate() ?? ($plan?->commission_rate ?? PlanCode::Free->defaultCommissionRate()),
             'is_commission_free' => $subscription?->isCommissionFree() ?? false,
             'is_early_host' => $subscription?->isEarlyHostActive() ?? false,
             'early_host_expires_at' => $subscription?->early_host_expires_at?->toISOString(),

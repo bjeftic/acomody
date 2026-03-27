@@ -36,7 +36,7 @@ export const subscription = (state) => state.currentUser?.subscription ?? null;
 
 export const isCommissionFree = (state) => state.currentUser?.subscription?.is_commission_free ?? false;
 
-export const commissionRate = (state) => state.currentUser?.subscription?.commission_rate ?? 10;
+export const commissionRate = (state) => state.currentUser?.subscription?.commission_rate ?? 12;
 
 export const currentPlan = (state) => state.currentUser?.subscription?.plan_code ?? 'free';
 

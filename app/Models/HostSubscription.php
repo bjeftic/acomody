@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Subscription\PlanCode;
 use App\Enums\Subscription\SubscriptionStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -101,6 +102,6 @@ class HostSubscription extends Model
             return 0;
         }
 
-        return $this->plan->commission_rate ?? 10;
+        return $this->plan->commission_rate ?? PlanCode::Free->defaultCommissionRate();
     }
 }
