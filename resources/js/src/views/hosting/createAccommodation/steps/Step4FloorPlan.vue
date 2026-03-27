@@ -86,7 +86,7 @@ export default {
 
 <i18n lang="yaml">
 en:
-  heading: Share some basics about your place
+  heading: Step 4 - Share some basics about your place
   subtitle: Tell guests how many people can stay and what types of beds you have.
   guests: Guests
   bedrooms: Bedrooms
@@ -94,7 +94,7 @@ en:
   bed_types: Bed types
   bed_types_desc: Select the types of beds available (at least one required).
 sr:
-  heading: Podelite osnove o vašem smeštaju
+  heading: Korak 4 — Podelite osnove o vašem smeštaju
   subtitle: Recite gostima koliko osoba može boraviti i koje vrste kreveta imate.
   guests: Gosti
   bedrooms: Spavaće sobe
@@ -102,7 +102,7 @@ sr:
   bed_types: Vrste kreveta
   bed_types_desc: Odaberite vrste kreveta koje su dostupne (potreban je najmanje jedan).
 hr:
-  heading: Podijelite osnove o vašem smještaju
+  heading: Korak 4 - Podijelite osnove o vašem smještaju
   subtitle: Recite gostima koliko osoba može boraviti i koje vrste kreveta imate.
   guests: Gosti
   bedrooms: Spavaće sobe
@@ -110,7 +110,7 @@ hr:
   bed_types: Vrste kreveta
   bed_types_desc: Odaberite vrste kreveta koje su dostupne (potreban je najmanje jedan).
 mk:
-  heading: Споделете основи за вашиот простор
+  heading: Чекор 4 - Споделете основи за вашиот простор
   subtitle: Кажете им на гостите колку луѓе можат да останат и какви видови кревети имате.
   guests: Гости
   bedrooms: Спални соби
@@ -118,7 +118,7 @@ mk:
   bed_types: Видови кревети
   bed_types_desc: Изберете ги видовите кревети кои се достапни (потребен е најмалку еден).
 sl:
-  heading: Delite osnove o vašem prostoru
+  heading: Korak 4 - Delite osnove o vašem prostoru
   subtitle: Povejte gostom, koliko ljudi lahko biva in katere vrste postelj imate.
   guests: Gostje
   bedrooms: Spalnice

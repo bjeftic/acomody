@@ -142,15 +142,6 @@ export default {
                     this.updateMarkerPosition(position.lat, position.lng, true);
                 });
             }
-
-            // Add popup with coordinates
-            this.marker.bindPopup(`
-                <div class="font-sans">
-                    <strong>Location</strong><br>
-                    Lat: ${lat.toFixed(6)}<br>
-                    Lng: ${lng.toFixed(6)}
-                </div>
-            `);
         },
 
         updateMarkerPosition(lat, lng, emitEvent = true) {
