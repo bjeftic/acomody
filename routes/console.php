@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('ical:sync')->everyFiveMinutes();
 Schedule::command('sitemap:generate')->daily();
+Schedule::command('app:update-accommodations-base-eur-prices')->dailyAt('03:00');
