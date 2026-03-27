@@ -5,6 +5,7 @@ use App\Http\Controllers\SuperAdmin\AccommodationDraftController;
 use App\Http\Controllers\SuperAdmin\AuthController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\DeletionRequestController;
+use App\Http\Controllers\SuperAdmin\EmailLogController;
 use App\Http\Controllers\SuperAdmin\FeatureFlagController;
 use App\Http\Controllers\SuperAdmin\HomeSectionController;
 use App\Http\Controllers\SuperAdmin\LegalDocumentController;
@@ -50,5 +51,7 @@ Route::middleware(['auth', 'super.admin'])->group(function () {
 
         Route::post('feature-flags/{featureFlag}/toggle', [FeatureFlagController::class, 'toggle'])->name('feature-flags.toggle');
         Route::resource('feature-flags', FeatureFlagController::class)->except(['show'])->names('feature-flags');
+
+        Route::resource('email-logs', EmailLogController::class)->only(['index', 'show'])->names('email-logs');
     });
 });
