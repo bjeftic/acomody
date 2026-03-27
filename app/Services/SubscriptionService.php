@@ -71,6 +71,29 @@ class SubscriptionService
         return Carbon::parse($subscription->early_host_expires_at)->isFuture();
     }
 
+    /**
+     * Get the effective commission rate (as integer percentage) for a host by user ID,
+     * using a raw DB query to avoid Eloquent authorization checks (needed in guest booking context).
+     * Returns 0 if the host is commission-free, otherwise returns the plan's commission_rate.
+     */
+    public function getCommissionRateByUserId(string $userId): int
+    {
+        if ($this->isCommissionFreeByUserId($userId)) {
+            return 0;
+        }
+
+        $activeStatuses = [SubscriptionStatus::Active->value, SubscriptionStatus::Trial->value];
+
+        $rate = DB::table('host_subscriptions')
+            ->join('plans', 'host_subscriptions.plan_id', '=', 'plans.id')
+            ->where('host_subscriptions.user_id', $userId)
+            ->whereIn('host_subscriptions.status', $activeStatuses)
+            ->orderByDesc('host_subscriptions.created_at')
+            ->value('plans.commission_rate');
+
+        return $rate ?? Plan::query()->where('code', PlanCode::Free->value)->value('commission_rate') ?? 10;
+    }
+
     public function isEarlyHost(User $user): bool
     {
         $subscription = $user->hostSubscription;

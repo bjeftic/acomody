@@ -19,8 +19,6 @@ use Illuminate\Support\Facades\DB;
 
 class BookingService
 {
-    private const COMMISSION_RATE = 0.05;
-
     public function __construct(
         private readonly AvailabilityService $availabilityService,
         private readonly PricingService $pricingService,
@@ -144,10 +142,12 @@ class BookingService
 
         $bookingType = $accommodation->booking_type ?? BookingType::INSTANT_BOOKING->value;
 
-        $isCommissionFree = $this->subscriptionService->isCommissionFreeByUserId($accommodation->user_id);
+        $commissionRateInt = $this->subscriptionService->getCommissionRateByUserId($accommodation->user_id);
+        $isCommissionFree = $commissionRateInt === 0;
+        $commissionRate = $commissionRateInt / 100;
         $subtotal = $breakdown['subtotal'];
-        $commissionHost = $isCommissionFree ? 0.0 : round($subtotal * self::COMMISSION_RATE, 2);
-        $commissionGuest = $isCommissionFree ? 0.0 : round($subtotal * self::COMMISSION_RATE, 2);
+        $commissionHost = $isCommissionFree ? 0.0 : round($subtotal * $commissionRate, 2);
+        $commissionGuest = $isCommissionFree ? 0.0 : round($subtotal * $commissionRate, 2);
 
         DB::beginTransaction();
         try {
@@ -155,8 +155,8 @@ class BookingService
                 'unit_prices' => $breakdown['unit_prices'] ?? null,
                 'bulk_discount' => $breakdown['bulk_discount'] ?? null,
                 'commission' => [
-                    'host_rate' => $isCommissionFree ? 0 : self::COMMISSION_RATE,
-                    'guest_rate' => $isCommissionFree ? 0 : self::COMMISSION_RATE,
+                    'host_rate' => $commissionRate,
+                    'guest_rate' => $commissionRate,
                     'host_amount' => $commissionHost,
                     'guest_amount' => $commissionGuest,
                     'is_commission_free' => $isCommissionFree,
