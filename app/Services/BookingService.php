@@ -22,6 +22,7 @@ class BookingService
     public function __construct(
         private readonly AvailabilityService $availabilityService,
         private readonly PricingService $pricingService,
+        private readonly SubscriptionService $subscriptionService,
     ) {}
 
     // ============================================
@@ -51,9 +52,7 @@ class BookingService
         Accommodation $accommodation,
         Carbon $checkIn,
         Carbon $checkOut,
-        int $guests,
-        array $optionalFeeIds = [],
-        array $guestAges = []
+        int $guests
     ): array {
         $nights = (int) $checkIn->diffInDays($checkOut);
 
@@ -63,9 +62,7 @@ class BookingService
             $checkIn,
             $checkOut,
             $nights,
-            $guests,
-            $guestAges,
-            $optionalFeeIds
+            $guests
         );
     }
 
@@ -140,20 +137,30 @@ class BookingService
             $checkIn,
             $checkOut,
             $nights,
-            $guests,
-            $data['guest_ages'] ?? [],
-            $data['optional_fee_ids'] ?? []
+            $guests
         );
 
         $bookingType = $accommodation->booking_type ?? BookingType::INSTANT_BOOKING->value;
+
+        $commissionRateInt = $this->subscriptionService->getCommissionRateByUserId($accommodation->user_id);
+        $isCommissionFree = $commissionRateInt === 0;
+        $commissionRate = $commissionRateInt / 100;
+        $subtotal = $breakdown['subtotal'];
+        $commissionHost = $isCommissionFree ? 0.0 : round($subtotal * $commissionRate, 2);
+        $commissionGuest = $isCommissionFree ? 0.0 : round($subtotal * $commissionRate, 2);
 
         DB::beginTransaction();
         try {
             $priceDetails = array_filter([
                 'unit_prices' => $breakdown['unit_prices'] ?? null,
                 'bulk_discount' => $breakdown['bulk_discount'] ?? null,
-                'fees' => $breakdown['fees'] ?? null,
-                'taxes' => $breakdown['taxes'] ?? null,
+                'commission' => [
+                    'host_rate' => $commissionRate,
+                    'guest_rate' => $commissionRate,
+                    'host_amount' => $commissionHost,
+                    'guest_amount' => $commissionGuest,
+                    'is_commission_free' => $isCommissionFree,
+                ],
             ], fn ($v) => $v !== null);
 
             $booking = Booking::create([
@@ -168,12 +175,12 @@ class BookingService
                 'booking_type' => $bookingType,
                 'currency' => $breakdown['currency'],
                 'subtotal' => $breakdown['subtotal'],
-                'fees_total' => $breakdown['fees_subtotal'] ?? 0,
-                'taxes_total' => $breakdown['taxes_subtotal'] ?? 0,
                 'total_price' => $breakdown['total'],
+                'commission_host' => $commissionHost,
+                'commission_guest' => $commissionGuest,
+                'is_commission_free' => $isCommissionFree,
                 'priceable_item_id' => $breakdown['priceable_item_id'],
                 'price_details' => $priceDetails,
-                'optional_fee_ids' => $data['optional_fee_ids'] ?? null,
                 'payment_status' => PaymentStatus::UNPAID,
                 'guest_notes' => $data['guest_notes'] ?? null,
             ]);

@@ -44,7 +44,7 @@
                     </label>
                     <VueDatePicker
                         v-model="bookingForm.checkIn"
-                        model-type="format"
+                        model-type="yyyy-MM-dd"
                         :min-date="minCheckIn"
                         :disabled-dates="isDateDisabled"
                         :time-config="{ enableTimePicker: false }"
@@ -60,7 +60,7 @@
                     </label>
                     <VueDatePicker
                         v-model="bookingForm.checkOut"
-                        model-type="format"
+                        model-type="yyyy-MM-dd"
                         :min-date="minCheckOut"
                         :start-date="bookingForm.checkIn || minCheckOut"
                         :disabled-dates="isDateDisabled"
@@ -91,22 +91,30 @@
             >
                 <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
                     <span>
-                        {{ formatPrice(pricePerNight, priceCurrency) }} × {{ $tc('accommodation.nights', totalNights, { count: totalNights }) }}
+                        {{ formatPrice(pricePerNight, priceCurrency) }} × {{ $t('accommodation.nights', { n: totalNights, count: totalNights }) }}
                     </span>
-                    <span>{{ formatPrice(totalPrice, priceCurrency) }}</span>
+                    <span>{{ formatPrice(subtotalPrice, priceCurrency) }}</span>
                 </div>
                 <div
-                    v-if="serviceFee > 0"
+                    v-if="breakdown && breakdown.fees_subtotal > 0"
                     class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
                 >
-                    <span>{{ $t('booking.service_fee') }}</span>
-                    <span>{{ formatPrice(serviceFee, priceCurrency) }}</span>
+                    <span>{{ $t('fees') }}</span>
+                    <span>{{ formatPrice(breakdown.fees_subtotal, breakdown.currency) }}</span>
+                </div>
+                <div
+                    v-if="breakdown && breakdown.taxes_subtotal > 0"
+                    class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
+                >
+                    <span>{{ $t('taxes') }}</span>
+                    <span>{{ formatPrice(breakdown.taxes_subtotal, breakdown.currency) }}</span>
                 </div>
                 <div
                     class="flex justify-between text-base font-semibold text-gray-900 dark:text-white pt-3 border-t border-gray-200 dark:border-gray-700"
                 >
                     <span>{{ $t('accommodation.total') }}</span>
-                    <span>{{ formatPrice(totalWithFees, priceCurrency) }}</span>
+                    <span v-if="breakdown">{{ formatPrice(breakdown.total, breakdown.currency) }}</span>
+                    <span v-else>{{ formatPrice(subtotalPrice, priceCurrency) }}</span>
                 </div>
             </div>
 
@@ -152,18 +160,16 @@
 </template>
 
 <script>
-import { VueDatePicker } from "@vuepic/vue-datepicker";
-import "@vuepic/vue-datepicker/dist/main.css";
 import { formatPrice } from "@/utils/helpers";
 import apiClient from "@/services/apiClient";
 import GuestsDropdown from "@/src/components/common/GuestsDropdown.vue";
+import { mapActions } from "vuex";
 
 export default {
     name: "BookingCard",
 
     components: {
         GuestsDropdown,
-        VueDatePicker,
     },
 
     props: {
@@ -186,7 +192,14 @@ export default {
                 },
             },
             blockedRanges: [],
+            breakdown: null,
         };
+    },
+
+    watch: {
+        "bookingForm.checkIn": "fetchBreakdown",
+        "bookingForm.checkOut": "fetchBreakdown",
+        "bookingForm.guests": { handler: "fetchBreakdown", deep: true },
     },
 
     async created() {
@@ -229,16 +242,8 @@ export default {
             return Math.ceil(Math.abs(checkOut - checkIn) / (1000 * 60 * 60 * 24));
         },
 
-        totalPrice() {
+        subtotalPrice() {
             return parseFloat((this.pricePerNight * this.totalNights).toFixed(2));
-        },
-
-        serviceFee() {
-            return parseFloat((this.totalPrice * 0.1).toFixed(2));
-        },
-
-        totalWithFees() {
-            return parseFloat((this.totalPrice + this.serviceFee).toFixed(2));
         },
 
         totalGuests() {
@@ -256,7 +261,26 @@ export default {
     },
 
     methods: {
+        ...mapActions("accommodation", ["calculatePrice"]),
+
         formatPrice,
+
+        async fetchBreakdown() {
+            if (!this.bookingForm.checkIn || !this.bookingForm.checkOut || this.totalNights <= 0) {
+                this.breakdown = null;
+                return;
+            }
+            try {
+                this.breakdown = await this.calculatePrice({
+                    accommodationId: this.accommodation.id,
+                    checkIn: this.bookingForm.checkIn,
+                    checkOut: this.bookingForm.checkOut,
+                    guests: this.totalGuests,
+                });
+            } catch {
+                this.breakdown = null;
+            }
+        },
 
         formatPickerDate(date) {
             if (!date) return "";

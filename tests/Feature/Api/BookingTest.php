@@ -5,6 +5,8 @@ use App\Services\BookingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 
+beforeEach(fn () => seedCurrencyRates());
+
 // ============================================================
 // GET /api/bookings (index)
 // ============================================================

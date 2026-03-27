@@ -12,12 +12,12 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\BedTypeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CurrencyController;
-use App\Http\Controllers\FeeController;
 use App\Http\Controllers\Host\AvailabilityPeriodController as HostAvailabilityPeriodController;
 use App\Http\Controllers\Host\BookingController as HostBookingController;
 use App\Http\Controllers\Host\DeletionRequestController as HostDeletionRequestController;
 use App\Http\Controllers\Host\HostProfileController;
 use App\Http\Controllers\Host\IcalCalendarController as HostIcalCalendarController;
+use App\Http\Controllers\Host\SubscriptionController;
 use App\Http\Controllers\IcalExportController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\NotificationController;
@@ -50,6 +50,8 @@ Route::post('/currency/set', [CurrencyController::class, 'set'])
 
 Route::post('/language/set', [LanguageController::class, 'set'])
     ->name('api.language.set');
+
+Route::get('plans', [SubscriptionController::class, 'plans'])->name('api.plans');
 
 Route::prefix('public')->name('api.public')->group(function () {
     Route::get('filters', [PublicFilterController::class, 'index'])
@@ -113,13 +115,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/amenities', [AmenityController::class, 'index'])
         ->name('api.amenities');
-
-    Route::prefix('/fees')->name('api.fees.')->group(function () {
-        Route::get('/fee-types', [FeeController::class, 'indexFeeTypes'])
-            ->name('fee-types');
-        Route::get('/charge-types', [FeeController::class, 'indexFeeChargeTypes'])
-            ->name('charge-types');
-    });
 
     Route::prefix('accommodation-drafts')->name('api.accommodation.drafts.')->group(function () {
         Route::get('', [AccommodationDraftController::class, 'index'])
@@ -194,6 +189,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->name('api.host.accommodations.deletion-request');
 
     // Host profile
+    Route::get('host/subscription', [SubscriptionController::class, 'show'])->name('api.host.subscription');
+
     Route::prefix('host/profile')->name('api.host.profile.')->group(function () {
         Route::get('', [HostProfileController::class, 'show'])->name('show');
         Route::post('initialize', [HostProfileController::class, 'initialize'])->name('initialize');

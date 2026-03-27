@@ -6,6 +6,7 @@ use App\Enums\Accommodation\AccommodationOccupation;
 use App\Enums\Accommodation\AccommodationType;
 use App\Enums\Accommodation\BedType;
 use App\Enums\Accommodation\BookingType;
+use App\Enums\Accommodation\PaymentPolicy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -93,6 +94,7 @@ class UpdateRequest extends FormRequest
             'data.house_rules.quietHoursFrom' => ['nullable', 'string', 'date_format:H:i'],
             'data.house_rules.quietHoursUntil' => ['nullable', 'string', 'date_format:H:i'],
             'data.house_rules.cancellationPolicy' => [$r, 'string', Rule::in(['flexible', 'moderate', 'firm', 'strict', 'non-refundable'])],
+            'data.house_rules.paymentPolicy' => ['nullable', Rule::enum(PaymentPolicy::class)],
         ];
     }
 }

@@ -207,6 +207,139 @@
             </div>
         </section>
 
+        <!-- PLAN COMPARISON -->
+        <section class="py-20 bg-gray-50 dark:bg-gray-800/40">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-12">
+                    <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">{{ $t('plans_label') }}</span>
+                    <h2 class="text-4xl font-bold text-gray-900 dark:text-white mt-3">{{ $t('plans_title') }}</h2>
+                    <p class="text-gray-500 dark:text-gray-400 mt-3 max-w-xl mx-auto">{{ $t('plans_subtitle') }}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Free -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-7">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{{ $t('plan_free') }}</p>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white mb-1">€0</p>
+                        <p class="text-xs text-rose-500 mb-5">{{ $t('plan_free_commission') }}</p>
+                        <ul class="space-y-2.5 text-sm text-gray-600 dark:text-gray-400">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_unlimited_listings') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_f_tools') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_f_ai_limited') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_fair_price_meter') }}
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Early Host (highlighted) -->
+                    <div class="relative bg-gradient-to-br from-primary-600 to-primary-800 rounded-2xl p-7 text-white shadow-xl shadow-primary-600/30">
+                        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                            <span class="bg-amber-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-full shadow whitespace-nowrap">⭐ {{ $t('plan_early_badge') }}</span>
+                        </div>
+                        <p class="text-sm font-medium text-white/80 mb-1">{{ $t('plan_early') }}</p>
+                        <p class="text-3xl font-bold mb-1">€0</p>
+                        <p class="text-xs text-green-300 mb-5">{{ $t('plan_early_commission') }}</p>
+                        <ul class="space-y-2.5 text-sm text-white/90">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_unlimited_listings') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_f_tools') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_early_f_commission') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_f_ai_limited') }}
+                            </li>
+                        </ul>
+                        <button
+                            class="mt-6 w-full py-3 bg-white text-primary-700 font-semibold rounded-xl hover:bg-primary-50 transition-colors text-sm"
+                            @click="handleCta"
+                        >
+                            {{ $t('hero_cta') }}
+                        </button>
+                    </div>
+
+                    <!-- Club -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-7">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Club</p>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white mb-1">€29<span class="text-base font-normal text-gray-400">/mo</span></p>
+                        <p class="text-xs text-green-600 dark:text-green-400 mb-5">{{ $t('plan_club_commission') }}</p>
+                        <ul class="space-y-2.5 text-sm text-gray-600 dark:text-gray-400">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_unlimited_listings') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_f_tools') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_club_ai') }}<sup>*</sup>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_club_link_in_bio') }}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_fair_price_meter') }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-6 text-center">{{ $t('plan_club_ai_footnote') }}</p>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="py-20 max-w-3xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-900 dark:text-white">{{ $t('faq_title') }}</h2>
+            </div>
+            <div class="space-y-3">
+                <div
+                    v-for="(item, i) in faqs"
+                    :key="i"
+                    class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+                >
+                    <button
+                        class="w-full flex items-center justify-between text-left px-6 py-5 gap-4"
+                        @click="openFaq = openFaq === i ? null : i"
+                    >
+                        <span class="font-medium text-gray-900 dark:text-white text-sm">{{ item.q }}</span>
+                        <svg
+                            class="w-5 h-5 text-gray-400 shrink-0 transition-transform"
+                            :class="{ 'rotate-180': openFaq === i }"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div v-if="openFaq === i" class="px-6 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        {{ item.a }}
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- FINAL CTA SECTION -->
         <section class="py-24 bg-gradient-to-br from-gray-900 to-primary-900">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
@@ -262,6 +395,7 @@ export default {
         return {
             joinedCount: 23,
             totalSpots: 100,
+            openFaq: null,
             testimonials: [
                 {
                     name: 'Marija T.',
@@ -317,6 +451,15 @@ export default {
                 { title: this.$t('s3_title'), desc: this.$t('s3_desc') },
             ];
         },
+
+        faqs() {
+            return [
+                { q: this.$t('faq1_q'), a: this.$t('faq1_a') },
+                { q: this.$t('faq2_q'), a: this.$t('faq2_a') },
+                { q: this.$t('faq3_q'), a: this.$t('faq3_a') },
+                { q: this.$t('faq4_q'), a: this.$t('faq4_a') },
+            ];
+        },
     },
 
     methods: {
@@ -349,7 +492,7 @@ en:
   hero_line1: "List first."
   hero_line2: "Earn from day one."
   hero_subtitle: "Acomody is launching soon. Founding hosts get {highlight} and guaranteed top placement when we go live."
-  hero_highlight: "0% commission for the entire first year"
+  hero_highlight: "0% commission for 6 months"
   hero_founding: "Be among the first 100 hosts on the platform."
   hero_cta: "List your property"
   hero_no_cc: "No credit card required. Listing takes under 5 minutes."
@@ -381,12 +524,12 @@ en:
   footer_privacy: "Privacy"
   stat_any_type: "Any type"
   stat_any_type_desc: "Apartments, houses, villas, cabins and more"
-  stat_commission_desc: "Commission for founding hosts in year one"
+  stat_commission_desc: "Commission for founding hosts for 6 months from launch"
   stat_time: "5 min"
   stat_time_desc: "Average time to create a listing"
   stat_control_desc: "Control over your prices, rules and guests"
-  b1_title: "0% commission — entire first year"
-  b1_desc: "Founding hosts keep 100% of every booking. No platform fees until year two. That's thousands saved from day one."
+  b1_title: "0% commission — 6 months from launch"
+  b1_desc: "Founding hosts keep 100% of every booking for 6 months after platform launch. No platform cut. That's hundreds saved before you even think about upgrading."
   b2_title: "Top placement at launch"
   b2_desc: "Your property gets priority position in search results when we open to guests. First in line, every time."
   b3_title: "First bookings, guaranteed"
@@ -403,13 +546,39 @@ en:
   s2_desc: "Our team personally reviews and optimizes your listing for maximum visibility at launch."
   s3_title: "Start receiving bookings"
   s3_desc: "When we launch, your listing goes live first — visible to thousands of pre-registered guests."
+  plans_label: "Transparent pricing"
+  plans_title: "Simple, honest plans"
+  plans_subtitle: "Register now and get 0% commission for 6 months after platform launch — the Early Host benefit, automatically applied."
+  plan_free: "Free"
+  plan_free_commission: "12% commission per booking"
+  plan_early: "Early Host"
+  plan_early_badge: "You get this"
+  plan_early_commission: "0% commission — 6 months from platform launch"
+  plan_early_f_commission: "0% commission for 6 months from launch"
+  plan_club_commission: "6% commission, always"
+  plan_unlimited_listings: "Unlimited listings"
+  plan_f_tools: "Calendar & booking tools"
+  plan_f_ai_limited: "AI Receptionist (limited)"
+  plan_club_ai: "AI Receptionist (full)"
+  plan_club_ai_footnote: "* AI Receptionist usage is virtually unlimited. To ensure quality for all hosts, very high usage may require extra credits."
+  plan_club_link_in_bio: "Link in bio tool"
+  plan_fair_price_meter: "Fair price meter"
+  faq_title: "Questions & answers"
+  faq1_q: "How long does the 0% commission last?"
+  faq1_a: "6 months from the date the platform launches publicly. After that, your account reverts to the standard Free plan (12% commission) unless you upgrade to Club (€29/mo, 6% commission)."
+  faq2_q: "Do I need a credit card to sign up?"
+  faq2_a: "No. Signing up and creating your listing is completely free. No payment details required."
+  faq3_q: "When does the early host offer end?"
+  faq3_a: "The offer is available while our early host program is active. We will notify you before it ends."
+  faq4_q: "How many properties can I list?"
+  faq4_a: "Both Free and Club plans support unlimited listings. On Club (€29/mo) you also get a lower 6% commission and full AI Receptionist."
 
 sr:
   badge: "Rani pristup — ograničeno na 100 osnivačkih domaćina"
   hero_line1: "Objavi prvi."
   hero_line2: "Zarađuj od prvog dana."
   hero_subtitle: "Acomody se uskoro lansira. Osnivački domaćini dobijaju {highlight} i garantovano top pozicioniranje kada se platforma pokrene."
-  hero_highlight: "0% provizije tokom cele prve godine"
+  hero_highlight: "0% provizije tokom 6 meseci"
   hero_founding: "Budite među prvih 100 domaćina na platformi."
   hero_cta: "Oglasite svoju nekretninu"
   hero_no_cc: "Nije potrebna kreditna kartica. Kreiranje oglasa traje manje od 5 minuta."
@@ -441,12 +610,12 @@ sr:
   footer_privacy: "Privatnost"
   stat_any_type: "Bilo koji tip"
   stat_any_type_desc: "Stanovi, kuće, vile, kabine i još mnogo toga"
-  stat_commission_desc: "Provizija za osnivačke domaćine u prvoj godini"
+  stat_commission_desc: "Provizija za osnivačke domaćine 6 meseci od lansiranja"
   stat_time: "5 min"
   stat_time_desc: "Prosečno vreme za kreiranje oglasa"
   stat_control_desc: "Kontrola nad cenama, pravilima i gostima"
-  b1_title: "0% provizije — cela prva godina"
-  b1_desc: "Osnivački domaćini zadržavaju 100% svake rezervacije. Bez platformskih naknada do druge godine. To su hiljade uštedovano od prvog dana."
+  b1_title: "0% provizije — 6 meseci od lansiranja"
+  b1_desc: "Osnivački domaćini zadržavaju 100% svake rezervacije 6 meseci od lansiranja platforme. Bez odbitaka platforme od prvog dana."
   b2_title: "Top pozicioniranje na lansiranju"
   b2_desc: "Vaša nekretnina dobija prioritetno mesto u rezultatima pretrage. Uvek na prvom mestu."
   b3_title: "Prve rezervacije, garantovano"
@@ -463,13 +632,39 @@ sr:
   s2_desc: "Naš tim lično pregledava i optimizuje vaš oglas za maksimalnu vidljivost na lansiranju."
   s3_title: "Počnite da primate rezervacije"
   s3_desc: "Kada se lansiramo, vaš oglas ide live prvi — vidljiv hiljadama pre-registrovanih gostiju."
+  plans_label: "Transparentno cenovnik"
+  plans_title: "Jednostavni, pošteni planovi"
+  plans_subtitle: "Registrujte se sada i dobijte 0% provizije 6 meseci od lansiranja platforme — benefit ranog domaćina, primenjen automatski."
+  plan_free: "Besplatan"
+  plan_free_commission: "12% provizije po rezervaciji"
+  plan_early: "Rani domaćin"
+  plan_early_badge: "Ovo dobijate vi"
+  plan_early_commission: "0% provizije — 6 meseci od lansiranja platforme"
+  plan_early_f_commission: "0% provizije 6 meseci od lansiranja"
+  plan_club_commission: "6% provizije, uvek"
+  plan_unlimited_listings: "Neograničeni smeštaji"
+  plan_f_tools: "Kalendar i alati za rezervacije"
+  plan_f_ai_limited: "AI recepcionista (ograničen)"
+  plan_club_ai: "AI recepcionista (pun)"
+  plan_club_ai_footnote: "* Korišćenje AI recepcioniste je praktično neograničeno. Da bismo osigurali kvalitet za sve domaćine, veoma visoka upotreba može zahtevati dodatne kredite."
+  plan_club_link_in_bio: "Link in bio alat"
+  plan_fair_price_meter: "Merač realne cene"
+  faq_title: "Pitanja i odgovori"
+  faq1_q: "Koliko dugo traje 0% provizija?"
+  faq1_a: "6 meseci od datuma javnog lansiranja platforme. Nakon toga nalog prelazi na standardni besplatni plan (12% provizije), osim ako ne nadogradite na Club (€29/mes, 6% provizije)."
+  faq2_q: "Da li mi je potrebna kreditna kartica?"
+  faq2_a: "Ne. Registracija i kreiranje oglasa su potpuno besplatni. Nisu potrebni podaci o plaćanju."
+  faq3_q: "Kada ističe ponuda za rane domaćine?"
+  faq3_a: "Ponuda je dostupna dok je program aktivan. Obavestićemo vas unapred pre nego što istekne."
+  faq4_q: "Koliko smeštaja mogu da postavim?"
+  faq4_a: "I besplatni i Club plan podržavaju neograničene smeštaje. Na Club planu (€29/mes) dobijate i nižu proviziju od 6% i punog AI recepcionistu."
 
 hr:
   badge: "Rani pristup — ograničeno na 100 osnivačkih domaćina"
   hero_line1: "Oglasi prvi."
   hero_line2: "Zarađuj od prvog dana."
   hero_subtitle: "Acomody se uskoro lansira. Osnivački domaćini dobivaju {highlight} i zajamčeno top pozicioniranje kada se platforma pokrene."
-  hero_highlight: "0% provizije tijekom cijele prve godine"
+  hero_highlight: "0% provizije tijekom 6 mjeseci"
   hero_founding: "Budite među prvih 100 domaćina na platformi."
   hero_cta: "Oglasi svoju nekretninu"
   hero_no_cc: "Kreditna kartica nije potrebna. Kreiranje oglasa traje manje od 5 minuta."
@@ -501,12 +696,12 @@ hr:
   footer_privacy: "Privatnost"
   stat_any_type: "Bilo koji tip"
   stat_any_type_desc: "Stanovi, kuće, vile, kabine i još mnogo toga"
-  stat_commission_desc: "Provizija za osnivačke domaćine u prvoj godini"
+  stat_commission_desc: "Provizija za osnivačke domaćine 6 mjeseci od lansiranja"
   stat_time: "5 min"
   stat_time_desc: "Prosječno vrijeme za kreiranje oglasa"
   stat_control_desc: "Kontrola nad cijenama, pravilima i gostima"
-  b1_title: "0% provizije — cijela prva godina"
-  b1_desc: "Osnivački domaćini zadržavaju 100% svake rezervacije. Bez platformskih naknada do druge godine. To su tisuće uštedovano od prvog dana."
+  b1_title: "0% provizije — 6 mjeseci od lansiranja"
+  b1_desc: "Osnivački domaćini zadržavaju 100% svake rezervacije 6 mjeseci od lansiranja platforme. Bez odbitaka platforme od prvog dana."
   b2_title: "Top pozicioniranje na lansiranju"
   b2_desc: "Vaša nekretnina dobiva prioritetno mjesto u rezultatima pretrage. Uvijek na prvom mjestu."
   b3_title: "Prve rezervacije, zajamčeno"
@@ -523,13 +718,39 @@ hr:
   s2_desc: "Naš tim osobno pregledava i optimizira vaš oglas za maksimalnu vidljivost na lansiranju."
   s3_title: "Počnite primati rezervacije"
   s3_desc: "Kada se lansiramo, vaš oglas ide live prvi — vidljiv tisućama pred-registriranih gostiju."
+  plans_label: "Transparentni cjenik"
+  plans_title: "Jednostavni, pošteni planovi"
+  plans_subtitle: "Registrirajte se sada i dobijte 0% provizije 6 mjeseci od lansiranja platforme — benefit ranog domaćina, primijenjen automatski."
+  plan_free: "Besplatan"
+  plan_free_commission: "12% provizije po rezervaciji"
+  plan_early: "Rani domaćin"
+  plan_early_badge: "Ovo dobivate vi"
+  plan_early_commission: "0% provizije — 6 mjeseci od lansiranja platforme"
+  plan_early_f_commission: "0% provizije 6 mjeseci od lansiranja"
+  plan_club_commission: "6% provizije, uvijek"
+  plan_unlimited_listings: "Neograničeni smještaji"
+  plan_f_tools: "Kalendar i alati za rezervacije"
+  plan_f_ai_limited: "AI recepcionar (ograničen)"
+  plan_club_ai: "AI recepcionar (pun)"
+  plan_club_ai_footnote: "* Korištenje AI recepcionara je praktički neograničeno. Kako bismo osigurali kvalitetu za sve domaćine, iznimno visoka upotreba može zahtijevati dodatne kredite."
+  plan_club_link_in_bio: "Link in bio alat"
+  plan_fair_price_meter: "Mjerač realne cijene"
+  faq_title: "Pitanja i odgovori"
+  faq1_q: "Koliko dugo traje 0% provizija?"
+  faq1_a: "6 mjeseci od datuma javnog lansiranja platforme. Nakon toga račun prelazi na standardni besplatni plan (12% provizije), osim ako ne nadogradite na Club (€29/mj, 6% provizije)."
+  faq2_q: "Je li mi potrebna kreditna kartica?"
+  faq2_a: "Ne. Registracija i kreiranje oglasa su potpuno besplatni. Nisu potrebni podaci o plaćanju."
+  faq3_q: "Kada istječe ponuda za rane domaćine?"
+  faq3_a: "Ponuda je dostupna dok je program aktivan. Obavijestit ćemo vas unaprijed prije nego što istekne."
+  faq4_q: "Koliko smještaja mogu oglasiti?"
+  faq4_a: "I besplatni i Club plan podržavaju neograničene smještaje. Na Club planu (€29/mj) dobivate i nižu proviziju od 6% i punog AI recepcionara."
 
 mk:
   badge: "Ран пристап — ограничено на 100 основачки домаќини"
   hero_line1: "Огласи прв."
   hero_line2: "Заработи од првиот ден."
   hero_subtitle: "Acomody се наскоро лансира. Основачките домаќини добиваат {highlight} и гарантирано топ позиционирање кога платформата ќе се покрене."
-  hero_highlight: "0% провизија во текот на целата прва година"
+  hero_highlight: "0% провизија за 6 месеци"
   hero_founding: "Бидете меѓу првите 100 домаќини на платформата."
   hero_cta: "Огласете го вашиот имот"
   hero_no_cc: "Кредитна картичка не е потребна. Создавањето оглас трае помалку од 5 минути."
@@ -561,12 +782,12 @@ mk:
   footer_privacy: "Приватност"
   stat_any_type: "Кој било тип"
   stat_any_type_desc: "Станови, куќи, вили, кабини и уште многу"
-  stat_commission_desc: "Провизија за основачките домаќини во првата година"
+  stat_commission_desc: "Провизија за основачките домаќини 6 месеци од лансирањето"
   stat_time: "5 мин"
   stat_time_desc: "Просечно време за создавање оглас"
   stat_control_desc: "Контрола над цените, правилата и гостите"
-  b1_title: "0% провизија — цела прва година"
-  b1_desc: "Основачките домаќини задржуваат 100% на секоја резервација. Без платформски надоместоци до втората година."
+  b1_title: "0% провизија — 6 месеци од лансирањето"
+  b1_desc: "Основачките домаќини задржуваат 100% на секоја резервација 6 месеци од лансирањето на платформата. Без одбитоци на платформата од првиот ден."
   b2_title: "Топ позиционирање на лансирањето"
   b2_desc: "Вашиот имот добива приоритетна позиција во резултатите на пребарувањето. Секогаш на прво место."
   b3_title: "Први резервации, гарантирано"
@@ -583,13 +804,39 @@ mk:
   s2_desc: "Нашиот тим лично го прегледува и оптимизира вашиот оглас за максимална видливост на лансирањето."
   s3_title: "Почнете да примате резервации"
   s3_desc: "Кога ќе се лансираме, вашиот оглас оди live прв — видлив на илјадници пред-регистрирани гости."
+  plans_label: "Транспарентни цени"
+  plans_title: "Едноставни, поштени планови"
+  plans_subtitle: "Регистрирајте се сега и добијте 0% провизија 6 месеци од лансирањето на платформата — бенефит на ран домаќин, применет автоматски."
+  plan_free: "Бесплатен"
+  plan_free_commission: "12% провизија по резервација"
+  plan_early: "Ран домаќин"
+  plan_early_badge: "Ова го добивате вие"
+  plan_early_commission: "0% провизија — 6 месеци од лансирањето на платформата"
+  plan_early_f_commission: "0% провизија 6 месеци од лансирањето"
+  plan_club_commission: "6% провизија, секогаш"
+  plan_unlimited_listings: "Неограничени сместувања"
+  plan_f_tools: "Календар и алати за резервации"
+  plan_f_ai_limited: "AI рецепционер (ограничен)"
+  plan_club_ai: "AI рецепционер (полн)"
+  plan_club_ai_footnote: "* Користењето на AI рецепционерот е практично неограничено. За да обезбедиме квалитет за сите домаќини, многу висока употреба може да бара дополнителни кредити."
+  plan_club_link_in_bio: "Link in bio aлатка"
+  plan_fair_price_meter: "Мерач на фер цена"
+  faq_title: "Прашања и одговори"
+  faq1_q: "Колку долго трае 0% провизија?"
+  faq1_a: "6 месеци од датумот на јавното лансирање на платформата. По тоа сметката се враќа на стандардниот бесплатен план (12% провизија), освен ако не надградите на Club (€29/мес, 6% провизија)."
+  faq2_q: "Дали ми е потребна кредитна картичка?"
+  faq2_a: "Не. Регистрацијата и создавањето на огласот се целосно бесплатни. Не се потребни податоци за плаќање."
+  faq3_q: "Кога истекува понудата за рани домаќини?"
+  faq3_a: "Понудата е достапна додека програмот е активен. Ќе ве известиме однапред пред да истече."
+  faq4_q: "Колку сместувања можам да огласам?"
+  faq4_a: "И бесплатниот и Club планот поддржуваат неограничени сместувања. На Club план (€29/мес) добивате и пониска провизија од 6% и полн AI рецепционер."
 
 sl:
   badge: "Zgodnji dostop — omejeno na 100 ustanovnih gostiteljev"
   hero_line1: "Oglašaj prvi."
   hero_line2: "Zaslužuj od prvega dne."
   hero_subtitle: "Acomody se kmalu lansira. Ustanovni gostitelji dobijo {highlight} in zajamčeno vrhunsko pozicioniranje ob zagonu platforme."
-  hero_highlight: "0% provizije celotno prvo leto"
+  hero_highlight: "0% provizije za 6 mesecev"
   hero_founding: "Bodite med prvimi 100 gostitelji na platformi."
   hero_cta: "Oglasite svojo nepremičnino"
   hero_no_cc: "Kreditna kartica ni potrebna. Ustvarjanje oglasa traja manj kot 5 minut."
@@ -621,12 +868,12 @@ sl:
   footer_privacy: "Zasebnost"
   stat_any_type: "Katera koli vrsta"
   stat_any_type_desc: "Stanovanja, hiše, vile, koče in še več"
-  stat_commission_desc: "Provizija za ustanovne gostitelje v prvem letu"
+  stat_commission_desc: "Provizija za ustanovne gostitelje 6 mesecev od lansiranja"
   stat_time: "5 min"
   stat_time_desc: "Povprečen čas za ustvarjanje oglasa"
   stat_control_desc: "Nadzor nad cenami, pravili in gosti"
-  b1_title: "0% provizije — celotno prvo leto"
-  b1_desc: "Ustanovni gostitelji obdržijo 100% vsake rezervacije. Brez platformnih stroškov do drugega leta."
+  b1_title: "0% provizije — 6 mesecev od lansiranja"
+  b1_desc: "Ustanovni gostitelji obdržijo 100% vsake rezervacije 6 mesecev od lansiranja platforme. Brez odbitkov platforme od prvega dne."
   b2_title: "Vrhunsko pozicioniranje ob lansiranju"
   b2_desc: "Vaša nepremičnina dobi prioritetno mesto v rezultatih iskanja. Vedno na prvem mestu."
   b3_title: "Prve rezervacije, zajamčeno"
@@ -643,4 +890,30 @@ sl:
   s2_desc: "Naša ekipa osebno pregleduje in optimizira vaš oglas za največjo vidljivost ob lansiranju."
   s3_title: "Začnite prejemati rezervacije"
   s3_desc: "Ko se lansiramo, vaš oglas gre live prvi — viden tisočim pred-registriranim gostom."
+  plans_label: "Pregledne cene"
+  plans_title: "Preprosti, pošteni načrti"
+  plans_subtitle: "Registrirajte se zdaj in pridobite 0% provizije 6 mesecev od lansiranja platforme — ugodnost zgodnjega gostitelja, samodejno dodeljeno."
+  plan_free: "Brezplačno"
+  plan_free_commission: "12% provizije na rezervacijo"
+  plan_early: "Zgodnji gostitelj"
+  plan_early_badge: "To dobite vi"
+  plan_early_commission: "0% provizije — 6 mesecev od lansiranja platforme"
+  plan_early_f_commission: "0% provizije 6 mesecev od lansiranja"
+  plan_club_commission: "6% provizije, vedno"
+  plan_unlimited_listings: "Neomejene nastanitve"
+  plan_f_tools: "Koledar in orodja za rezervacije"
+  plan_f_ai_limited: "AI recepcionist (omejen)"
+  plan_club_ai: "AI recepcionist (polni)"
+  plan_club_ai_footnote: "* Uporaba AI recepcionista je praktično neomejena. Za zagotavljanje kakovosti za vse gostitelje lahko zelo visoka uporaba zahteva dodatne kredite."
+  plan_club_link_in_bio: "Link in bio orodje"
+  plan_fair_price_meter: "Merilnik realne cene"
+  faq_title: "Vprašanja in odgovori"
+  faq1_q: "Kako dolgo traja 0% provizija?"
+  faq1_a: "6 mesecev od datuma javnega lansiranja platforme. Po tem se račun vrne na standardni brezplačni načrt (12% provizije), razen če nadgradite na Club (€29/mes, 6% provizije)."
+  faq2_q: "Ali potrebujem kreditno kartico?"
+  faq2_a: "Ne. Registracija in ustvarjanje oglasa sta popolnoma brezplačna. Podatki o plačilu niso potrebni."
+  faq3_q: "Kdaj se konča ponudba za zgodnje gostitelje?"
+  faq3_a: "Ponudba je na voljo, dokler je program aktiven. Obvestili vas bomo vnaprej, preden se konča."
+  faq4_q: "Koliko nastanitev lahko oglasim?"
+  faq4_a: "Tako brezplačni kot Club načrt podpirata neomejene nastanitve. Na Club načrtu (€29/mes) dobite tudi nižjo provizijo 6% in polnega AI recepcionista."
 </i18n>

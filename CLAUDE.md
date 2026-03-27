@@ -50,6 +50,18 @@ Common Ijekavian→Ekavian corrections:
   2. **Component computed property** using `$t()` / `$tm()` / `$rt()` — map config IDs to translated strings in the component, not in the config file itself.
 - Never leave user-visible English strings in `.js` config files.
 
+### RuntimeConstants key naming
+
+The string value of each `RuntimeConstants` constant is used **directly as the HTML meta tag name**, which `config.js` reads via `document.querySelector('meta[name="..."]')`. The value **must be camelCase** to match how `config.js` accesses it (e.g., `config.ui.daysOfWeek`).
+
+```php
+// Correct — camelCase value matches config.js access pattern
+const DAYS_OF_WEEK = 'daysOfWeek';
+
+// Wrong — UPPERCASE value won't be found by config.js
+const DAYS_OF_WEEK = 'DAYS_OF_WEEK';
+```
+
 ### Backend locale for Blade rendering
 
 `DetectLanguage` middleware runs on **both** `api` and `web` middleware groups (see `bootstrap/app.php`). This ensures RuntimeConstants injected into the Blade template (on the initial page load) are rendered with the correct locale.
@@ -206,6 +218,43 @@ Each module follows the pattern: `index.js`, `state.js`, `mutations.js`, `mutati
 **Router auth guard:** `resources/js/router/index.js` — routes with `meta: { requiresAuth: true }` trigger a login modal and redirect back after auth. The hosting section (`/hosting/*`) requires auth.
 
 **Global components registered in `app.js`:** All `Fwb*` Flowbite Vue components, `BaseWrapper`, `FormWrapper`, `SearchWrapper`, `ValidationAlertBox`, `ActionCard`, `SelectActionCard`, skeleton components, and `IconLoader`.
+
+### Subscription Plans
+
+Every host has a `HostSubscription` (one per user). Plans are seeded via `PlanSeeder` and managed only by superadmins.
+
+**Plans** (`App\Models\Plan`):
+| Code | Name | Price | Commission | Notes |
+|------|------|-------|------------|-------|
+| `free` | Free | €0/mo | 12% | Default plan for all hosts |
+| `club` | Club | €29/mo | 6% | Premium plan |
+
+Both plans allow **unlimited accommodations** (`max_accommodations = null`).
+
+**Key enums** (`App\Enums\Subscription\`):
+- `PlanCode` — `Free`, `Club`
+- `SubscriptionStatus` — `Active`, `Trial`, `Expired`, `Cancelled` (`isActive()` returns true for Active + Trial)
+- `BillingPeriod` — `Monthly`, `Annual`
+
+**Early host benefit** (`HostSubscription::is_early_host`):
+- Hosts who register during cold start phase get `is_early_host = true` and **0% commission** regardless of plan
+- `early_host_expires_at = null` means cold start hasn't ended yet — benefit is still pending activation
+- When the `cold_start` feature flag is disabled, `early_host_expires_at` is set to `now() + 6 months` automatically (see `FeatureFlag::booted()`)
+- `HostSubscription::isCommissionFree()` → true only if subscription is active AND early host benefit is active
+
+**`SubscriptionService`** (inject or use `app(SubscriptionService::class)`):
+- `getActivePlan(User)` — returns current plan or Free plan as fallback
+- `getCommissionRate(User)` — effective commission rate (0 if early host active)
+- `isCommissionFree(User)`, `isEarlyHost(User)`
+- `canAddAccommodation(User)` — checks against `plan->max_accommodations`
+- `assignFreePlan(User)` — creates/updates `HostSubscription` to Free plan (called during registration)
+- `markAsEarlyHost(User)` — sets `is_early_host = true`, `early_host_expires_at = null`
+
+**API routes**:
+- `GET /api/plans` — public, lists all active plans
+- `GET /api/host/subscription` — protected, returns current user's subscription + plan details
+
+**User model relationships**: `$user->hostSubscription` (hasOne), free plan is assigned automatically on registration.
 
 ### Infrastructure
 

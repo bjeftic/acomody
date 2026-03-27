@@ -40,9 +40,7 @@
 
             <div class="flex justify-between items-end">
                 <div>
-                    <span class="text-2xl font-bold text-blue-600"
-                        >€{{ listing.price }}</span
-                    >
+                    <span class="text-2xl font-bold text-blue-600">{{ formattedPrice }}</span>
                     <span class="text-sm text-gray-600"
                         >/ {{ listing.period }}</span
                     >
@@ -56,12 +54,28 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+import { formatPrice } from "@/utils/helpers";
+
 export default {
     name: "ListingCard",
     props: {
         listing: {
             type: Object,
             required: true,
+        },
+        currency: {
+            type: Object,
+            default: null,
+        },
+    },
+    computed: {
+        ...mapState("ui", ["selectedCurrency"]),
+        activeCurrency() {
+            return this.currency || this.selectedCurrency;
+        },
+        formattedPrice() {
+            return formatPrice(this.listing.price, this.activeCurrency, false, "symbol", "ceil");
         },
     },
     methods: {

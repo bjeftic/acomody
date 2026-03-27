@@ -6,24 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UserSignUpRequest;
 use App\Http\Support\ApiResponse;
 use App\Models\User;
+use App\Services\SubscriptionService;
 use App\Services\UserService;
+use Exception;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Exception;
-use Illuminate\Auth\Events\Registered;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class RegisteredUserController extends Controller
 {
-    protected UserService $userService;
-
-    public function __construct(UserService $userService)
-    {
-        $this->userService = $userService;
-    }
+    public function __construct(
+        protected UserService $userService,
+        protected SubscriptionService $subscriptionService,
+    ) {}
 
     /**
      * Register a new user
@@ -34,11 +33,14 @@ class RegisteredUserController extends Controller
      *     tags={"Authentication"},
      *     summary="Sign up a new user",
      *     description="Creates a new user account with email verification",
+     *
      *     @OA\RequestBody(
      *         required=true,
      *         description="User registration data",
+     *
      *         @OA\JsonContent(
      *             required={"email","password","confirm_password"},
+     *
      *             @OA\Property(
      *                 property="email",
      *                 type="string",
@@ -63,10 +65,13 @@ class RegisteredUserController extends Controller
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=201,
      *         description="User successfully registered",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(
      *                 property="message",
@@ -106,7 +111,7 @@ class RegisteredUserController extends Controller
             DB::beginTransaction();
 
             // Rate limiting check
-            $rateLimitKey = 'registration_attempts:' . $request->ip();
+            $rateLimitKey = 'registration_attempts:'.$request->ip();
             $attempts = cache()->get($rateLimitKey, 0);
 
             if ($attempts >= config('auth.registration_rate_limit', 5)) {
@@ -132,6 +137,12 @@ class RegisteredUserController extends Controller
 
             $user = User::create($userData);
 
+            $this->subscriptionService->assignFreePlan($user);
+
+            if ($this->subscriptionService->isColdStartActive()) {
+                $this->subscriptionService->markAsEarlyHost($user);
+            }
+
             // Send email verification
             event(new Registered($user));
 
@@ -140,7 +151,7 @@ class RegisteredUserController extends Controller
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'ip' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
             DB::commit();
@@ -151,7 +162,7 @@ class RegisteredUserController extends Controller
             $meta = [
                 'verification_required' => true,
                 'login_enabled' => false,
-                'verification_expires_at' => now()->addHours(24)->toISOString()
+                'verification_expires_at' => now()->addHours(24)->toISOString(),
             ];
 
             return ApiResponse::success(
@@ -168,7 +179,7 @@ class RegisteredUserController extends Controller
                 'error' => $e->getMessage(),
                 'email' => $request->email ?? 'unknown',
                 'ip' => $request->ip(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             throw new HttpException(500, 'Registration failed. Please try again later.');

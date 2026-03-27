@@ -355,7 +355,7 @@ export default {
     props: {
         currency: {
             type: String,
-            default: "$",
+            default: "",
         },
     },
 };

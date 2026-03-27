@@ -58,6 +58,10 @@ import FormSkeleton from "@/src/components/common/skeletons/FormSkeleton.vue";
 import FilterSkeleton from "@/src/components/common/skeletons/FilterSkeleton.vue";
 import MainSkeleton from "@/src/components/common/skeletons/MainSkeleton.vue";
 
+// Date picker
+import { VueDatePicker } from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
+
 // Lucide icons loader
 import IconLoader from "@/src/components/IconLoader.vue";
 
@@ -111,7 +115,8 @@ app.component("FormSkeleton", FormSkeleton);
 app.component("FilterSkeleton", FilterSkeleton);
 app.component("MainSkeleton", MainSkeleton);
 
-app.component("IconLoader", IconLoader)
+app.component("IconLoader", IconLoader);
+app.component("VueDatePicker", VueDatePicker);
 
 store.dispatch("auth/initializeAuth").finally(() => {
     app.use(store);

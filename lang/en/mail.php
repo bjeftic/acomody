@@ -123,7 +123,7 @@ return [
         'title' => 'Accommodation Under Review',
         'body' => 'Your accommodation :property has been successfully submitted and is now under review by our team.',
         'next' => "Here's what happens next:",
-        'step1' => 'Our team reviews your listing — this usually takes 1–2 business days.',
+        'step1' => 'Our team reviews your listing — this usually takes 24 hours.',
         'step2' => 'Once approved, your listing will automatically become searchable and guests can start booking.',
         'step3' => "You'll receive an email notification as soon as it goes live.",
         'btn' => 'Go to hosting dashboard →',

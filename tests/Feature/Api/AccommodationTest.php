@@ -417,6 +417,8 @@ describe('POST /api/accommodations/{id}/check-availability', function () {
 
 describe('POST /api/accommodations/{id}/calculate-price', function () {
 
+    beforeEach(fn () => seedCurrencyRates());
+
     it('returns 401 for unauthenticated requests', function () {
         $user = authenticatedUser();
         $accommodation = createAccommodation($user);
@@ -475,8 +477,6 @@ describe('POST /api/accommodations/{id}/calculate-price', function () {
             ->once()
             ->andReturn([
                 'subtotal' => 300.00,
-                'fees_subtotal' => 0,
-                'taxes_subtotal' => 0,
                 'total' => 300.00,
                 'currency' => 'EUR',
                 'nights' => 3,

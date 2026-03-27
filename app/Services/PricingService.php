@@ -17,8 +17,6 @@ use Illuminate\Support\Facades\DB;
 class PricingService
 {
     public function __construct(
-        private FeeService $feeService,
-        private TaxService $taxService,
         private AvailabilityService $availabilityService
     ) {}
 
@@ -41,9 +39,7 @@ class PricingService
         Carbon $startDate,
         Carbon $endDate,
         int $quantity = 1,
-        int $persons = 1,
-        array $guestAges = [],
-        array $optionalFeeIds = []
+        int $persons = 1
     ): array {
         // Get pricing configuration
         $pricing = PriceableItem::forEntity($entityType, $entityId)
@@ -59,34 +55,7 @@ class PricingService
             default => throw new \Exception("Unsupported pricing type: {$pricing->pricing_type}"),
         };
 
-        // Add fees
-        $breakdown['fees'] = $this->feeService->calculateAllFees(
-            $entityType,
-            $entityId,
-            $breakdown['subtotal'],
-            $quantity,
-            $persons,
-            $optionalFeeIds
-        );
-
-        $breakdown['fees_subtotal'] = collect($breakdown['fees']['mandatory'])->sum('amount') +
-                                       collect($breakdown['fees']['optional'])->sum('amount');
-
-        $breakdown['subtotal_before_tax'] = $breakdown['subtotal'] + $breakdown['fees_subtotal'];
-
-        // Add taxes
-        $breakdown['taxes'] = $this->taxService->calculateAllTaxes(
-            $entityType,
-            $entityId,
-            $breakdown['subtotal'],
-            $breakdown['fees_subtotal'],
-            $quantity,
-            $persons,
-            $guestAges
-        );
-
-        $breakdown['taxes_subtotal'] = collect($breakdown['taxes'])->sum('amount');
-        $breakdown['total'] = $breakdown['subtotal_before_tax'] + $breakdown['taxes_subtotal'];
+        $breakdown['total'] = $breakdown['subtotal'];
 
         // Format all amounts
         $breakdown = $this->formatBreakdown($breakdown, $pricing->currency->code);
@@ -369,9 +338,6 @@ class PricingService
     protected function formatBreakdown(array $breakdown, string $currency): array
     {
         $breakdown['subtotal_formatted'] = $this->formatPrice($breakdown['subtotal'], $currency);
-        $breakdown['fees_subtotal_formatted'] = $this->formatPrice($breakdown['fees_subtotal'], $currency);
-        $breakdown['subtotal_before_tax_formatted'] = $this->formatPrice($breakdown['subtotal_before_tax'], $currency);
-        $breakdown['taxes_subtotal_formatted'] = $this->formatPrice($breakdown['taxes_subtotal'], $currency);
         $breakdown['total_formatted'] = $this->formatPrice($breakdown['total'], $currency);
 
         return $breakdown;

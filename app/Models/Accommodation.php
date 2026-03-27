@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Accommodation\AccommodationOccupation;
 use App\Enums\Accommodation\AccommodationType;
+use App\Enums\Accommodation\PaymentPolicy;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Sitemap\Contracts\Sitemapable;
@@ -55,6 +55,7 @@ class Accommodation extends Model implements Sitemapable
         'quiet_hours_from',
         'quiet_hours_until',
         'cancellation_policy',
+        'payment_policy',
         'bedrooms',
         'bathrooms',
         'user_id',
@@ -65,6 +66,7 @@ class Accommodation extends Model implements Sitemapable
     protected $casts = [
         'accommodation_occupation' => AccommodationOccupation::class,
         'accommodation_type' => AccommodationType::class,
+        'payment_policy' => PaymentPolicy::class,
     ];
 
     protected static function booted(): void
@@ -396,78 +398,6 @@ class Accommodation extends Model implements Sitemapable
         return $this->pricingPeriods()->where('is_active', true);
     }
 
-    /**
-     * Get all fees for this accommodation
-     */
-    public function fees(): MorphMany
-    {
-        return $this->morphMany(Fee::class, 'feeable');
-    }
-
-    /**
-     * Get active fees only
-     */
-    public function activeFees(): MorphMany
-    {
-        return $this->fees()->where('is_active', true);
-    }
-
-    /**
-     * Get mandatory fees
-     */
-    public function mandatoryFees(): MorphMany
-    {
-        return $this->fees()->where('is_active', true)->where('mandatory', true);
-    }
-
-    /**
-     * Get optional fees
-     */
-    public function optionalFees(): MorphMany
-    {
-        return $this->fees()->where('is_active', true)->where('mandatory', false);
-    }
-
-    /**
-     * Get all assigned taxes (many-to-many through entity_taxes)
-     */
-    public function taxes(): MorphToMany
-    {
-        return $this->morphToMany(TaxRate::class, 'taxable', 'entity_taxes')
-            ->withPivot([
-                'use_override',
-                'override_rate_percent',
-                'override_flat_amount',
-                'override_included_in_price',
-                'override_calculation_basis',
-                'is_exempt',
-                'exemption_reason',
-                'exemption_certificate',
-                'exemption_valid_until',
-                'custom_rules',
-                'is_active',
-            ])
-            ->withTimestamps();
-    }
-
-    /**
-     * Get active taxes only
-     */
-    public function activeTaxes(): MorphToMany
-    {
-        return $this->taxes()->wherePivot('is_active', true);
-    }
-
-    /**
-     * Get non-exempt taxes
-     */
-    public function applicableTaxes(): MorphToMany
-    {
-        return $this->taxes()
-            ->wherePivot('is_active', true)
-            ->wherePivot('is_exempt', false);
-    }
-
     // ============================================
     // AVAILABILITY RELATIONSHIPS
     // ============================================
@@ -513,22 +443,6 @@ class Accommodation extends Model implements Sitemapable
     }
 
     /**
-     * Check if has any fees
-     */
-    public function hasFees(): bool
-    {
-        return $this->activeFees()->exists();
-    }
-
-    /**
-     * Check if has any taxes
-     */
-    public function hasTaxes(): bool
-    {
-        return $this->applicableTaxes()->exists();
-    }
-
-    /**
      * Check if has availability restrictions
      */
     public function hasAvailabilityRestrictions(): bool
@@ -542,7 +456,7 @@ class Accommodation extends Model implements Sitemapable
 
     public function scopeWithPricing($query)
     {
-        return $query->with(['pricing', 'pricingPeriods', 'fees', 'taxes']);
+        return $query->with(['pricing', 'pricingPeriods']);
     }
 
     public function scopeInCountry($query, string $countryCode)

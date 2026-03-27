@@ -32,6 +32,7 @@ export const fetchDraftById = async ({ commit }, draftId) => {
 
         commit("SET_ACCOMMODATION_DRAFT_ID", response.data);
         commit("SET_ACCOMMODATION_DRAFT", response.data);
+        commit("SET_ACCOMMODATION_DRAFT_CURRENCY", response.data);
         commit("SET_CREATE_ACCOMMODATION_STEP", response.data);
         commit("SET_ACCOMMODATION_DRAFT_STATUS", response.data);
         commit("SET_ACCOMMODATION_DRAFT_REVIEW_COMMENTS", response.data);
@@ -49,6 +50,7 @@ export const fetchAccommodationDraft = async ({ commit }) => {
 
         commit("SET_ACCOMMODATION_DRAFT_ID", data);
         commit("SET_ACCOMMODATION_DRAFT", data);
+        commit("SET_ACCOMMODATION_DRAFT_CURRENCY", data);
         commit("SET_CREATE_ACCOMMODATION_STEP", data);
 
         return data;
@@ -92,6 +94,10 @@ export const decrementCurrentStep = ({ commit }) => {
     commit("DECREMENT_CURRENT_STEP");
 };
 
+export const goToStep = ({ commit }, step) => {
+    commit("SET_CURRENT_STEP", step);
+};
+
 export const createAccommodationDraft = async (
     { commit },
     { draftData }
@@ -103,6 +109,7 @@ export const createAccommodationDraft = async (
 
         commit("SET_ACCOMMODATION_DRAFT_ID", response.data);
         commit("SET_ACCOMMODATION_DRAFT", response.data);
+        commit("SET_ACCOMMODATION_DRAFT_CURRENCY", response.data);
         commit("SET_CREATE_ACCOMMODATION_STEP", response.data);
 
         return response;
@@ -124,6 +131,7 @@ export const updateAccommodationDraft = async (
 
         commit("SET_ACCOMMODATION_DRAFT_ID", response.data);
         commit("SET_ACCOMMODATION_DRAFT", response.data);
+        commit("SET_ACCOMMODATION_DRAFT_CURRENCY", response.data);
         commit("SET_CREATE_ACCOMMODATION_STEP", response.data);
         commit("SET_ACCOMMODATION_DRAFT_STATUS", response.data);
 
@@ -139,10 +147,6 @@ export const restartAccommodationDraftData = ({ commit }) => {
 
 export const setCreateAccommodationLoading = ({ commit }, isLoading) => {
     commit("SET_CREATE_ACCOMMODATION_LOADING", isLoading);
-};
-
-export const goToStep = ({ commit }, step) => {
-    commit("SET_CREATE_ACCOMMODATION_STEP", step);
 };
 
 /**

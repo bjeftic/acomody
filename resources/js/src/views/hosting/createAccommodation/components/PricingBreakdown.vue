@@ -80,7 +80,7 @@ export default {
         },
         guestServiceFeePercentage: {
             type: Number,
-            default: 14,
+            default: 5,
         },
         showInfoButton: {
             type: Boolean,

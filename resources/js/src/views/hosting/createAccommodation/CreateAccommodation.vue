@@ -123,6 +123,7 @@ export default {
                     quietHoursFrom: "22:00",
                     quietHoursUntil: "08:00",
                     cancellationPolicy: "moderate",
+                    paymentPolicy: "on_site",
                 },
             },
             submitted: false,
@@ -385,6 +386,7 @@ export default {
                     quietHoursFrom: "22:00",
                     quietHoursUntil: "08:00",
                     cancellationPolicy: "moderate",
+                    paymentPolicy: "on_site",
                 },
             };
         },

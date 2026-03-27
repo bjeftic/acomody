@@ -284,7 +284,7 @@ en:
     email_invalid: Please enter a valid email address
     password_required: Password is required
     password_min: Password must be at least 6 characters
-    password_strength: Password must contain at least one uppercase letter, one lowercase letter, and one number
+    password_strength: Password must contain at least one uppercase letter, one lowercase letter, one symbol and one number
     confirm_required: Please confirm your password
     confirm_mismatch: Passwords do not match
 sr:
@@ -304,7 +304,7 @@ sr:
     email_invalid: Unesite ispravnu email adresu
     password_required: Lozinka je obavezna
     password_min: Lozinka mora imati najmanje 6 karaktera
-    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo i broj
+    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo, jedan simbol i broj
     confirm_required: Potvrdite lozinku
     confirm_mismatch: Lozinke se ne podudaraju
 hr:
@@ -324,7 +324,7 @@ hr:
     email_invalid: Unesite ispravnu email adresu
     password_required: Lozinka je obavezna
     password_min: Lozinka mora imati najmanje 6 znakova
-    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo i broj
+    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo, jedan simbol i broj
     confirm_required: Potvrdite lozinku
     confirm_mismatch: Lozinke se ne podudaraju
 mk:
@@ -344,7 +344,7 @@ mk:
     email_invalid: Внесете важечка е-пошта
     password_required: Лозинката е задолжителна
     password_min: Лозинката мора да има најмалку 6 знаци
-    password_strength: Лозинката мора да содржи барем едно големо, мало слово и број
+    password_strength: Лозинката мора да содржи барем едно големо слово, мало слово, симбол и број
     confirm_required: Потврдете ја лозинката
     confirm_mismatch: Лозинките не се совпаѓаат
 sl:
@@ -364,7 +364,7 @@ sl:
     email_invalid: Vnesite veljavni e-poštni naslov
     password_required: Geslo je obvezno
     password_min: Geslo mora imeti vsaj 6 znakov
-    password_strength: Geslo mora vsebovati vsaj eno veliko, malo črko in številko
+    password_strength: Geslo mora vsebovati vsaj eno veliko črko, malo črko, simbol in številko
     confirm_required: Potrdite geslo
     confirm_mismatch: Gesli se ne ujemata
 </i18n>

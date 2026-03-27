@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\Subscription\PlanCode;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -62,8 +63,32 @@ class UserResource extends JsonResource
             'has_in_progress_draft' => $hasInProgressDraft,
             'has_submitted_draft' => $hasSubmittedDraft,
             'has_active_listing' => $hasActiveListing,
+            'subscription' => $this->buildSubscriptionData(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+        ];
+    }
+
+    private function buildSubscriptionData(): ?array
+    {
+        if (! $this->resource->relationLoaded('hostSubscription')) {
+            return null;
+        }
+
+        $subscription = $this->resource->hostSubscription;
+        $plan = $subscription?->plan;
+
+        return [
+            'plan_code' => $plan?->code?->value,
+            'plan_name' => $plan?->name,
+            'price_eur' => $plan?->price_eur,
+            'features' => $plan?->features,
+            'is_active' => $subscription?->isActive() ?? false,
+            'ends_at' => $subscription?->ends_at?->toISOString(),
+            'commission_rate' => $subscription?->commissionRate() ?? ($plan?->commission_rate ?? PlanCode::Free->defaultCommissionRate()),
+            'is_commission_free' => $subscription?->isCommissionFree() ?? false,
+            'is_early_host' => $subscription?->isEarlyHostActive() ?? false,
+            'early_host_expires_at' => $subscription?->early_host_expires_at?->toISOString(),
         ];
     }
 }

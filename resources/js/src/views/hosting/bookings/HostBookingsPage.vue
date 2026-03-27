@@ -72,7 +72,7 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                             {{ booking.guest?.name || $t('guest_fallback') }} &middot;
                             {{ formatDate(booking.check_in) }} – {{ formatDate(booking.check_out) }}
-                            &middot; {{ $tc('accommodation.nights', booking.nights, { count: booking.nights }) }}
+                            &middot; {{ $t('accommodation.nights', { n: booking.nights, count: booking.nights }) }}
                         </p>
                     </div>
                     <div class="flex items-center justify-between mt-3">
@@ -103,7 +103,9 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import apiClient from '@/services/apiClient';
+import { formatPrice } from '@/utils/helpers';
 
 export default {
     name: 'HostBookingsPage',
@@ -119,6 +121,7 @@ export default {
     },
 
     computed: {
+        ...mapState('ui', ['currencies']),
         statusFilters() {
             return [
                 { label: this.$t('filter_all'), value: null },
@@ -137,9 +140,11 @@ export default {
             return new Date(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
         },
 
+        getCurrencyObject(code) {
+            return this.currencies.find((c) => c.code === code) || null;
+        },
         formatAmount(amount, currency) {
-            const symbol = { EUR: '€', USD: '$', GBP: '£', RSD: 'дин' }[currency] || currency;
-            return `${symbol}${Number(amount || 0).toFixed(2)}`;
+            return formatPrice(Number(amount || 0), this.getCurrencyObject(currency), true, 'symbol');
         },
 
         statusClass(status) {

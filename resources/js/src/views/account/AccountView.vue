@@ -81,6 +81,13 @@
 
         <hr class="border-gray-200 dark:border-gray-700 mb-10" />
 
+        <!-- Subscription Section -->
+        <section v-if="isHost" class="mb-10">
+            <subscription-card />
+        </section>
+
+        <hr v-if="isHost" class="border-gray-200 dark:border-gray-700 mb-10" />
+
         <!-- Host Profile Section -->
         <section v-if="isHost" class="mb-10">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -190,9 +197,11 @@
 
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
+import SubscriptionCard from "@/src/views/account/components/SubscriptionCard.vue";
 
 export default {
     name: "AccountView",
+    components: { SubscriptionCard },
 
     data() {
         return {

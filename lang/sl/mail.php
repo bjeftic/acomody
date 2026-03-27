@@ -123,7 +123,7 @@ return [
         'title' => 'Nastanitev je v pregledu',
         'body' => 'Vaša nastanitev :property je bila uspešno oddana in je zdaj v pregledu naše ekipe.',
         'next' => 'Tukaj je, kaj se zgodi naprej:',
-        'step1' => 'Naša ekipa pregleda vaš oglas — to običajno traja 1–2 delovna dneva.',
+        'step1' => 'Naša ekipa pregleda vaš oglas — to običajno traja 24 ur.',
         'step2' => 'Ko bo odobreno, bo vaš oglas samodejno postal iskljiv in gostje bodo lahko začeli z rezervacijo.',
         'step3' => 'Prejeli boste e-poštno obvestilo, ko bo objavljen.',
         'btn' => 'Pojdite na nadzorno ploščo →',

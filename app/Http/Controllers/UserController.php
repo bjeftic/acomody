@@ -73,7 +73,7 @@ class UserController extends Controller
                 throw new AuthenticationException('User not authenticated.');
             }
 
-            $user->load(['userProfile', 'hostProfile']);
+            $user->load(['userProfile', 'hostProfile', 'hostSubscription.plan']);
 
             // Log profile access
             Log::info('User profile accessed', [
@@ -115,7 +115,7 @@ class UserController extends Controller
     public function update(UpdateUserProfileRequest $request): JsonResponse
     {
         $user = $this->userService->updateProfile(Auth::user(), $request->validated());
-        $user->load(['userProfile', 'hostProfile']);
+        $user->load(['userProfile', 'hostProfile', 'hostSubscription.plan']);
 
         return ApiResponse::success('Profile updated successfully.', new UserResource($user));
     }
@@ -134,7 +134,7 @@ class UserController extends Controller
     public function uploadAvatar(AvatarUploadRequest $request): JsonResponse
     {
         $user = $this->userService->uploadAvatar(Auth::user(), $request->file('avatar'));
-        $user->load(['userProfile', 'hostProfile']);
+        $user->load(['userProfile', 'hostProfile', 'hostSubscription.plan']);
 
         return ApiResponse::success('Avatar updated successfully.', new UserResource($user));
     }

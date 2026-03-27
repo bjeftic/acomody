@@ -133,7 +133,7 @@
                         <div v-else-if="priceBreakdown" class="space-y-3">
                             <!-- Nightly rates summary -->
                             <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
-                                <span>{{ $tc('accommodation.nights', totalNights, { count: totalNights }) }} × {{ priceBreakdown.currency }}</span>
+                                <span>{{ $t('accommodation.nights', { n: totalNights, count: totalNights }) }} × {{ priceBreakdown.currency }}</span>
                                 <span>{{ priceBreakdown.subtotal_formatted }}</span>
                             </div>
 
@@ -143,34 +143,15 @@
                                 <span>-{{ formatAmount(priceBreakdown.bulk_discount.amount, priceBreakdown.currency) }}</span>
                             </div>
 
-                            <!-- Mandatory fees -->
-                            <template v-if="priceBreakdown.fees && priceBreakdown.fees.mandatory && priceBreakdown.fees.mandatory.length">
-                                <div
-                                    v-for="fee in priceBreakdown.fees.mandatory"
-                                    :key="fee.name"
-                                    class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
-                                >
-                                    <span>{{ fee.name }}</span>
-                                    <span>{{ formatAmount(fee.amount, priceBreakdown.currency) }}</span>
-                                </div>
-                            </template>
-
-                            <!-- Taxes -->
-                            <template v-if="priceBreakdown.taxes && priceBreakdown.taxes.length">
-                                <div
-                                    v-for="tax in priceBreakdown.taxes"
-                                    :key="tax.name"
-                                    class="flex justify-between text-sm text-gray-700 dark:text-gray-300"
-                                >
-                                    <span>{{ tax.name }}</span>
-                                    <span>{{ formatAmount(tax.amount, priceBreakdown.currency) }}</span>
-                                </div>
-                            </template>
-
                             <!-- Total -->
                             <div class="flex justify-between text-base font-semibold text-gray-900 dark:text-white pt-3 border-t border-gray-200 dark:border-gray-700">
                                 <span>{{ $t('booking.total_price') }}</span>
-                                <span>{{ priceBreakdown.total_formatted }}</span>
+                                <div class="text-right">
+                                    <div>{{ priceBreakdown.total_formatted }}</div>
+                                    <div v-if="priceBreakdown.original_currency" class="text-xs font-normal text-gray-400 dark:text-gray-500">
+                                        ≈ {{ formatAmount(priceBreakdown.original_total, priceBreakdown.original_currency) }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -234,6 +215,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import { formatPrice } from '@/utils/helpers';
 
 export default {
     name: 'ReservationConfirmPage',
@@ -256,6 +238,7 @@ export default {
         ...mapState('user', {
             currentUser: (state) => state.currentUser,
         }),
+        ...mapState('ui', ['currencies']),
 
         checkIn() {
             return this.$route.query.checkIn || '';
@@ -333,9 +316,11 @@ export default {
     methods: {
         ...mapActions('accommodation', ['fetchAccommodation', 'calculatePrice', 'createBooking']),
 
+        getCurrencyObject(code) {
+            return this.currencies.find((c) => c.code === code) || null;
+        },
         formatAmount(amount, currency) {
-            const symbol = { EUR: '€', USD: '$', GBP: '£', RSD: 'дин' }[currency] || currency;
-            return `${symbol}${Number(amount).toFixed(2)}`;
+            return formatPrice(Number(amount || 0), this.getCurrencyObject(currency), true, 'symbol');
         },
 
         async loadPriceBreakdown() {

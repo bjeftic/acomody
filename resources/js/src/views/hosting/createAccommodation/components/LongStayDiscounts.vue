@@ -278,7 +278,7 @@ export default {
         },
         currency: {
             type: String,
-            default: "$",
+            default: "",
         },
         basePrice: {
             type: Number,
