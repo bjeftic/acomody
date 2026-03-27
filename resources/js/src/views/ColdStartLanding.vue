@@ -235,6 +235,10 @@
                                 <svg class="w-4 h-4 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
                                 {{ $t('plan_f_ai_limited') }}
                             </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                {{ $t('plan_fair_price_meter') }}
+                            </li>
                         </ul>
                     </div>
 
@@ -296,7 +300,7 @@
                             </li>
                             <li class="flex items-center gap-2">
                                 <svg class="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-                                {{ $t('plan_club_fair_price_meter') }}
+                                {{ $t('plan_fair_price_meter') }}
                             </li>
                         </ul>
                     </div>
@@ -558,7 +562,7 @@ en:
   plan_club_ai: "AI Receptionist (full)"
   plan_club_ai_footnote: "* AI Receptionist usage is virtually unlimited. To ensure quality for all hosts, very high usage may require extra credits."
   plan_club_link_in_bio: "Link in bio tool"
-  plan_club_fair_price_meter: "Fair price meter"
+  plan_fair_price_meter: "Fair price meter"
   faq_title: "Questions & answers"
   faq1_q: "How long does the 0% commission last?"
   faq1_a: "6 months from the date the platform launches publicly. After that, your account reverts to the standard Free plan (12% commission) unless you upgrade to Club (€29/mo, 6% commission)."
@@ -644,7 +648,7 @@ sr:
   plan_club_ai: "AI recepcionista (pun)"
   plan_club_ai_footnote: "* Korišćenje AI recepcioniste je praktično neograničeno. Da bismo osigurali kvalitet za sve domaćine, veoma visoka upotreba može zahtevati dodatne kredite."
   plan_club_link_in_bio: "Link in bio alat"
-  plan_club_fair_price_meter: "Merač realne cene"
+  plan_fair_price_meter: "Merač realne cene"
   faq_title: "Pitanja i odgovori"
   faq1_q: "Koliko dugo traje 0% provizija?"
   faq1_a: "6 meseci od datuma javnog lansiranja platforme. Nakon toga nalog prelazi na standardni besplatni plan (12% provizije), osim ako ne nadogradite na Club (€29/mes, 6% provizije)."
@@ -730,7 +734,7 @@ hr:
   plan_club_ai: "AI recepcionar (pun)"
   plan_club_ai_footnote: "* Korištenje AI recepcionara je praktički neograničeno. Kako bismo osigurali kvalitetu za sve domaćine, iznimno visoka upotreba može zahtijevati dodatne kredite."
   plan_club_link_in_bio: "Link in bio alat"
-  plan_club_fair_price_meter: "Mjerač realne cijene"
+  plan_fair_price_meter: "Mjerač realne cijene"
   faq_title: "Pitanja i odgovori"
   faq1_q: "Koliko dugo traje 0% provizija?"
   faq1_a: "6 mjeseci od datuma javnog lansiranja platforme. Nakon toga račun prelazi na standardni besplatni plan (12% provizije), osim ako ne nadogradite na Club (€29/mj, 6% provizije)."
@@ -816,7 +820,7 @@ mk:
   plan_club_ai: "AI рецепционер (полн)"
   plan_club_ai_footnote: "* Користењето на AI рецепционерот е практично неограничено. За да обезбедиме квалитет за сите домаќини, многу висока употреба може да бара дополнителни кредити."
   plan_club_link_in_bio: "Link in bio aлатка"
-  plan_club_fair_price_meter: "Мерач на фер цена"
+  plan_fair_price_meter: "Мерач на фер цена"
   faq_title: "Прашања и одговори"
   faq1_q: "Колку долго трае 0% провизија?"
   faq1_a: "6 месеци од датумот на јавното лансирање на платформата. По тоа сметката се враќа на стандардниот бесплатен план (12% провизија), освен ако не надградите на Club (€29/мес, 6% провизија)."
@@ -902,7 +906,7 @@ sl:
   plan_club_ai: "AI recepcionist (polni)"
   plan_club_ai_footnote: "* Uporaba AI recepcionista je praktično neomejena. Za zagotavljanje kakovosti za vse gostitelje lahko zelo visoka uporaba zahteva dodatne kredite."
   plan_club_link_in_bio: "Link in bio orodje"
-  plan_club_fair_price_meter: "Merilnik realne cene"
+  plan_fair_price_meter: "Merilnik realne cene"
   faq_title: "Vprašanja in odgovori"
   faq1_q: "Kako dolgo traja 0% provizija?"
   faq1_a: "6 mesecev od datuma javnega lansiranja platforme. Po tem se račun vrne na standardni brezplačni načrt (12% provizije), razen če nadgradite na Club (€29/mes, 6% provizije)."

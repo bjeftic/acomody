@@ -103,8 +103,8 @@ function seedPlans(): void
 {
     Plan::withoutAuthorization(function () {
         $plans = [
-            ['name' => 'Free', 'code' => 'free', 'max_accommodations' => null, 'price_eur' => 0, 'commission_rate' => 10, 'billing_period' => 'monthly', 'is_active' => true, 'features' => [], 'sort_order' => 1],
-            ['name' => 'Club', 'code' => 'club', 'max_accommodations' => null, 'price_eur' => 3000, 'commission_rate' => 5, 'billing_period' => 'monthly', 'is_active' => true, 'features' => [], 'sort_order' => 2],
+            ['name' => 'Free', 'code' => 'free', 'price_eur' => 0, 'commission_rate' => 10, 'billing_period' => 'monthly', 'is_active' => true, 'features' => [], 'sort_order' => 1],
+            ['name' => 'Club', 'code' => 'club', 'price_eur' => 3000, 'commission_rate' => 5, 'billing_period' => 'monthly', 'is_active' => true, 'features' => [], 'sort_order' => 2],
         ];
         foreach ($plans as $plan) {
             Plan::updateOrCreate(['code' => $plan['code']], $plan);

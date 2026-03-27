@@ -30,7 +30,6 @@ describe('GET /api/plans', function () {
         expect($free['commission_rate'])->toBe(10);
         expect($free['is_commission_free'])->toBeFalse();
         expect($free['price_eur'])->toBe(0);
-        expect($free['max_accommodations'])->toBeNull();
 
         $club = collect($response->json('data'))->firstWhere('code', 'club');
         expect($club['commission_rate'])->toBe(5);
@@ -228,17 +227,6 @@ describe('SubscriptionService', function () {
 
     it('isColdStartActive returns false when cold_start flag is disabled', function () {
         expect(app(SubscriptionService::class)->isColdStartActive())->toBeFalse();
-    });
-
-    it('canAddAccommodation always returns true for free plan with unlimited accommodations', function () {
-        $user = authenticatedUser();
-        $service = app(SubscriptionService::class);
-        $service->assignFreePlan($user);
-
-        createAccommodation($user);
-        $user->refresh();
-
-        expect($service->canAddAccommodation($user))->toBeTrue();
     });
 
     it('sets early host expiry when cold_start flag is turned off', function () {

@@ -48,12 +48,7 @@
                         {{ (subscription.commission_rate ?? 10) + '%' }}
                     </p>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ $t('max_listings') }}</p>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ subscription.max_accommodations !== null && subscription.max_accommodations !== undefined ? subscription.max_accommodations : $t('unlimited') }}
-                    </p>
-                </div>
+
             </div>
 
             <!-- Early host expiry -->

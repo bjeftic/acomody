@@ -81,7 +81,6 @@ class UserResource extends JsonResource
             'plan_code' => $plan?->code?->value,
             'plan_name' => $plan?->name,
             'price_eur' => $plan?->price_eur,
-            'max_accommodations' => $plan?->max_accommodations,
             'features' => $plan?->features,
             'is_active' => $subscription?->isActive() ?? false,
             'ends_at' => $subscription?->ends_at?->toISOString(),

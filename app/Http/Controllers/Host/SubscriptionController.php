@@ -27,7 +27,6 @@ class SubscriptionController extends Controller
                 'plan_code' => $plan->code->value,
                 'plan_name' => $plan->name,
                 'price_eur' => $plan->price_eur,
-                'max_accommodations' => $plan->max_accommodations,
                 'features' => $plan->features,
                 'is_active' => $subscription?->isActive() ?? false,
                 'ends_at' => $subscription?->ends_at?->toISOString(),
@@ -35,7 +34,6 @@ class SubscriptionController extends Controller
                 'is_commission_free' => $this->subscriptionService->isCommissionFree($user),
                 'is_early_host' => $this->subscriptionService->isEarlyHost($user),
                 'early_host_expires_at' => $subscription?->early_host_expires_at?->toISOString(),
-                'can_add_accommodation' => $this->subscriptionService->canAddAccommodation($user),
             ],
         ]);
     }
@@ -51,7 +49,6 @@ class SubscriptionController extends Controller
                 'name' => $plan->name,
                 'price_eur' => $plan->price_eur,
                 'billing_period' => $plan->billing_period->value,
-                'max_accommodations' => $plan->max_accommodations,
                 'commission_rate' => $plan->commission_rate,
                 'features' => $plan->features,
                 'is_commission_free' => $plan->isCommissionFree(),

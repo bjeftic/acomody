@@ -13,7 +13,7 @@ class PlanSeeder extends Seeder
             [
                 'name' => 'Free',
                 'code' => 'free',
-                'max_accommodations' => null,
+
                 'price_eur' => 0,
                 'commission_rate' => 12,
                 'billing_period' => 'monthly',
@@ -24,7 +24,7 @@ class PlanSeeder extends Seeder
             [
                 'name' => 'Club',
                 'code' => 'club',
-                'max_accommodations' => null,
+
                 'price_eur' => 2900,
                 'commission_rate' => 6,
                 'billing_period' => 'monthly',

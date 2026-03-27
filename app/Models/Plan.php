@@ -14,7 +14,6 @@ class Plan extends Model
     protected $fillable = [
         'name',
         'code',
-        'max_accommodations',
         'price_eur',
         'commission_rate',
         'billing_period',
@@ -30,7 +29,6 @@ class Plan extends Model
             'billing_period' => BillingPeriod::class,
             'is_active' => 'boolean',
             'features' => 'array',
-            'max_accommodations' => 'integer',
             'price_eur' => 'integer',
             'commission_rate' => 'integer',
             'sort_order' => 'integer',
@@ -65,14 +63,5 @@ class Plan extends Model
     public function isCommissionFree(): bool
     {
         return $this->commission_rate === 0;
-    }
-
-    public function allowsMoreAccommodations(int $current): bool
-    {
-        if ($this->max_accommodations === null) {
-            return true;
-        }
-
-        return $current < $this->max_accommodations;
     }
 }

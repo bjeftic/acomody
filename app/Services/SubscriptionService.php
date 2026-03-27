@@ -123,14 +123,6 @@ class SubscriptionService
         return $subscription->fresh();
     }
 
-    public function canAddAccommodation(User $user): bool
-    {
-        $plan = $this->getActivePlan($user);
-        $current = $user->accommodations()->count();
-
-        return $plan->allowsMoreAccommodations($current);
-    }
-
     public function isColdStartActive(): bool
     {
         return FeatureFlag::where('key', 'cold_start')->where('is_enabled', true)->exists();
