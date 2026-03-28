@@ -248,8 +248,12 @@ export default {
         },
     },
 
+    created() {
+        this.fetchUser();
+    },
+
     methods: {
-        ...mapActions("user", ["updateProfile", "updatePassword", "uploadAvatar", "requestUserAccountDeletion"]),
+        ...mapActions("user", ["fetchUser", "updateProfile", "updatePassword", "uploadAvatar", "requestUserAccountDeletion"]),
 
         triggerAvatarUpload() {
             this.$refs.avatarInput.click();
