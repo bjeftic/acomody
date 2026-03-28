@@ -6,9 +6,9 @@
             <div class="panel-heading">
               Users
               @if ($users instanceof \Illuminate\Database\Eloquent\Collection)
-                <a href="/superadmin/users">(paginated users)</a>
+                <a href="{{ route('admin.users.index') }}">(paginated users)</a>
               @else
-                <a href="/superadmin/users/all">(all users)</a>
+                <a href="{{ route('admin.users.index') }}">(all users)</a>
               @endif
             </div>
 
@@ -44,7 +44,7 @@
                     @foreach ($users as $user)
                         <tr>
                             <td>{{ $user->id }}</td>
-                            <td>{{ $user->name ?? '' }}</td>
+                            <td>{{ trim(($user->userProfile->first_name ?? '') . ' ' . ($user->userProfile->last_name ?? '')) ?: '—' }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->email_verified_at }}</td>
                             <td>{{ $user->created_at }}</td>
@@ -73,14 +73,14 @@
       }
 
       function search() {
-        window.location.assign('/superadmin/users?page={{$page}}&search=' + document.getElementById('search').value)
+        window.location.assign('{{ route('admin.users.index') }}?page={{$page}}&search=' + document.getElementById('search').value)
       }
 
       document.getElementById('triggerByEnter').onkeyup = function(e) {
-      if (e.keyCode === 13) {
-        window.location.assign('/superadmin/users?page={{$page}}&search=' + document.getElementById('search').value)
-      }
-      return true;
+        if (e.keyCode === 13) {
+          window.location.assign('{{ route('admin.users.index') }}?page={{$page}}&search=' + document.getElementById('search').value)
+        }
+        return true;
       }
     </script>
 @endsection

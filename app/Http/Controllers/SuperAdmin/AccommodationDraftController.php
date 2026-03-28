@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Enums\Accommodation\AccommodationOccupation;
 use App\Enums\Accommodation\AccommodationType;
 use App\Enums\Accommodation\BedType;
+use App\Enums\Activity\ActivityEvent;
 use App\Jobs\CreateAccommodation;
 use App\Mail\Accommodation\AccommodationRejectedMail;
 use App\Mail\Accommodation\ReviewCommentAddedMail;
@@ -12,6 +13,7 @@ use App\Models\AccommodationDraft;
 use App\Models\Amenity;
 use App\Models\Location;
 use App\Models\ReviewComment;
+use App\Services\ActivityLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -120,6 +122,16 @@ class AccommodationDraftController
 
         CreateAccommodation::dispatch($accommodationDraft->id, $locationId, userOrFail()->id)->onQueue('accommodation-queue');
 
+        $draftTitle = json_decode($accommodationDraft->data, true)['title'] ?? 'Untitled';
+
+        ActivityLogService::log(
+            event: ActivityEvent::AccommodationApproved,
+            description: "Accommodation draft approved: \"{$draftTitle}\"",
+            subject: $accommodationDraft->user,
+            causer: userOrFail(),
+            properties: ['draft_id' => $accommodationDraft->id],
+        );
+
         return redirect()
             ->route('admin.accommodation-drafts.index')
             ->with('success', 'Accommodation draft approved and accommodation creation job dispatched.');
@@ -151,6 +163,16 @@ class AccommodationDraftController
 
         Mail::to($accommodationDraft->user->email)
             ->queue(new AccommodationRejectedMail($accommodationDraft, $reason));
+
+        $draftTitle = json_decode($accommodationDraft->data, true)['title'] ?? 'Untitled';
+
+        ActivityLogService::log(
+            event: ActivityEvent::AccommodationRejected,
+            description: "Accommodation draft rejected: \"{$draftTitle}\"",
+            subject: $accommodationDraft->user,
+            causer: userOrFail(),
+            properties: array_filter(['draft_id' => $accommodationDraft->id, 'reason' => $reason]),
+        );
 
         return redirect()
             ->route('admin.accommodation-drafts.index')

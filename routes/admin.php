@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\SuperAdmin\AccommodationController;
 use App\Http\Controllers\SuperAdmin\AccommodationDraftController;
+use App\Http\Controllers\SuperAdmin\ActivityLogController;
 use App\Http\Controllers\SuperAdmin\AuthController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\DeletionRequestController;
@@ -53,5 +54,8 @@ Route::middleware(['auth', 'super.admin'])->group(function () {
         Route::resource('feature-flags', FeatureFlagController::class)->except(['show'])->names('feature-flags');
 
         Route::resource('email-logs', EmailLogController::class)->only(['index', 'show'])->names('email-logs');
+
+        Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('activity-logs/user/{user}', [ActivityLogController::class, 'user'])->name('activity-logs.user');
     });
 });

@@ -47,7 +47,7 @@
         <hr />
         <div class="flex">
           <div class="flex-1"><b>ID</b><br>{{ $user->id }}</div>
-          <div class="flex-1"><b>Name</b><br>{{ $user->name }}</div>
+          <div class="flex-1"><b>Name</b><br>{{ trim(($user->userProfile->first_name ?? '') . ' ' . ($user->userProfile->last_name ?? '')) ?: '—' }}</div>
           <div class="flex-1"><b>Email</b><br>{{ $user->email }}</div>
           <div class="flex-1"><b>Verified email</b><br>{{ $user->verified_email_at }}</div>
           <div class="flex-1"><b>Created at</b><br>{{ $user->created_at }}</div>
@@ -56,10 +56,14 @@
       </div>
     </div>
 
-    <!-- User client companies details -->
+    <!-- Activity Timeline -->
     <div class="panel panel-default">
+      <div class="panel-heading" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>Activity Timeline (last 20 events)</span>
+        <a href="{{ route('admin.activity-logs.user', $user) }}" class="btn btn-default btn-xs">View all</a>
+      </div>
       <div class="panel-body">
-
+        @include('super-admin.activity-logs._timeline', ['logs' => $activityLogs])
       </div>
     </div>
   </section>

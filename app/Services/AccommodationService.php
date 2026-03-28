@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Activity\ActivityEvent;
 use App\Mail\Accommodation\DraftSubmittedMail;
 use App\Mail\Accommodation\DraftSubmittedProfileIncompleteMail;
 use App\Models\Accommodation;
@@ -46,6 +47,18 @@ class AccommodationService
             $user = $accommodationDraft->user;
 
             if ($user) {
+                $title = $accommodationDraft->data
+                    ? (json_decode($accommodationDraft->data, true)['title'] ?? 'Untitled')
+                    : 'Untitled';
+
+                ActivityLogService::log(
+                    event: ActivityEvent::AccommodationDraftSubmitted,
+                    description: "Accommodation draft submitted for review: \"{$title}\"",
+                    subject: $user,
+                    causer: $user,
+                    properties: ['draft_id' => $accommodationDraft->id],
+                );
+
                 $mail = $user->hasCompleteHostProfile()
                     ? new DraftSubmittedMail($accommodationDraft)
                     : new DraftSubmittedProfileIncompleteMail($accommodationDraft);
