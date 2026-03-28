@@ -2,8 +2,10 @@
 
 namespace App\Listeners\Email;
 
+use App\Enums\Activity\ActivityEvent;
 use App\Enums\Email\EmailStatus;
 use App\Models\EmailLog;
+use App\Services\ActivityLogService;
 
 class LogEmailFailed
 {
@@ -15,11 +17,28 @@ class LogEmailFailed
      */
     public static function markFailed(int $logId, string $errorMessage): void
     {
-        EmailLog::where('id', $logId)
+        $updated = EmailLog::where('id', $logId)
             ->where('status', EmailStatus::Pending->value)
             ->update([
                 'status' => EmailStatus::Failed->value,
                 'error_message' => $errorMessage,
             ]);
+
+        if ($updated) {
+            $emailLog = EmailLog::find($logId);
+
+            if ($emailLog) {
+                ActivityLogService::log(
+                    event: ActivityEvent::EmailFailed,
+                    description: "Email failed to {$emailLog->recipient_email}: {$emailLog->subject}",
+                    subject: $emailLog,
+                    properties: [
+                        'recipient_email' => $emailLog->recipient_email,
+                        'subject' => $emailLog->subject,
+                        'error' => $errorMessage,
+                    ],
+                );
+            }
+        }
     }
 }

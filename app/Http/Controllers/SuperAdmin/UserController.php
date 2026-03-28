@@ -2,29 +2,32 @@
 
 namespace App\Http\Controllers\SuperAdmin;
 
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 use App\Http\Requests\SuperAdmin\User\UpdateUserRequest;
+use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class UserController
 {
     /**
      * Show the application dashboard.
-     *
-     * @return View
      */
     public function index(Request $request): View
     {
         /** @var string $search */
         $search = $request->search ?? '';
 
-        $usersPaginated = User::whereIsSuperadmin(false)
+        $usersPaginated = User::with('userProfile')
+            ->whereIsSuperadmin(false)
             ->latest('id')
-            ->when(!empty($search), function ($q) use ($search) {
-                $q->where('name', 'ilike', "%{$search}%")
-                    ->orWhere('email', 'ilike', "%{$search}%");
+            ->when(! empty($search), function ($q) use ($search) {
+                $q->where('email', 'ilike', "%{$search}%")
+                    ->orWhereHas('userProfile', function ($q2) use ($search) {
+                        $q2->where('first_name', 'ilike', "%{$search}%")
+                            ->orWhere('last_name', 'ilike', "%{$search}%");
+                    });
             })
             ->paginate(12)
             ->appends($request->only(['search', 'page']));
@@ -39,22 +42,27 @@ class UserController
     /**
      * Display the specified resource.
      *
-     * @param int $id
-     * @return View
+     * @param  int  $id
      */
     public function show($id): View
     {
         $user = User::whereId($id)->firstOrFail();
 
+        $activityLogs = ActivityLog::with(['subject', 'causer'])
+            ->forUser($user->id)
+            ->latest('id')
+            ->limit(20)
+            ->get();
+
         return view('super-admin.users.view')
-            ->with('user', $user);
+            ->with('user', $user)
+            ->with('activityLogs', $activityLogs);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param int $id
-     * @return View
+     * @param  int  $id
      */
     public function edit($id): View
     {
@@ -68,9 +76,7 @@ class UserController
     /**
      * Update the specified resource in storage.
      *
-     * @param UpdateUserRequest $request
-     * @param int $id
-     * @return RedirectResponse
+     * @param  int  $id
      */
     public function update(UpdateUserRequest $request, $id): RedirectResponse
     {
@@ -89,4 +95,3 @@ class UserController
         return redirect('/superadmin/users');
     }
 }
-

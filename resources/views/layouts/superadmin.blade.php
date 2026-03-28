@@ -128,6 +128,7 @@
                                     <li {{ (Request::is('admin/legal-documents*') ? 'class=active' : '') }}><a href="{{ route('admin.legal-documents.index') }}">Legal Documents</a></li>
                                     <li {{ (Request::is('admin/feature-flags*') ? 'class=active' : '') }}><a href="{{ route('admin.feature-flags.index') }}">Feature Flags</a></li>
                                     <li {{ (Request::is('admin/email-logs*') ? 'class=active' : '') }}><a href="{{ route('admin.email-logs.index') }}">Email Logs</a></li>
+                                    <li {{ (Request::is('admin/activity-logs*') ? 'class=active' : '') }}><a href="{{ route('admin.activity-logs.index') }}">Activity Timeline</a></li>
                                     <li {{ (Request::is('admin/horizon') ? 'class=active' : '') }}><a href="{{ url('/admin/horizon') }}">Horizon</a></li>
                                 @endif
                             </ul>

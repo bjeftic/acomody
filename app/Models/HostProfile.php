@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\Activity\ActivityEvent;
 use App\Mail\Host\AccommodationsNowSearchableMail;
+use App\Services\ActivityLogService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Mail;
@@ -11,6 +13,7 @@ class HostProfile extends Model
 {
     /** @use HasFactory<\Database\Factories\HostProfileFactory> */
     use HasFactory;
+
     /**
      * @var list<string>
      */
@@ -45,10 +48,30 @@ class HostProfile extends Model
                 && ! empty($hostProfile->phone);
         });
 
+        static::created(function (self $hostProfile) {
+            /** @var User $user */
+            $user = $hostProfile->user;
+
+            ActivityLogService::log(
+                event: ActivityEvent::HostProfileCreated,
+                description: "Host profile created for {$user->email}",
+                subject: $user,
+                causer: $user,
+            );
+        });
+
         static::saved(function (self $hostProfile) {
             if ($hostProfile->wasChanged('is_complete') && $hostProfile->is_complete) {
                 /** @var User $user */
                 $user = $hostProfile->user;
+
+                ActivityLogService::log(
+                    event: ActivityEvent::HostProfileCompleted,
+                    description: "Host profile completed for {$user->email}",
+                    subject: $user,
+                    causer: $user,
+                );
+
                 /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accommodation> $accommodations */
                 $accommodations = $user->accommodations()->where('is_active', true)->get();
 
