@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\Activity\ActivityEvent;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ActivityLog extends Model
@@ -18,6 +17,26 @@ class ActivityLog extends Model
         'causer_id',
         'properties',
     ];
+
+    public function canBeReadBy($user): bool
+    {
+        return true;
+    }
+
+    public function canBeCreatedBy($user): bool
+    {
+        return true;
+    }
+
+    public function canBeUpdatedBy($user): bool
+    {
+        return true;
+    }
+
+    public function canBeDeletedBy($user): bool
+    {
+        return true;
+    }
 
     protected function casts(): array
     {
