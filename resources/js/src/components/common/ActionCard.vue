@@ -29,7 +29,7 @@
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
                         {{ title }}
                     </h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                    <p v-if="description" class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                         {{ description }}
                     </p>
                 </div>
@@ -82,7 +82,7 @@ export default {
         },
         description: {
             type: String,
-            required: true,
+            default: '',
         },
         selected: {
             type: Boolean,

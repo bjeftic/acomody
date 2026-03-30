@@ -51,7 +51,7 @@
                     <h2
                         class="text-2xl font-semibold text-gray-900 dark:text-white mb-2"
                     >
-                        {{ formData.title || $t('untitled') }}
+                        {{ formData.title[$i18n.locale] || formData.title.en || $t('untitled') }}
                     </h2>
                     <p
                         v-if="formData.address.city"
@@ -334,7 +334,7 @@
                     <p
                         class="text-sm text-gray-700 dark:text-gray-300 font-medium"
                     >
-                        {{ formData.title || $t('not_set') }}
+                        {{ formData.title[$i18n.locale] || formData.title.en || $t('not_set') }}
                     </p>
                 </edit-section>
 
@@ -373,7 +373,7 @@
                     <p
                         class="text-sm text-gray-700 dark:text-gray-300 line-clamp-2"
                     >
-                        {{ formData.description || $t('not_set') }}
+                        {{ formData.description[$i18n.locale] || formData.description.en || $t('not_set') }}
                     </p>
                 </edit-section>
 
@@ -504,7 +504,13 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import runtimeConstants from "@/runtime-constants";
 import EditSection from "@/src/views/hosting/createAccommodation/components/EditSection.vue";
+
+const emptyTranslations = () =>
+    Object.fromEntries(
+        (runtimeConstants.supportedLocales || []).map((l) => [l.code, ""])
+    );
 import Step1AccommodationType from "@/src/views/hosting/createAccommodation/steps/Step1AccommodationType.vue";
 import Step2OccupationType from "@/src/views/hosting/createAccommodation/steps/Step2OccupationType.vue";
 import Step3Address from "@/src/views/hosting/createAccommodation/steps/Step3Address.vue";
@@ -557,8 +563,8 @@ export default {
                 },
                 amenities: [],
                 photos: [],
-                title: "",
-                description: "",
+                title: emptyTranslations(),
+                description: emptyTranslations(),
                 pricing: {
                     basePrice: 100,
                     bookingType: "instant_booking",
@@ -697,8 +703,12 @@ export default {
                 },
                 amenities: accommodation.amenities?.map((a) => a.id) || [],
                 photos: accommodation.photos || [],
-                title: accommodation.title || "",
-                description: accommodation.description || "",
+                title: accommodation.title_translations && Object.keys(accommodation.title_translations).length
+                    ? accommodation.title_translations
+                    : { ...emptyTranslations(), en: accommodation.title || "" },
+                description: accommodation.description_translations && Object.keys(accommodation.description_translations).length
+                    ? accommodation.description_translations
+                    : { ...emptyTranslations(), en: accommodation.description || "" },
                 pricing: {
                     basePrice: accommodation.pricing?.base_price?.base_price || 100,
                     bookingType: accommodation.booking_type || "instant_booking",

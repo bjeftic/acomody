@@ -43,11 +43,44 @@
                 <div class="p-6">
                     <!-- Title & Location -->
                     <div class="mb-4">
-                        <h2
-                            class="text-2xl font-semibold text-gray-900 dark:text-white mb-2"
-                        >
-                            {{ formData.title || $t('untitled') }}
-                        </h2>
+                        <!-- Language tabs for title -->
+                        <div class="flex flex-wrap gap-1.5 mb-3">
+                            <button
+                                v-for="locale in availableLocales"
+                                :key="locale.code"
+                                type="button"
+                                class="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border transition-colors"
+                                :class="previewLocale === locale.code
+                                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white'
+                                    : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-600 hover:border-gray-400'"
+                                @click="previewLocale = locale.code"
+                            >
+                                {{ locale.code.toUpperCase() }}
+                                <span
+                                    v-if="locale.code === primaryLocale"
+                                    class="opacity-50">★</span>
+                                <span
+                                    v-if="getTitleForLocale(locale.code)"
+                                    class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                    :class="previewLocale === locale.code ? 'bg-green-400' : 'bg-green-500'"
+                                ></span>
+                            </button>
+                        </div>
+                        <div class="flex items-start justify-between gap-3 mb-2">
+                            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
+                                {{ getTitleForLocale(previewLocale) || $t('untitled') }}
+                            </h2>
+                            <button
+                                type="button"
+                                class="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-900 dark:hover:border-white transition-colors"
+                                @click="goToStep(3)"
+                            >
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                {{ $t('edit') }}
+                            </button>
+                        </div>
                         <p class="text-base text-gray-600 dark:text-gray-400">
                             {{ formData.address.city }},
                             {{ formData.address.country }}
@@ -145,7 +178,7 @@
                         <p
                             class="text-sm text-gray-700 dark:text-gray-300 line-clamp-3"
                         >
-                            {{ formData.description || $t('no_description') }}
+                            {{ getDescriptionForLocale(previewLocale) || $t('no_description') }}
                         </p>
                     </div>
 
@@ -316,6 +349,9 @@
 import { mapState, mapActions } from "vuex";
 import EditSection from "@/src/views/hosting/createAccommodation/components/EditSection.vue";
 import { formatPrice } from "@/utils/helpers";
+import runtimeConstants from "@/runtime-constants";
+
+const SUPPORTED_LOCALES = runtimeConstants.supportedLocales || [];
 
 export default {
     name: "Step11Review",
@@ -336,6 +372,7 @@ export default {
     data() {
         return {
             agreedToTerms: false,
+            previewLocale: this.$i18n.locale || "en",
         };
     },
     computed: {
@@ -344,6 +381,16 @@ export default {
             "accommodationTypes",
             "accommodationDraftCurrency",
         ]),
+
+        primaryLocale() {
+            return this.$i18n.locale || "en";
+        },
+
+        availableLocales() {
+            const primary = SUPPORTED_LOCALES.find((l) => l.code === this.primaryLocale);
+            const others = SUPPORTED_LOCALES.filter((l) => l.code !== this.primaryLocale);
+            return primary ? [primary, ...others] : SUPPORTED_LOCALES;
+        },
 
         accommodationTypeName() {
             if (!this.formData.accommodationType) return "";
@@ -379,21 +426,38 @@ export default {
             });
         },
     },
+    created() {
+        this.fetchPhotos(this.accommodationDraftId);
+    },
     methods: {
         ...mapActions("hosting/createAccommodation", [
             "fetchPhotos",
             "goToStep",
         ]),
         formatPrice,
-    },
-    created() {
-        this.fetchPhotos(this.accommodationDraftId);
+
+        getTitleForLocale(locale) {
+            const t = this.formData.title;
+            if (typeof t === "object" && t !== null) {
+                return t[locale] || "";
+            }
+            return typeof t === "string" ? t : "";
+        },
+
+        getDescriptionForLocale(locale) {
+            const d = this.formData.description;
+            if (typeof d === "object" && d !== null) {
+                return d[locale] || "";
+            }
+            return typeof d === "string" ? d : "";
+        },
     },
 };
 </script>
 
 <i18n lang="yaml">
 en:
+  edit: Edit
   heading: Review your listing
   subtitle: "Here's what we'll show to guests. Make sure everything looks good!"
   no_photos: No photos uploaded
@@ -428,6 +492,7 @@ en:
   next3: You'll receive notifications when guests inquire or book
   next4: You can edit your listing anytime from your dashboard
 sr:
+  edit: Uredi
   heading: Pregledajte vaš oglas
   subtitle: Ovo ćemo prikazati gostima. Proverite da li sve izgleda dobro!
   no_photos: Nema učitanih fotografija
@@ -462,6 +527,7 @@ sr:
   next3: Primićete obaveštenja kada gosti upite ili rezervišu
   next4: Oglas možete uređivati u bilo koje vreme s vaše kontrolne table
 hr:
+  edit: Uredi
   heading: Pregledajte vaš oglas
   subtitle: Ovo ćemo prikazati gostima. Provjerite izgleda li sve dobro!
   no_photos: Nema učitanih fotografija
@@ -496,6 +562,7 @@ hr:
   next3: Primit ćete obavijesti kada gosti upitaju ili rezerviraju
   next4: Oglas možete uređivati u bilo koje vrijeme s vaše nadzorne ploče
 mk:
+  edit: Уреди
   heading: Прегледајте го вашиот оглас
   subtitle: Ова ќе им го прикажеме на гостите. Проверете дали сè изгледа добро!
   no_photos: Нема прикачени фотографии
@@ -530,6 +597,7 @@ mk:
   next3: Ќе добивате известувања кога гостите ќе прашуваат или резервираат
   next4: Огласот можете да го уредувате во секое време од вашата контролна табла
 sl:
+  edit: Uredi
   heading: Preglejte vaš oglas
   subtitle: To bomo pokazali gostom. Preverite, ali je vse videti dobro!
   no_photos: Ni naloženih fotografij

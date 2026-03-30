@@ -70,14 +70,12 @@ class UpdateRequest extends FormRequest
             'data.amenities.*' => ['integer', 'exists:amenities,id'],
 
             // Step 7: Title
-            'data.title' => $isSubmitting
-                ? ['required', 'string', 'min:10', 'max:255']
-                : ['nullable', 'string', 'max:255'],
+            'data.title' => $isSubmitting ? ['required', 'array'] : ['nullable', 'array'],
+            'data.title.*' => ['nullable', 'string', 'max:255'],
 
             // Step 8: Description
-            'data.description' => $isSubmitting
-                ? ['required', 'string', 'min:50', 'max:5000']
-                : ['nullable', 'string', 'max:5000'],
+            'data.description' => $isSubmitting ? ['required', 'array'] : ['nullable', 'array'],
+            'data.description.*' => ['nullable', 'string', 'max:5000'],
 
             // Step 9: Pricing
             'data.pricing' => [$r, 'array'],

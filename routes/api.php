@@ -18,6 +18,7 @@ use App\Http\Controllers\Host\DeletionRequestController as HostDeletionRequestCo
 use App\Http\Controllers\Host\HostProfileController;
 use App\Http\Controllers\Host\IcalCalendarController as HostIcalCalendarController;
 use App\Http\Controllers\Host\SubscriptionController;
+use App\Http\Controllers\Host\TranslationController;
 use App\Http\Controllers\IcalExportController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\NotificationController;
@@ -213,6 +214,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Host availability periods (blocked/closed dates)
     Route::get('host/blocked-periods', [HostAvailabilityPeriodController::class, 'index'])
         ->name('api.host.blocked-periods.index');
+
+    // Translations (Langbly-powered, rate-limited per user per day)
+    Route::post('host/translations/translate', [TranslationController::class, 'translate'])
+        ->name('api.host.translations.translate');
 
     // Notifications
     Route::prefix('notifications')->name('api.notifications.')->group(function () {

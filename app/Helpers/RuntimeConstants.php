@@ -51,6 +51,8 @@ class RuntimeConstants
     const FEATURE_FLAGS = 'featureFlags';
 
     const BOOKING_TYPES = 'bookingTypes';
+
+    const SUPPORTED_LOCALES = 'supportedLocales';
     // const REGION = 'region';
     // const AVAILABLE_REGIONS = 'availableRegions';
 
@@ -87,6 +89,7 @@ class RuntimeConstants
                     // self::DEFAULT_FIELD_ORDER => config('constants.default_field_order'),
                     self::FEATURE_FLAGS => FeatureFlagService::getEnabledFlags(),
                     self::BOOKING_TYPES => BookingType::toArray(),
+                    self::SUPPORTED_LOCALES => config('constants.supported_locales'),
                     // self::REGION => config('app.region'),
                     // self::AVAILABLE_REGIONS => config('app.regions'),
                 ];

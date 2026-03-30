@@ -56,8 +56,10 @@ class UpdateRequest extends FormRequest
             'amenities' => ['nullable', 'array'],
             'amenities.*' => ['integer', 'exists:amenities,id'],
 
-            'title' => ['required', 'string', 'min:10', 'max:255'],
-            'description' => ['required', 'string', 'min:50', 'max:5000'],
+            'title' => ['required', 'array'],
+            'title.*' => ['nullable', 'string', 'max:255'],
+            'description' => ['required', 'array'],
+            'description.*' => ['nullable', 'string', 'max:5000'],
 
             'pricing' => ['required', 'array'],
             'pricing.basePrice' => ['required', 'numeric', 'min:10', 'max:10000'],

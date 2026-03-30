@@ -53,8 +53,8 @@ class AccommodationDraftFactory extends Factory
 
                 'amenities' => Amenity::inRandomOrder()->limit(4)->pluck('id')->toArray(),
 
-                'title' => $this->faker->sentence(4),
-                'description' => $this->faker->paragraph(4),
+                'title' => $this->multilocaleTitle(),
+                'description' => $this->multilocaleDescription(),
 
                 'pricing' => [
                     'basePrice' => $this->faker->numberBetween(20, 120),
@@ -127,5 +127,79 @@ class AccommodationDraftFactory extends Factory
             'current_step' => 12,
             'last_saved_at' => now(),
         ];
+    }
+
+    /** @return array<string, string> */
+    private function multilocaleTitle(): array
+    {
+        $titles = [
+            'en' => $this->faker->randomElement([
+                'Cozy apartment in the city center',
+                'Modern studio near the old town',
+                'Charming flat with mountain views',
+                'Bright 2BR apartment with balcony',
+                'Peaceful retreat in a quiet neighborhood',
+            ]),
+            'sr' => $this->faker->randomElement([
+                'Udoban stan u centru grada',
+                'Moderan studio blizu starog dela grada',
+                'Šarmantan stan sa pogledom na planinu',
+                'Svetao dvosobni stan sa balkonom',
+                'Miran smeštaj u tihom kvartu',
+            ]),
+            'hr' => $this->faker->randomElement([
+                'Ugodan stan u centru grada',
+                'Moderan studio blizu starog dijela grada',
+                'Šarmantan stan s pogledom na planinu',
+                'Svijetao dvosobni stan s balkonom',
+                'Miran smještaj u tihoj četvrti',
+            ]),
+            'mk' => $this->faker->randomElement([
+                'Удобен стан во центарот на градот',
+                'Модерно студио блиску до старото место',
+                'Шармантен стан со поглед на планината',
+                'Светол двособен стан со балкон',
+                'Мирен сместувачки простор во тивок кварт',
+            ]),
+            'sl' => $this->faker->randomElement([
+                'Udobno stanovanje v središču mesta',
+                'Moderno studio stanovanje blizu starega mesta',
+                'Šarmantno stanovanje s pogledom na gore',
+                'Svetlo dvosobno stanovanje z balkonom',
+                'Miren prostor v tihi soseski',
+            ]),
+        ];
+
+        return $titles;
+    }
+
+    /** @return array<string, string> */
+    private function multilocaleDescription(): array
+    {
+        $descriptions = [
+            'en' => $this->faker->paragraph(3),
+            'sr' => $this->faker->randomElement([
+                'Dobrodošli u naš lep smeštaj! Prostor je udobno opremljen i idealan za porodice, parove i poslovne putnike. Uživajte u sjajnoj lokaciji sa lakim pristupom svim atrakcijama.',
+                'Naš smeštaj nudi sve što vam je potrebno za udoban boravak. Moderno opremljen prostor sa odličnom lokacijom u centru grada.',
+                'Lep i udoban smeštaj sa svim potrebnim sadržajima. Idealno za kraće i duže boravke, blizu svih glavnih atrakcija.',
+            ]),
+            'hr' => $this->faker->randomElement([
+                'Dobrodošli u naš lijepi smještaj! Prostor je udobno opremljen i idealan za obitelji, parove i poslovne putnike. Uživajte u sjajnoj lokaciji.',
+                'Naš smještaj nudi sve što vam je potrebno za ugodan boravak. Moderno opremljen prostor s odličnom lokacijom u centru grada.',
+                'Lijep i ugodan smještaj sa svim potrebnim sadržajima. Idealno za kraće i duže boravke, blizu svih glavnih atrakcija.',
+            ]),
+            'mk' => $this->faker->randomElement([
+                'Добредојдовте во нашиот убав сместувачки простор! Просторот е удобно опремен и идеален за семејства, парови и деловни патници.',
+                'Нашиот сместувачки простор нуди сè што ви е потребно за удобен престој. Модерно опремен простор со одлична локација.',
+                'Убав и удобен сместувачки простор со сите потребни содржини. Идеално за пократок и подолг престој.',
+            ]),
+            'sl' => $this->faker->randomElement([
+                'Dobrodošli v naše lepo bivališče! Prostor je udobno opremljen in idealen za družine, pare in poslovne potnike.',
+                'Naše bivališče ponuja vse, kar potrebujete za udobno bivanje. Moderno opremljen prostor z odlično lokacijo v središču mesta.',
+                'Lepo in udobno bivališče z vsemi potrebnimi ugodnostmi. Idealno za krajša in daljša bivanja.',
+            ]),
+        ];
+
+        return $descriptions;
     }
 }

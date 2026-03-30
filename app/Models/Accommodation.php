@@ -16,13 +16,17 @@ use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Spatie\Sitemap\Contracts\Sitemapable;
 use Spatie\Sitemap\Tags\Url;
+use Spatie\Translatable\HasTranslations;
 
 /**
  * @property PriceableItem|null $pricing
  */
 class Accommodation extends Model implements Sitemapable
 {
-    use HasFactory, HasUlids, Searchable;
+    use HasFactory, HasTranslations, HasUlids, Searchable;
+
+    /** @var string[] */
+    public array $translatable = ['title', 'description'];
 
     public function toSitemapTag(): Url|string|array
     {
@@ -138,7 +142,7 @@ class Accommodation extends Model implements Sitemapable
     {
         $array = [
             'id' => (string) $this->id,
-            'title' => (string) $this->title,
+            'title' => (string) ($this->getTranslation('title', 'en', false) ?: $this->title),
             'accommodation_category' => (string) $this->accommodation_type->category()->value,
             'accommodation_occupation' => (string) $this->accommodation_occupation->value,
             'amenities' => $this->amenities()->pluck('slug')->map(fn ($id) => (string) $id)->toArray(),

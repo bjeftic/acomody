@@ -38,4 +38,10 @@ return [
     'exchangerate' => [
         'api_key' => env('EXCHANGE_RATE_API_KEY'),
     ],
+
+    'langbly' => [
+        'api_key' => env('LANGBLY_API_KEY'),
+        'base_url' => env('LANGBLY_BASE_URL', 'https://api.langbly.com'),
+        'daily_limit' => (int) env('LANGBLY_DAILY_LIMIT', 20),
+    ],
 ];

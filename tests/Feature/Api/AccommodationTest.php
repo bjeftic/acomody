@@ -524,8 +524,8 @@ describe('PATCH /api/accommodations/{id} (update)', function () {
                 ],
             ],
             'amenities' => [],
-            'title' => 'Cozy Apartment in Belgrade',
-            'description' => 'A beautiful and cozy apartment located in the heart of Belgrade, perfect for any traveler.',
+            'title' => ['en' => 'Cozy Apartment in Belgrade'],
+            'description' => ['en' => 'A beautiful and cozy apartment located in the heart of Belgrade, perfect for any traveler.'],
             'pricing' => [
                 'basePrice' => 75,
                 'bookingType' => 'instant_booking',
@@ -581,10 +581,8 @@ describe('PATCH /api/accommodations/{id} (update)', function () {
         $this->actingAs($user, 'sanctum')
             ->patchJson(route('api.accommodations.accommodations.update', $accommodation), validAccommodationPayload());
 
-        $this->assertDatabaseHas('accommodations', [
-            'id' => $accommodation->id,
-            'title' => 'Cozy Apartment in Belgrade',
-        ]);
+        $accommodation->refresh();
+        expect($accommodation->getTranslation('title', 'en'))->toBe('Cozy Apartment in Belgrade');
     });
 
     it('returns 422 when title is missing', function () {

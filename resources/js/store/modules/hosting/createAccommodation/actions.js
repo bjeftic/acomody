@@ -145,6 +145,14 @@ export const restartAccommodationDraftData = ({ commit }) => {
     commit("RESET_ACCOMMODATION_DRAFT");
 }
 
+export const translateText = async ({}, { text, targetLocale }) => {
+    const response = await apiClient.host.translations.translate.post({
+        text,
+        target_locale: targetLocale,
+    });
+    return response.data;
+};
+
 export const setCreateAccommodationLoading = ({ commit }, isLoading) => {
     commit("SET_CREATE_ACCOMMODATION_LOADING", isLoading);
 };
