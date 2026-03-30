@@ -44,4 +44,10 @@ return [
         'base_url' => env('LANGBLY_BASE_URL', 'https://api.langbly.com'),
         'daily_limit' => (int) env('LANGBLY_DAILY_LIMIT', 20),
     ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
 ];

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -9,6 +10,15 @@ use Illuminate\Support\Facades\Route;
 // ============================================
 Route::get('/sitemap-'.config('app.sitemap_token').'.xml', [SitemapController::class, 'index'])
     ->name('sitemap');
+
+// ============================================
+// GOOGLE OAUTH
+// ============================================
+Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])
+    ->name('auth.google');
+
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback'])
+    ->name('auth.google.callback');
 
 // ============================================
 // EMAIL VERIFICATION (Public but throttled)

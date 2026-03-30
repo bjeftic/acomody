@@ -76,19 +76,6 @@
                     </svg>
                     {{ $t('google') }}
                 </BaseButton>
-
-                <BaseButton
-                    variant="secondary"
-                    full
-                    :loading="isFacebookLoading"
-                    :disabled="isFacebookLoading"
-                    @click="handleFacebookLogin"
-                >
-                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="#1877F2">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    {{ $t('facebook') }}
-                </BaseButton>
             </div>
 
             <p class="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -146,7 +133,6 @@ export default {
             isLoading: false,
             isProcessing: false,
             isGoogleLoading: false,
-            isFacebookLoading: false,
             signUpErrors: {},
         };
     },
@@ -240,15 +226,7 @@ export default {
         },
         handleGoogleLogin() {
             this.isGoogleLoading = true;
-            setTimeout(() => {
-                this.isGoogleLoading = false;
-            }, 1000);
-        },
-        handleFacebookLogin() {
-            this.isFacebookLoading = true;
-            setTimeout(() => {
-                this.isFacebookLoading = false;
-            }, 1000);
+            window.location.href = '/auth/google';
         },
         ok() {
             this.resolve !== null && this.resolve({ formData: this.formData });
@@ -274,7 +252,6 @@ en:
   confirm_placeholder: Confirm your password
   signing_up: Signing up...
   google: Continue with Google
-  facebook: Continue with Facebook
   terms_prefix: "By creating an account, you're agreeing with our"
   terms_link: Terms of Use
   terms_and: and
@@ -294,7 +271,6 @@ sr:
   confirm_placeholder: Potvrdite lozinku
   signing_up: Registracija u toku...
   google: Nastavite sa Google
-  facebook: Nastavite sa Facebook
   terms_prefix: Kreiranjem naloga prihvatate naše
   terms_link: Uslove korišćenja
   terms_and: i
@@ -314,7 +290,6 @@ hr:
   confirm_placeholder: Potvrdite lozinku
   signing_up: Registracija u tijeku...
   google: Nastavite s Googleom
-  facebook: Nastavite s Facebookom
   terms_prefix: Kreiranjem računa prihvaćate naše
   terms_link: Uvjete korištenja
   terms_and: i
@@ -334,7 +309,6 @@ mk:
   confirm_placeholder: Потврдете ја лозинката
   signing_up: Регистрација во тек...
   google: Продолжете со Google
-  facebook: Продолжете со Facebook
   terms_prefix: Со креирање сметка се согласувате со нашите
   terms_link: Услови за користење
   terms_and: и
@@ -354,7 +328,6 @@ sl:
   confirm_placeholder: Potrdite geslo
   signing_up: Registracija v teku...
   google: Nadaljujte z Googlom
-  facebook: Nadaljujte s Facebookom
   terms_prefix: Z ustvarjanjem računa se strinjate z našimi
   terms_link: Pogoji uporabe
   terms_and: in
