@@ -295,6 +295,10 @@ export default {
                 .filter(Boolean)
                 .join(", ");
         },
+
+        allowedCountryCodes() {
+            return this.countryOptions.map((c) => c.value.toLowerCase());
+        },
     },
     mounted() {
         // Only center map if no coordinates saved yet (don't auto-request permission)
@@ -346,6 +350,10 @@ export default {
                     addressdetails: "1",
                 });
 
+                if (this.allowedCountryCodes.length > 0) {
+                    params.set("countrycodes", this.allowedCountryCodes.join(","));
+                }
+
                 const response = await fetch(
                     `${NOMINATIM_SEARCH_URL}?${params}`,
                     { headers: NOMINATIM_HEADERS }
@@ -380,9 +388,11 @@ export default {
                 address.county ||
                 "";
             const zipCode = address.postcode || "";
-            const country = address.country_code
-                ? address.country_code.toUpperCase()
-                : "";
+            const countryCode = address.country_code ? address.country_code.toUpperCase() : "";
+            const country =
+                countryCode && this.allowedCountryCodes.includes(address.country_code.toLowerCase())
+                    ? countryCode
+                    : "";
 
             const lat = parseFloat(suggestion.lat);
             const lng = parseFloat(suggestion.lon);
@@ -703,7 +713,10 @@ export default {
                     }
 
                     if (address.country_code) {
-                        updates.country = address.country_code.toUpperCase();
+                        const countryCode = address.country_code.toUpperCase();
+                        if (this.allowedCountryCodes.includes(address.country_code.toLowerCase())) {
+                            updates.country = countryCode;
+                        }
                     }
 
                     if (Object.keys(updates).length > 0) {

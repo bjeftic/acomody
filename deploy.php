@@ -18,11 +18,22 @@ set('writable_dirs', [
     'storage/logs',
 ]);
 
+// ── Hosts ─────────────────────────────────────────────
+
 host('staging')
     ->setHostname(getenv('SSH_HOST') ?: '138.68.94.120')
     ->setRemoteUser('deployer')
     ->setIdentityFile('~/.ssh/id_ed25519_acomody_staging')
     ->setDeployPath('/var/www/acomody')
+    ->set('branch', 'main')
+    ->set('git_ssh_command', 'ssh -o StrictHostKeyChecking=no')
+    ->set('forward_agent', true);
+
+host('production')
+    ->setHostname('142.93.103.187')
+    ->setRemoteUser('root')
+    ->setIdentityFile('~/.ssh/acomody_prod')
+    ->setDeployPath('/var/www/acomody.com')
     ->set('branch', 'main')
     ->set('git_ssh_command', 'ssh -o StrictHostKeyChecking=no')
     ->set('forward_agent', true);
@@ -44,9 +55,14 @@ task('horizon:restart', function () {
     run('sudo systemctl restart horizon || true');
 });
 
-// ── Deploy flow ───────────────────────────────────────
+desc('Restart queue workers');
+task('supervisor:restart', function () {
+    run('supervisorctl restart acomody-worker:*');
+});
 
-desc('Deploy Acomody');
+// ── Deploy flows ──────────────────────────────────────
+
+desc('Deploy Acomody staging');
 task('deploy', [
     'deploy:info',
     'deploy:setup',
@@ -64,6 +80,26 @@ task('deploy', [
     'deploy:publish',
     'php-fpm:restart',
     'horizon:restart',
+]);
+
+desc('Deploy Acomody production');
+task('deploy:production', [
+    'deploy:info',
+    'deploy:setup',
+    'deploy:lock',
+    'deploy:release',
+    'deploy:update_code',
+    'deploy:shared',
+    'deploy:vendors',
+    'deploy:upload_assets',
+    'artisan:storage:link',
+    'artisan:config:cache',
+    'artisan:route:cache',
+    'artisan:view:cache',
+    'artisan:migrate',
+    'deploy:publish',
+    'php-fpm:restart',
+    'supervisor:restart',
 ]);
 
 after('deploy:failed', 'deploy:unlock');
