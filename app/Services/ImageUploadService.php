@@ -245,11 +245,11 @@ class ImageUploadService
             $resized->scale(width: $config['width'], height: $config['height']);
         }
 
-        // Encode with quality (always use JPEG for consistency)
-        $encoded = $resized->toJpeg(quality: $config['quality']);
+        // Encode as WebP for better compression and quality
+        $encoded = $resized->toWebp(quality: $config['quality']);
 
         // Generate path
-        $filename = "{$baseFilename}.jpg";
+        $filename = "{$baseFilename}.webp";
         $path = "{$folder}/{$sizeName}/{$filename}";
 
         Storage::disk($this->disk)->put($path, (string) $encoded);
