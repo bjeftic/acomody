@@ -20,6 +20,14 @@ return [
             ['id' => 'sunday', 'name' => 'ui.sunday'],
         ],
     ],
+    'supported_locales' => [
+        ['code' => 'en', 'name' => 'English'],
+        ['code' => 'sr', 'name' => 'Serbian'],
+        ['code' => 'hr', 'name' => 'Croatian'],
+        ['code' => 'mk', 'name' => 'Macedonian'],
+        ['code' => 'sl', 'name' => 'Slovenian'],
+    ],
+
     'country_language_map' => [
         'RS' => 'sr',
         'HR' => 'hr',

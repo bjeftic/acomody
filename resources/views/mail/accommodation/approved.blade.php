@@ -6,7 +6,7 @@
 
 @section('content')
 <p>{{ __('mail.hi', ['name' => $draft->user->first_name ?? $draft->user->name]) }}</p>
-<p>{{ __('mail.accommodation_approved.body', ['property' => json_decode($draft->data, true)['title'] ?? 'your property']) }}</p>
+<p>{{ __('mail.accommodation_approved.body', ['property' => (function() use ($draft) { $t = json_decode($draft->data, true)['title'] ?? null; return is_array($t) ? ($t['en'] ?? 'your property') : ($t ?: 'your property'); })()]) }}</p>
 
 @if($hostProfileComplete)
     <p>{{ __('mail.accommodation_approved.now_live') }}</p>

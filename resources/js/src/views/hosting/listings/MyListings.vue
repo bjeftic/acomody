@@ -20,7 +20,7 @@
                     <action-card
                         v-for="draft in myRejectedDrafts"
                         :key="draft.id"
-                        :title="draft.data.title || $t('untitled_listing')"
+                        :title="localizedTitle(draft.data.title)"
                         :subtitle="$t('rejected_subtitle')"
                         @click="$router.push({ name: 'page-draft-edit', params: { draftId: draft.id } })"
                     >
@@ -38,7 +38,7 @@
                     <action-card
                         v-for="accommodationDraft in myAccommodationDrafts"
                         :key="accommodationDraft.id"
-                        :title="accommodationDraft.data.title || $t('untitled_listing')"
+                        :title="localizedTitle(accommodationDraft.data.title)"
                         :disabled="true"
                     >
                         <template #icon>
@@ -56,7 +56,7 @@
                     <action-card
                         v-for="accommodation in accommodations"
                         :key="accommodation.id"
-                        :title="accommodation.title || $t('untitled_listing')"
+                        :title="localizedTitle(accommodation.title)"
                         @click="$router.push({ name: 'page-listings-show', params: { accommodationId: accommodation.id } })"
                     >
                         <template #icon>
@@ -78,6 +78,13 @@ export default {
     },
     methods: {
         ...mapActions("hosting/listings", ["loadInitialMyListingsData"]),
+
+        localizedTitle(title) {
+            if (!title) return this.$t('untitled_listing');
+            if (typeof title === 'string') return title || this.$t('untitled_listing');
+            const locale = this.$i18n.locale || 'en';
+            return title[locale] || title['en'] || Object.values(title).find(Boolean) || this.$t('untitled_listing');
+        },
     },
     created() {
         this.loadInitialMyListingsData();

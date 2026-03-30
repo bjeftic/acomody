@@ -38,6 +38,12 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import runtimeConstants from "@/runtime-constants";
+
+const emptyTranslations = () =>
+    Object.fromEntries(
+        (runtimeConstants.supportedLocales || []).map((l) => [l.code, ""])
+    );
 import WizardNavigation from "@/src/views/hosting/createAccommodation/components/WizardNavigation.vue";
 import Step1AccommodationType from "@/src/views/hosting/createAccommodation/steps/Step1AccommodationType.vue";
 import Step2OccupationType from "@/src/views/hosting/createAccommodation/steps/Step2OccupationType.vue";
@@ -94,8 +100,8 @@ export default {
                 },
                 amenities: [],
                 photos: [],
-                title: "",
-                description: "",
+                title: emptyTranslations(),
+                description: emptyTranslations(),
                 pricing: {
                     basePrice: 5000,
                     // hasWeekendPrice: false,
@@ -173,9 +179,9 @@ export default {
                 case 6:
                     return this.formData.photos.length >= 5;
                 case 7:
-                    return this.formData.title.trim().length >= 10;
+                    return Object.values(this.formData.title).some(v => (v || '').trim().length >= 10);
                 case 8:
-                    return this.formData.description.trim().length >= 50;
+                    return Object.values(this.formData.description).some(v => (v || '').trim().length >= 50);
                 case 9:
                     return this.validatePricing();
                 case 10:
@@ -362,8 +368,8 @@ export default {
                 },
                 amenities: draft.amenities || [],
                 photos: draft.photos || [],
-                title: draft.title || "",
-                description: draft.description || "",
+                title: (typeof draft.title === 'object' && draft.title) ? draft.title : { ...emptyTranslations(), en: draft.title || "" },
+                description: (typeof draft.description === 'object' && draft.description) ? draft.description : { ...emptyTranslations(), en: draft.description || "" },
                 pricing: draft.pricing || {
                     basePrice: 5000,
                     // hasWeekendPrice: false,

@@ -55,8 +55,18 @@
                         @click="$router.push({ name: 'page-listing-create' })"
                     >
                         <template #icon>
-                            <HouseIcon v-if="!accommodationDraftExists" />
-                            <PenIcon v-else />
+                            <IconLoader
+                                v-if="!accommodationDraftExists"
+                                name="HousePlus"
+                                :size="20"
+                                class="text-primary-600 dark:text-primary-400"
+                            />
+                            <IconLoader
+                                v-else
+                                name="PencilLine"
+                                :size="20"
+                                class="text-primary-600 dark:text-primary-400"
+                            />
                         </template>
                     </action-card>
 
@@ -67,7 +77,11 @@
                         :icon-background="true"
                     >
                         <template #icon>
-                            <CopyIcon />
+                            <IconLoader
+                                name="Copy"
+                                :size="20"
+                                class="text-primary-600 dark:text-primary-400"
+                            />
                         </template>
                     </action-card>
                 </div>
@@ -86,7 +100,11 @@
                         @click="$router.push({ name: 'page-listings' })"
                     >
                         <template #icon>
-                            <ArchiveIcon />
+                            <IconLoader
+                                name="Archive"
+                                :size="20"
+                                class="text-primary-600 dark:text-primary-400"
+                            />
                         </template>
                         <template #badges>
                             <fwb-badge v-if="accommodationDraftWaitingApproval" type="yellow">{{ accommodationDraftStats.waiting_for_approval }}</fwb-badge>
@@ -100,7 +118,11 @@
                         @click="$router.push({ name: 'page-calendar' })"
                     >
                         <template #icon>
-                            <CalendarIcon />
+                            <IconLoader
+                                name="CalendarDays"
+                                :size="20"
+                                class="text-primary-600 dark:text-primary-400"
+                            />
                         </template>
                     </action-card>
 
@@ -109,7 +131,11 @@
                         @click="$router.push({ name: 'page-host-profile' })"
                     >
                         <template #icon>
-                            <SettingsIcon />
+                            <IconLoader
+                                name="Settings"
+                                :size="20"
+                                class="text-primary-600 dark:text-primary-400"
+                            />
                         </template>
                     </action-card>
                 </div>

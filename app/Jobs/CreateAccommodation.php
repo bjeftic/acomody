@@ -107,6 +107,8 @@ class CreateAccommodation implements ShouldQueue
 
         $accommodation->searchable();
 
+        AutoTranslateMissingDescriptions::dispatch($accommodation->id);
+
         if ($draft->user) {
             /** @var \App\Models\User $draftUser */
             $draftUser = $draft->user;

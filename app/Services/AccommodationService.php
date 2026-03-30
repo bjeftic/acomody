@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Enums\Activity\ActivityEvent;
+use App\Jobs\AutoTranslateDraftDescriptions;
+use App\Jobs\AutoTranslateMissingDescriptions;
 use App\Mail\Accommodation\DraftSubmittedMail;
 use App\Mail\Accommodation\DraftSubmittedProfileIncompleteMail;
 use App\Models\Accommodation;
@@ -47,9 +49,12 @@ class AccommodationService
             $user = $accommodationDraft->user;
 
             if ($user) {
-                $title = $accommodationDraft->data
+                $titleData = $accommodationDraft->data
                     ? (json_decode($accommodationDraft->data, true)['title'] ?? 'Untitled')
                     : 'Untitled';
+                $title = is_array($titleData)
+                    ? ($titleData['en'] ?? $titleData[array_key_first($titleData)] ?? 'Untitled')
+                    : $titleData;
 
                 ActivityLogService::log(
                     event: ActivityEvent::AccommodationDraftSubmitted,
@@ -66,6 +71,8 @@ class AccommodationService
                 Mail::to($user->email)->queue($mail);
                 $user->notify(new AccommodationUnderReviewNotification($accommodationDraft));
             }
+
+            AutoTranslateDraftDescriptions::dispatch($accommodationDraft->id);
         }
 
         return $accommodationDraft;
@@ -198,6 +205,8 @@ class AccommodationService
                 'min_quantity' => $data['pricing']['minStay'],
             ]);
         }
+
+        AutoTranslateMissingDescriptions::dispatch($accommodation->id);
 
         return $accommodation->fresh(['amenities', 'photos', 'pricing', 'beds', 'location.country']);
     }

@@ -23,8 +23,8 @@ function makeDraftData(array $overrides = []): array
     return array_merge([
         'accommodation_type' => AccommodationType::APARTMENT->value,
         'accommodation_occupation' => AccommodationOccupation::ENTIRE_PLACE->value,
-        'title' => 'Test Apartment',
-        'description' => 'A nice test apartment.',
+        'title' => ['en' => 'Test Apartment'],
+        'description' => ['en' => 'A nice test apartment.'],
         'address' => [
             'country' => 'RS',
             'street' => '123 Main St',
@@ -102,15 +102,14 @@ describe('CreateAccommodation job — accommodation record', function () {
 
         CreateAccommodation::dispatchSync($draft->id, $location->id, $admin->id);
 
-        $this->assertDatabaseHas('accommodations', [
-            'accommodation_draft_id' => $draft->id,
-            'location_id' => $location->id,
-            'user_id' => $user->id,
-            'title' => 'Test Apartment',
-            'max_guests' => 4,
-            'bedrooms' => 2,
-            'bathrooms' => 1,
-        ]);
+        $accommodation = Accommodation::where('accommodation_draft_id', $draft->id)->firstOrFail();
+
+        expect($accommodation->location_id)->toBe($location->id)
+            ->and($accommodation->user_id)->toBe($user->id)
+            ->and($accommodation->getTranslation('title', 'en'))->toBe('Test Apartment')
+            ->and($accommodation->max_guests)->toBe(4)
+            ->and($accommodation->bedrooms)->toBe(2)
+            ->and($accommodation->bathrooms)->toBe(1);
     });
 
     it('sets the draft status to published after completion', function () {

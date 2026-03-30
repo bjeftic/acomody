@@ -10,15 +10,82 @@
         <hr />
 
         <div class="max-w-2xl mx-auto py-4 pr-4 overflow-auto h-[60vh] space-y-6">
-            <!-- Description Textarea -->
-            <BaseTextarea
-                :model-value="formData.description"
-                :label="$t('label_description') + ' ' + formData.title"
-                :rows="10"
-                :maxlength="500"
-                :placeholder="$t('placeholder')"
-                @update:model-value="updateDescription"
-            />
+            <!-- Language tabs + textarea -->
+            <div>
+                <!-- Tab bar -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <button
+                        v-for="locale in allLocales"
+                        :key="locale.code"
+                        type="button"
+                        class="relative flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors"
+                        :class="activeLocale === locale.code
+                            ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white'
+                            : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-400'"
+                        @click="activeLocale = locale.code"
+                    >
+                        {{ locale.code.toUpperCase() }}
+                        <span
+                            v-if="locale.code === primaryLocale"
+                            class="text-xs opacity-60"
+                        >★</span>
+                        <span
+                            v-if="getDescriptionForLocale(locale.code)"
+                            class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                            :class="activeLocale === locale.code ? 'bg-green-400' : 'bg-green-500'"
+                        ></span>
+                    </button>
+                </div>
+
+                <!-- Active locale textarea -->
+                <BaseTextarea
+                    :key="activeLocale"
+                    :model-value="getDescriptionForLocale(activeLocale)"
+                    :label="activeLabelText"
+                    :rows="10"
+                    :maxlength="500"
+                    :placeholder="$t('placeholder')"
+                    @update:model-value="updateLocaleDescription(activeLocale, $event)"
+                />
+                <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+                    <template v-if="activeLocale === primaryLocale">
+                        {{ $t('primary_locale_hint', { locale: activeLocaleName }) }}
+                    </template>
+                    <template v-else>
+                        {{ $t('translation_hint', { locale: activeLocaleName }) }}
+                    </template>
+                </p>
+
+                <!-- Auto-translate bar -->
+                <div class="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <button
+                        type="button"
+                        :disabled="isTranslating || !primaryDescription"
+                        class="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        @click="translateNow"
+                    >
+                        <svg
+                            class="w-4 h-4 flex-shrink-0"
+                            :class="{ 'animate-spin': isTranslating }"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
+                        </svg>
+                        {{ isTranslating ? $t('translating') : $t('translate_now') }}
+                    </button>
+                    <p v-if="remainingToday === 0" class="text-xs text-amber-600 dark:text-amber-400">
+                        {{ $t('limit_reached') }}
+                    </p>
+                </div>
+                <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">{{ $t('auto_translate_info_2') }}</p>
+            </div>
 
             <!-- Quick Templates -->
             <div class="space-y-4">
@@ -34,7 +101,6 @@
                     </button>
                 </div>
 
-                <!-- Template Cards -->
                 <div v-if="showTemplates" class="space-y-3">
                     <button
                         v-for="(template, index) in descriptionTemplates"
@@ -43,9 +109,7 @@
                         class="w-full p-4 text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group"
                     >
                         <div class="flex items-start justify-between mb-2">
-                            <h4
-                                class="text-sm font-semibold text-gray-900 dark:text-white"
-                            >
+                            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
                                 {{ template.title }}
                             </h4>
                             <svg
@@ -62,9 +126,7 @@
                                 />
                             </svg>
                         </div>
-                        <p
-                            class="text-sm text-gray-600 dark:text-gray-400 line-clamp-3"
-                        >
+                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
                             {{ template.content }}
                         </p>
                     </button>
@@ -72,12 +134,8 @@
             </div>
 
             <!-- Writing Tips -->
-            <div
-                class="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700"
-            >
-                <h4
-                    class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center"
-                >
+            <div class="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                     <svg
                         class="w-5 h-5 mr-2 text-primary-500"
                         fill="currentColor"
@@ -92,7 +150,11 @@
                     {{ $t('tips_heading') }}
                 </h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                    <li class="flex items-start">
+                    <li
+                        v-for="tip in ['tip1','tip2','tip3','tip4','tip5']"
+                        :key="tip"
+                        class="flex items-start"
+                    >
                         <svg
                             class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-green-500"
                             fill="currentColor"
@@ -104,114 +166,30 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span>{{ $t('tip1') }}</span>
-                    </li>
-                    <li class="flex items-start">
-                        <svg
-                            class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-green-500"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
-                        <span>{{ $t('tip2') }}</span>
-                    </li>
-                    <li class="flex items-start">
-                        <svg
-                            class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-green-500"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
-                        <span>{{ $t('tip3') }}</span>
-                    </li>
-                    <li class="flex items-start">
-                        <svg
-                            class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-green-500"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
-                        <span>{{ $t('tip4') }}</span>
-                    </li>
-                    <li class="flex items-start">
-                        <svg
-                            class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-green-500"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
-                        <span>{{ $t('tip5') }}</span>
+                        <span>{{ $t(tip) }}</span>
                     </li>
                 </ul>
             </div>
 
             <!-- Structure Guide -->
-            <div
-                class="p-6 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800"
-            >
+            <div class="p-6 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800">
                 <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">
                     {{ $t('structure_heading') }}
                 </h4>
                 <div class="space-y-4">
-                    <div>
+                    <div v-for="n in [1,2,3,4]" :key="n">
                         <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                            {{ $t('section1_title') }}
+                            {{ $t('section' + n + '_title') }}
                         </h5>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
-                            {{ $t('section1_desc') }}
-                        </p>
-                    </div>
-                    <div>
-                        <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                            {{ $t('section2_title') }}
-                        </h5>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            {{ $t('section2_desc') }}
-                        </p>
-                    </div>
-                    <div>
-                        <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                            {{ $t('section3_title') }}
-                        </h5>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            {{ $t('section3_desc') }}
-                        </p>
-                    </div>
-                    <div>
-                        <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                            {{ $t('section4_title') }}
-                        </h5>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            {{ $t('section4_desc') }}
+                            {{ $t('section' + n + '_desc') }}
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Word Count Helper -->
-            <div
-                class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
-            >
+            <!-- Word Count -->
+            <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
                 <div class="flex items-center space-x-2">
                     <svg
                         class="w-5 h-5 text-gray-400"
@@ -228,9 +206,7 @@
                     </svg>
                     <span class="text-sm text-gray-600 dark:text-gray-400">
                         {{ $t('word_count') }}
-                        <strong class="text-gray-900 dark:text-white">{{
-                            wordCount
-                        }}</strong>
+                        <strong class="text-gray-900 dark:text-white">{{ wordCount }}</strong>
                     </span>
                 </div>
                 <div class="text-sm text-gray-500 dark:text-gray-400">
@@ -242,7 +218,10 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
+import runtimeConstants from "@/runtime-constants";
+
+const SUPPORTED_LOCALES = runtimeConstants.supportedLocales || [];
 
 export default {
     name: "Step8Description",
@@ -260,10 +239,47 @@ export default {
     data() {
         return {
             showTemplates: false,
+            activeLocale: this.$i18n.locale || "en",
+            isTranslating: false,
+            remainingToday: null,
         };
     },
     computed: {
         ...mapState("hosting/createAccommodation", ["accommodationTypes"]),
+
+        primaryLocale() {
+            return this.$i18n.locale || "en";
+        },
+
+        primaryLocaleName() {
+            return SUPPORTED_LOCALES.find((l) => l.code === this.primaryLocale)?.name || this.primaryLocale;
+        },
+
+        allLocales() {
+            const primary = SUPPORTED_LOCALES.find((l) => l.code === this.primaryLocale);
+            const others = SUPPORTED_LOCALES.filter((l) => l.code !== this.primaryLocale);
+            return primary ? [primary, ...others] : SUPPORTED_LOCALES;
+        },
+
+        activeLocaleName() {
+            return SUPPORTED_LOCALES.find((l) => l.code === this.activeLocale)?.name || this.activeLocale;
+        },
+
+        activeLabelText() {
+            return `${this.$t('label_description')} · ${this.activeLocaleName}`;
+        },
+
+        otherLocales() {
+            return SUPPORTED_LOCALES.filter((l) => l.code !== this.primaryLocale);
+        },
+
+        primaryDescription() {
+            const d = this.formData.description;
+            if (typeof d === "object" && d !== null) {
+                return d[this.primaryLocale] || "";
+            }
+            return typeof d === "string" ? d : "";
+        },
 
         accommodationTypeName() {
             if (!this.formData.accommodationType) return "place";
@@ -274,94 +290,134 @@ export default {
         },
 
         wordCount() {
-            if (!this.formData.description) return 0;
-            return this.formData.description
+            if (!this.primaryDescription) return 0;
+            return this.primaryDescription
                 .trim()
                 .split(/\s+/)
                 .filter((word) => word.length > 0).length;
         },
 
         descriptionTemplates() {
-            const city = this.formData.address.city || "the city";
+            const city = this.formData.address.city || this.$t('default_city');
             const type = this.accommodationTypeName;
             const guests = this.formData.floorPlan.guests;
             const bedrooms = this.formData.floorPlan.bedrooms;
             const beds = this.formData.floorPlan.beds;
 
-            // Get key amenities
-            const hasWifi = this.formData.amenities.includes("wifi");
-            const hasKitchen = this.formData.amenities.includes("kitchen");
-            const hasParking =
-                this.formData.amenities.includes("free-parking") ||
-                this.formData.amenities.includes("paid-parking");
-            const hasAC = this.formData.amenities.includes("air-conditioning");
+            const amenitiesArr = [];
+            if (this.formData.amenities.includes("wifi")) amenitiesArr.push(this.$t('amenity_wifi'));
+            if (this.formData.amenities.includes("kitchen")) amenitiesArr.push(this.$t('amenity_kitchen'));
+            if (this.formData.amenities.includes("free-parking") || this.formData.amenities.includes("paid-parking")) amenitiesArr.push(this.$t('amenity_parking'));
+            if (this.formData.amenities.includes("air-conditioning")) amenitiesArr.push(this.$t('amenity_ac'));
+            const amenities = amenitiesArr.length > 0 ? amenitiesArr.join(', ') : this.$t('amenity_default');
 
-            const amenitiesText = [];
-            if (hasWifi) amenitiesText.push("high-speed WiFi");
-            if (hasKitchen) amenitiesText.push("a fully equipped kitchen");
-            if (hasParking) amenitiesText.push("free parking");
-            if (hasAC) amenitiesText.push("air conditioning");
-
-            const amenitiesList =
-                amenitiesText.length > 0
-                    ? amenitiesText.join(", ")
-                    : "modern amenities";
+            const bedroomsLabel = bedrooms === 1 ? this.$t('bedroom_single') : this.$t('bedrooms_many', { n: bedrooms });
+            const bedsLabel = beds === 1 ? this.$t('bed_single') : this.$t('beds_many', { n: beds });
+            const guestsLabel = guests === 1 ? this.$t('guest_single') : this.$t('guests_many', { n: guests });
 
             return [
                 {
                     title: this.$t('template1_title'),
-                    content: `Welcome to our beautiful ${type} in ${city}! This charming space comfortably accommodates ${guests} guests with ${bedrooms} bedroom${
-                        bedrooms !== 1 ? "s" : ""
-                    } and ${beds} bed${
-                        beds !== 1 ? "s" : ""
-                    }. Enjoy ${amenitiesList} during your stay. The space is perfect for families, couples, or solo travelers looking for a comfortable and convenient base to explore the area. The neighborhood is vibrant yet peaceful, with restaurants, cafes, and shops just a short walk away. Public transportation is easily accessible, making it simple to get around the city.`,
+                    content: this.$t('template1_content', { type, city, guests, bedroomsLabel, bedsLabel, amenities }),
                 },
                 {
                     title: this.$t('template2_title'),
-                    content: `Cozy ${type} in the heart of ${city}. Perfect for ${guests} guests with all the essentials you need for a comfortable stay. Features ${amenitiesList}. Great location with easy access to local attractions and public transport. Looking forward to hosting you!`,
+                    content: this.$t('template2_content', { type, city, guests, amenities }),
                 },
                 {
                     title: this.$t('template3_title'),
-                    content: `Experience comfort and style in this thoughtfully designed ${type}. Located in ${city}, our space offers ${guests} guests a perfect blend of modern amenities and local charm. Featuring ${amenitiesList}, every detail has been carefully considered to ensure your stay is exceptional. The space boasts elegant interiors, quality furnishings, and a prime location that puts you close to the best the area has to offer.`,
+                    content: this.$t('template3_content', { type, city, guests, amenities }),
                 },
                 {
                     title: this.$t('template4_title'),
-                    content: `Looking for a family-friendly ${type} in ${city}? You've found it! Our spacious accommodation sleeps ${guests} guests comfortably, with ${bedrooms} bedroom${
-                        bedrooms !== 1 ? "s" : ""
-                    } providing plenty of space for everyone. Kids will love the area, and parents will appreciate ${amenitiesList}. We're located in a safe, quiet neighborhood that's still close to all the action. Restaurants, parks, and family attractions are all nearby.`,
+                    content: this.$t('template4_content', { type, city, guests, bedroomsLabel }),
                 },
                 {
                     title: this.$t('template5_title'),
-                    content: `Ideal ${type} for business travelers visiting ${city}. This professional space accommodates ${guests} guest${
-                        guests !== 1 ? "s" : ""
-                    } and includes ${amenitiesList}, perfect for both work and relaxation. The location offers easy access to the business district and major transportation hubs. After a productive day, unwind in your comfortable, quiet retreat. Fast check-in and responsive hosting to support your busy schedule.`,
+                    content: this.$t('template5_content', { type, city, guestsLabel, amenities }),
                 },
             ];
         },
     },
     methods: {
-        updateDescription(value) {
-            this.$emit("update:form-data", {
-                ...this.formData,
-                description: value,
-            });
+        ...mapActions("hosting/createAccommodation", ["translateText"]),
+
+        getDescriptionForLocale(locale) {
+            const d = this.formData.description;
+            if (typeof d === "object" && d !== null) {
+                return d[locale] || "";
+            }
+            if (locale === this.primaryLocale) {
+                return typeof d === "string" ? d : "";
+            }
+            return "";
+        },
+
+        ensureDescriptionObject() {
+            const d = this.formData.description;
+            if (typeof d === "object" && d !== null) {
+                return { ...d };
+            }
+            const obj = {};
+            SUPPORTED_LOCALES.forEach((l) => (obj[l.code] = ""));
+            if (typeof d === "string" && d) {
+                obj[this.primaryLocale] = d;
+            }
+            return obj;
+        },
+
+        updatePrimaryDescription(value) {
+            const descObj = this.ensureDescriptionObject();
+            descObj[this.primaryLocale] = value;
+            this.$emit("update:form-data", { ...this.formData, description: descObj });
+        },
+
+        updateLocaleDescription(locale, value) {
+            const descObj = this.ensureDescriptionObject();
+            descObj[locale] = value;
+            this.$emit("update:form-data", { ...this.formData, description: descObj });
         },
 
         selectDescriptionTemplate(template) {
-            this.updateDescription(template.content);
+            this.updatePrimaryDescription(template.content);
             this.showTemplates = false;
-
-            // Scroll to textarea
             this.$nextTick(() => {
                 const textarea = document.querySelector("textarea");
                 if (textarea) {
                     textarea.focus();
-                    textarea.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center",
-                    });
+                    textarea.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
             });
+        },
+
+        async translateNow() {
+            if (!this.primaryDescription || this.isTranslating) return;
+
+            this.isTranslating = true;
+            const descObj = this.ensureDescriptionObject();
+
+            for (const locale of this.otherLocales) {
+                if (descObj[locale.code]) continue; // never overwrite existing
+
+                try {
+                    const result = await this.translateText({
+                        text: this.primaryDescription,
+                        targetLocale: locale.code,
+                    });
+                    descObj[locale.code] = result.translated_text;
+                    if (result.remaining_today !== undefined) {
+                        this.remainingToday = result.remaining_today;
+                    }
+                } catch (err) {
+                    if (err.response?.status === 429) {
+                        this.remainingToday = 0;
+                        break;
+                    }
+                }
+            }
+
+            this.$emit("update:form-data", { ...this.formData, description: descObj });
+            this.isTranslating = false;
         },
     },
 };
@@ -371,8 +427,14 @@ export default {
 en:
   heading: Create your description
   subtitle: Share what makes your place special.
-  label_description: Description of your
+  label_description: Description
   placeholder: Describe your space, the neighborhood, and what guests will love about staying here...
+  primary_locale_hint: "your main description · {locale}"
+  translation_hint: "translation · {locale}"
+  auto_translate_info_2: "only empty translations are filled — any text you've written won't be touched."
+  limit_reached: You've used all auto-translations for today. Try again tomorrow.
+  translate_now: translate to all languages now
+  translating: translating…
   templates_heading: Start with a template
   show_templates: Show templates
   hide_templates: Hide templates
@@ -398,11 +460,34 @@ en:
   template3_title: Luxury Focused
   template4_title: Family Friendly
   template5_title: Business Traveler
+  default_city: the city
+  amenity_wifi: high-speed WiFi
+  amenity_kitchen: a fully equipped kitchen
+  amenity_parking: free parking
+  amenity_ac: air conditioning
+  amenity_default: modern amenities
+  bedroom_single: "1 bedroom"
+  bedrooms_many: "{n} bedrooms"
+  bed_single: "1 bed"
+  beds_many: "{n} beds"
+  guest_single: "1 guest"
+  guests_many: "{n} guests"
+  template1_content: "Welcome to our beautiful {type} in {city}! This charming space comfortably accommodates {guests} guests with {bedroomsLabel} and {bedsLabel}. Enjoy {amenities} during your stay. The space is perfect for families, couples, or solo travelers looking for a comfortable and convenient base to explore the area."
+  template2_content: "Cozy {type} in the heart of {city}. Perfect for {guests} guests with all the essentials for a comfortable stay. Features {amenities}. Great location with easy access to local attractions and public transport."
+  template3_content: "Experience comfort and style in this thoughtfully designed {type}. Located in {city}, our space offers {guests} guests a perfect blend of modern amenities and local charm. Featuring {amenities}, every detail has been carefully considered to ensure your stay is exceptional."
+  template4_content: "Looking for a family-friendly {type} in {city}? You've found it! Our spacious accommodation sleeps {guests} guests comfortably, with {bedroomsLabel} providing plenty of space for everyone. We're located in a safe, quiet neighborhood with restaurants, parks, and family attractions nearby."
+  template5_content: "Ideal {type} for business travelers visiting {city}. This professional space accommodates {guestsLabel} and includes {amenities}, perfect for both work and relaxation. Fast check-in and responsive hosting to support your busy schedule."
 sr:
   heading: Napišite opis
   subtitle: Podelite šta vaše mesto čini posebnim.
-  label_description: Opis vašeg
+  label_description: Opis
   placeholder: Opišite vaš prostor, kvart i šta će gosti voleti u boravku kod vas...
+  primary_locale_hint: "vaš glavni opis · {locale}"
+  translation_hint: "prevod · {locale}"
+  auto_translate_info_2: "popunjavaju se samo prazna polja — tekst koji ste već uneli neće biti promenjen."
+  limit_reached: Iskoristili ste sve automatske prevode za danas. Pokušajte ponovo sutra.
+  translate_now: prevedi na sve jezike odmah
+  translating: prevođenje…
   templates_heading: Počnite s predlogom
   show_templates: Prikaži predloge
   hide_templates: Sakrij predloge
@@ -428,11 +513,34 @@ sr:
   template3_title: Luksuzno usmereno
   template4_title: Prilagođeno porodici
   template5_title: Poslovni putnik
+  default_city: grad
+  amenity_wifi: brzi WiFi
+  amenity_kitchen: potpuno opremljena kuhinja
+  amenity_parking: besplatno parkiranje
+  amenity_ac: klima uređaj
+  amenity_default: moderni sadržaji
+  bedroom_single: "1 spavaća soba"
+  bedrooms_many: "{n} spavaće sobe"
+  bed_single: "1 krevet"
+  beds_many: "{n} kreveta"
+  guest_single: "1 gost"
+  guests_many: "{n} gostiju"
+  template1_content: "Dobrodošli u naš lep {type} u {city}! Ovaj šarmantni prostor udobno prima {guests} gostiju sa {bedroomsLabel} i {bedsLabel}. Uživajte u {amenities} tokom boravka. Prostor je savršen za porodice, parove ili solo putnike koji traže udobnu i praktičnu bazu za istraživanje okoline."
+  template2_content: "Udoban {type} u srcu {city}. Savršeno za {guests} gostiju sa svim neophodnim za udoban boravak. Sadrži {amenities}. Odlična lokacija sa lakim pristupom lokalnim atrakcijama i javnom prevozu."
+  template3_content: "Doživite udobnost i stil u ovom pažljivo osmišljenom {type}. Smešten u {city}, naš prostor pruža {guests} gostiju savršen spoj modernih sadržaja i lokalnog šarma. Sa {amenities}, svaki detalj je pažljivo osmišljen kako bi vaš boravak bio izvanredan."
+  template4_content: "Tražite {type} pogodan za porodicu u {city}? Pronašli ste ga! Naš prostrani smeštaj prima {guests} gostiju udobno, sa {bedroomsLabel} koji pružaju dovoljno prostora za sve. Nalazimo se u bezbednom, mirnom kvartu sa restoranima, parkovima i porodičnim atrakcijama u blizini."
+  template5_content: "Idealan {type} za poslovne putnike koji posećuju {city}. Ovaj profesionalni prostor prima {guestsLabel} i uključuje {amenities}, savršeno za rad i opuštanje. Brz čekin i ažuran domaćin za vaš zauzet raspored."
 hr:
   heading: Napišite opis
   subtitle: Podijelite što vaše mjesto čini posebnim.
-  label_description: Opis vašeg
+  label_description: Opis
   placeholder: Opišite vaš prostor, kvart i što će gosti voljeti u boravku kod vas...
+  primary_locale_hint: "vaš glavni opis · {locale}"
+  translation_hint: "prijevod · {locale}"
+  auto_translate_info_2: "popunjavaju se samo prazna polja — tekst koji ste već unijeli neće biti promijenjen."
+  limit_reached: Iskoristili ste sve automatske prijevode za danas. Pokušajte opet sutra.
+  translate_now: prevedi na sve jezike odmah
+  translating: prevođenje…
   templates_heading: Počnite s predloškom
   show_templates: Prikaži predloške
   hide_templates: Sakrij predloške
@@ -458,11 +566,34 @@ hr:
   template3_title: Luksuzno usmjereno
   template4_title: Prilagođeno obitelji
   template5_title: Poslovni putnik
+  default_city: grad
+  amenity_wifi: brzi WiFi
+  amenity_kitchen: potpuno opremljena kuhinja
+  amenity_parking: besplatno parkiranje
+  amenity_ac: klima uređaj
+  amenity_default: moderni sadržaji
+  bedroom_single: "1 spavaća soba"
+  bedrooms_many: "{n} spavaće sobe"
+  bed_single: "1 krevet"
+  beds_many: "{n} kreveta"
+  guest_single: "1 gost"
+  guests_many: "{n} gostiju"
+  template1_content: "Dobrodošli u naš lijepi {type} u {city}! Ovaj šarmantni prostor ugodno prima {guests} gostiju s {bedroomsLabel} i {bedsLabel}. Uživajte u {amenities} tijekom boravka. Prostor je savršen za obitelji, parove ili solo putnike koji traže ugodnu i praktičnu bazu za istraživanje okolice."
+  template2_content: "Ugodan {type} u srcu {city}. Savršeno za {guests} gostiju sa svim potrebnim za ugodan boravak. Uključuje {amenities}. Odlična lokacija s lakim pristupom lokalnim atrakcijama i javnom prijevozu."
+  template3_content: "Doživite ugodu i stil u ovom promišljeno osmišljenom {type}. Smješten u {city}, naš prostor pruža {guests} gostiju savršenu kombinaciju modernih sadržaja i lokalnog šarma. S {amenities}, svaki detalj pažljivo je osmišljen kako bi vaš boravak bio izniman."
+  template4_content: "Tražite {type} pogodan za obitelj u {city}? Pronašli ste ga! Naš prostrani smještaj prima {guests} gostiju ugodno, s {bedroomsLabel} koji pružaju dovoljno prostora za sve. Nalazimo se u sigurnoj, tihoj četvrti s restoranima, parkovima i obiteljskim atrakcijama u blizini."
+  template5_content: "Idealan {type} za poslovne putnike koji posjećuju {city}. Ovaj profesionalni prostor prima {guestsLabel} i uključuje {amenities}, savršeno za rad i opuštanje. Brzi check-in i ažurni domaćin za vaš zauzet raspored."
 mk:
   heading: Напишете опис
   subtitle: Споделете го она што го прави вашето место посебно.
-  label_description: Опис на вашиот
+  label_description: Опис
   placeholder: Опишете го вашиот простор, кварталот и она што гостите ќе го сакаат во престојот кај вас...
+  primary_locale_hint: "вашиот главен опис · {locale}"
+  translation_hint: "превод · {locale}"
+  auto_translate_info_2: "се пополнуваат само празните полиња — текстот што веќе сте го внеле нема да биде сменет."
+  limit_reached: Ги искористивте сите автоматски преводи за денес. Обидете се повторно утре.
+  translate_now: преведи на сите јазици сега
+  translating: превод во тек…
   templates_heading: Почнете со предлошка
   show_templates: Прикажи предлошки
   hide_templates: Сокриј предлошки
@@ -488,11 +619,34 @@ mk:
   template3_title: Луксузно насочено
   template4_title: Прилагодено за семејство
   template5_title: Деловен патник
+  default_city: градот
+  amenity_wifi: брз WiFi
+  amenity_kitchen: целосно опремена кујна
+  amenity_parking: бесплатно паркирање
+  amenity_ac: клима уред
+  amenity_default: модерни содржини
+  bedroom_single: "1 спална соба"
+  bedrooms_many: "{n} спални соби"
+  bed_single: "1 кревет"
+  beds_many: "{n} кревети"
+  guest_single: "1 гостин"
+  guests_many: "{n} гости"
+  template1_content: "Добредојдовте во нашиот убав {type} во {city}! Овој шармантен простор удобно прима {guests} гости со {bedroomsLabel} и {bedsLabel}. Уживајте во {amenities} за време на престојот. Просторот е совршен за семејства, парови или соло патници кои бараат удобна и практична база за истражување на околината."
+  template2_content: "Удобен {type} во срцето на {city}. Совршено за {guests} гости со сè што е потребно за удобен престој. Вклучува {amenities}. Одлична локација со лесен пристап до локалните атракции и јавниот превоз."
+  template3_content: "Доживејте удобност и стил во овој внимателно дизајниран {type}. Сместен во {city}, нашиот простор им нуди на {guests} гости совршена мешавина на модерни содржини и локален шарм. Со {amenities}, секој детал е внимателно осмислен за да биде вашиот престој исклучителен."
+  template4_content: "Барате {type} погоден за семејство во {city}? Го најдовте! Нашиот просторен сместувачки простор прима {guests} гости удобно, со {bedroomsLabel} кои обезбедуваат доволно простор за сите. Се наоѓаме во безбеден, тивок кварт со ресторани, паркови и семејни атракции во близина."
+  template5_content: "Идеален {type} за деловни патници кои ја посетуваат {city}. Овој професионален простор прима {guestsLabel} и вклучува {amenities}, совршено за работа и одмор. Брза пријава и одговорен домаќин за вашиот зафатен распоред."
 sl:
   heading: Napišite opis
   subtitle: Delite, kaj naredi vaše mesto posebno.
-  label_description: Opis vašega
+  label_description: Opis
   placeholder: Opišite vaš prostor, sosesko in kaj bodo gostje imeli radi pri bivanju pri vas...
+  primary_locale_hint: "vaš glavni opis · {locale}"
+  translation_hint: "prevod · {locale}"
+  auto_translate_info_2: "izpolnijo se samo prazna polja — besedilo, ki ste ga že vnesli, ne bo spremenjeno."
+  limit_reached: Porabili ste vse samodejne prevode za danes. Poskusite znova jutri.
+  translate_now: prevedi v vse jezike zdaj
+  translating: prevajanje…
   templates_heading: Začnite s predlogo
   show_templates: Prikaži predloge
   hide_templates: Skrij predloge
@@ -518,4 +672,21 @@ sl:
   template3_title: Luksuzno usmerjeno
   template4_title: Primerno za družine
   template5_title: Poslovni potnik
+  default_city: mesta
+  amenity_wifi: hiter WiFi
+  amenity_kitchen: popolnoma opremljena kuhinja
+  amenity_parking: brezplačno parkiranje
+  amenity_ac: klimatska naprava
+  amenity_default: moderne ugodnosti
+  bedroom_single: "1 spalnica"
+  bedrooms_many: "{n} spalnice"
+  bed_single: "1 postelja"
+  beds_many: "{n} postelje"
+  guest_single: "1 gost"
+  guests_many: "{n} gostov"
+  template1_content: "Dobrodošli v naš lep {type} v {city}! Ta šarmantni prostor udobno sprejme {guests} gostov z {bedroomsLabel} in {bedsLabel}. Uživajte v {amenities} med bivanjem. Prostor je popoln za družine, pare ali posamezne popotnike, ki iščejo udobno in priročno izhodišče za odkrivanje okolice."
+  template2_content: "Udoben {type} v srcu {city}. Popolno za {guests} gostov z vsem potrebnim za udobno bivanje. Vključuje {amenities}. Odlična lokacija z enostavnim dostopom do lokalnih znamenitosti in javnega prevoza."
+  template3_content: "Doživite udobnost in slog v tem premišljeno zasnovanem {type}. Nahaja se v {city}, naš prostor ponuja {guests} gostom popolno kombinacijo modernih ugodnosti in lokalnega šarma. Z {amenities} je bila vsaka podrobnost skrbno premišljena, da bo vaše bivanje izjemno."
+  template4_content: "Iščete {type}, primeren za družine v {city}? Našli ste ga! Naše prostorno nastanitev udobno sprejme {guests} gostov, z {bedroomsLabel}, ki zagotavlja dovolj prostora za vse. Nahajamo se v varni, mirni soseski z restavracijami, parki in družinskimi atrakcijami v bližini."
+  template5_content: "Idealen {type} za poslovne potnike, ki obiskujejo {city}. Ta profesionalni prostor sprejme {guestsLabel} in vključuje {amenities}, popolno za delo in sprostitev. Hiter odhod in odziven gostitelj za vaš zaseden urnik."
 </i18n>

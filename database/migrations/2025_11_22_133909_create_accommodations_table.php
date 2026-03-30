@@ -59,8 +59,8 @@ return new class extends Migration
                 'igloo',
             ]);
             $table->enum('accommodation_occupation', ['entire_place', 'private_room', 'shared_room']);
-            $table->string('title');
-            $table->text('description')->nullable();
+            $table->json('title');
+            $table->json('description')->nullable();
             $table->enum('booking_type', ['instant_booking', 'request_to_book']);
             $table->integer('max_guests')->default(1);
             $table->unsignedBigInteger('views_count')->default(0);
