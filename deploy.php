@@ -42,14 +42,14 @@ host('production')
     ->set('branch', 'main')
     ->set('forward_agent', false);
 
-// Force git to use deployer's key by writing an SSH wrapper on the server
+// ── Tasks ────────────────────────────────────────────
+
+// Force git to use deployer's SSH key on the server
 task('git:configure-ssh', function () {
     run('git config --global core.sshCommand "ssh -i /home/deployer/.ssh/id_ed25519_github -o StrictHostKeyChecking=no"');
 });
 
 before('deploy:update_code', 'git:configure-ssh');
-
-// ── Tasks ────────────────────────────────────────────
 
 desc('Upload built assets');
 task('deploy:upload_assets', function () {
@@ -61,7 +61,7 @@ task('php-fpm:reload', function () {
     run('sudo systemctl reload php8.4-fpm');
 });
 
-desc('Restart Horizon');
+desc('Terminate Horizon (Supervisor će ga restartovati)');
 task('horizon:restart', function () {
     run('php {{release_path}}/artisan horizon:terminate || true');
 });
@@ -71,7 +71,28 @@ task('supervisor:restart', function () {
     run('sudo supervisorctl restart acomody-worker:*');
 });
 
-// ── Shared deploy steps ───────────────────────────────
+// ── Deploy flows ──────────────────────────────────────
+
+// desc('Deploy to staging');
+// task('deploy:staging', [
+//     'deploy:info',
+//     'deploy:setup',
+//     'deploy:lock',
+//     'deploy:release',
+//     'deploy:update_code',
+//     'deploy:shared',
+//     'deploy:vendors',
+//     'deploy:upload_assets',
+//     'artisan:storage:link',
+//     'artisan:config:cache',
+//     'artisan:route:cache',
+//     'artisan:view:cache',
+//     'artisan:event:cache',
+//     'artisan:migrate',
+//     'deploy:publish',
+//     'php-fpm:reload',
+//     'horizon:restart',
+// ]);
 
 desc('Deploy to production');
 task('deploy', [
@@ -90,20 +111,6 @@ task('deploy', [
     'artisan:event:cache',
     'artisan:migrate',
     'deploy:publish',
-]);
-
-// ── Deploy flows ──────────────────────────────────────
-
-// desc('Deploy to staging');
-// task('deploy', [
-//     'deploy:steps',
-//     'php-fpm:reload',
-//     'horizon:restart',
-// ]);
-
-desc('Deploy to production');
-task('deploy:production', [
-    'deploy:steps',
     'php-fpm:reload',
     'supervisor:restart',
     'horizon:restart',
