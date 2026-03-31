@@ -60,8 +60,10 @@ class AccommodationDraftController
         $draftData = [];
         $draftData['accommodation_type'] = AccommodationType::from($accommodationDraft->data['accommodation_type'] ?? null)->label() ?? null;
         $draftData['accommodation_occupation'] = AccommodationOccupation::from($accommodationDraft->data['accommodation_occupation'] ?? null)->label() ?? null;
-        $draftData['title'] = $accommodationDraft->data['title'] ?? null;
-        $draftData['description'] = $accommodationDraft->data['description'] ?? null;
+        $rawTitle = $accommodationDraft->data['title'] ?? null;
+        $draftData['title'] = is_array($rawTitle) ? ($rawTitle['en'] ?? reset($rawTitle) ?: null) : $rawTitle;
+        $rawDescription = $accommodationDraft->data['description'] ?? null;
+        $draftData['description'] = is_array($rawDescription) ? ($rawDescription['en'] ?? reset($rawDescription) ?: null) : $rawDescription;
         $draftData['website'] = $accommodationDraft->data['website'] ?? null;
         $draftData['email'] = $accommodationDraft->data['email'] ?? null;
         $draftData['street'] = $accommodationDraft->data['address']['street'] ?? null;
@@ -122,7 +124,8 @@ class AccommodationDraftController
 
         CreateAccommodation::dispatch($accommodationDraft->id, $locationId, userOrFail()->id)->onQueue('accommodation-queue');
 
-        $draftTitle = json_decode($accommodationDraft->data, true)['title'] ?? 'Untitled';
+        $titleData = json_decode($accommodationDraft->data, true)['title'] ?? 'Untitled';
+        $draftTitle = is_array($titleData) ? ($titleData['en'] ?? reset($titleData) ?: 'Untitled') : ($titleData ?: 'Untitled');
 
         ActivityLogService::log(
             event: ActivityEvent::AccommodationApproved,
@@ -164,7 +167,8 @@ class AccommodationDraftController
         Mail::to($accommodationDraft->user->email)
             ->queue(new AccommodationRejectedMail($accommodationDraft, $reason));
 
-        $draftTitle = json_decode($accommodationDraft->data, true)['title'] ?? 'Untitled';
+        $titleData = json_decode($accommodationDraft->data, true)['title'] ?? 'Untitled';
+        $draftTitle = is_array($titleData) ? ($titleData['en'] ?? reset($titleData) ?: 'Untitled') : ($titleData ?: 'Untitled');
 
         ActivityLogService::log(
             event: ActivityEvent::AccommodationRejected,

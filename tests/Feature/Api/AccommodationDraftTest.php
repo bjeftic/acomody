@@ -174,7 +174,7 @@ describe('PUT /api/accommodation-drafts/{id} (updateDraft)', function () {
             ->putJson(route('api.accommodation.drafts.accommodation-draft.update', $this->draft), [
                 'status' => 'draft',
                 'current_step' => 3,
-                'data' => ['title' => 'Updated Title'],
+                'data' => ['title' => ['en' => 'Updated Title', 'sr' => 'Ažuriran naslov', 'hr' => 'Ažuriran naslov', 'mk' => 'Ажуриран наслов', 'sl' => 'Posodobljen naslov']],
             ])
             ->assertSuccessful()
             ->assertJson(['success' => true, 'message' => 'Accommodation draft saved successfully']);
@@ -400,8 +400,8 @@ describe('PUT /api/accommodation-drafts/{id} (updateDraft)', function () {
                         ],
                     ],
                     'amenities' => [],
-                    'title' => 'Cozy Apartment in Belgrade',
-                    'description' => 'A beautiful and cozy apartment located in the heart of Belgrade, perfect for any traveler.',
+                    'title' => ['en' => 'Cozy Apartment in Belgrade', 'sr' => 'Udoban stan u Beogradu', 'hr' => 'Ugodan stan u Beogradu', 'mk' => 'Удобен стан во Белград', 'sl' => 'Udobno stanovanje v Beogradu'],
+                    'description' => ['en' => 'A beautiful and cozy apartment in Belgrade.', 'sr' => 'Lep i udoban stan u Beogradu.', 'hr' => 'Lijep i ugodan stan u Beogradu.', 'mk' => 'Убав и удобен стан во Белград.', 'sl' => 'Lepo in udobno stanovanje v Beogradu.'],
                     'pricing' => [
                         'basePrice' => 75,
                         'bookingType' => 'instant_booking',

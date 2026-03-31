@@ -45,7 +45,8 @@
                             $type = $data['accommodation_type'] ?? null;
                         @endphp
                         <tr>
-                            <td>{{ $data['title'] ?? '—' }}</td>
+                            @php $title = $data['title'] ?? '—'; $title = is_array($title) ? ($title['en'] ?? reset($title) ?? '—') : $title; @endphp
+                            <td>{{ $title }}</td>
                             <td>{{ $draft->user?->userProfile?->first_name }} {{ $draft->user?->userProfile?->last_name }}</td>
                             <td>{{ $location ?: '—' }}</td>
                             <td>{{ $type ? \App\Enums\Accommodation\AccommodationType::from($type)->label() : '—' }}</td>
