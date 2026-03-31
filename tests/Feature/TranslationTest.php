@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 
 describe('TranslationService', function () {
     beforeEach(function () {
+        config(['services.langbly.api_key' => 'test-api-key']);
         Http::preventStrayRequests();
         Cache::flush();
     });
@@ -86,6 +87,7 @@ describe('TranslationService', function () {
 
 describe('POST /api/host/translations/translate', function () {
     beforeEach(function () {
+        config(['services.langbly.api_key' => 'test-api-key']);
         Http::preventStrayRequests();
         Cache::flush();
     });

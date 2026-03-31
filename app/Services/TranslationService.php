@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 class TranslationService
 {
-    private string $apiKey;
+    private ?string $apiKey;
 
     private string $baseUrl;
 
@@ -29,6 +29,10 @@ class TranslationService
 
         if ($sourceLocale !== null) {
             $payload['source'] = $sourceLocale;
+        }
+
+        if ($this->apiKey === null) {
+            throw new \RuntimeException('Langbly API key is not configured.');
         }
 
         $response = Http::withHeader('X-API-Key', $this->apiKey)
