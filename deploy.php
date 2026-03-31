@@ -16,7 +16,11 @@ set('writable_dirs', [
     'bootstrap/cache',
     'storage',
     'storage/app',
+    'storage/app/public',
     'storage/framework',
+    'storage/framework/cache',
+    'storage/framework/sessions',
+    'storage/framework/views',
     'storage/logs',
 ]);
 
@@ -36,8 +40,14 @@ host('production')
     ->setRemoteUser(getenv('PROD_SSH_USER') ?: 'deployer')
     ->setDeployPath(getenv('PROD_DEPLOY_PATH') ?: '/var/www/acomody.com')
     ->set('branch', 'main')
-    ->set('git_ssh_command', 'ssh -o StrictHostKeyChecking=no')
-    ->set('forward_agent', true);
+    ->set('forward_agent', false);
+
+// Force git to use deployer's key by writing an SSH wrapper on the server
+task('git:configure-ssh', function () {
+    run('git config --global core.sshCommand "ssh -i /home/deployer/.ssh/id_ed25519_github -o StrictHostKeyChecking=no"');
+});
+
+before('deploy:update_code', 'git:configure-ssh');
 
 // ── Tasks ────────────────────────────────────────────
 
@@ -63,8 +73,8 @@ task('supervisor:restart', function () {
 
 // ── Shared deploy steps ───────────────────────────────
 
-desc('Common deploy steps');
-task('deploy:steps', [
+desc('Deploy to production');
+task('deploy', [
     'deploy:info',
     'deploy:setup',
     'deploy:lock',
