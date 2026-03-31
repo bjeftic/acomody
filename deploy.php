@@ -34,7 +34,6 @@ set('writable_dirs', [
 host('production')
     ->setHostname(getenv('PROD_SSH_HOST'))
     ->setRemoteUser(getenv('PROD_SSH_USER') ?: 'deployer')
-    ->setIdentityFile('~/.ssh/id_ed25519_acomody_prod')
     ->setDeployPath(getenv('PROD_DEPLOY_PATH') ?: '/var/www/acomody.com')
     ->set('branch', 'main')
     ->set('git_ssh_command', 'ssh -o StrictHostKeyChecking=no')
