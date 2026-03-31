@@ -3,46 +3,58 @@
         <!-- HERO SECTION -->
         <section class="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-primary-900 text-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 py-24 md:py-36">
-                <div class="max-w-3xl">
-                    <!-- Badge -->
-                    <div class="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 rounded-full px-4 py-1.5 mb-8">
-                        <span class="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></span>
-                        <span class="text-sm font-medium text-primary-300">{{ $t('badge') }}</span>
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <!-- Left: text content -->
+                    <div class="flex-1 min-w-0">
+                        <!-- Badge -->
+                        <div class="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 rounded-full px-4 py-1.5 mb-8">
+                            <span class="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></span>
+                            <span class="text-sm font-medium text-primary-300">{{ $t('badge') }}</span>
+                        </div>
+
+                        <h1 class="text-5xl md:text-6xl font-bold leading-tight mb-6">
+                            {{ $t('hero_line1') }}<br />
+                            <span class="text-primary-400">{{ $t('hero_line2') }}</span>
+                        </h1>
+
+                        <i18n-t keypath="hero_subtitle" tag="p" class="text-xl text-gray-300 mb-4 max-w-2xl leading-relaxed">
+                            <template #highlight>
+                                <strong class="text-white">{{ $t('hero_highlight') }}</strong>
+                            </template>
+                        </i18n-t>
+
+                        <p class="text-sm font-medium text-primary-300 mb-10">
+                            {{ $t('hero_founding') }}
+                        </p>
+
+                        <div class="flex flex-wrap gap-4">
+                            <button
+                                class="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold bg-primary-500 hover:bg-primary-400 text-white rounded-xl transition-all shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40"
+                                @click="handleCta"
+                            >
+                                {{ $t('hero_cta') }}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <p class="mt-4 text-sm text-gray-500">{{ $t('hero_no_cc') }}</p>
                     </div>
 
-                    <h1 class="text-5xl md:text-6xl font-bold leading-tight mb-6">
-                        {{ $t('hero_line1') }}<br />
-                        <span class="text-primary-400">{{ $t('hero_line2') }}</span>
-                    </h1>
-
-                    <i18n-t keypath="hero_subtitle" tag="p" class="text-xl text-gray-300 mb-4 max-w-2xl leading-relaxed">
-                        <template #highlight>
-                            <strong class="text-white">{{ $t('hero_highlight') }}</strong>
-                        </template>
-                    </i18n-t>
-
-                    <p class="text-sm font-medium text-primary-300 mb-10">
-                        {{ $t('hero_founding') }}
-                    </p>
-
-                    <div class="flex flex-wrap gap-4">
-                        <button
-                            class="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold bg-primary-500 hover:bg-primary-400 text-white rounded-xl transition-all shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40"
-                            @click="handleCta"
-                        >
-                            {{ $t('hero_cta') }}
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </button>
+                    <!-- Right: app screenshot -->
+                    <div class="flex-shrink-0 w-full md:w-auto hidden md:flex items-center justify-center">
+                        <img
+                            src="/images/screens.png"
+                            alt="Acomody app"
+                            class="w-full max-w-lg"
+                        />
                     </div>
-
-                    <p class="mt-4 text-sm text-gray-500">{{ $t('hero_no_cc') }}</p>
                 </div>
             </div>
 
             <!-- Background decoration -->
-            <div class="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none select-none" aria-hidden="true">
+            <div class="absolute top-0 right-0 w-1/3 h-full opacity-10 pointer-events-none select-none" aria-hidden="true">
                 <div class="absolute top-16 right-16 w-96 h-96 bg-primary-500 rounded-full blur-3xl"></div>
                 <div class="absolute bottom-8 right-48 w-64 h-64 bg-primary-400 rounded-full blur-2xl"></div>
             </div>
