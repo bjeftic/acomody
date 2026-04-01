@@ -121,9 +121,9 @@
             </div>
 
             <div class="space-y-4">
-                <BaseInput v-model="passwordForm.current_password" type="password" label="Current password" placeholder="Current password" />
-                <BaseInput v-model="passwordForm.password" type="password" label="New password" placeholder="New password" />
-                <BaseInput v-model="passwordForm.confirm_password" type="password" label="Confirm new password" placeholder="Confirm new password" />
+                <BaseInput v-model="passwordForm.current_password" type="password" label="Current password" placeholder="Current password" :show-password-toggle="true" />
+                <BaseInput v-model="passwordForm.password" type="password" label="New password" placeholder="New password" :show-password-toggle="true" />
+                <BaseInput v-model="passwordForm.confirm_password" type="password" label="Confirm new password" placeholder="Confirm new password" :show-password-toggle="true" />
 
                 <BaseButton :loading="passwordSaving" :disabled="passwordSaving" @click="savePassword">
                     Change password

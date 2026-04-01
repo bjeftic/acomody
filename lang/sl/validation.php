@@ -34,6 +34,7 @@ return [
         'mixed' => 'Polje :attribute mora vsebovati vsaj eno veliko in eno malo črko.',
         'numbers' => 'Polje :attribute mora vsebovati vsaj eno številko.',
         'symbols' => 'Polje :attribute mora vsebovati vsaj en simbol.',
+        'uncompromised' => 'To :attribute ni dovolj varno — najdeno je v znanih kršitvah podatkov. Prosimo izberite drugo :attribute.',
     ],
     'regex' => 'Format polja :attribute je neveljaven.',
     'required' => 'Polje :attribute je obvezno.',
