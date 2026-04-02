@@ -213,10 +213,12 @@ export default {
             this.logInErrors = {};
         },
         openForgotPasswordModal() {
+            this.reject = null;
             this.close();
             this.openModal({ modalName: "forgotPasswordModal" });
         },
         openSignUpModal() {
+            this.reject = null;
             this.close();
             this.openModal({ modalName: "signUpModal" });
         },

@@ -180,6 +180,8 @@ export default {
                     const redirectTo = this.options?.redirectTo;
                     if (redirectTo) {
                         this.$router.push(redirectTo);
+                    } else if (config.features.cold_start === true) {
+                        this.$router.push({ name: "page-host-profile" });
                     } else {
                         this.$router.push({ name: "page-welcome" });
                     }
