@@ -29,11 +29,22 @@
     {{-- Header --}}
     <div class="panel panel-default">
         <div class="panel-body">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                 <h2 style="margin:0;">Accommodation Draft Review</h2>
-                <span class="status-badge status-{{ $accommodationDraft->status }}">
-                    {{ ucwords(str_replace('_', ' ', $accommodationDraft->status)) }}
-                </span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    @if ($accommodationDraft->locked_by_id && $accommodationDraft->locked_by_id === Auth::id())
+                        <span style="font-size:12px; color:#555;">
+                            🔒 Locked by you &mdash; expires at {{ $accommodationDraft->lockExpiresAt()?->format('H:i') }}
+                        </span>
+                        <form method="POST" action="{{ route('admin.accommodation-drafts.release-lock', $accommodationDraft->id) }}" style="margin:0;">
+                            @csrf
+                            <button type="submit" class="btn btn-default btn-xs">Release lock</button>
+                        </form>
+                    @endif
+                    <span class="status-badge status-{{ $accommodationDraft->status }}">
+                        {{ ucwords(str_replace('_', ' ', $accommodationDraft->status)) }}
+                    </span>
+                </div>
             </div>
         </div>
     </div>
