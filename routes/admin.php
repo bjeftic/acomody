@@ -11,6 +11,8 @@ use App\Http\Controllers\SuperAdmin\FeatureFlagController;
 use App\Http\Controllers\SuperAdmin\HomeSectionController;
 use App\Http\Controllers\SuperAdmin\LegalDocumentController;
 use App\Http\Controllers\SuperAdmin\LocationController;
+use App\Http\Controllers\SuperAdmin\SetPasswordController;
+use App\Http\Controllers\SuperAdmin\SuperAdminUserController;
 use App\Http\Controllers\SuperAdmin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +22,12 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+// Set-password page — accessible without authentication (invitation & reset flows)
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('set-password', [SetPasswordController::class, 'show'])->name('set-password');
+    Route::post('set-password', [SetPasswordController::class, 'store'])->middleware('throttle:5,1')->name('set-password.store');
+});
+
 Route::middleware(['auth', 'super.admin'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
@@ -28,10 +36,14 @@ Route::middleware(['auth', 'super.admin'])->group(function () {
 
         Route::resource('users', UserController::class)->names('users');
 
+        Route::post('superadmin-users/{id}/reset-password', [SuperAdminUserController::class, 'resetPassword'])->name('superadmin-users.reset-password');
+        Route::resource('superadmin-users', SuperAdminUserController::class)->except(['show'])->names('superadmin-users');
+
         Route::resource('accommodations', AccommodationController::class)->only(['index', 'show'])->names('accommodations');
 
         Route::post('accommodation-drafts/{id}/approve', [AccommodationDraftController::class, 'approve'])->name('accommodation-drafts.approve');
         Route::post('accommodation-drafts/{id}/reject', [AccommodationDraftController::class, 'reject'])->name('accommodation-drafts.reject');
+        Route::post('accommodation-drafts/{id}/release-lock', [AccommodationDraftController::class, 'releaseLock'])->name('accommodation-drafts.release-lock');
         Route::post('accommodation-drafts/{id}/comments', [AccommodationDraftController::class, 'addComment'])->name('accommodation-drafts.comments.store');
         Route::resource('accommodation-drafts', AccommodationDraftController::class)->only(['index', 'show'])->names('accommodation-drafts');
 

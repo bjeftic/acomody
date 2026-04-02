@@ -47,13 +47,26 @@ class AccommodationDraftController
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified resource, acquiring a review lock.
      */
-    public function show($id): View
+    public function show($id): View|RedirectResponse
     {
-        $accommodationDraft = AccommodationDraft::with(['photos', 'reviewComments.user', 'user'])
+        $accommodationDraft = AccommodationDraft::with(['photos', 'reviewComments.user', 'user', 'lockedBy'])
             ->whereId($id)
             ->firstOrFail();
+
+        $currentAdmin = userOrFail();
+
+        if ($accommodationDraft->isLockedByAnother($currentAdmin)) {
+            $lockerEmail = $accommodationDraft->lockedBy?->email ?? 'another administrator';
+            $expiresAt = $accommodationDraft->lockExpiresAt()?->format('H:i') ?? '';
+
+            return redirect()
+                ->route('admin.accommodation-drafts.index')
+                ->with('alert-warning', "This draft is currently being reviewed by {$lockerEmail} (lock expires at {$expiresAt}).");
+        }
+
+        $accommodationDraft->acquireLock($currentAdmin);
 
         $accommodationDraft->data = json_decode($accommodationDraft->data, true);
 
@@ -116,7 +129,11 @@ class AccommodationDraftController
         $locationId = $validated['location_id'];
         $accommodationDraft = AccommodationDraft::with('user')->whereId($id)->firstOrFail();
 
-        $accommodationDraft->update(['status' => 'processing']);
+        $accommodationDraft->update([
+            'status' => 'processing',
+            'locked_by_id' => null,
+            'locked_at' => null,
+        ]);
 
         \Log::channel('queue')->info('Approving accommodation draft', [
             'draft_id' => $accommodationDraft->id,
@@ -151,7 +168,11 @@ class AccommodationDraftController
 
         $accommodationDraft = AccommodationDraft::with('user')->whereId($id)->firstOrFail();
 
-        $accommodationDraft->update(['status' => 'rejected']);
+        $accommodationDraft->update([
+            'status' => 'rejected',
+            'locked_by_id' => null,
+            'locked_at' => null,
+        ]);
 
         $reason = $validated['reason'] ?? null;
 
@@ -181,6 +202,23 @@ class AccommodationDraftController
         return redirect()
             ->route('admin.accommodation-drafts.index')
             ->with('success', 'Accommodation draft has been rejected and the host has been notified.');
+    }
+
+    /**
+     * Release the review lock so another admin can open the draft.
+     */
+    public function releaseLock($id): RedirectResponse
+    {
+        $accommodationDraft = AccommodationDraft::whereId($id)->firstOrFail();
+        $currentAdmin = userOrFail();
+
+        if ((int) $accommodationDraft->locked_by_id === $currentAdmin->id) {
+            $accommodationDraft->releaseLock();
+        }
+
+        return redirect()
+            ->route('admin.accommodation-drafts.index')
+            ->with('success', 'Lock released.');
     }
 
     /**

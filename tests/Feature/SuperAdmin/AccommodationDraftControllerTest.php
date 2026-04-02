@@ -59,13 +59,68 @@ describe('GET /admin/accommodation-drafts', function () {
 });
 
 // ============================================================
-// GET /admin/accommodation-drafts/{id} (show)
+// GET /admin/accommodation-drafts/{id} (show) — including locking
 // ============================================================
 
 describe('GET /admin/accommodation-drafts/{id}', function () {
     it('shows draft details to a superadmin', function () {
         $draft = makeDraft();
         superadmin();
+
+        $this->get("/admin/accommodation-drafts/{$draft->id}")->assertSuccessful();
+    });
+
+    it('acquires a lock when a superadmin opens the draft', function () {
+        $draft = makeDraft();
+        $admin = superadmin();
+
+        $this->get("/admin/accommodation-drafts/{$draft->id}")->assertSuccessful();
+
+        $this->assertDatabaseHas('accommodation_drafts', [
+            'id' => $draft->id,
+            'locked_by_id' => $admin->id,
+        ]);
+    });
+
+    it('blocks a second superadmin if the draft is already locked', function () {
+        $draft = makeDraft();
+        $firstAdmin = superadmin();
+
+        // First admin acquires the lock
+        $draft->acquireLock($firstAdmin);
+
+        // Second admin tries to open
+        superadmin();
+
+        $this->get("/admin/accommodation-drafts/{$draft->id}")
+            ->assertRedirect('/admin/accommodation-drafts');
+    });
+
+    it('allows reopening an expired lock', function () {
+        $draft = makeDraft();
+        $firstAdmin = superadmin();
+
+        // Simulate an expired lock by a different admin
+        $draft->update([
+            'locked_by_id' => $firstAdmin->id,
+            'locked_at' => now()->subMinutes(31),
+        ]);
+
+        $secondAdmin = superadmin();
+
+        $this->get("/admin/accommodation-drafts/{$draft->id}")->assertSuccessful();
+
+        $this->assertDatabaseHas('accommodation_drafts', [
+            'id' => $draft->id,
+            'locked_by_id' => $secondAdmin->id,
+        ]);
+    });
+
+    it('allows the same admin to re-open a draft they already locked', function () {
+        $draft = makeDraft();
+        $admin = superadmin();
+
+        $draft->acquireLock($admin);
 
         $this->get("/admin/accommodation-drafts/{$draft->id}")->assertSuccessful();
     });
@@ -371,5 +426,89 @@ describe('POST /admin/accommodation-drafts/{id}/comments', function () {
         $this->post("/admin/accommodation-drafts/{$draft->id}/comments", [
             'body' => 'Comment.',
         ])->assertRedirect();
+    });
+});
+
+// ============================================================
+// POST /admin/accommodation-drafts/{id}/release-lock
+// ============================================================
+
+describe('POST /admin/accommodation-drafts/{id}/release-lock', function () {
+    it('releases the lock when called by the lock holder', function () {
+        $draft = makeDraft();
+        $admin = superadmin();
+
+        $draft->acquireLock($admin);
+
+        $this->post("/admin/accommodation-drafts/{$draft->id}/release-lock")
+            ->assertRedirect('/admin/accommodation-drafts');
+
+        $this->assertDatabaseHas('accommodation_drafts', [
+            'id' => $draft->id,
+            'locked_by_id' => null,
+        ]);
+    });
+
+    it('does not release the lock if called by a different admin', function () {
+        $draft = makeDraft();
+        $firstAdmin = superadmin();
+        $draft->acquireLock($firstAdmin);
+
+        // Second admin tries to release
+        superadmin();
+
+        $this->post("/admin/accommodation-drafts/{$draft->id}/release-lock")
+            ->assertRedirect('/admin/accommodation-drafts');
+
+        // Lock still held by first admin
+        $this->assertDatabaseHas('accommodation_drafts', [
+            'id' => $draft->id,
+            'locked_by_id' => $firstAdmin->id,
+        ]);
+    });
+
+    it('redirects regular users away', function () {
+        $draft = makeDraft();
+
+        $this->post("/admin/accommodation-drafts/{$draft->id}/release-lock")->assertRedirect();
+    });
+});
+
+// ============================================================
+// Lock released on approve / reject
+// ============================================================
+
+describe('Lock is cleared after approve or reject', function () {
+    it('clears the lock when a draft is approved', function () {
+        Bus::fake();
+        $draft = makeDraft();
+        $admin = superadmin();
+        $location = makeLocation();
+
+        $draft->acquireLock($admin);
+
+        $this->post("/admin/accommodation-drafts/{$draft->id}/approve", [
+            'location_id' => $location->id,
+        ]);
+
+        $this->assertDatabaseHas('accommodation_drafts', [
+            'id' => $draft->id,
+            'locked_by_id' => null,
+        ]);
+    });
+
+    it('clears the lock when a draft is rejected', function () {
+        Mail::fake();
+        $draft = makeDraft();
+        $admin = superadmin();
+
+        $draft->acquireLock($admin);
+
+        $this->post("/admin/accommodation-drafts/{$draft->id}/reject");
+
+        $this->assertDatabaseHas('accommodation_drafts', [
+            'id' => $draft->id,
+            'locked_by_id' => null,
+        ]);
     });
 });
