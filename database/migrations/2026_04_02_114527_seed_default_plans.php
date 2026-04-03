@@ -25,7 +25,7 @@ return new class extends Migration
             [
                 'name' => 'Club',
                 'code' => 'club',
-                'price_eur' => 2900,
+                'price_eur' => 3900,
                 'commission_rate' => 6,
                 'billing_period' => 'monthly',
                 'is_active' => true,
