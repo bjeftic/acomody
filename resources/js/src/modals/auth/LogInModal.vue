@@ -26,6 +26,7 @@
                     :label="$t('auth.password')"
                     :placeholder="$t('password_placeholder')"
                     :error="logInErrors.password ? logInErrors.password[0] : null"
+                    :show-password-toggle="true"
                 />
 
                 <div class="flex items-center justify-between">
@@ -186,10 +187,6 @@ export default {
 
             if (!this.formData.password) {
                 errors.password = [this.$t('validation.password_required')];
-            } else if (this.formData.password.length < 6) {
-                errors.password = [this.$t('validation.password_min')];
-            } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.formData.password)) {
-                errors.password = [this.$t('validation.password_strength')];
             }
 
             return errors;
@@ -202,10 +199,12 @@ export default {
             this.logInErrors = {};
         },
         openForgotPasswordModal() {
+            this.reject = null;
             this.close();
             this.openModal({ modalName: "forgotPasswordModal" });
         },
         openSignUpModal() {
+            this.reject = null;
             this.close();
             this.openModal({ modalName: "signUpModal" });
         },
@@ -244,8 +243,6 @@ en:
     email_required: Email address is required
     email_invalid: Please enter a valid email address
     password_required: Password is required
-    password_min: Password must be at least 6 characters
-    password_strength: Password must contain at least one uppercase letter, one lowercase letter, and one number
 sr:
   title: Prijavite se
   subtitle: Prijavite se na vaš nalog
@@ -256,8 +253,6 @@ sr:
     email_required: Email adresa je obavezna
     email_invalid: Unesite ispravnu email adresu
     password_required: Lozinka je obavezna
-    password_min: Lozinka mora imati najmanje 6 karaktera
-    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo i broj
 hr:
   title: Prijavite se
   subtitle: Prijavite se na vaš račun
@@ -268,8 +263,6 @@ hr:
     email_required: Email adresa je obavezna
     email_invalid: Unesite ispravnu email adresu
     password_required: Lozinka je obavezna
-    password_min: Lozinka mora imati najmanje 6 znakova
-    password_strength: Lozinka mora sadržavati bar jedno veliko slovo, malo slovo i broj
 mk:
   title: Најавете се
   subtitle: Најавете се на вашата сметка
@@ -280,8 +273,6 @@ mk:
     email_required: Е-поштата е задолжителна
     email_invalid: Внесете важечка е-пошта
     password_required: Лозинката е задолжителна
-    password_min: Лозинката мора да има најмалку 6 знаци
-    password_strength: Лозинката мора да содржи барем едно големо, мало слово и број
 sl:
   title: Prijavite se
   subtitle: Prijavite se v vaš račun
@@ -292,6 +283,4 @@ sl:
     email_required: E-poštni naslov je obvezen
     email_invalid: Vnesite veljavni e-poštni naslov
     password_required: Geslo je obvezno
-    password_min: Geslo mora imeti vsaj 6 znakov
-    password_strength: Geslo mora vsebovati vsaj eno veliko, malo črko in številko
 </i18n>

@@ -7,6 +7,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Sentry\Laravel\Integration;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -42,6 +44,18 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        // Single Sentry reporting point — covers web, API, and queue jobs with no duplicates.
+        // Skips trivial client errors (validation, auth) as they are expected and noisy.
+        $exceptions->report(function (Throwable $e) {
+            $isTrivialClientError = $e instanceof ValidationException
+                || $e instanceof AuthenticationException
+                || $e instanceof AuthorizationException;
+
+            if (! $isTrivialClientError) {
+                Integration::captureUnhandledException($e);
+            }
+        });
+
         $exceptions->renderable(function (Throwable $e, Request $request) {
             // Only for API requests
             if (! $request->is('api/*') && ! $request->expectsJson()) {

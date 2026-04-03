@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class RegisteredUserController extends Controller
 {
@@ -182,7 +181,7 @@ class RegisteredUserController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            throw new HttpException(500, 'Registration failed. Please try again later.');
+            throw $e;
         }
     }
 }

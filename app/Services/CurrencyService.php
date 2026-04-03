@@ -54,7 +54,7 @@ class CurrencyService
     {
         $position = Location::get();
 
-        $countryCode = $position?->countryCode;
+        $countryCode = $position ? $position->countryCode : null;
 
         if (
             $countryCode &&

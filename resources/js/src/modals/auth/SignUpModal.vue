@@ -27,6 +27,7 @@
                     :label="$t('auth.password')"
                     :placeholder="$t('password_placeholder')"
                     :error="signUpErrors.password ? signUpErrors.password[0] : null"
+                    :show-password-toggle="true"
                 />
 
                 <BaseInput
@@ -35,6 +36,7 @@
                     :label="$t('auth.confirm_password')"
                     :placeholder="$t('confirm_placeholder')"
                     :error="signUpErrors.confirmPassword ? signUpErrors.confirmPassword[0] : null"
+                    :show-password-toggle="true"
                 />
 
                 <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -164,6 +166,8 @@ export default {
                     const redirectTo = this.options?.redirectTo;
                     if (redirectTo) {
                         this.$router.push(redirectTo);
+                    } else if (config.features.cold_start === true) {
+                        this.$router.push({ name: "page-host-profile" });
                     } else {
                         this.$router.push({ name: "page-welcome" });
                     }

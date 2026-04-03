@@ -5,7 +5,7 @@
 
 @section('content')
 <p>{{ __('mail.hi', ['name' => $draft->user->first_name ?? $draft->user->name]) }}</p>
-<p>{{ __('mail.draft_submitted.body', ['property' => json_decode($draft->data, true)['title'] ?? 'your property']) }}</p>
+<p>{{ __('mail.draft_submitted.body', ['property' => (function() use ($draft) { $t = json_decode($draft->data, true)['title'] ?? null; return is_array($t) ? ($t['en'] ?? 'your property') : ($t ?: 'your property'); })()]) }}</p>
 
 <p>{{ __('mail.draft_submitted.next') }}</p>
 <ul class="steps">

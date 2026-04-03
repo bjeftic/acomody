@@ -31,6 +31,7 @@
                         <th>Location</th>
                         <th>Type</th>
                         <th>Status</th>
+                        <th>In review</th>
                         <th>Created at</th>
                         <th></th>
                     </tr>
@@ -43,16 +44,29 @@
                             $country = $data['address']['country'] ?? null;
                             $location = implode(', ', array_filter([$city, $country]));
                             $type = $data['accommodation_type'] ?? null;
+                            $isLockedByOther = $draft->locked_by_id && $draft->locked_by_id !== Auth::id()
+                                && $draft->locked_at
+                                && \Illuminate\Support\Carbon::parse($draft->locked_at)->addMinutes(\App\Models\AccommodationDraft::LOCK_DURATION_MINUTES)->isFuture();
                         @endphp
                         <tr>
-                            <td>{{ $data['title'] ?? '—' }}</td>
+                            @php $title = $data['title'] ?? '—'; $title = is_array($title) ? ($title['en'] ?? reset($title) ?? '—') : $title; @endphp
+                            <td>{{ $title }}</td>
                             <td>{{ $draft->user?->userProfile?->first_name }} {{ $draft->user?->userProfile?->last_name }}</td>
                             <td>{{ $location ?: '—' }}</td>
                             <td>{{ $type ? \App\Enums\Accommodation\AccommodationType::from($type)->label() : '—' }}</td>
                             <td>{{ $draft->status }}</td>
+                            <td>
+                                @if ($isLockedByOther)
+                                    <span style="color:#856404;" title="Locked until {{ \Illuminate\Support\Carbon::parse($draft->locked_at)->addMinutes(\App\Models\AccommodationDraft::LOCK_DURATION_MINUTES)->format('H:i') }}">🔒 In review</span>
+                                @elseif ($draft->locked_by_id === Auth::id() && $draft->locked_at && \Illuminate\Support\Carbon::parse($draft->locked_at)->addMinutes(\App\Models\AccommodationDraft::LOCK_DURATION_MINUTES)->isFuture())
+                                    <span style="color:#155724;">🔒 You</span>
+                                @else
+                                    —
+                                @endif
+                            </td>
                             <td>{{ $draft->created_at->format('Y-m-d H:i') }}</td>
                             <td align="right">
-                                <a href='/admin/accommodation-drafts/{{ $draft->id }}' class="btn btn-default btn-xs">View</a>
+                                <a href='/admin/accommodation-drafts/{{ $draft->id }}' class="btn btn-default btn-xs {{ $isLockedByOther ? 'disabled' : '' }}">View</a>
                             </td>
                         </tr>
                     @endforeach

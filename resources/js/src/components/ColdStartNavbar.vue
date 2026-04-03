@@ -4,7 +4,7 @@
             <div class="flex justify-between items-center h-14">
                 <!-- Logo -->
                 <router-link :to="{ name: 'page-welcome' }" class="flex items-center gap-2">
-                    <img src="/images/acomody.png" alt="Acomody" class="h-12" />
+                    <img src="/images/acomody.png" alt="Acomody" class="h-10" />
                     <span class="hidden sm:inline-flex text-xs font-medium text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700 rounded-full px-2 py-0.5">
                         {{ $t('early_access') }}
                     </span>

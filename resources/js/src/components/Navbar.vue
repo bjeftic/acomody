@@ -4,7 +4,7 @@
             <div class="flex justify-between items-center h-14">
                 <!-- Logo -->
                 <router-link :to="{ name: 'page-welcome' }" class="flex items-center">
-                    <img src="/images/acomody.png" alt="Acomody" class="h-7" />
+                    <img src="/images/acomody.png" alt="Acomody" class="h-10" />
                 </router-link>
 
                 <!-- Desktop Navigation Items -->

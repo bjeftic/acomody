@@ -52,7 +52,7 @@ return [
         'mixed' => 'Polje :attribute mora sadržavati najmanje jedno veliko i jedno malo slovo.',
         'numbers' => 'Polje :attribute mora sadržavati najmanje jedan broj.',
         'symbols' => 'Polje :attribute mora sadržavati najmanje jedan simbol.',
-        'uncompromised' => 'Navedeni :attribute se pojavio u curenju podataka. Odaberite drugi :attribute.',
+        'uncompromised' => 'Ova :attribute nije dovoljno bezbedna — pronađena je u poznatim probojima podataka. Molimo izaberite drugu :attribute.',
     ],
     'present' => 'Polje :attribute mora biti prisutno.',
     'regex' => 'Format polja :attribute je nevažeći.',
