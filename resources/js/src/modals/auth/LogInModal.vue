@@ -74,19 +74,6 @@
                     </svg>
                     {{ $t('google') }}
                 </BaseButton>
-
-                <BaseButton
-                    variant="secondary"
-                    full
-                    :loading="isFacebookLoading"
-                    :disabled="isFacebookLoading"
-                    @click="handleFacebookLogin"
-                >
-                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="#1877F2">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    {{ $t('facebook') }}
-                </BaseButton>
             </div>
 
             <p class="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -143,7 +130,6 @@ export default {
             },
             isLoading: false,
             isGoogleLoading: false,
-            isFacebookLoading: false,
             logInErrors: {},
         };
     },
@@ -224,15 +210,7 @@ export default {
         },
         handleGoogleLogin() {
             this.isGoogleLoading = true;
-            setTimeout(() => {
-                this.isGoogleLoading = false;
-            }, 1000);
-        },
-        handleFacebookLogin() {
-            this.isFacebookLoading = true;
-            setTimeout(() => {
-                this.isFacebookLoading = false;
-            }, 1000);
+            window.location.href = '/auth/google';
         },
         ok() {
             if (this.resolve !== null) {
@@ -261,7 +239,6 @@ en:
   password_placeholder: Enter your password
   logging_in: Logging in...
   google: Continue with Google
-  facebook: Continue with Facebook
   validation:
     email_required: Email address is required
     email_invalid: Please enter a valid email address
@@ -272,7 +249,6 @@ sr:
   password_placeholder: Unesite lozinku
   logging_in: Prijavljivanje...
   google: Nastavite sa Google
-  facebook: Nastavite sa Facebook
   validation:
     email_required: Email adresa je obavezna
     email_invalid: Unesite ispravnu email adresu
@@ -283,7 +259,6 @@ hr:
   password_placeholder: Unesite lozinku
   logging_in: Prijava u tijeku...
   google: Nastavite s Googleom
-  facebook: Nastavite s Facebookom
   validation:
     email_required: Email adresa je obavezna
     email_invalid: Unesite ispravnu email adresu
@@ -294,7 +269,6 @@ mk:
   password_placeholder: Внесете лозинка
   logging_in: Најавување...
   google: Продолжете со Google
-  facebook: Продолжете со Facebook
   validation:
     email_required: Е-поштата е задолжителна
     email_invalid: Внесете важечка е-пошта
@@ -305,7 +279,6 @@ sl:
   password_placeholder: Vnesite geslo
   logging_in: Prijava v teku...
   google: Nadaljujte z Googlom
-  facebook: Nadaljujte s Facebookom
   validation:
     email_required: E-poštni naslov je obvezen
     email_invalid: Vnesite veljavni e-poštni naslov
