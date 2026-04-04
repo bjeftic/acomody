@@ -1,0 +1,141 @@
+services:
+    app:
+        image: ghcr.io/bjeftic/acomody:${IMAGE_TAG:-latest}
+        restart: unless-stopped
+        ports:
+            - "127.0.0.1:8000:80"
+        env_file: .env
+        volumes:
+            - app-storage:/var/www/html/storage
+        networks:
+            - acomody
+        depends_on:
+            pgsql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            typesense:
+                condition: service_healthy
+            minio:
+                condition: service_healthy
+
+    horizon:
+        image: ghcr.io/bjeftic/acomody:${IMAGE_TAG:-latest}
+        restart: unless-stopped
+        command: ["php", "artisan", "horizon"]
+        env_file: .env
+        volumes:
+            - app-storage:/var/www/html/storage
+        networks:
+            - acomody
+        depends_on:
+            pgsql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+
+    pgsql:
+        image: postgres:17-alpine
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - pgsql-data:/var/lib/postgresql/data
+        networks:
+            - acomody
+        healthcheck:
+            test: ["CMD", "pg_isready", "-q", "-d", "${DB_DATABASE}", "-U", "${DB_USERNAME}"]
+            retries: 3
+            timeout: 5s
+            interval: 10s
+
+    redis:
+        image: redis:7.2-alpine
+        restart: unless-stopped
+        command: redis-server --save 60 1 --loglevel warning
+        volumes:
+            - redis-data:/data
+        networks:
+            - acomody
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            retries: 3
+            timeout: 5s
+            interval: 10s
+
+    typesense:
+        image: typesense/typesense:27.1
+        restart: unless-stopped
+        environment:
+            TYPESENSE_DATA_DIR: /typesense-data
+            TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}
+            TYPESENSE_ENABLE_CORS: "true"
+        volumes:
+            - typesense-data:/typesense-data
+        networks:
+            - acomody
+        healthcheck:
+            test: ["CMD", "sh", "-c", "wget -qO- http://localhost:8108/health | grep -q ok"]
+            retries: 5
+            timeout: 7s
+            interval: 15s
+
+    typesense-dashboard:
+        image: ghcr.io/bfritscher/typesense-dashboard:latest
+        restart: unless-stopped
+        ports:
+            - "127.0.0.1:8109:80"
+        environment:
+            TYPESENSE_URL: "http://typesense:8108"
+            TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}
+        networks:
+            - acomody
+        depends_on:
+            - typesense
+
+    minio:
+        image: minio/minio:latest
+        restart: unless-stopped
+        ports:
+            - "127.0.0.1:9000:9000"
+            - "127.0.0.1:8900:8900"
+        environment:
+            MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+            MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+        volumes:
+            - minio-data:/data
+        networks:
+            - acomody
+        command: minio server /data --console-address ":8900"
+        healthcheck:
+            test: ["CMD", "mc", "ready", "local"]
+            retries: 3
+            timeout: 5s
+            interval: 10s
+
+    mailpit:
+        image: axllent/mailpit:latest
+        restart: unless-stopped
+        ports:
+            - "127.0.0.1:1025:1025"
+            - "127.0.0.1:8025:8025"
+        networks:
+            - acomody
+
+networks:
+    acomody:
+        driver: bridge
+
+volumes:
+    pgsql-data:
+        driver: local
+    redis-data:
+        driver: local
+    typesense-data:
+        driver: local
+    app-storage:
+        driver: local
+    minio-data:
+        driver: local
