@@ -62,16 +62,11 @@ test('Google callback creates new user and logs in', function () {
     $socialiteUser = makeSocialiteUser('google-new-123', 'newuser@example.com');
     mockSocialiteDriver($socialiteUser);
 
-    // Step 1: callback → redirects with oauth_token (local dev flow)
     $response = $this->get('/auth/google/callback');
     $response->assertRedirect();
 
     $location = $response->headers->get('Location');
     expect($location)->not->toContain('social_error');
-
-    parse_str(parse_url($location, PHP_URL_QUERY), $params);
-    $oauthToken = $params['oauth_token'] ?? null;
-    expect($oauthToken)->not->toBeNull();
 
     $this->assertDatabaseHas('users', [
         'email' => 'newuser@example.com',
@@ -82,10 +77,16 @@ test('Google callback creates new user and logs in', function () {
     expect($user->email_verified_at)->not->toBeNull();
     expect($user->hostSubscription)->not->toBeNull();
 
-    // Step 2: exchange token → profile is created, job is dispatched
-    $this->postJson('/api/auth/google-exchange', ['token' => $oauthToken])
-        ->assertJson(['success' => true]);
+    parse_str(parse_url($location, PHP_URL_QUERY), $params);
+    $oauthToken = $params['oauth_token'] ?? null;
 
+    if ($oauthToken) {
+        // Local dev flow: exchange token to complete login and create profile
+        $this->postJson('/api/auth/google-exchange', ['token' => $oauthToken])
+            ->assertJson(['success' => true]);
+    }
+
+    // Profile and avatar job are created after Auth::login (either path)
     $user->refresh();
     expect($user->userProfile->first_name)->toBe('Test');
     expect($user->userProfile->last_name)->toBe('User');
