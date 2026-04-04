@@ -53,7 +53,6 @@ RUN apk add --no-cache \
         intl \
         mbstring \
         xml \
-        simplexml \
         pcntl \
         opcache \
     && pecl install redis \
