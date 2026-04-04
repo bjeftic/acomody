@@ -28,6 +28,17 @@ RUN apk add --no-cache \
         supervisor \
         curl \
         git \
+        tzdata \
+        libpng \
+        libjpeg-turbo \
+        freetype \
+        libwebp \
+        libzip \
+        icu-libs \
+        oniguruma \
+        libxml2 \
+        libpq \
+    && apk add --no-cache --virtual .build-deps \
         libpng-dev \
         libjpeg-turbo-dev \
         freetype-dev \
@@ -37,8 +48,6 @@ RUN apk add --no-cache \
         oniguruma-dev \
         libxml2-dev \
         postgresql-dev \
-        libpq \
-        tzdata \
     && docker-php-ext-configure gd \
         --with-freetype \
         --with-jpeg \
@@ -57,16 +66,7 @@ RUN apk add --no-cache \
         opcache \
     && pecl install redis \
     && docker-php-ext-enable redis opcache \
-    && apk del --no-cache \
-        libpng-dev \
-        libjpeg-turbo-dev \
-        freetype-dev \
-        libwebp-dev \
-        libzip-dev \
-        icu-dev \
-        oniguruma-dev \
-        libxml2-dev \
-        postgresql-dev \
+    && apk del .build-deps \
     && rm -rf /var/cache/apk/* /tmp/* \
     && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
