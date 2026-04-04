@@ -39,6 +39,11 @@ RUN apk add --no-cache \
         libxml2 \
         libpq \
     && apk add --no-cache --virtual .build-deps \
+        autoconf \
+        gcc \
+        g++ \
+        make \
+        musl-dev \
         libpng-dev \
         libjpeg-turbo-dev \
         freetype-dev \
