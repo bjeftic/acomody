@@ -101,10 +101,10 @@
             </BaseButton>
         </section>
 
-        <hr v-if="isHost" class="border-gray-200 dark:border-gray-700 mb-10" />
+        <hr v-if="isHost && !currentUser?.has_google_account" class="border-gray-200 dark:border-gray-700 mb-10" />
 
-        <!-- Security Section -->
-        <section>
+        <!-- Security Section — hidden for Google-authenticated users (no password) -->
+        <section v-if="!currentUser?.has_google_account">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
                 Security
             </h2>

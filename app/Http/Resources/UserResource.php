@@ -47,6 +47,7 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'email' => $this->email,
+            'has_google_account' => (bool) $this->google_id,
             'email_verified_at' => $this->email_verified_at,
             'status' => $this->status,
             'terms_accepted' => $this->terms_accepted_at ? true : false,

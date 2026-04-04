@@ -3,6 +3,27 @@ import * as types from "./mutation-types";
 
 export const initializeAuth = async ({ commit, dispatch }) => {
     try {
+        // On local dev, Google OAuth callback runs on localhost:8000 while SPA runs on
+        // acomody.local:8000. A short-lived token in the URL is exchanged for a real session.
+        const urlParams = new URLSearchParams(window.location.search);
+        const oauthToken = urlParams.get("oauth_token");
+
+        if (oauthToken) {
+            urlParams.delete("oauth_token");
+            const newSearch = urlParams.toString();
+            const newUrl =
+                window.location.pathname +
+                (newSearch ? "?" + newSearch : "") +
+                window.location.hash;
+            window.history.replaceState({}, "", newUrl);
+
+            try {
+                await dispatch("exchangeGoogleToken", oauthToken);
+            } catch (e) {
+                // Token exchange failed — fall through to normal auth check
+            }
+        }
+
         if (typeof window !== "undefined" && window.initialAuthState) {
             if (
                 window.initialAuthState.isAuthenticated &&
@@ -24,6 +45,10 @@ export const initializeAuth = async ({ commit, dispatch }) => {
     } finally {
         commit("SET_INITIALIZED", true);
     }
+};
+
+export const exchangeGoogleToken = async ({}, token) => {
+    await apiClient.auth.googleExchange.noAuth().post({ token });
 };
 
 export const signUp = async ({}, { email, password, confirmPassword }) => {

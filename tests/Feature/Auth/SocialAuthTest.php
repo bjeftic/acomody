@@ -1,6 +1,8 @@
 <?php
 
+use App\Jobs\SyncGoogleAvatarJob;
 use App\Models\User;
+use Illuminate\Support\Facades\Queue;
 use Laravel\Socialite\Contracts\Factory as SocialiteFactory;
 use Laravel\Socialite\Two\GoogleProvider;
 use Laravel\Socialite\Two\User as SocialiteUser;
@@ -16,7 +18,12 @@ function makeSocialiteUser(string $id = '123456789', string $email = 'google@exa
         'id' => $id,
         'email' => $email,
         'name' => 'Test User',
+        'avatar' => 'https://lh3.googleusercontent.com/a/test-avatar',
     ]);
+    $socialiteUser->user = [
+        'given_name' => 'Test',
+        'family_name' => 'User',
+    ];
 
     return $socialiteUser;
 }
@@ -24,6 +31,7 @@ function makeSocialiteUser(string $id = '123456789', string $email = 'google@exa
 function mockSocialiteDriver(SocialiteUser $socialiteUser): void
 {
     $provider = Mockery::mock(GoogleProvider::class);
+    $provider->shouldReceive('stateless')->andReturnSelf();
     $provider->shouldReceive('user')->andReturn($socialiteUser);
 
     $socialite = Mockery::mock(SocialiteFactory::class);
@@ -48,15 +56,22 @@ test('GET /auth/google redirects to Google OAuth', function () {
 // ============================================================
 
 test('Google callback creates new user and logs in', function () {
+    Queue::fake();
     seedPlans();
 
     $socialiteUser = makeSocialiteUser('google-new-123', 'newuser@example.com');
     mockSocialiteDriver($socialiteUser);
 
+    // Step 1: callback → redirects with oauth_token (local dev flow)
     $response = $this->get('/auth/google/callback');
-
     $response->assertRedirect();
-    expect($response->headers->get('Location'))->not->toContain('social_error');
+
+    $location = $response->headers->get('Location');
+    expect($location)->not->toContain('social_error');
+
+    parse_str(parse_url($location, PHP_URL_QUERY), $params);
+    $oauthToken = $params['oauth_token'] ?? null;
+    expect($oauthToken)->not->toBeNull();
 
     $this->assertDatabaseHas('users', [
         'email' => 'newuser@example.com',
@@ -66,6 +81,16 @@ test('Google callback creates new user and logs in', function () {
     $user = User::where('email', 'newuser@example.com')->first();
     expect($user->email_verified_at)->not->toBeNull();
     expect($user->hostSubscription)->not->toBeNull();
+
+    // Step 2: exchange token → profile is created, job is dispatched
+    $this->postJson('/api/auth/google-exchange', ['token' => $oauthToken])
+        ->assertJson(['success' => true]);
+
+    $user->refresh();
+    expect($user->userProfile->first_name)->toBe('Test');
+    expect($user->userProfile->last_name)->toBe('User');
+
+    Queue::assertPushed(SyncGoogleAvatarJob::class, fn ($job) => $job->userId === $user->id);
 });
 
 // ============================================================

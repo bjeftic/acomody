@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\BedTypeController;
 use App\Http\Controllers\BookingController;
@@ -34,6 +35,9 @@ use Illuminate\Support\Facades\Route;
 // ============================================
 // PUBLIC ROUTES
 // ============================================
+Route::post('/auth/google-exchange', [SocialAuthController::class, 'exchangeGoogleToken'])
+    ->name('api.auth.google-exchange');
+
 Route::post('/sign-up', [RegisteredUserController::class, 'signUp'])
     ->name('api.signup');
 
