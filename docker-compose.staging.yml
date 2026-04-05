@@ -77,10 +77,11 @@ services:
         networks:
             - acomody
         healthcheck:
-            test: ["CMD", "sh", "-c", "wget -qO- http://localhost:8108/health | grep -q ok"]
+            test: ["CMD-SHELL", "curl -sf http://localhost:8108/health || exit 1"]
             retries: 5
             timeout: 7s
             interval: 15s
+            start_period: 30s
 
     typesense-dashboard:
         image: ghcr.io/bfritscher/typesense-dashboard:latest
