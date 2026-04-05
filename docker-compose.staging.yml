@@ -15,9 +15,9 @@ services:
             redis:
                 condition: service_healthy
             typesense:
-                condition: service_healthy
+                condition: service_started
             minio:
-                condition: service_healthy
+                condition: service_started
 
     horizon:
         image: ghcr.io/bjeftic/acomody:${IMAGE_TAG:-latest}
