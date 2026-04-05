@@ -112,7 +112,9 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/99-production.ini
 COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/start-container /usr/local/bin/start-container
 RUN chmod +x /usr/local/bin/start-container \
-    && mkdir -p /var/log/supervisor /run/nginx
+    && mkdir -p /var/log/supervisor /run/nginx \
+    && mkdir -p /var/lib/nginx/tmp/client_body \
+    && chown -R www-data:www-data /var/lib/nginx/tmp
 
 EXPOSE 80
 
