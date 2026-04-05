@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'super.admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
             'redirect.super.admin' => \App\Http\Middleware\RedirectSuperAdminMiddleware::class,
