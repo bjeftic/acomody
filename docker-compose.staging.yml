@@ -130,7 +130,7 @@ services:
             - --client-secret=${OAUTH2_CLIENT_SECRET}
             - --cookie-secret=${OAUTH2_COOKIE_SECRET}
             - --cookie-secure=true
-            - --email-domains=*
+            - --email-domain=*
             - --redirect-url=https://staging.acomody.com/oauth2/callback
             - --skip-auth-route=^/files-
         networks:
