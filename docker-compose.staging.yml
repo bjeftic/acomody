@@ -116,6 +116,28 @@ services:
             timeout: 5s
             interval: 10s
 
+    oauth2-proxy:
+        image: quay.io/oauth2-proxy/oauth2-proxy:latest
+        restart: unless-stopped
+        ports:
+            - "127.0.0.1:4180:4180"
+        command:
+            - --http-address=0.0.0.0:4180
+            - --upstream=http://app:80
+            - --provider=github
+            - --github-repo=${GITHUB_REPO}
+            - --client-id=${OAUTH2_CLIENT_ID}
+            - --client-secret=${OAUTH2_CLIENT_SECRET}
+            - --cookie-secret=${OAUTH2_COOKIE_SECRET}
+            - --cookie-secure=true
+            - --email-domains=*
+            - --redirect-url=https://staging.acomody.com/oauth2/callback
+            - --skip-auth-route=^/files-
+        networks:
+            - acomody
+        depends_on:
+            - app
+
     mailpit:
         image: axllent/mailpit:latest
         restart: unless-stopped
