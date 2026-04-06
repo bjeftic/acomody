@@ -1,6 +1,13 @@
 #!/bin/sh
 set -e
 
+# Select nginx config based on environment
+if [ "${APP_ENV}" = "staging" ]; then
+    cp /etc/nginx/nginx.staging.conf /etc/nginx/nginx.conf
+else
+    cp /etc/nginx/nginx.prod.conf /etc/nginx/nginx.conf
+fi
+
 # Fix permissions on writable dirs
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache

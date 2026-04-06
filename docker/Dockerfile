@@ -106,7 +106,8 @@ RUN mkdir -p storage/logs \
     && chmod -R 775 storage bootstrap/cache
 
 # Copy Docker config files
-COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx.conf /etc/nginx/nginx.prod.conf
+COPY docker/nginx.staging.conf /etc/nginx/nginx.staging.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/99-production.ini
 COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
