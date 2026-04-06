@@ -10,6 +10,9 @@ chmod 755 /var/lib/nginx
 mkdir -p /var/lib/nginx/tmp/client_body
 chown -R www-data:www-data /var/lib/nginx/tmp
 
+# Create storage symlink
+php artisan storage:link --force 2>/dev/null || true
+
 # Cache Laravel config, routes and views for production performance
 su -s /bin/sh www-data -c "php artisan config:cache"
 su -s /bin/sh www-data -c "php artisan route:cache"
