@@ -253,8 +253,9 @@ export default {
 
                 if (this.currentStep < this.totalSteps) {
                     if (this.currentStep === 1 && !this.accommodationDraftId) {
-                        this.createAccommodationDraft({
+                        await this.createAccommodationDraft({
                             draftData,
+                            currentStep: this.currentStep + 1,
                         });
                     } else {
                         try {
@@ -297,9 +298,22 @@ export default {
             }
         },
 
-        previousStep() {
+        async previousStep() {
             if (this.currentStep > 1) {
-                this.decrementCurrentStep();
+                if (this.accommodationDraftId) {
+                    try {
+                        await this.updateAccommodationDraft({
+                            draftId: this.accommodationDraftId,
+                            draftData: this.prepareDraftData(),
+                            status: "draft",
+                            currentStep: this.currentStep - 1,
+                        });
+                    } catch {
+                        this.decrementCurrentStep();
+                    }
+                } else {
+                    this.decrementCurrentStep();
+                }
             }
         },
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\SuperAdmin\AccommodationController;
 use App\Http\Controllers\SuperAdmin\AccommodationDraftController;
 use App\Http\Controllers\SuperAdmin\ActivityLogController;
+use App\Http\Controllers\SuperAdmin\AmenityController;
 use App\Http\Controllers\SuperAdmin\AuthController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\DeletionRequestController;
@@ -61,6 +62,9 @@ Route::middleware(['auth', 'super.admin'])->group(function () {
 
         Route::post('legal-documents/{legalDocument}/publish', [LegalDocumentController::class, 'publish'])->name('legal-documents.publish');
         Route::resource('legal-documents', LegalDocumentController::class)->only(['index', 'create', 'store', 'show', 'destroy'])->names('legal-documents');
+
+        Route::post('amenities/{amenity}/toggle', [AmenityController::class, 'toggle'])->name('amenities.toggle');
+        Route::resource('amenities', AmenityController::class)->except(['show'])->names('amenities');
 
         Route::post('feature-flags/{featureFlag}/toggle', [FeatureFlagController::class, 'toggle'])->name('feature-flags.toggle');
         Route::resource('feature-flags', FeatureFlagController::class)->except(['show'])->names('feature-flags');

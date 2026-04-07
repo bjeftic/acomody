@@ -28,7 +28,14 @@
                         {{ tooltip }}
                     </div>
                 </div>
-                <slot name="icon"></slot>
+                <slot name="icon">
+                    <IconLoader
+                        :name="icon"
+                        :fallback="iconFallback"
+                        :size="22"
+                        class="text-gray-600 dark:text-gray-300"
+                    />
+                </slot>
             </div>
             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
                 {{ title }}
@@ -65,6 +72,10 @@ export default {
         icon: {
             type: String,
             required: true,
+        },
+        iconFallback: {
+            type: String,
+            default: "HelpCircle",
         },
         tooltip: {
             type: String,

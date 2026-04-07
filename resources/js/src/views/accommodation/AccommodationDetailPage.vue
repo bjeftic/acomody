@@ -407,16 +407,62 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { mapState, mapActions, useStore } from 'vuex';
 import PhotoGallery from "./components/PhotoGallery.vue";
 import BookingCard from "./components/BookingCard.vue";
 import { formatPrice } from "@/utils/helpers";
+import { useSeoHead } from "@/src/composables/useSeoHead";
 
 export default {
     name: "AccommodationDetailPage",
     components: {
         PhotoGallery,
         BookingCard,
+    },
+    setup() {
+        const store = useStore();
+        const { t } = useI18n();
+
+        const accommodation = computed(() => store.state.accommodation.accommodation);
+
+        const title = computed(() => {
+            const a = accommodation.value;
+            if (!a) {
+                return t('seo.title_loading');
+            }
+            return a.address
+                ? `${a.title} – ${a.address}`
+                : a.title;
+        });
+
+        const description = computed(() => {
+            const a = accommodation.value;
+            if (!a) {
+                return t('seo.description_loading');
+            }
+            const capacityParts = [];
+            if (a.max_guests) {
+                capacityParts.push(t('seo.guests', { n: a.max_guests }));
+            }
+            if (a.bedrooms) {
+                capacityParts.push(t('seo.bedrooms', { n: a.bedrooms }));
+            }
+            const base = a.description
+                ? a.description.slice(0, 120).replace(/\s+$/, '') + '…'
+                : t('seo.description_fallback', { title: a.title });
+            return capacityParts.length
+                ? `${base} ${t('seo.capacity', { details: capacityParts.join(', ') })}`
+                : base;
+        });
+
+        const image = computed(() => {
+            const photos = accommodation.value?.photos;
+            return photos?.length ? photos[0].url : undefined;
+        });
+
+        useSeoHead({ title, description, image });
     },
     data() {
         return {
@@ -480,12 +526,47 @@ export default {
 <i18n lang="yaml">
 en:
   back_to_listings: Back to listings
+  seo:
+    title_loading: Accommodation
+    description_loading: View accommodation details on the Acomody platform.
+    description_fallback: "{title} – book online on Acomody."
+    guests: "up to {n} guests"
+    bedrooms: "{n} bedrooms"
+    capacity: "Capacity: {details}."
 sr:
   back_to_listings: Nazad na oglase
+  seo:
+    title_loading: Smeštaj
+    description_loading: Pogledajte detalje smeštaja na Acomody platformi.
+    description_fallback: "{title} – rezervišite online na Acomody."
+    guests: "do {n} gostiju"
+    bedrooms: "{n} spavaćih soba"
+    capacity: "Kapacitet: {details}."
 hr:
   back_to_listings: Natrag na oglase
+  seo:
+    title_loading: Smještaj
+    description_loading: Pogledajte detalje smještaja na Acomody platformi.
+    description_fallback: "{title} – rezervirajte online na Acomody."
+    guests: "do {n} gostiju"
+    bedrooms: "{n} spavaćih soba"
+    capacity: "Kapacitet: {details}."
 mk:
   back_to_listings: Назад кон огласите
+  seo:
+    title_loading: Сместување
+    description_loading: Погледајте детали за сместувањето на Acomody платформата.
+    description_fallback: "{title} – резервирајте онлајн на Acomody."
+    guests: "до {n} гости"
+    bedrooms: "{n} спални"
+    capacity: "Капацитет: {details}."
 sl:
   back_to_listings: Nazaj na oglase
+  seo:
+    title_loading: Nastanitev
+    description_loading: Oglejte si podrobnosti o nastanitvi na platformi Acomody.
+    description_fallback: "{title} – rezervirajte online na Acomody."
+    guests: "do {n} gostov"
+    bedrooms: "{n} spalnic"
+    capacity: "Kapaciteta: {details}."
 </i18n>

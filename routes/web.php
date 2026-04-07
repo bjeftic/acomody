@@ -6,6 +6,17 @@ use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================
+// ROBOTS.TXT
+// ============================================
+Route::get('/robots.txt', function () {
+    $content = app()->isProduction()
+        ? "User-agent: *\nAllow: /\n\nSitemap: ".url('/sitemap-'.config('app.sitemap_token').'.xml')
+        : "User-agent: *\nDisallow: /";
+
+    return response($content, 200)->header('Content-Type', 'text/plain');
+});
+
+// ============================================
 // SITEMAP (token-protected URL)
 // ============================================
 Route::get('/sitemap-'.config('app.sitemap_token').'.xml', [SitemapController::class, 'index'])

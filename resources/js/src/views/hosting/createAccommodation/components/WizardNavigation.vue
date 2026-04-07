@@ -6,6 +6,7 @@
                 <BaseButton
                     v-if="currentStep > 1"
                     variant="secondary"
+                    size="md"
                     @click="$emit('previous')"
                 >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,10 +19,13 @@
                 <!-- Next/Continue Button -->
                 <BaseButton
                     :disabled="!canProceed"
-                    size="lg"
+                    size="md"
                     @click="$emit('next')"
                 >
                     {{ currentStep === totalSteps ? $t('finish') : $t('common.next') }}
+                    <svg v-if="currentStep < totalSteps" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
                 </BaseButton>
             </div>
         </div>

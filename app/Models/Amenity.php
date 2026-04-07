@@ -18,7 +18,10 @@ class Amenity extends Model
         'icon',
         'category',
         'is_feeable',
+        'is_highlighted',
+        'is_optional',
         'is_active',
+        'sort_order',
     ];
 
     public function canBeReadBy($user): bool
