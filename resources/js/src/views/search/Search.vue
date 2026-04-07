@@ -61,16 +61,40 @@
 </template>
 
 <script>
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { mapActions, mapState, mapGetters } from "vuex";
+import { useRoute } from "vue-router";
 import SearchBar from "@/src/components/common/searchBar/SearchBar.vue";
 import SearchResults from "@/src/views/search/components/SearchResults.vue";
 import { searchConfig } from "./config/searchConfig";
+import { useSeoHead } from "@/src/composables/useSeoHead";
 
 export default {
     name: "SearchPage",
     components: {
         SearchBar,
         SearchResults,
+    },
+    setup() {
+        const route = useRoute();
+        const { t } = useI18n();
+
+        const title = computed(() => {
+            const location = route.query.locationName;
+            return location
+                ? t('seo.title_location', { location })
+                : t('seo.title_default');
+        });
+
+        const description = computed(() => {
+            const location = route.query.locationName;
+            return location
+                ? t('seo.description_location', { location })
+                : t('seo.description_default');
+        });
+
+        useSeoHead({ title, description });
     },
     directives: {
         clickOutside: {
@@ -207,3 +231,36 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  seo:
+    title_location: Accommodation in {location}
+    title_default: Search accommodation
+    description_location: Find apartments, rooms and accommodation in {location}. Check availability and book online.
+    description_default: Search apartments and rooms on the Acomody platform. Short-term rentals in Serbia at the best prices.
+sr:
+  seo:
+    title_location: Smeštaj u {location}
+    title_default: Pretraga smeštaja
+    description_location: Pronađite apartmane, sobe i smeštaj u {location}. Proverite dostupnost i rezervišite online.
+    description_default: Pretražite apartmane i sobe na Acomody platformi. Kratkoročni najam u Srbiji po najboljim cenama.
+hr:
+  seo:
+    title_location: Smještaj u {location}
+    title_default: Pretraga smještaja
+    description_location: Pronađite apartmane, sobe i smještaj u {location}. Provjerite dostupnost i rezervirajte online.
+    description_default: Pretražite apartmane i sobe na Acomody platformi. Kratkoročni najam u Srbiji po najboljim cijenama.
+mk:
+  seo:
+    title_location: Сместување во {location}
+    title_default: Пребарување сместување
+    description_location: Најдете станови, соби и сместување во {location}. Проверете достапност и резервирајте онлајн.
+    description_default: Пребарувајте станови и соби на Acomody платформата. Краткорочен закуп во Србија по најдобри цени.
+sl:
+  seo:
+    title_location: Nastanitev v {location}
+    title_default: Iskanje nastanitve
+    description_location: Poiščite apartmaje, sobe in nastanitev v {location}. Preverite razpoložljivost in rezervirajte online.
+    description_default: Iščite apartmaje in sobe na platformi Acomody. Kratkoročni najem v Srbiji po najboljših cenah.
+</i18n>

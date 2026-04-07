@@ -23,11 +23,7 @@
                     :tooltip="type.description"
                     :selected="formData.accommodationType === type.id"
                     @select="selectAccommodationType"
-                >
-                    <template #icon>
-                        <component :is="type.icon + 'Icon'"></component>
-                    </template>
-                </select-action-card>
+                />
             </div>
         </div>
     </div>

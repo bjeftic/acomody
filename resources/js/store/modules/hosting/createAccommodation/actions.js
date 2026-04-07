@@ -100,11 +100,12 @@ export const goToStep = ({ commit }, step) => {
 
 export const createAccommodationDraft = async (
     { commit },
-    { draftData }
+    { draftData, currentStep = null }
 ) => {
     try {
         const response = await apiClient.accommodationDrafts.post({
             data: draftData,
+            ...(currentStep !== null ? { current_step: currentStep } : {}),
         });
 
         commit("SET_ACCOMMODATION_DRAFT_ID", response.data);

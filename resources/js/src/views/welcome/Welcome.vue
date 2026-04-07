@@ -26,12 +26,23 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { mapGetters, mapActions } from 'vuex';
 import HomeSectionComponent from '@/src/views/welcome/components/HomeSectionComponent.vue';
+import { useSeoHead } from '@/src/composables/useSeoHead';
 
 export default {
     components: {
         HomeSectionComponent,
+    },
+    setup() {
+        const { t } = useI18n();
+
+        useSeoHead({
+            title: computed(() => t('seo.title')),
+            description: computed(() => t('seo.description')),
+        });
     },
     computed: {
         ...mapGetters('home', ['sections', 'loading']),
@@ -44,3 +55,26 @@ export default {
     },
 };
 </script>
+
+<i18n lang="yaml">
+en:
+  seo:
+    title: Find accommodation in Serbia
+    description: Acomody – short-term rentals of apartments and rooms in Belgrade, Novi Sad, Niš and across Serbia. Find the perfect place at the best price.
+sr:
+  seo:
+    title: Pronađite smeštaj u Srbiji
+    description: Acomody – platforma za kratkoročni najam apartmana i soba u Beogradu, Novom Sadu, Nišu i celoj Srbiji. Pronađite idealan smeštaj po najboljoj ceni.
+hr:
+  seo:
+    title: Pronađite smještaj u Srbiji
+    description: Acomody – platforma za kratkoročni najam apartmana i soba u Beogradu, Novom Sadu, Nišu i cijeloj Srbiji. Pronađite idealan smještaj po najboljoj cijeni.
+mk:
+  seo:
+    title: Најдете сместување во Србија
+    description: Acomody – платформа за краткорочен закуп на станови и соби во Белград, Нови Сад, Ниш и низ цела Србија. Најдете идеален сместај по најдобра цена.
+sl:
+  seo:
+    title: Najdite nastanitev v Srbiji
+    description: Acomody – platforma za kratkoročni najem apartmajev in sob v Beogradu, Novem Sadu, Nišu in po vsej Srbiji. Najdite idealno nastanitev po najboljši ceni.
+</i18n>
