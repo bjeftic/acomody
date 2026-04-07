@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import { useHead } from "@unhead/vue";
 import { mapState } from "vuex";
 import Navbar from "@/src/components/Navbar.vue";
 import ColdStartNavbar from "@/src/components/ColdStartNavbar.vue";
@@ -31,6 +32,9 @@ export default {
         ColdStartNavbar,
         ModalIndex,
         Footer,
+    },
+    setup() {
+        useHead({ titleTemplate: '%s | Acomody' });
     },
     computed: {
         ...mapState({

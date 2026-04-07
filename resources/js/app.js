@@ -1,7 +1,7 @@
 import "./bootstrap";
 import "../css/app.css";
 import { createApp } from "vue";
-import { createHead } from "@unhead/vue";
+import { createUnhead } from "@unhead/vue";
 import router from "./router";
 import store from "./store";
 import i18n from "./i18n";
@@ -67,7 +67,7 @@ import "@vuepic/vue-datepicker/dist/main.css";
 import IconLoader from "@/src/components/IconLoader.vue";
 
 const app = createApp(App);
-const head = createHead({ titleTemplate: '%s | Acomody' });
+const head = createUnhead();
 app.use(head);
 
 app.component("FwbAlert", FwbAlert);
